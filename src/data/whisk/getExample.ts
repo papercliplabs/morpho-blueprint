@@ -1,0 +1,18 @@
+import "server-only";
+import { graphql } from "@/generated/gql/whisk";
+import { whiskClient } from "./client";
+import { cache } from "react";
+
+const query = graphql(`
+  query getVault($chainId: Number!, $address: String!) {
+    morphoVault(chainId: $chainId, address: $address) {
+      vaultAddress
+      name
+    }
+  }
+`);
+
+export const getExample = cache(async () => {
+  const vault = await whiskClient.request(query, { chainId: 1, address: "0xd63070114470f685b75B74D60EEc7c1113d33a3D" });
+  return vault.morphoVault ?? null;
+});
