@@ -1,7 +1,9 @@
 import "server-only";
-import { graphql } from "@/generated/gql/whisk";
-import { whiskClient } from "./client";
 import { cache } from "react";
+
+import { graphql } from "@/generated/gql/whisk";
+
+import { whiskClient } from "./client";
 
 const query = graphql(`
   query getVault($chainId: Number!, $address: String!) {
