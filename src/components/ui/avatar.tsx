@@ -76,3 +76,5 @@ export default function Avatar({ className, src, alt, fallback, sub, size }: Ava
     </span>
   );
 }
+
+export type { AvatarProps };

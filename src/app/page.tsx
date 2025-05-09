@@ -1,3 +1,4 @@
+import AvatarGroup from "@/components/AvatarGroup";
 import Avatar from "@/components/ui/avatar";
 import Plus from "@/components/ui/icons/Plus";
 
@@ -18,6 +19,22 @@ export default function Home() {
           <Avatar src="https://github.com/shadcn.png" fallback="CN" size="xsmall" />
           <Avatar src="https://github.com/shadcn.png" fallback="CN" sub={<Plus className="size-[12px]" />} />
         </div>
+        <AvatarGroup
+          size="small"
+          avatars={[
+            { src: "https://github.com/shadcn.png", fallback: "CN" },
+            { src: "https://github.com/shadcn.png", fallback: "AB" },
+            { src: "https://github.com/shadcn.png", fallback: "AB" },
+            { src: "https://github.com/shadcn.png", fallback: "AB" },
+            { src: "https://github.com/shadcn.png", fallback: "AB" },
+            { src: "https://github.com/shadcn.png", fallback: "AB" },
+            { src: "https://github.com/shadcn.png", fallback: "AB" },
+            { src: "https://github.com/shadcn.png", fallback: "AB" },
+            { src: "https://github.com/shadcn.png", fallback: "AB" },
+            { src: "https://github.com/shadcn.png", fallback: "AB" },
+          ]}
+          max={2}
+        />
         <h1 className="text-primary">heading-1</h1>
         <h2>heading-2</h2>
         <h3>heading-3</h3>
