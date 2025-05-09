@@ -41,15 +41,15 @@ AvatarFallback.displayName = AvatarPrimitive.Fallback.displayName;
 const avatarVariants = cva("", {
   variants: {
     size: {
-      xlarge: "w-12 h-12 body-large",
-      large: "w-10 h-10 body-large",
-      medium: "w-8 h-8",
-      small: "w-6 h-6 body-small",
-      xsmall: "w-4 h-4 text-[8px] leading-[8px]",
+      xl: "w-12 h-12 body-large",
+      lg: "w-10 h-10 body-large",
+      md: "w-8 h-8",
+      sm: "w-6 h-6 body-small",
+      xs: "w-4 h-4 text-[8px] leading-[8px]",
     },
   },
   defaultVariants: {
-    size: "medium",
+    size: "md",
   },
 });
 

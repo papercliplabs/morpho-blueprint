@@ -12,18 +12,18 @@ type AvatarGroupProps = {
 } & React.ComponentProps<"div">;
 
 const spacing: Record<Exclude<AvatarProps["size"], undefined | null>, string> = {
-  xsmall: "-ml-2",
-  small: "-ml-2",
-  medium: "-ml-3",
-  large: "-ml-4",
-  xlarge: "-ml-5",
+  xs: "-ml-2",
+  sm: "-ml-2",
+  md: "-ml-3",
+  lg: "-ml-4",
+  xl: "-ml-5",
 };
 
 export default function AvatarGroup({
   avatars: allAvatars,
   className,
   max = 6,
-  size = "medium",
+  size = "md",
   showOverflow = true,
 }: AvatarGroupProps) {
   const avatars = allAvatars.slice(0, max);
@@ -37,7 +37,7 @@ export default function AvatarGroup({
             key={index}
             {...avatarProps}
             size={size}
-            className={clsx(index > 0 && spacing[size ?? "medium"], "border-background border-2")}
+            className={clsx(index > 0 && spacing[size ?? "md"], "border-background border-2")}
           />
         ))}
       </div>
