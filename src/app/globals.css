@@ -136,36 +136,37 @@
   @apply text-[18px] leading-[24px] font-[600];
 }
 
-@utility large-plus {
+@utility body-large-plus {
   @apply text-[16px] leading-[24px] font-[600] tracking-[-0.18];
 }
 
-@utility large {
+@utility body-large {
   @apply text-[16px] leading-[24px] font-[500] tracking-[-0.18];
 }
 
-@utility medium-plus {
+@utility body-medium-plus {
   @apply text-[14px] leading-[20px] font-[600] tracking-[-0.09];
 }
 
-@utility medium {
+@utility body-medium {
   @apply text-[14px] leading-[20px] font-[500] tracking-[-0.09];
 }
 
-@utility small-plus {
+@utility body-small-plus {
   @apply text-[12px] leading-[16px] font-[600] tracking-[0.01];
 }
 
-@utility small {
+@utility body-small {
   @apply text-[12px] leading-[16px] font-[500] tracking-[0.01];
 }
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
 
   body {
-    @apply bg-background text-foreground medium font-sans;
+    @apply bg-background text-foreground body-medium font-sans;
   }
 
   h1 {
