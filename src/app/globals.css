@@ -75,8 +75,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-inter);
+  --font-mono: monospace;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -112,11 +112,84 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
+@utility heading-1 {
+  @apply text-[36px] leading-[48px] font-[600] tracking-[-0.79];
+}
+
+@utility heading-2 {
+  @apply text-[32px] leading-[36px] font-[600] tracking-[-0.69];
+}
+
+@utility heading-3 {
+  @apply text-[28px] leading-[32px] font-[600] tracking-[-0.59];
+}
+
+@utility heading-4 {
+  @apply text-[24px] leading-[32px] font-[600] tracking-[-0.47];
+}
+
+@utility heading-5 {
+  @apply text-[20px] leading-[24px] font-[600];
+}
+
+@utility heading-6 {
+  @apply text-[18px] leading-[24px] font-[600];
+}
+
+@utility body-large-plus {
+  @apply text-[16px] leading-[24px] font-[600] tracking-[-0.18];
+}
+
+@utility body-large {
+  @apply text-[16px] leading-[24px] font-[500] tracking-[-0.18];
+}
+
+@utility body-medium-plus {
+  @apply text-[14px] leading-[20px] font-[600] tracking-[-0.09];
+}
+
+@utility body-medium {
+  @apply text-[14px] leading-[20px] font-[500] tracking-[-0.09];
+}
+
+@utility body-small-plus {
+  @apply text-[12px] leading-[16px] font-[600] tracking-[0.01];
+}
+
+@utility body-small {
+  @apply text-[12px] leading-[16px] font-[500] tracking-[0.01];
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground body-medium font-sans;
+  }
+
+  h1 {
+    @apply heading-1;
+  }
+
+  h2 {
+    @apply heading-2;
+  }
+
+  h3 {
+    @apply heading-3;
+  }
+
+  h4 {
+    @apply heading-4;
+  }
+
+  h5 {
+    @apply heading-5;
+  }
+
+  h6 {
+    @apply heading-6;
   }
 }
