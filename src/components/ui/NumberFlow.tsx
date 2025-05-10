@@ -1,8 +1,6 @@
 import NumberFlowReact from "@number-flow/react";
 import { ComponentProps } from "react";
 
-import { cn } from "@/utils/shadcn";
-
 const MAX_USD_VALUE = 1e12;
 
 export default function NumberFlow({
@@ -43,9 +41,9 @@ export default function NumberFlow({
   }
 
   return (
-    <span className={cn("inline-flex items-center", className)}>
-      {prefix}
-      <NumberFlowReact value={value} format={formatOptions} {...props} className="inline-flex items-center" />
+    <span className={className}>
+      {!!prefix && <span>{prefix}</span>}
+      <NumberFlowReact value={value} format={formatOptions} {...props} />
     </span>
   );
 }
