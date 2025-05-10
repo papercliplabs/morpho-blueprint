@@ -80,7 +80,6 @@ const FormLabel = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root>
 >(({ className, ...props }, ref) => {
   const { formItemId, error } = useFormField();
-  console.log(error);
 
   return <Label ref={ref} className={clsx(!!error && "text-destructive", className)} htmlFor={formItemId} {...props} />;
 });
