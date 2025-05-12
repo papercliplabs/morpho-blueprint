@@ -1,8 +1,7 @@
 import clsx from "clsx";
 
+import { Avatar, type AvatarProps } from "@/components/ui/avatar";
 import { cn } from "@/utils/shadcn";
-
-import { Avatar, type AvatarProps } from "./ui/avatar";
 
 type AvatarGroupProps = {
   avatars: Omit<AvatarProps, "size">[];
