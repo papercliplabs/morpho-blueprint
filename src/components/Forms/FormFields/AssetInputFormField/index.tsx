@@ -6,9 +6,9 @@ import { Avatar, AvatarProps } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import NumberFlow from "@/components/ui/number-flow";
 import { numberToString } from "@/utils/format";
 
-import NumberFlow from "../../ui/NumberFlow";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 interface AssetInputFormFieldProps<TFieldValues extends Record<string, any>>
