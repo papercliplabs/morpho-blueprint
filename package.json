@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "concurrently --names \"next,codegen\" --prefix-colors \"cyan.bold,yellow.bold\" \"next dev --turbopack\" \"bun codegen --watch\"",
-    "build": "bun codegen && next build",
+    "dev": "concurrently --names \"next,codegen\" --prefix-colors \"cyan.bold,yellow.bold\" \"next dev --turbopack\" \"pnpm codegen --watch\"",
+    "build": "pnpm codegen && next build",
     "start": "next start",
     "lint": "next lint --dir src --dir test",
     "codegen": "graphql-codegen --config codegen.ts",
