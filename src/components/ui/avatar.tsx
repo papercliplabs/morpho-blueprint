@@ -61,7 +61,7 @@ type AvatarProps = {
 } & VariantProps<typeof avatarVariants> &
   React.ComponentProps<"span">;
 
-export default function Avatar({ className, src, alt, fallback, sub, size }: AvatarProps) {
+function Avatar({ className, src, alt, fallback, sub, size }: AvatarProps) {
   return (
     <span className="relative h-fit w-fit">
       <AvatarRoot className={cn(avatarVariants({ className, size }))}>
@@ -77,4 +77,5 @@ export default function Avatar({ className, src, alt, fallback, sub, size }: Ava
   );
 }
 
+export { Avatar };
 export type { AvatarProps };
