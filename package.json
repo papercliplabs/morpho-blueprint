@@ -47,6 +47,7 @@
     "@eslint/eslintrc": "^3",
     "@graphql-codegen/cli": "^5.0.6",
     "@graphql-codegen/schema-ast": "^4.1.0",
+    "@graphql-typed-document-node/core": "^3.2.0",
     "@next/eslint-plugin-next": "^15.3.2",
     "@parcel/watcher": "^2.5.1",
     "@tailwindcss/postcss": "^4",
