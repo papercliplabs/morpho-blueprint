@@ -2,6 +2,7 @@
   "name": "morpho-whitelabel",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@10.10.0",
   "scripts": {
     "dev": "concurrently --names \"next,codegen\" --prefix-colors \"cyan.bold,yellow.bold\" \"next dev --turbopack\" \"pnpm codegen --watch\"",
     "build": "pnpm codegen && next build",
