@@ -1,5 +1,52 @@
 import { formatUnits } from "viem";
 
+const MAX_USD_VALUE = 1e12;
+
+export function formatNumber(
+  value: number,
+  options: Intl.NumberFormatOptions & {
+    currency?: "USD" | "ETH";
+  } = {}
+) {
+  const currency = options.currency;
+  const isPercent = options.style === "percent";
+  const {
+    notation = "compact",
+    minimumFractionDigits = 2,
+    maximumFractionDigits = value < 1 && currency !== "USD" && !isPercent ? 3 : 2,
+    style,
+    ...restOptions
+  } = options;
+
+  const displayValue = style == "percent" ? value * 100 : value;
+  const formatOptions: Intl.NumberFormatOptions = {
+    notation: notation == "compact" && (displayValue > 9999 || displayValue < -9999) ? "compact" : "standard",
+    minimumFractionDigits,
+    maximumFractionDigits,
+    style,
+    ...restOptions,
+  };
+
+  let prefix = currency === "USD" ? "$" : currency === "ETH" ? "Ξ" : "";
+
+  // Clamp to max USD value
+  if (currency === "USD" && value > MAX_USD_VALUE) {
+    value = MAX_USD_VALUE;
+    prefix = ">" + prefix;
+  }
+
+  const minValue = Math.pow(10, -maximumFractionDigits);
+  if (value !== 0 && Math.abs(displayValue) < minValue) {
+    const neg = value < 0;
+    prefix = neg ? ">" : "<" + prefix;
+    value = minValue * Math.pow(10, style === "percent" ? -2 : 0) * (neg ? -1 : 1);
+  }
+
+  const formatted = new Intl.NumberFormat("en-US", formatOptions).format(value);
+
+  return `${prefix}${formatted}`;
+}
+
 export function capitalizeFirstLetter(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
