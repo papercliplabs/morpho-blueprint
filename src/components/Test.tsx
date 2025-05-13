@@ -2,7 +2,7 @@
 
 import { useForm } from "react-hook-form";
 
-import { AssetInputFormField } from "./Forms/FormFields/AssetInputFormField";
+import { SliderInputFormField } from "./Forms/FormFields/SliderInputFormField";
 import { Button } from "./ui/button";
 import { Form } from "./ui/form";
 
@@ -17,12 +17,7 @@ function Test() {
         </Button>
         <Button onClick={() => form.clearErrors()}>Clear Errors</Button>
       </div>
-      <AssetInputFormField
-        header="Hello world"
-        asset={{ symbol: "USDC", priceUsd: 1.0, avatar: { fallback: "CN" } }}
-        name="testing"
-        maxValue={100}
-      />
+      <SliderInputFormField labelContent="Hello" sliderMin={1} sliderMax={6} name="testing" sliderStep={1} unit="x" />
     </Form>
   );
 }
