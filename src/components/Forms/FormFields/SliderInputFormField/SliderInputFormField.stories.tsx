@@ -30,11 +30,13 @@ const meta = {
   tags: ["autodocs"],
   args: {
     name: "test",
-    sliderMin: 0,
-    sliderMax: 100,
-    sliderStep: 5,
+    sliderMin: 1,
+    sliderMax: 6,
+    sliderStep: 0.1,
+    defaultValue: 3,
     showTicks: true,
     labelContent: "Multiplier",
+    includeInput: true,
     unit: "x",
   },
   argTypes: {},
@@ -44,3 +46,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
+
+export const WithoutInput: Story = { args: { includeInput: false } };
+
+export const WithoutTicks: Story = { args: { showTicks: false } };
