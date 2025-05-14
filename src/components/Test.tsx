@@ -13,7 +13,7 @@ function Test() {
     <Form {...form}>
       <div className="flex gap-2">
         <Button variant="destructive" onClick={() => form.setError("testing", { message: "Bad news, boyo." })}>
-          Show Error
+          Show Error :_
         </Button>
         <Button onClick={() => form.clearErrors()}>Clear Errors</Button>
       </div>
