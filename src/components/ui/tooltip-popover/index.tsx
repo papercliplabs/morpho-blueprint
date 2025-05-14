@@ -3,6 +3,7 @@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useResponsiveContext } from "@/providers/ResponsiveProvider";
+import { cn } from "@/utils/shadcn";
 
 export function TooltipPopover({ children }: { children: React.ReactNode }) {
   const { isDesktop } = useResponsiveContext();
@@ -16,9 +17,13 @@ export function TooltipPopover({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function TooltipPopoverTrigger(props: React.ComponentProps<typeof TooltipTrigger>) {
+export function TooltipPopoverTrigger({ className, ...props }: React.ComponentProps<typeof TooltipTrigger>) {
   const { isDesktop } = useResponsiveContext();
-  return isDesktop ? <TooltipTrigger type="button" {...props} /> : <PopoverTrigger type="button" {...props} />;
+  return isDesktop ? (
+    <TooltipTrigger type="button" className={cn("cursor-pointer", className)} {...props} />
+  ) : (
+    <PopoverTrigger type="button" {...props} />
+  );
 }
 
 export function TooltipPopoverContent(props: React.ComponentProps<typeof TooltipContent>) {
