@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
 import { Metric, MetricWithTooltip } from "@/components/Metric";
+import { ExampleTooltip } from "@/components/Tooltips/ExampleTooltip";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 const meta = {
@@ -25,7 +26,7 @@ export const Default: StoryObj<typeof Metric> = {
 
 export const WithTooltip: StoryObj<typeof MetricWithTooltip> = {
   args: {
-    tooltip: "Hello world! This is my tooltip.",
+    tooltip: ExampleTooltip(),
   },
   render: (args) => {
     return (
