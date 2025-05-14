@@ -3,7 +3,6 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { Avatar } from "@/components/ui/avatar";
 import Plus from "@/components/ui/icons/Plus";
 
-
 const meta = {
   title: "UI/Avatar",
   component: Avatar,
