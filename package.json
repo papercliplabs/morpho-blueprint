@@ -61,6 +61,7 @@
     "@next/eslint-plugin-next": "^15.3.2",
     "@parcel/watcher": "^2.5.1",
     "@storybook/addon-essentials": "^8.6.12",
+    "@storybook/addon-interactions": "^8.6.12",
     "@storybook/addon-onboarding": "^8.6.12",
     "@storybook/addon-themes": "^8.6.12",
     "@storybook/blocks": "^8.6.12",

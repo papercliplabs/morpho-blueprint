@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
+import { fn } from "@storybook/test";
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -9,7 +10,10 @@ const meta = {
     layout: "centered",
   },
   tags: ["autodocs"],
-  args: {},
+  args: {
+    onValueChange: fn(),
+    onOpenChange: fn(),
+  },
   argTypes: {},
 } satisfies Meta<typeof Select>;
 

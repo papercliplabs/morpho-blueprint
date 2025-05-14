@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
+import { fn } from "@storybook/test";
 
 import {
   Dialog,
@@ -16,7 +17,9 @@ const meta = {
     layout: "centered",
   },
   tags: ["autodocs"],
-  args: {},
+  args: {
+    onOpenChange: fn(),
+  },
   argTypes: {},
 } satisfies Meta<typeof Dialog>;
 
