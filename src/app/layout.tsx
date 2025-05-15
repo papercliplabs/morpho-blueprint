@@ -29,9 +29,9 @@ export default async function RootLayout({
     <html lang="en">
       <body className={`${inter.variable} antialiased`}>
         <Providers cookies={cookies}>
-          <div className="flex min-h-[100dvh] w-full flex-col items-center">
+          <div className="flex min-h-[100dvh] w-full flex-col items-center px-2">
             <Header />
-            <main className="flex w-full max-w-screen-xl flex-grow flex-col p-4">{children}</main>
+            <main className="flex w-full max-w-screen-xl flex-grow flex-col">{children}</main>
             <div>FOOTER</div>
           </div>
         </Providers>
