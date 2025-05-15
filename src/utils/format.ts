@@ -64,3 +64,7 @@ export function descaleBigIntToNumber(value: bigint | string, decimals: number):
   const formattedUnits = formatUnits(BigInt(value), decimals);
   return Math.floor(Number(formattedUnits) * 1e8) / 1e8; // Round down to 8 decimal places for precision
 }
+
+export function formatAddress(address: string) {
+  return address.slice(0, 4) + "..." + address.slice(-4);
+}

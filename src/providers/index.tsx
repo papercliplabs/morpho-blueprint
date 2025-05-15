@@ -3,10 +3,14 @@
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ResponsiveProvider } from "@/providers/ResponsiveProvider";
 
-export default function Providers({ children }: { children: React.ReactNode }) {
+import { WalletProvider } from "./WalletProvider";
+
+export default function Providers({ children, cookies }: { children: React.ReactNode; cookies: string | null }) {
   return (
-    <TooltipProvider>
-      <ResponsiveProvider>{children}</ResponsiveProvider>
-    </TooltipProvider>
+    <WalletProvider cookies={cookies}>
+      <TooltipProvider>
+        <ResponsiveProvider>{children}</ResponsiveProvider>
+      </TooltipProvider>
+    </WalletProvider>
   );
 }
