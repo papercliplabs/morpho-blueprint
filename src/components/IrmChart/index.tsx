@@ -33,7 +33,7 @@ interface IrmChartProps {
   currentUtilization: number;
 }
 
-export default function IrmChart({ data, currentUtilization }: IrmChartProps) {
+function IrmChart({ data, currentUtilization }: IrmChartProps) {
   return (
     <ChartContainer config={chartConfig} className="h-[216px] w-full">
       <LineChart accessibilityLayer data={data}>
@@ -114,3 +114,5 @@ function CustomTooltip({ active, payload }: ComponentProps<typeof Tooltip>) {
 
   return null;
 }
+
+export { IrmChart, type IrmChartProps };

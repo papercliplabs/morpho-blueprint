@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import IrmChart from "@/components/IrmChart";
+import { IrmChart } from "@/components/IrmChart";
 
 const meta = {
   title: "Components/IrmChart",
