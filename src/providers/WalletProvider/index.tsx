@@ -1,14 +1,11 @@
 "use client";
 import { createAppKit } from "@reown/appkit/react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import React, { type ReactNode } from "react";
 import { type Config, WagmiProvider } from "wagmi";
 
 import { LINKS, METADATA } from "@/config";
 
 import { customRpcUrls, networks, projectId, wagmiAdapter } from "./wagmi";
-
-const queryClient = new QueryClient();
 
 const metadata = {
   name: METADATA.appName,
@@ -39,9 +36,5 @@ export const modal = createAppKit({
 });
 
 export function WalletProvider({ children }: { children: ReactNode }) {
-  return (
-    <WagmiProvider config={wagmiAdapter.wagmiConfig as Config}>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-    </WagmiProvider>
-  );
+  return <WagmiProvider config={wagmiAdapter.wagmiConfig as Config}>{children}</WagmiProvider>;
 }

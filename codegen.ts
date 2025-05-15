@@ -10,11 +10,14 @@ const config: CodegenConfig = {
     "./src/generated/gql/whisk/": {
       preset: "client",
       config: {
+        documentMode: "string",
         avoidOptionals: true,
         scalars: {
           Number: "number",
-          // Add more if your schema uses other custom number types
         },
+      },
+      presetConfig: {
+        fragmentMasking: false,
       },
     },
     "./src/generated/gql/schema.graphql": {
