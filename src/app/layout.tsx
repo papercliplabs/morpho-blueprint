@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { headers } from "next/headers";
 
+import { Header } from "@/components/Header";
 import Providers from "@/providers";
 
 import "./globals.css";
@@ -27,7 +28,13 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} antialiased`}>
-        <Providers cookies={cookies}>{children}</Providers>
+        <Providers cookies={cookies}>
+          <div className="flex min-h-[100dvh] w-full flex-col items-center">
+            <Header />
+            <main className="flex w-full max-w-screen-xl flex-grow flex-col p-4">{children}</main>
+            <div>FOOTER</div>
+          </div>
+        </Providers>
       </body>
     </html>
   );
