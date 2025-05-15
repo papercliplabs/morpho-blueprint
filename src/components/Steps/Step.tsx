@@ -1,4 +1,5 @@
 import { cva } from "class-variance-authority";
+import clsx from "clsx";
 import { Check, LoaderCircle } from "lucide-react";
 import { ReactNode } from "react";
 
@@ -46,9 +47,16 @@ function Step({ number, status, label, icon }: StepProps) {
       <div className={iconVariants({ status })}>
         <StepIcon status={status}>{!!icon ? icon : number}</StepIcon>
       </div>
-      <span className="body-medium-plus">{label}</span>
+      <span
+        className={clsx(
+          "body-medium-plus transition-colors",
+          status === "active" ? "text-foreground" : "text-muted-foreground"
+        )}
+      >
+        {label}
+      </span>
     </div>
   );
 }
 
-export { Step };
+export { Step, type StepProps };
