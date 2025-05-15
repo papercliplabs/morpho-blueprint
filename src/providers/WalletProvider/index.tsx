@@ -2,7 +2,7 @@
 import { createAppKit } from "@reown/appkit/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import React, { type ReactNode } from "react";
-import { type Config, WagmiProvider, cookieToInitialState } from "wagmi";
+import { type Config, WagmiProvider } from "wagmi";
 
 import { LINKS, METADATA } from "@/config";
 
@@ -38,11 +38,9 @@ export const modal = createAppKit({
   enableNetworkSwitch: false,
 });
 
-export function WalletProvider({ children, cookies }: { children: ReactNode; cookies: string | null }) {
-  const initialState = cookieToInitialState(wagmiAdapter.wagmiConfig as Config, cookies);
-
+export function WalletProvider({ children }: { children: ReactNode }) {
   return (
-    <WagmiProvider config={wagmiAdapter.wagmiConfig as Config} initialState={initialState}>
+    <WagmiProvider config={wagmiAdapter.wagmiConfig as Config}>
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     </WagmiProvider>
   );

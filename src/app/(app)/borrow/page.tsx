@@ -1,3 +1,3 @@
 export default function BorrowPage() {
-  return <div className="flex flex-grow items-center justify-center">Borrow Page</div>;
+  return <div className="flex">Borrow Page</div>;
 }
