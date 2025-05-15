@@ -8,7 +8,7 @@ import * as React from "react";
 import { cn } from "@/utils/shadcn";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-sm select-none transition-all active:not-disabled:scale-98 disabled:opacity-50 shrink-0 outline-none",
+  "inline-flex items-center justify-center whitespace-nowrap rounded-sm select-none transition-all active:not-disabled:scale-98 disabled:opacity-50 shrink-0 outline-none cursor-pointer",
   {
     variants: {
       variant: {
