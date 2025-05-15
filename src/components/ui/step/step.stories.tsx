@@ -1,11 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { Avatar } from "../ui/avatar";
-
-import { Step } from "./Step";
+import { Avatar } from "@/components/ui/avatar";
+import { Step } from "@/components/ui/step";
 
 const meta = {
-  title: "Components/Steps/Step",
+  title: "UI/Step",
   component: Step,
   tags: ["autodocs"],
   parameters: {
