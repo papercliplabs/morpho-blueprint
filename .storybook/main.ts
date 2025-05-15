@@ -13,7 +13,6 @@ const config: StorybookConfig = {
     "@chromatic-com/storybook",
     "@storybook/experimental-addon-test",
     "@storybook/addon-themes",
-    "@storybook/addon-interactions",
   ],
   framework: {
     name: "@storybook/nextjs",
