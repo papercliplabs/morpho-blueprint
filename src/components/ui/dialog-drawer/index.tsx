@@ -57,7 +57,6 @@ export function DialogDrawerTrigger(props: HTMLAttributes<HTMLButtonElement>) {
 }
 
 export function DialogDrawerContent({
-  hideCloseButton, // For using a custom one...
   overrideDismissible, // kinda hacky...
   ...props
 }: { hideCloseButton?: boolean; overrideDismissible?: boolean } & HTMLAttributes<HTMLDivElement>) {
@@ -66,7 +65,6 @@ export function DialogDrawerContent({
   return isDesktop ? (
     <DialogContent
       onInteractOutside={(event) => (dismissible || overrideDismissible ? event.preventDefault() : {})}
-      hideClose={hideCloseButton}
       {...props}
     />
   ) : (
