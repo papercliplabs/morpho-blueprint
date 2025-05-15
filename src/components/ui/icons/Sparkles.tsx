@@ -1,6 +1,6 @@
 import clsx from "clsx";
 
-export default function PoweredByMorpho({ className, ...props }: React.ComponentProps<"svg">) {
+export function Sparkles({ className, ...props }: React.ComponentProps<"svg">) {
   return (
     <svg
       width="16"

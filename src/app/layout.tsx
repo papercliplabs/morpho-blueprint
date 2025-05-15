@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { headers } from "next/headers";
 
+import { Footer } from "@/components/Footer";
+import { Header } from "@/components/Header";
 import Providers from "@/providers";
 
 import "./globals.css";
@@ -21,14 +22,20 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const headersData = await headers();
-  const cookies = headersData.get("cookie");
-
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} antialiased`}>
-        <Providers cookies={cookies}>{children}</Providers>
+        <Providers>
+          <div className="mx-auto flex min-h-[100dvh] w-full max-w-[1182px] flex-col items-center px-4">
+            <Header />
+            <main className="flex w-full flex-grow pt-8">{children}</main>
+            <Footer />
+          </div>
+        </Providers>
       </body>
     </html>
   );
 }
+
+export const dynamic = "force-static";
+export const revalidate = 300; // 5min

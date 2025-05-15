@@ -83,7 +83,15 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  turbopack: {},
+  redirects: async () => {
+    return [
+      {
+        source: "/",
+        destination: "/earn",
+        permanent: false,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

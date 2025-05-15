@@ -10,6 +10,7 @@ export const NETWORK_CONFIGS: { network: AppKitNetwork; rpcUrls: string[] }[] = 
 export const LINKS = {
   termsOfService: "TODO",
   privacyPolicy: "TODO",
+  support: "TODO",
 };
 
 export const METADATA = {
