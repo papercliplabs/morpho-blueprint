@@ -1,0 +1,61 @@
+import "server-only";
+import { cache } from "react";
+import { Address } from "viem";
+
+import { graphql } from "@/generated/gql/whisk";
+import { GetVaultQuery } from "@/generated/gql/whisk/graphql";
+
+import { executeWhiskQuery } from "./execute";
+
+const query = graphql(`
+  query getVault($chainId: Number!, $vaultAddress: String!) {
+    morphoVault(chainId: $chainId, address: $vaultAddress) {
+      ...VaultSummaryFragment
+
+      liquidityAssets
+      liquidityAssetsUsd
+
+      metadata {
+        description
+        # TODO: missing curator in Whisk
+      }
+
+      performanceFee
+      feeRecipientAddress
+      ownerAddress
+      curatorAddress
+      guardianAddress
+
+      marketAllocations {
+        market {
+          marketId
+          collateralAsset {
+            ...TokenInfoFragment
+          }
+          loanAsset {
+            ...TokenInfoFragment
+          }
+          supplyApy {
+            ...MarketApyFragment
+          }
+        }
+        position {
+          supplyAssetsUsd
+        }
+        supplyCapUsd
+        vaultSupplyShare
+      }
+    }
+  }
+`);
+
+export const getVault = cache(async (chainId: number, vaultAddress: Address): Promise<Vault | null> => {
+  const data = await executeWhiskQuery(query, {
+    chainId,
+    vaultAddress,
+  });
+
+  return data.morphoVault;
+});
+
+export type Vault = NonNullable<GetVaultQuery["morphoVault"]>;
