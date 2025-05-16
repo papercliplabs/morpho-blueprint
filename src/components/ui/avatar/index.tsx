@@ -63,7 +63,7 @@ type AvatarProps = {
 
 function Avatar({ className, src, alt, fallback, sub, size }: AvatarProps) {
   return (
-    <span className="relative h-fit w-fit">
+    <span className="relative flex h-fit w-fit">
       <AvatarRoot className={cn(avatarVariants({ className, size }))}>
         <AvatarImage src={src} alt={alt} />
         <AvatarFallback>{fallback}</AvatarFallback>
