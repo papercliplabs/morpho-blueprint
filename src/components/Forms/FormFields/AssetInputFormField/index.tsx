@@ -2,23 +2,19 @@
 
 import clsx from "clsx";
 
-import { Avatar, AvatarProps } from "@/components/ui/avatar";
+import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import NumberFlow from "@/components/ui/number-flow";
+import { TokenInfo } from "@/data/whisk/fragments";
 import { numberToString } from "@/utils/format";
-
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 interface AssetInputFormFieldProps<TFieldValues extends Record<string, any>>
   extends Omit<React.ComponentProps<typeof FormField<TFieldValues>>, "render"> {
   header: string;
-  asset: {
-    symbol: string;
-    priceUsd: number;
-    avatar: AvatarProps;
-  };
+  asset: TokenInfo & { priceUsd: number | null };
   setIsMax?: (isMax: boolean) => void;
   maxValue?: number;
 }
@@ -44,7 +40,10 @@ function AssetInputFormField<TFieldValues extends Record<string, any>>({
             <div className="flex min-w-0 items-center justify-between gap-4">
               <FormControl>
                 <Input
-                  className={clsx("heading-3", fieldState.error && !!field.value && "text-destructive")}
+                  className={clsx(
+                    "heading-3 border-none bg-transparent p-0 shadow-none focus:ring-0 focus:ring-offset-0",
+                    fieldState.error && !!field.value && "text-destructive"
+                  )}
                   placeholder="0"
                   inputMode="decimal"
                   type="text"
@@ -61,22 +60,25 @@ function AssetInputFormField<TFieldValues extends Record<string, any>>({
                 />
               </FormControl>
               {!!asset && (
-                <div className="flex items-center gap-1 px-2">
-                  <Avatar {...asset.avatar} size="xs" />
+                <div className="flex items-center gap-1.5 px-2">
+                  <Avatar src={asset.icon} fallback={asset.symbol} size="xs" />
                   <span className="body-medium-plus">{asset.symbol}</span>
                 </div>
               )}
             </div>
             <div className="text-muted-foreground body-small flex items-center justify-between">
-              {!!asset.priceUsd && (
+              {asset.priceUsd != null && (
                 <NumberFlow value={(field.value ?? 0) * asset.priceUsd} format={{ currency: "USD" }} />
               )}
-              <div className="flex items-center gap-1">
-                <NumberFlow value={maxValue ?? 0} />
+              <div className="flex h-[24px] items-center gap-1">
+                <div className="relative">
+                  <NumberFlow value={maxValue ?? 0} />
+                </div>
+                <span>{asset.symbol}</span>
                 {maxValue != undefined && (
                   <Button
                     variant="secondary"
-                    size="sm"
+                    size="xs"
                     type="button"
                     disabled={field.disabled}
                     onClick={() => {

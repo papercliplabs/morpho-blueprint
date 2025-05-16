@@ -2,7 +2,10 @@ import { MarketId } from "@morpho-org/blue-sdk";
 import { MaybeDraft, SimulationState } from "@morpho-org/simulation-sdk";
 import { Address } from "viem";
 
+import { MAX_BORROW_LTV_MARGIN } from "@/config";
 import { descaleBigIntToNumber } from "@/utils/format";
+
+import { computeScaledAmount } from "./math";
 
 export interface SimulatedValueChange<T> {
   before: T;
@@ -23,6 +26,10 @@ export type MarketPositionChange = {
     amount: number;
   }>;
   loan: SimulatedValueChange<{
+    rawAmount: bigint;
+    amount: number;
+  }>;
+  availableToBorrow: SimulatedValueChange<{
     rawAmount: bigint;
     amount: number;
   }>;
@@ -95,16 +102,34 @@ export function computeMarketPositionChange(
   const rawLoanAfter = marketAfter.toBorrowAssets(positionAfter.borrowShares);
   const loanAfter = descaleBigIntToNumber(rawLoanAfter, loanAsset.decimals);
 
-  const rawLtvBefore = marketBefore.getLtv({
-    collateral: positionBefore.collateral,
-    borrowShares: positionBefore.borrowShares,
-  });
-  const rawLtvAfter = marketAfter.getLtv({
-    collateral: positionAfter.collateral,
-    borrowShares: positionAfter.borrowShares,
-  });
-  const ltvBefore = descaleBigIntToNumber(rawLtvBefore ?? 0n, 18);
-  const ltvAfter = descaleBigIntToNumber(rawLtvAfter ?? 0n, 18);
+  const rawLtvBefore =
+    marketBefore.getLtv({
+      collateral: positionBefore.collateral,
+      borrowShares: positionBefore.borrowShares,
+    }) ?? 0n;
+  const rawLtvAfter =
+    marketAfter.getLtv({
+      collateral: positionAfter.collateral,
+      borrowShares: positionAfter.borrowShares,
+    }) ?? 0n;
+  const ltvBefore = descaleBigIntToNumber(rawLtvBefore, 18);
+  const ltvAfter = descaleBigIntToNumber(rawLtvAfter, 18);
+
+  const maxLtv = computeScaledAmount(marketAfter.params.lltv, 1 - MAX_BORROW_LTV_MARGIN);
+  const rawMaxBorrowBefore =
+    initialSimulationState.getMarket(marketId).getMaxBorrowAssets(rawCollateralBefore, {
+      maxLtv,
+    }) ?? 0n;
+  const rawMaxBorrowAfter =
+    initialSimulationState.getMarket(marketId).getMaxBorrowAssets(rawCollateralAfter, {
+      maxLtv,
+    }) ?? 0n;
+
+  const rawAvailableToBorrowBefore = rawMaxBorrowBefore - rawLoanBefore;
+  const rawAvailableToBorrowAfter = rawMaxBorrowAfter - rawLoanAfter;
+
+  const availableToBorrowBefore = descaleBigIntToNumber(rawAvailableToBorrowBefore, loanAsset.decimals);
+  const availableToBorrowAfter = descaleBigIntToNumber(rawAvailableToBorrowAfter, loanAsset.decimals);
 
   return {
     collateral: {
@@ -133,6 +158,20 @@ export function computeMarketPositionChange(
       delta: {
         rawAmount: rawLoanAfter - rawLoanBefore,
         amount: loanAfter - loanBefore,
+      },
+    },
+    availableToBorrow: {
+      before: {
+        rawAmount: rawAvailableToBorrowBefore,
+        amount: availableToBorrowBefore,
+      },
+      after: {
+        rawAmount: rawAvailableToBorrowAfter,
+        amount: availableToBorrowAfter,
+      },
+      delta: {
+        rawAmount: rawAvailableToBorrowAfter - rawAvailableToBorrowBefore,
+        amount: availableToBorrowAfter - availableToBorrowBefore,
       },
     },
     ltv: {

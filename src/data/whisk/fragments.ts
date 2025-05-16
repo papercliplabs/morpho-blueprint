@@ -13,7 +13,7 @@ graphql(`
     base
     rewards {
       asset {
-        icon
+        ...TokenInfoFragment
       }
       apr
     }
@@ -25,7 +25,7 @@ graphql(`
     base
     rewards {
       asset {
-        icon
+        ...TokenInfoFragment
       }
       apr
     }

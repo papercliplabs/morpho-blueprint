@@ -46,7 +46,7 @@ function TabsList({ className, ...props }: React.ComponentProps<typeof TabsPrimi
   return <TabsPrimitive.List data-slot="tabs-list" className={tabsListVariants({ className, variant })} {...props} />;
 }
 
-const tabsTriggerVariants = cva(" flex h-8 flex-grow items-center justify-center transition", {
+const tabsTriggerVariants = cva("flex h-8 flex-grow items-center justify-center transition cursor-pointer", {
   variants: {
     variant: {
       default:

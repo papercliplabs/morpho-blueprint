@@ -21,7 +21,6 @@ const meta = {
     description: "Description",
     amount: 1.0,
     amountUsd: 2.0,
-    isIncreasing: true,
   },
 } satisfies Meta<typeof AssetChangeSummary>;
 

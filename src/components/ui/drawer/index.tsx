@@ -1,9 +1,12 @@
 "use client";
 
+import { X } from "lucide-react";
 import * as React from "react";
 import { Drawer as DrawerPrimitive } from "vaul";
 
 import { cn } from "@/utils/shadcn";
+
+import { Button } from "../button";
 
 const Drawer = ({ shouldScaleBackground = true, ...props }: React.ComponentProps<typeof DrawerPrimitive.Root>) => (
   <DrawerPrimitive.Root shouldScaleBackground={shouldScaleBackground} {...props} />
@@ -26,20 +29,28 @@ DrawerOverlay.displayName = DrawerPrimitive.Overlay.displayName;
 
 const DrawerContent = React.forwardRef<
   React.ElementRef<typeof DrawerPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Content>
->(({ className, children, ...props }, ref) => (
+  React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Content> & { hideCloseButton?: boolean }
+>(({ className, children, hideCloseButton, ...props }, ref) => (
   <DrawerPortal>
     <DrawerOverlay />
     <DrawerPrimitive.Content
       ref={ref}
       className={cn(
-        "bg-background fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto flex-col rounded-t-[10px] border",
+        "bg-background fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto flex-col rounded-t-[10px] border p-6",
         className
       )}
+      aria-describedby={undefined}
       {...props}
     >
-      <div className="bg-muted mx-auto mt-4 h-2 w-[100px] rounded-full" />
       {children}
+      {!hideCloseButton && (
+        <DrawerPrimitive.Close className="absolute top-2 right-2" asChild>
+          <Button variant="ghost">
+            <X className="stroke-foreground h-4 w-4 shrink-0" />
+            <span className="sr-only">Close</span>
+          </Button>
+        </DrawerPrimitive.Close>
+      )}
     </DrawerPrimitive.Content>
   </DrawerPortal>
 ));

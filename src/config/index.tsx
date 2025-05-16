@@ -11,6 +11,10 @@ export const NETWORK_CONFIGS: { network: AppKitNetwork; rpcUrls: string[] }[] = 
     network: polygon,
     rpcUrls: [],
   },
+  {
+    network: base,
+    rpcUrls: [],
+  },
 ];
 
 export const LINKS = {
@@ -39,3 +43,6 @@ export const WHITELISTED_MARKETS: Record<number, Hex[]> = {
 
 // Target utilization above which the public allocator shared liquidity algorithm is enabled for borrowing (WAD)
 export const PUBLIC_ALLOCATOR_SUPPLY_TARGET_UTILIZATION = BigInt(90_0000000000000000);
+
+// [0, 1], Only allow a max borrow origination of up to this % below LLTV
+export const MAX_BORROW_LTV_MARGIN = 0.05;

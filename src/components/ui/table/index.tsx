@@ -161,7 +161,6 @@ export function Table<TData, TValue>({ columns, data, initialSort, rowAction }: 
                   className="text-muted-foreground body-small-plus h-12 hover:bg-transparent"
                 >
                   {headerGroup.headers.map((header) => {
-                    console.log(header.column.columnDef.enableSorting);
                     const cellContent = (
                       <div
                         className={clsx(

@@ -32,17 +32,21 @@ export const WithRewards: Story = {
   args: {
     rewards: [
       {
-        icon: "https://github.com/shadcn.png",
-        symbol: "COMP",
-        address: "0x123",
-        decimals: 1,
+        asset: {
+          icon: "https://github.com/shadcn.png",
+          symbol: "COMP",
+          address: "0x123",
+          decimals: 1,
+        },
         apr: 0.01,
       },
       {
-        icon: "https://github.com/shadcn.png",
-        symbol: "POL",
-        address: "0x234",
-        decimals: 1,
+        asset: {
+          icon: "https://github.com/shadcn.png",
+          symbol: "POL",
+          address: "0x234",
+          decimals: 1,
+        },
         apr: 0.02,
       },
     ],

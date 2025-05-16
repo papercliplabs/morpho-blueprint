@@ -12,6 +12,14 @@ const query = graphql(`
     morphoMarket(chainId: $chainId, marketId: $marketId) {
       ...MarketSummaryFragment
 
+      collateralAsset {
+        priceUsd
+      }
+
+      loanAsset {
+        priceUsd
+      }
+
       liquidityAssetsUsd
       # publicAllocatorSharedLiquidityAssetsUsd
       # Disabled for now, need better implementation in Whisk for chains with many many vaults and markets...

@@ -1,6 +1,7 @@
 "use client";
 
 import clsx from "clsx";
+import { ArrowRight } from "lucide-react";
 import { AnimatePresence, MotionConfig, motion } from "motion/react";
 import { ReactNode } from "react";
 
@@ -39,7 +40,7 @@ export function MetricChangeValues({ initialValue, finalValue }: { initialValue:
               exit={{ x: "100%" }}
             >
               <motion.span layout className="text-foreground" key="arrow">
-                →
+                <ArrowRight className="size-[14px] shrink-0" />
               </motion.span>
               <motion.div layout className="text-foreground flex items-center gap-1">
                 {finalValue}

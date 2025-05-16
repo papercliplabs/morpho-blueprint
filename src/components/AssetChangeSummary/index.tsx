@@ -7,22 +7,20 @@ import Minus from "../ui/icons/Minus";
 import Plus from "../ui/icons/Plus";
 
 type AssetChangeSummaryProps = {
+  asset: TokenInfo;
+  label: string;
+  description?: string;
   amount: number;
   amountUsd?: number;
-  asset: TokenInfo;
-  description: string;
-  isIncreasing: boolean;
-  label: string;
 } & React.ComponentProps<"div">;
 
 function AssetChangeSummary({
+  asset,
+  label,
+  description,
   amount,
   amountUsd,
-  asset,
   className,
-  description,
-  isIncreasing,
-  label,
   ...props
 }: AssetChangeSummaryProps) {
   return (
@@ -35,22 +33,20 @@ function AssetChangeSummary({
         fallback={asset.symbol}
         alt={asset.symbol}
         sub={
-          isIncreasing ? (
-            <Plus className="fill-primary stroke-white" />
-          ) : (
-            <Minus className="fill-primary stroke-white" />
-          )
+          amount > 0 ? <Plus className="fill-primary stroke-white" /> : <Minus className="fill-primary stroke-white" />
         }
         size="md"
       />
       <div className="flex flex-grow flex-col">
         <span className="body-medium-plus">{label}</span>
-        <span className="body-small text-muted-foreground">{description}</span>
+        {description && <span className="body-small text-muted-foreground">{description}</span>}
       </div>
       <div className="flex flex-col items-end">
-        <span className="body-medium-plus">{formatNumber(amount)}</span>
+        <span className="body-medium-plus">{formatNumber(Math.abs(amount))}</span>
         {amountUsd && (
-          <span className="text-muted-foreground body-small">{formatNumber(amountUsd, { currency: "USD" })}</span>
+          <span className="text-muted-foreground body-small">
+            {formatNumber(Math.abs(amountUsd), { currency: "USD" })}
+          </span>
         )}
       </div>
     </div>
