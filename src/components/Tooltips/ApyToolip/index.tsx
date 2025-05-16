@@ -81,7 +81,7 @@ function ApyTooltipContent({ type, totalApy, nativeApy, rewards, performanceFee 
       <div className="body-small flex flex-col gap-2">
         <span className="flex justify-between">
           <span>Native APY</span>
-          <span className="body-small-plus">{formatNumber(nativeApy, { style: "percent" })} </span>
+          <span className="body-small-plus">{formatNumber(nativeApy, { style: "percent" })}</span>
         </span>
         {!!rewards &&
           rewards.map((reward) => {
@@ -106,7 +106,7 @@ function ApyTooltipContent({ type, totalApy, nativeApy, rewards, performanceFee 
             </Badge>
           </span>
           <span className="body-small-plus">
-            {formatNumber(performanceFee, { style: "percent", signDisplay: "exceptZero" })}{" "}
+            {formatNumber(performanceFee, { style: "percent", signDisplay: "exceptZero" })}
           </span>
         </span>
       </div>
