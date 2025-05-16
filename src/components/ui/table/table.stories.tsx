@@ -51,9 +51,6 @@ const data: Row[] = [
 const meta = {
   title: "UI/Table",
   component: Table,
-  parameters: {
-    layout: "centered",
-  },
   tags: ["autodocs"],
   args: {
     columns,

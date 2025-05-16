@@ -150,9 +150,8 @@ export function Table<TData, TValue>({ columns, data, initialSort, rowAction }: 
     <ScrollSync>
       <div className="border-border relative h-fit min-w-0 grow overflow-x-visible rounded-md border" ref={tableRef}>
         {/* Gradients on left and right for mobile */}
-        <div className="from-background-secondary absolute top-0 bottom-0 left-0 z-[10] w-8 rounded-bl-[12px] bg-gradient-to-r to-transparent md:hidden" />
-        <div className="from-background-secondary absolute top-0 right-0 bottom-0 z-[10] w-8 rounded-br-[12px] bg-gradient-to-l to-transparent md:hidden" />
-
+        <div className="from-background absolute top-0 bottom-0 left-0 z-[10] w-4 rounded-l-md bg-gradient-to-r to-transparent md:hidden" />
+        <div className="from-background absolute top-0 right-0 bottom-0 z-[10] w-4 rounded-r-md bg-gradient-to-l to-transparent md:hidden" />
         <div className="sticky top-[calc(var(--header-height)-2px)] z-[5] min-w-full">
           <ScrollSyncPane>
             <div className="scrollbar-none overflow-auto overscroll-x-none">
