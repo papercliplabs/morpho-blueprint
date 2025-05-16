@@ -15,7 +15,7 @@ function FormWrapper({ children }: { children: ReactNode }) {
 }
 
 const meta = {
-  title: "UI/SliderInputFormField",
+  title: "Forms/SliderInputFormField",
   component: SliderInputFormField,
   decorators: [
     (Story) => (

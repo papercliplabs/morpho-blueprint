@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
 import { Metric, MetricWithTooltip } from "@/components/Metric";
-import { ExampleTooltip } from "@/components/Tooltips/ExampleTooltip";
+import { ApyTooltipContent } from "@/components/Tooltips/ApyToolip";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 const meta = {
@@ -26,7 +26,7 @@ export const Default: StoryObj<typeof Metric> = {
 
 export const WithTooltip: StoryObj<typeof MetricWithTooltip> = {
   args: {
-    tooltip: ExampleTooltip(),
+    tooltip: <ApyTooltipContent type="borrow" nativeApy={0.05} totalApy={0.1} performanceFee={0.02} />,
   },
   render: (args) => {
     return (
