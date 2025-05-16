@@ -1,0 +1,104 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import { getAddress } from "viem";
+
+import { Vault } from "@/data/whisk/getVault";
+import { useVaultPosition } from "@/hooks/useVaultPositions";
+import { useResponsiveContext } from "@/providers/ResponsiveProvider";
+
+import { Button } from "../ui/button";
+import { Card } from "../ui/card";
+import { Drawer, DrawerContent, DrawerTitle, DrawerTrigger } from "../ui/drawer";
+import { PoweredByMorpho } from "../ui/icons/PoweredByMorpho";
+import { Tabs } from "../ui/tabs";
+import { TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+
+import VaultSupply from "./VaultSupply";
+import VaultWithdraw from "./VaultWithdraw";
+
+export interface VaultActionsProps {
+  vault: Vault;
+}
+
+export default function VaultActions({ vault }: VaultActionsProps) {
+  const { data: userVaultPosition } = useVaultPosition(vault.chain.id, getAddress(vault.vaultAddress));
+  const { isDesktop, hasMounted } = useResponsiveContext();
+
+  const hasSupplyPosition = useMemo(() => {
+    return BigInt(userVaultPosition?.supplyAssets ?? 0) > BigInt(0);
+  }, [userVaultPosition]);
+
+  // Wait to render until we know to prevent layout glitches
+  if (!hasMounted) {
+    return null;
+  }
+
+  if (isDesktop) {
+    return <VaultActionsDesktop vault={vault} hasSupplyPosition={hasSupplyPosition} />;
+  } else {
+    return <VaultActionsMobile vault={vault} hasSupplyPosition={hasSupplyPosition} />;
+  }
+}
+
+function VaultActionsDesktop({ vault, hasSupplyPosition }: { hasSupplyPosition: boolean } & VaultActionsProps) {
+  // Latch if we had a supply position
+  const [hadSupplyPosition, setHadSupplyPosition] = useState(false);
+  useEffect(() => {
+    if (hasSupplyPosition) {
+      setHadSupplyPosition(true);
+    }
+  }, [hasSupplyPosition]);
+
+  return (
+    <Card className="w-[364px]">
+      <Tabs defaultValue="supply" variant="underline" className="flex flex-col gap-6">
+        <div className="w-full border-b">
+          <TabsList className="w-fit">
+            <TabsTrigger value="supply">Supply</TabsTrigger>
+            {hadSupplyPosition && <TabsTrigger value="withdraw">Withdraw</TabsTrigger>}
+          </TabsList>
+        </div>
+        <TabsContent value="supply" className="flex flex-col gap-6">
+          <VaultSupply vault={vault} />
+          <PoweredByMorpho className="mx-auto" />
+        </TabsContent>
+        <TabsContent value="withdraw" className="flex flex-col gap-6">
+          <VaultWithdraw vault={vault} />
+          <PoweredByMorpho className="mx-auto" />
+        </TabsContent>
+      </Tabs>
+    </Card>
+  );
+}
+
+function VaultActionsMobile({ vault, hasSupplyPosition }: { hasSupplyPosition: boolean } & VaultActionsProps) {
+  const [supplyOpen, setSupplyOpen] = useState(false);
+  const [withdrawOpen, setWithdrawOpen] = useState(false);
+
+  return (
+    <div className="bg-background fixed right-0 bottom-0 left-0 z-[20] flex items-center gap-[10px] border-t px-6 py-4">
+      <Drawer open={supplyOpen} onOpenChange={setSupplyOpen}>
+        <DrawerTrigger asChild>
+          <Button className="flex-1">Supply</Button>
+        </DrawerTrigger>
+        <DrawerContent className="flex flex-col gap-6">
+          <DrawerTitle>Supply</DrawerTitle>
+          <VaultSupply vault={vault} flowCompletionCb={() => setSupplyOpen(false)} />
+        </DrawerContent>
+      </Drawer>
+
+      <Drawer open={withdrawOpen} onOpenChange={setWithdrawOpen}>
+        <DrawerTrigger asChild>
+          <Button className="flex-1" variant="secondary" disabled={!hasSupplyPosition}>
+            Withdraw
+          </Button>
+        </DrawerTrigger>
+        <DrawerContent className="flex flex-col gap-6">
+          <DrawerTitle>Withdraw</DrawerTitle>
+          <VaultWithdraw vault={vault} flowCompletionCb={() => setWithdrawOpen(false)} />
+        </DrawerContent>
+      </Drawer>
+    </div>
+  );
+}

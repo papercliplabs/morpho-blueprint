@@ -13,7 +13,10 @@ export default function LinkExternal({ href, keepReferrer, noFollow, className, 
       href={href}
       target="_blank"
       rel={`noopener ${keepReferrer ? "" : "noreferrer"} ${noFollow ? "nofollow" : ""}`}
-      className={cn("transition-all hover:brightness-90 active:scale-98", className)}
+      className={cn(
+        "text-primary underline-offset-2 transition-all hover:underline active:scale-98 active:opacity-50",
+        className
+      )}
       {...props}
     />
   );

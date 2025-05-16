@@ -60,14 +60,15 @@ function ApyTooltipTrigger({
 }
 
 type Reward = {
+  asset: TokenInfo;
   apr: number;
-} & TokenInfo;
+};
 
 type ApyTooltipContentProps = {
   type: ApyTooltipType;
   nativeApy: number;
   totalApy: number;
-  performanceFee: number;
+  performanceFee?: number;
   rewards?: Reward[];
 };
 
@@ -86,29 +87,31 @@ function ApyTooltipContent({ type, totalApy, nativeApy, rewards, performanceFee 
         {!!rewards &&
           rewards.map((reward) => {
             return (
-              <span key={reward.symbol} className="flex justify-between">
+              <span key={reward.asset.symbol} className="flex justify-between">
                 <span className="flex items-center gap-2">
-                  {reward.symbol} <Avatar src={reward.icon} fallback={reward.symbol} size="xs" />
+                  {reward.asset.symbol} <Avatar src={reward.asset.icon} fallback={reward.asset.symbol} size="xs" />
                 </span>
                 {formatNumber(reward.apr, { style: "percent", signDisplay: "exceptZero" })}
               </span>
             );
           })}
-        <span className="flex justify-between">
-          <span className="flex items-center gap-2">
-            <span>Performance Fee</span>
-            <Badge variant="small">
-              {formatNumber(nativeApy > 0 ? performanceFee / nativeApy : 0, {
-                style: "percent",
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 1,
-              })}
-            </Badge>
+        {performanceFee != undefined && (
+          <span className="flex justify-between">
+            <span className="flex items-center gap-2">
+              <span>Performance Fee</span>
+              <Badge variant="small">
+                {formatNumber(nativeApy != 0 ? performanceFee / nativeApy : 0, {
+                  style: "percent",
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 1,
+                })}
+              </Badge>
+            </span>
+            <span className="body-small-plus">
+              {formatNumber(-performanceFee, { style: "percent", signDisplay: "exceptZero" })}
+            </span>
           </span>
-          <span className="body-small-plus">
-            {formatNumber(performanceFee, { style: "percent", signDisplay: "exceptZero" })}
-          </span>
-        </span>
+        )}
       </div>
       <div className="bg-border h-[1px]" />
       <div className="flex justify-between">

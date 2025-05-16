@@ -1,19 +1,26 @@
+"use client";
 import NumberFlowReact from "@number-flow/react";
-import { ComponentProps } from "react";
+import { AnimatePresence, motion } from "motion/react";
+import { ComponentProps, ReactNode } from "react";
+
+import { cn } from "@/utils/shadcn";
 
 const MAX_USD_VALUE = 1e12;
 
-export default function NumberFlow({
-  value,
-  format,
-  className,
-  ...props
-}: { value: number } & ComponentProps<typeof NumberFlowReact>) {
+type NumberFlowProps = {
+  value?: number;
+} & Omit<ComponentProps<typeof NumberFlowReact>, "value">;
+
+export default function NumberFlow({ className, format, value, ...props }: NumberFlowProps) {
+  if (value == undefined) {
+    return <span className={cn("text-content-secondary", className)}>-</span>;
+  }
+
   const currency = format?.currency;
   const isPercent = format?.style === "percent";
   const {
     notation = "compact",
-    minimumFractionDigits = isPercent ? 0 : 2,
+    minimumFractionDigits = 2,
     maximumFractionDigits = value < 1 && currency !== "USD" && !isPercent ? 3 : 2,
     ...restOptions
   } = format ?? {};
@@ -23,9 +30,10 @@ export default function NumberFlow({
     notation: notation == "compact" && (displayValue > 9999 || displayValue < -9999) ? "compact" : "standard",
     minimumFractionDigits,
     maximumFractionDigits,
+    style: currency ? "currency" : format?.style,
     ...restOptions,
   };
-  let prefix = currency === "USD" ? "$" : currency === "ETH" ? "Ξ" : "";
+  let prefix = "";
 
   // Clamp to max USD value
   if (currency === "USD" && value > MAX_USD_VALUE) {
@@ -41,9 +49,37 @@ export default function NumberFlow({
   }
 
   return (
-    <span className={className}>
-      {!!prefix && <span>{prefix}</span>}
-      <NumberFlowReact value={value} format={formatOptions} {...props} />
+    <span className={cn("inline-flex items-center", className)}>
+      {prefix}
+      <NumberFlowReact value={value} format={formatOptions} {...props} className="inline-flex items-center" />
     </span>
+  );
+}
+
+interface NumberFlowWithLoadingProps extends NumberFlowProps {
+  isLoading: boolean;
+  loadingContent: ReactNode;
+}
+
+const crossFadeVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1 },
+};
+
+export function NumberFlowWithLoading({ isLoading, loadingContent, ...props }: NumberFlowWithLoadingProps) {
+  return (
+    <AnimatePresence initial={false} mode="popLayout">
+      <motion.div
+        variants={crossFadeVariants}
+        initial="hidden"
+        animate="visible"
+        exit="hidden"
+        key={isLoading ? "loading" : "content"}
+        transition={{ type: "spring", duration: 0.3, bounce: 0 }}
+        className="flex items-center"
+      >
+        {isLoading ? loadingContent : <NumberFlow {...props} />}
+      </motion.div>
+    </AnimatePresence>
   );
 }

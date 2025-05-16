@@ -1,6 +1,6 @@
 "use client";
 
-import { HTMLAttributes, ReactNode, useMemo, useState } from "react";
+import { ComponentProps, HTMLAttributes, ReactNode, useMemo, useState } from "react";
 import { createContext, useContext } from "react";
 
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -57,16 +57,12 @@ export function DialogDrawerTrigger(props: HTMLAttributes<HTMLButtonElement>) {
 }
 
 export function DialogDrawerContent({
-  overrideDismissible, // kinda hacky...
   ...props
-}: { hideCloseButton?: boolean; overrideDismissible?: boolean } & HTMLAttributes<HTMLDivElement>) {
+}: { hideCloseButton?: boolean } & ComponentProps<typeof DialogContent>) {
   const { isDesktop } = useResponsiveContext();
   const { dismissible } = useDialogDrawerContext();
   return isDesktop ? (
-    <DialogContent
-      onInteractOutside={(event) => (dismissible || overrideDismissible ? event.preventDefault() : {})}
-      {...props}
-    />
+    <DialogContent onInteractOutside={(event) => (dismissible ? {} : event.preventDefault())} {...props} />
   ) : (
     <DrawerContent {...props} />
   );

@@ -31,7 +31,8 @@ export type ErrorAction = {
 
 export type Action = SuccessfulAction | ErrorAction;
 
-export type VaultAction = (SuccessfulAction & { positionChange: VaultPositionChange }) | ErrorAction;
+export type SuccessfulVaultAction = SuccessfulAction & { positionChange: VaultPositionChange };
+export type VaultAction = SuccessfulVaultAction | ErrorAction;
 
 export type MarketAction =
   | (SuccessfulAction & {

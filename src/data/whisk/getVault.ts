@@ -12,6 +12,10 @@ const query = graphql(`
     morphoVault(chainId: $chainId, address: $vaultAddress) {
       ...VaultSummaryFragment
 
+      asset {
+        priceUsd
+      }
+
       liquidityAssets
       liquidityAssetsUsd
 
