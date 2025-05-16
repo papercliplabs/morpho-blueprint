@@ -1,11 +1,15 @@
 import { AppKitNetwork } from "@reown/appkit/networks";
 import { Address, Hex, getAddress } from "viem";
-import { base, mainnet } from "viem/chains";
+import { base, mainnet, polygon } from "viem/chains";
 
 export const NETWORK_CONFIGS: { network: AppKitNetwork; rpcUrls: string[] }[] = [
   {
     network: mainnet,
     rpcUrls: ["TODO"],
+  },
+  {
+    network: polygon,
+    rpcUrls: [],
   },
 ];
 
@@ -32,3 +36,6 @@ export const WHITELISTED_MARKETS: Record<number, Hex[]> = {
   // [mainnet.id]: ["0x3a85e619751152991742810df6ec69ce473daef99e28a64ab2340d7b7ccfee49"],
   [base.id]: ["0x8793cf302b8ffd655ab97bd1c695dbd967807e8367a65cb2f4edaf1380ba1bda"],
 };
+
+// Target utilization above which the public allocator shared liquidity algorithm is enabled for borrowing (WAD)
+export const PUBLIC_ALLOCATOR_SUPPLY_TARGET_UTILIZATION = BigInt(90_0000000000000000);
