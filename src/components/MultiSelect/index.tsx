@@ -21,6 +21,7 @@ type MultiSelectProps = {
   value: string[];
   options: Option[];
   onSelect: (value: string) => void;
+  onReset: () => void;
 };
 
 function MultiSelect({
@@ -29,31 +30,20 @@ function MultiSelect({
   placeholder = "Search",
   noResultsText = "No results found.",
   value,
+  onReset,
   onSelect,
   options,
 }: MultiSelectProps) {
   const [open, setOpen] = React.useState(defaultOpen);
 
-  const selectedOptions = options.filter((option) => value.includes(option.value));
-
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className="!body-medium w-[200px] justify-between"
-        >
-          {value.length > 0 ? (
-            value.length === 1 ? (
-              selectedOptions[0].component
-            ) : (
-              <span>{selectedOptions.length} selected</span>
-            )
-          ) : (
-            emptyValue
-          )}
+        <Button variant="outline" role="combobox" aria-expanded={open} className="!body-medium w-[200px]">
+          <span className="flex flex-1 gap-1">
+            {emptyValue}
+            {value.length > 0 && <span>({value.length})</span>}
+          </span>
           <ChevronDown className="ml-2 h-4 w-4 shrink-0" />
         </Button>
       </PopoverTrigger>
@@ -75,6 +65,14 @@ function MultiSelect({
               ))}
             </CommandGroup>
           </CommandList>
+          <div className="flex items-center gap-3 p-4">
+            <Button className="flex-1" onClick={onReset} variant="secondary">
+              Reset
+            </Button>
+            <Button className="flex-1" onClick={() => setOpen(false)}>
+              Apply
+            </Button>
+          </div>
         </Command>
       </PopoverContent>
     </Popover>

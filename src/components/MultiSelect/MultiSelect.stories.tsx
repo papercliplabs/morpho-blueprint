@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn } from "@storybook/test";
+import React from "react";
 
 import { MultiSelect } from "@/components/MultiSelect";
 
@@ -37,6 +38,7 @@ const meta = {
     ],
     emptyValue: "Collateral Asset",
     onSelect: fn(),
+    onReset: fn(),
   },
 } satisfies Meta<typeof MultiSelect>;
 
@@ -58,4 +60,26 @@ export const MultipleSelected: Story = {
     defaultOpen: true,
     value: ["WETH", "USDC"],
   },
+};
+
+function InteractiveStory(props: React.ComponentProps<typeof MultiSelect>) {
+  const [value, setValue] = React.useState<string[]>([]);
+
+  const onSelect = (newValue: string) => {
+    if (value.includes(newValue)) {
+      setValue(value.filter((v) => v !== newValue));
+    } else {
+      setValue([...value, newValue]);
+    }
+  };
+
+  const onReset = () => {
+    setValue([]);
+  };
+
+  return <MultiSelect {...props} onReset={onReset} onSelect={onSelect} value={value} />;
+}
+
+export const Interactive: Story = {
+  render: (args) => <InteractiveStory {...args} />,
 };
