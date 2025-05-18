@@ -17,6 +17,24 @@ const query = graphql(`
         }
         marketId
       }
+
+      collateralAssets
+      collateralAssetsUsd
+
+      borrowAssets
+      borrowAssetsUsd
+
+      walletCollateralAssetHolding {
+        balance
+        balanceUsd
+      }
+
+      walletLoanAssetHolding {
+        balance
+        balanceUsd
+      }
+
+      ltv
     }
   }
 `);

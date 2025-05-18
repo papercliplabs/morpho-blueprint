@@ -1,8 +1,7 @@
 "use client";
 import { X } from "lucide-react";
-import { MotionConfig, motion } from "motion/react";
-import { ComponentProps, ReactNode, useEffect, useMemo, useState } from "react";
-import useMeasure from "react-use-measure";
+import { motion } from "motion/react";
+import { ComponentProps, ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { zeroHash } from "viem";
 
 import { SuccessfulAction } from "@/actions/utils/types";
@@ -77,7 +76,22 @@ export function ActionFlow({
 function ActionFlowDialog({ open, onOpenChange, actionName, summary, metrics }: ActionFlowDialogProps) {
   const { flowState, lastTransactionHash, error, startFlow } = useActionFlowContext();
   const preventClose = useMemo(() => flowState == "active", [flowState]);
-  const [measureRef, bounds] = useMeasure();
+
+  // useMeasure caused issues getting accurate height on initial render of dialog, this works instead
+  const measureRef = useRef<HTMLDivElement>(null);
+  const [measuredHeight, setMeasuredHeight] = useState<number | undefined>();
+  useEffect(() => {
+    if (!open) return;
+
+    const raf = requestAnimationFrame(() => {
+      if (measureRef.current) {
+        const height = measureRef.current.scrollHeight;
+        setMeasuredHeight(height);
+      }
+    });
+
+    return () => cancelAnimationFrame(raf);
+  }, [open, flowState]);
 
   const content = useMemo(() => {
     switch (flowState) {
@@ -124,21 +138,19 @@ function ActionFlowDialog({ open, onOpenChange, actionName, summary, metrics }: 
   return (
     <DialogDrawer open={open} onOpenChange={onOpenChange} dismissible={!preventClose}>
       <DialogDrawerContent hideCloseButton className="p-0 md:max-w-[420px]">
-        {/* TOOD: have an issue here on initial render with slightly wrong measured height */}
-        <MotionConfig transition={{ duration: 0.5, type: "spring", bounce: 0 }}>
-          <motion.div
-            animate={{ height: bounds.height ? bounds.height : undefined }}
-            className="min-w-0 overflow-hidden"
-          >
-            <div className="absolute top-2 right-2">
-              <ActionFlowDialogCloseButton close={() => onOpenChange(false)} />
-            </div>
+        <motion.div
+          animate={{ height: measuredHeight ? measuredHeight : undefined }}
+          transition={{ duration: 0.4, type: "spring", bounce: 0 }}
+          className="min-w-0 overflow-hidden"
+        >
+          <div className="absolute top-2 right-2">
+            <ActionFlowDialogCloseButton close={() => onOpenChange(false)} />
+          </div>
 
-            <div ref={(element) => measureRef(element)} className="flex min-w-0 flex-col gap-6 p-6">
-              {content}
-            </div>
-          </motion.div>
-        </MotionConfig>
+          <div ref={measureRef} className="flex min-w-0 flex-col gap-6 p-6" key={flowState}>
+            {content}
+          </div>
+        </motion.div>
       </DialogDrawerContent>
     </DialogDrawer>
   );

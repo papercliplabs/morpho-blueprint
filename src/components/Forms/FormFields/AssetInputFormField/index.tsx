@@ -66,16 +66,16 @@ function AssetInputFormField<TFieldValues extends Record<string, any>>({
                 </div>
               )}
             </div>
-            <div className="text-muted-foreground body-small flex items-center justify-between">
+            <div className="text-muted-foreground body-small flex h-[24px] items-center justify-between">
               {asset.priceUsd != null && (
                 <NumberFlow value={(field.value ?? 0) * asset.priceUsd} format={{ currency: "USD" }} />
               )}
-              <div className="flex h-[24px] items-center gap-1">
-                <div className="relative">
-                  <NumberFlow value={maxValue ?? 0} />
-                </div>
-                <span>{asset.symbol}</span>
-                {maxValue != undefined && (
+              {maxValue != undefined && (
+                <div className="flex h-[24px] items-center gap-1">
+                  <div className="relative">
+                    <NumberFlow value={maxValue ?? 0} />
+                  </div>
+                  <span>{asset.symbol}</span>
                   <Button
                     variant="secondary"
                     size="xs"
@@ -90,8 +90,8 @@ function AssetInputFormField<TFieldValues extends Record<string, any>>({
                   >
                     Max
                   </Button>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           </div>
         </FormItem>

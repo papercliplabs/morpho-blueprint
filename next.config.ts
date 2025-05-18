@@ -63,10 +63,11 @@ const nextConfig: NextConfig = {
       {
         source: "/(.*)",
         headers: [
-          {
-            key: "Content-Security-Policy",
-            value: cspHeader.replace(/\s{2,}/g, " ").trim(),
-          },
+          // TODO: reenable, but allow dev things for nextJS HMR...
+          // {
+          //   key: "Content-Security-Policy",
+          //   value: cspHeader.replace(/\s{2,}/g, " ").trim(),
+          // },
           {
             key: "Reporting-Endpoints",
             value: `csp-report-endpoint="${process.env.NEXT_PUBLIC_URL!}/api/csp-report"`,

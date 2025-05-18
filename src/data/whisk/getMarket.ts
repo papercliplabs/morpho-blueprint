@@ -12,6 +12,8 @@ const query = graphql(`
     morphoMarket(chainId: $chainId, marketId: $marketId) {
       ...MarketSummaryFragment
 
+      isIdle
+
       collateralAsset {
         priceUsd
       }
@@ -66,3 +68,7 @@ export const getMarket = cache(async (chainId: number, marketId: Hex): Promise<M
 });
 
 export type Market = NonNullable<GetMarketQuery["morphoMarket"]>;
+export type MarketNonIdle = Market & { isIdle: false; collateralAsset: NonNullable<Market["collateralAsset"]> };
+export function isNonIdleMarket(market: Market | null): market is MarketNonIdle {
+  return !!market && market.isIdle === false && !!market.collateralAsset;
+}

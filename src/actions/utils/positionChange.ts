@@ -10,29 +10,16 @@ import { computeScaledAmount } from "./math";
 export interface SimulatedValueChange<T> {
   before: T;
   after: T;
-  delta: T;
 }
 
 export type VaultPositionChange = {
-  balance: SimulatedValueChange<{
-    rawAmount: bigint;
-    amount: number;
-  }>;
+  balance: SimulatedValueChange<number>;
 };
 
 export type MarketPositionChange = {
-  collateral: SimulatedValueChange<{
-    rawAmount: bigint;
-    amount: number;
-  }>;
-  loan: SimulatedValueChange<{
-    rawAmount: bigint;
-    amount: number;
-  }>;
-  availableToBorrow: SimulatedValueChange<{
-    rawAmount: bigint;
-    amount: number;
-  }>;
+  collateral: SimulatedValueChange<number>;
+  loan: SimulatedValueChange<number>;
+  availableToBorrow: SimulatedValueChange<number>;
   ltv: SimulatedValueChange<number>;
 };
 
@@ -57,18 +44,8 @@ export function computeVaultPositionChange(
 
   return {
     balance: {
-      before: {
-        rawAmount: rawBalanceBefore,
-        amount: balanceBefore,
-      },
-      after: {
-        rawAmount: rawBalanceAfter,
-        amount: balanceAfter,
-      },
-      delta: {
-        rawAmount: rawBalanceAfter - rawBalanceBefore,
-        amount: balanceAfter - balanceBefore,
-      },
+      before: balanceBefore,
+      after: balanceAfter,
     },
   };
 }
@@ -133,51 +110,20 @@ export function computeMarketPositionChange(
 
   return {
     collateral: {
-      before: {
-        rawAmount: positionBefore.collateral,
-        amount: collateralBefore,
-      },
-      after: {
-        rawAmount: positionAfter.collateral,
-        amount: collateralAfter,
-      },
-      delta: {
-        rawAmount: positionAfter.collateral - positionBefore.collateral,
-        amount: collateralAfter - collateralBefore,
-      },
+      before: collateralBefore,
+      after: collateralAfter,
     },
     loan: {
-      before: {
-        rawAmount: rawLoanBefore,
-        amount: loanBefore,
-      },
-      after: {
-        rawAmount: rawLoanAfter,
-        amount: loanAfter,
-      },
-      delta: {
-        rawAmount: rawLoanAfter - rawLoanBefore,
-        amount: loanAfter - loanBefore,
-      },
+      before: loanBefore,
+      after: loanAfter,
     },
     availableToBorrow: {
-      before: {
-        rawAmount: rawAvailableToBorrowBefore,
-        amount: availableToBorrowBefore,
-      },
-      after: {
-        rawAmount: rawAvailableToBorrowAfter,
-        amount: availableToBorrowAfter,
-      },
-      delta: {
-        rawAmount: rawAvailableToBorrowAfter - rawAvailableToBorrowBefore,
-        amount: availableToBorrowAfter - availableToBorrowBefore,
-      },
+      before: availableToBorrowBefore,
+      after: availableToBorrowAfter,
     },
     ltv: {
       before: ltvBefore,
       after: ltvAfter,
-      delta: ltvAfter - ltvBefore,
     },
   };
 }

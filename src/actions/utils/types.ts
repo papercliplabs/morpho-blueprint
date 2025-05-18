@@ -34,10 +34,7 @@ export type Action = SuccessfulAction | ErrorAction;
 export type SuccessfulVaultAction = SuccessfulAction & { positionChange: VaultPositionChange };
 export type VaultAction = SuccessfulVaultAction | ErrorAction;
 
-export type MarketAction =
-  | (SuccessfulAction & {
-      positionChange: MarketPositionChange;
-    })
-  | ErrorAction;
+export type SuccessfulMarketAction = SuccessfulAction & { positionChange: MarketPositionChange };
+export type MarketAction = SuccessfulMarketAction | ErrorAction;
 
 export type PublicClientWithChain = PublicClient & { chain: NonNullable<PublicClient["chain"]> };

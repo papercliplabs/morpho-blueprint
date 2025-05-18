@@ -14,20 +14,24 @@ export function VaultActionFlow({
   vault,
   action,
   ...props
-}: Omit<ActionFlowProps, "summary" | "metrics" | "chainId"> & { action: VaultAction | null; vault: Vault }) {
+}: Omit<ActionFlowProps, "summary" | "metrics" | "chainId" | "actionName"> & {
+  action: VaultAction | null;
+  vault: Vault;
+}) {
   return (
     <ActionFlow
       action={action}
       chainId={vault.chain.id}
       summary={action && <VaultActionSummary vault={vault} positionChange={action.positionChange} />}
       metrics={action && <VaultActionSimulationMetrics vault={vault} positionChange={action.positionChange} />}
+      actionName={action ? vaultPositionChangeToActionName(action.positionChange) : "Send Transaction"} // Fallback won't occur
       {...props}
     />
   );
 }
 
 export function VaultActionSummary({ vault, positionChange }: { vault: Vault; positionChange: VaultPositionChange }) {
-  const deltaAmount = positionChange.balance.delta.amount;
+  const deltaAmount = positionChange.balance.after - positionChange.balance.before;
   const deltaAmountUsd = deltaAmount * (vault.asset?.priceUsd ?? 0);
   const action = deltaAmount > 0 ? "Supply" : "Withdraw";
 
@@ -56,15 +60,15 @@ export function VaultActionSimulationMetrics({
         name="Supplied"
         initialValue={
           <NumberFlowWithLoading
-            value={positionChange.balance.before.amount}
+            value={positionChange.balance.before}
             isLoading={isLoading}
             loadingContent={<Skeleton className="h-[21px] w-8" />}
           />
         }
         finalValue={
-          positionChange.balance.after.amount == positionChange.balance.before.amount ? undefined : (
+          positionChange.balance.after == positionChange.balance.before ? undefined : (
             <NumberFlowWithLoading
-              value={positionChange.balance.after.amount}
+              value={positionChange.balance.after}
               isLoading={isLoading}
               loadingContent={<Skeleton className="h-[21px] w-8" />}
             />
@@ -87,4 +91,9 @@ export function VaultActionSimulationMetrics({
       />
     </div>
   );
+}
+
+function vaultPositionChangeToActionName(positonChange: VaultPositionChange) {
+  const positionDelta = positonChange.balance.after - positonChange.balance.before;
+  return positionDelta > 0 ? "Supply" : "Withdraw";
 }
