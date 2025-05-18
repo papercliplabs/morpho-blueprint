@@ -8,9 +8,16 @@ import { Vault } from "@/data/whisk/getVault";
 import { VaultActionFlow } from "../ActionFlow/VaultActionFlow";
 import VaultWithdrawForm from "../Forms/VaultWithdrawForm";
 
-export default function VaultWithdraw({ vault, flowCompletionCb }: { vault: Vault; flowCompletionCb?: () => void }) {
+export default function VaultWithdraw({
+  vault,
+  onFlowClosed,
+}: {
+  vault: Vault;
+  onFlowClosed?: (success: boolean) => void;
+}) {
   const [action, setAction] = useState<SuccessfulVaultAction | null>(null);
   const [flowOpen, setFlowOpen] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   return (
     <>
@@ -26,9 +33,15 @@ export default function VaultWithdraw({ vault, flowCompletionCb }: { vault: Vaul
         vault={vault}
         action={action}
         open={flowOpen}
-        actionName="Withdraw"
-        onOpenChange={setFlowOpen}
-        flowCompletionCb={flowCompletionCb}
+        onOpenChange={(open) => {
+          setFlowOpen(open);
+          if (!open) {
+            onFlowClosed?.(success);
+          }
+        }}
+        flowCompletionCb={() => {
+          setSuccess(true);
+        }}
       />
     </>
   );

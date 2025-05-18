@@ -9,12 +9,13 @@ import { getAddress, maxUint256, parseUnits } from "viem";
 import { useAccount, usePublicClient } from "wagmi";
 import { z } from "zod";
 
-import { VaultPositionChange } from "@/actions/utils/positionChange";
 import { SuccessfulVaultAction } from "@/actions/utils/types";
 import { vaultSupplyAction } from "@/actions/vault/vaultSupplyAction";
 import { Vault } from "@/data/whisk/getVault";
 import { useVaultPosition } from "@/hooks/useVaultPositions";
+import { useWatchNumberInputField } from "@/hooks/useWatchNumberInputField";
 import { descaleBigIntToNumber } from "@/utils/format";
+import { computeVaultPositionChange } from "@/utils/math";
 
 import { VaultActionSimulationMetrics } from "../ActionFlow/VaultActionFlow";
 import { Button } from "../ui/button";
@@ -66,7 +67,7 @@ export default function VaultSupplyForm({ vault, onSuccessfulActionSimulation }:
         .refine(
           (val) => {
             const num = Number(val);
-            return num <= (walletUnderlyingAssetBalance ?? Infinity);
+            return num <= (walletUnderlyingAssetBalance != undefined ? walletUnderlyingAssetBalance : Infinity);
           },
           {
             message: "Amount exceeds wallet balance.",
@@ -117,32 +118,19 @@ export default function VaultSupplyForm({ vault, onSuccessfulActionSimulation }:
     setSimulating(false);
   }
 
-  const supplyAmount = form.watch("supplyAmount") ?? "0";
+  const supplyAmount = useWatchNumberInputField(form.control, "supplyAmount");
+
+  const missingAmountInput = useMemo(() => {
+    return supplyAmount == 0;
+  }, [supplyAmount]);
+
   const [debouncedSupplyAmount] = useDebounce(supplyAmount, 300);
-
   const simulationMetrics = useMemo(() => {
-    const currentSupply =
-      position?.supplyAssets != undefined ? descaleBigIntToNumber(position.supplyAssets, vault.asset.decimals) : 0;
-
-    const supplyAmount = Number(debouncedSupplyAmount);
-    const newSupply = currentSupply == undefined ? 0 : currentSupply + supplyAmount;
-
-    const positionChange: VaultPositionChange = {
-      balance: {
-        before: {
-          rawAmount: 0n, // Unused
-          amount: currentSupply,
-        },
-        after: {
-          rawAmount: 0n, // Unused
-          amount: newSupply,
-        },
-        delta: {
-          rawAmount: 0n, // Unused
-          amount: supplyAmount,
-        },
-      },
-    };
+    const positionChange = computeVaultPositionChange({
+      vault,
+      currentPosition: position,
+      supplyAmountChange: debouncedSupplyAmount,
+    });
 
     return <VaultActionSimulationMetrics vault={vault} positionChange={positionChange} isLoading={isPositionLoading} />;
   }, [debouncedSupplyAmount, position, vault, isPositionLoading]);
@@ -168,11 +156,11 @@ export default function VaultSupplyForm({ vault, onSuccessfulActionSimulation }:
             <div className="flex flex-col gap-1">
               <Button
                 type="submit"
-                disabled={simulating || !form.formState.isValid}
+                disabled={simulating || !form.formState.isValid || missingAmountInput}
                 isLoading={simulating}
                 loadingMessage="Simulating"
               >
-                Review Supply
+                {missingAmountInput ? "Enter an amount" : "Review"}
               </Button>
               <ErrorMessage message={simulationErrorMsg} />
             </div>

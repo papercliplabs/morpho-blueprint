@@ -84,7 +84,16 @@ function VaultActionsMobile({ vault, hasSupplyPosition }: { hasSupplyPosition: b
         </DrawerTrigger>
         <DrawerContent className="flex flex-col gap-6">
           <DrawerTitle>Supply</DrawerTitle>
-          <VaultSupply vault={vault} flowCompletionCb={() => setSupplyOpen(false)} />
+          <VaultSupply
+            vault={vault}
+            onFlowClosed={(success) => {
+              if (success) {
+                // Automically close parent drawer when true (better UX with nested drawers)
+                setSupplyOpen(false);
+              }
+            }}
+          />
+          <PoweredByMorpho className="mx-auto" />
         </DrawerContent>
       </Drawer>
 
@@ -96,7 +105,16 @@ function VaultActionsMobile({ vault, hasSupplyPosition }: { hasSupplyPosition: b
         </DrawerTrigger>
         <DrawerContent className="flex flex-col gap-6">
           <DrawerTitle>Withdraw</DrawerTitle>
-          <VaultWithdraw vault={vault} flowCompletionCb={() => setWithdrawOpen(false)} />
+          <VaultWithdraw
+            vault={vault}
+            onFlowClosed={(success) => {
+              if (success) {
+                // Automically close parent drawer when true (better UX with nested drawers)
+                setWithdrawOpen(false);
+              }
+            }}
+          />
+          <PoweredByMorpho className="mx-auto" />
         </DrawerContent>
       </Drawer>
     </div>

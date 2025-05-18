@@ -2,8 +2,9 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { isHex } from "viem";
 
+import MarketActions from "@/components/MarketActions";
 import { WHITELISTED_MARKETS } from "@/config";
-import { getMarket } from "@/data/whisk/getMarket";
+import { getMarket, isNonIdleMarket } from "@/data/whisk/getMarket";
 import { MarketIdentifier } from "@/utils/types";
 
 export default async function MarketPage({ params }: { params: Promise<{ chainId: string; marketId: string }> }) {
@@ -27,7 +28,7 @@ export default async function MarketPage({ params }: { params: Promise<{ chainId
     <div className="flex flex-col">
       <h1>Market</h1>
       <Suspense fallback={<div>Loading...</div>}>
-        <ExampleWrapper chainId={chainId} marketId={marketId} />
+        <MarketActionsWrapper chainId={chainId} marketId={marketId} />
       </Suspense>
     </div>
   );
@@ -42,12 +43,22 @@ function UnsupportedMarket() {
   );
 }
 
-async function ExampleWrapper({ chainId, marketId }: MarketIdentifier) {
-  const vault = await getMarket(chainId, marketId);
+async function MarketActionsWrapper({ chainId, marketId }: MarketIdentifier) {
+  const market = await getMarket(chainId, marketId);
 
-  return (
-    <div>
-      <pre>{JSON.stringify(vault, null, 2)}</pre>
-    </div>
-  );
+  if (!market || !isNonIdleMarket(market)) {
+    return null;
+  }
+
+  return <MarketActions market={market} />;
 }
+
+// async function ExampleWrapper({ chainId, marketId }: MarketIdentifier) {
+//   const vault = await getMarket(chainId, marketId);
+
+//   return (
+//     <div>
+//       <pre>{JSON.stringify(vault, null, 2)}</pre>
+//     </div>
+//   );
+// }

@@ -24,8 +24,11 @@ export function MetricChange({ name, initialValue, finalValue, className, ...pro
 
 export function MetricChangeValues({ initialValue, finalValue }: { initialValue: ReactNode; finalValue?: ReactNode }) {
   return (
-    <div className="body-medium-plus text-muted-foreground relative flex items-center gap-1">
-      <MotionConfig transition={{ duration: 0.3, type: "spring", bounce: 0 }}>
+    <MotionConfig transition={{ duration: 0.3, type: "spring", bounce: 0 }}>
+      <motion.div
+        layout
+        className="body-medium-plus text-muted-foreground relative flex items-center gap-1 overflow-hidden"
+      >
         <AnimatePresence initial={false} mode="popLayout">
           <motion.span layout key="initial" className={clsx("transition-colors", !finalValue && "text-foreground")}>
             {initialValue}
@@ -48,7 +51,7 @@ export function MetricChangeValues({ initialValue, finalValue }: { initialValue:
             </motion.div>
           )}
         </AnimatePresence>
-      </MotionConfig>
-    </div>
+      </motion.div>
+    </MotionConfig>
   );
 }
