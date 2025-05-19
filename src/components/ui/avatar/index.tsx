@@ -46,6 +46,7 @@ const avatarVariants = cva("", {
       md: "w-8 h-8",
       sm: "w-6 h-6 body-small",
       xs: "w-4 h-4 text-[8px] leading-[8px]",
+      "2xs": "w-3 h-3 text-[6px] leading-[6px]",
     },
   },
   defaultVariants: {
@@ -69,7 +70,7 @@ function Avatar({ className, src, alt, fallback, sub, size }: AvatarProps) {
         <AvatarFallback>{fallback}</AvatarFallback>
       </AvatarRoot>
       {!!sub && (
-        <span className="absolute right-0 bottom-0 flex h-3 w-3 items-center justify-center overflow-hidden rounded-full">
+        <span className="absolute right-0 bottom-0 translate-x-1/4 translate-y-1/4 items-center justify-center overflow-hidden">
           {sub}
         </span>
       )}
