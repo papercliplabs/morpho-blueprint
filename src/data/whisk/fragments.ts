@@ -52,6 +52,8 @@ graphql(`
     supplyAssets
     supplyAssetsUsd
 
+    liquidityAssetsUsd
+
     marketAllocations {
       market {
         collateralAsset {

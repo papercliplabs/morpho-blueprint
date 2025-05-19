@@ -29,7 +29,7 @@ export function MetricWithTooltip({ label, children, tooltip, className, ...prop
 
 export function Metric({ label, children, className, ...props }: MetricProps) {
   return (
-    <div className={cn("text-foreground flex flex-col gap-2 text-left", className)} {...props}>
+    <div className={cn("text-foreground flex flex-col text-left", className)} {...props}>
       <p className="body-small-plus text-muted-foreground w-fit whitespace-nowrap">{label}</p>
       {children}
     </div>

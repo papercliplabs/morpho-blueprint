@@ -26,7 +26,7 @@ type NavItemProps = LinkProps & React.ComponentProps<typeof Link> & VariantProps
 function NavItem({ className, active, href, name }: NavItemProps) {
   return (
     <Link href={href} className={navItemVariants({ className, active })}>
-      <span className="transition group-active:scale-95">{name}</span>
+      <span className="body-medium-plus transition group-active:scale-95">{name}</span>
     </Link>
   );
 }
