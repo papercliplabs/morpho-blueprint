@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { isHex } from "viem";
 
-import MarketActions from "@/components/MarketActions";
+import MarketActions from "@/components/market/MarketActions";
 import { WHITELISTED_MARKETS } from "@/config";
 import { getMarket, isNonIdleMarket } from "@/data/whisk/getMarket";
 import { MarketIdentifier } from "@/utils/types";

@@ -9,3 +9,5 @@ export interface MarketIdentifier {
   chainId: number;
   marketId: Hex;
 }
+
+export type BigIntString = string;

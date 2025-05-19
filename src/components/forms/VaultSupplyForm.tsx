@@ -29,7 +29,7 @@ interface VaultSupplyFormProps {
   onSuccessfulActionSimulation: (action: SuccessfulVaultAction) => void;
 }
 
-export default function VaultSupplyForm({ vault, onSuccessfulActionSimulation }: VaultSupplyFormProps) {
+export function VaultSupplyForm({ vault, onSuccessfulActionSimulation }: VaultSupplyFormProps) {
   const { address } = useAccount();
   const publicClient = usePublicClient({ chainId: vault.chain.id });
   const { open: openAppKit } = useAppKit();

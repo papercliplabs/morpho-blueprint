@@ -1,6 +1,5 @@
 import { Suspense } from "react";
 
-import { EarnSummaryMetrics, EarnSummaryMetricsSkeleton } from "@/components/EarnSummaryMetrics";
 import { AccountFilters } from "@/components/filters/AccountFilters";
 import { VaultFilters } from "@/components/filters/VaultFilters";
 import { MultiSelectOption } from "@/components/MultiSelect";
@@ -8,6 +7,7 @@ import { VaultTable } from "@/components/tables/VaultTable";
 import { Avatar } from "@/components/ui/avatar";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Skeleton, Skeletons } from "@/components/ui/skeleton";
+import { EarnSummaryMetrics, EarnSummaryMetricsSkeleton } from "@/components/vault/EarnSummaryMetrics";
 import { getVaultSummaries } from "@/data/whisk/getVaultSummaries";
 
 export default function EarnPage() {

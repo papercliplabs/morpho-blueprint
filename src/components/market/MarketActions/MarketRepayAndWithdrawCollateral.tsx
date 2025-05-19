@@ -2,35 +2,34 @@
 
 import { useState } from "react";
 
-import { SuccessfulVaultAction } from "@/actions/utils/types";
-import { Vault } from "@/data/whisk/getVault";
+import { SuccessfulMarketAction } from "@/actions/utils/types";
+import { MarketActionFlow } from "@/components/ActionFlow/MarketActionFlow";
+import { MarketRepayAndWithdrawCollateralForm } from "@/components/forms/MarketRepayAndWithdrawCollateralForm";
+import { MarketNonIdle } from "@/data/whisk/getMarket";
 
-import { VaultActionFlow } from "../ActionFlow/VaultActionFlow";
-import VaultSupplyForm from "../Forms/VaultSupplyForm";
-
-export default function VaultSupply({
-  vault,
+export default function MarketRepayAndWithdrawCollateral({
+  market,
   onFlowClosed,
 }: {
-  vault: Vault;
+  market: MarketNonIdle;
   onFlowClosed?: (success: boolean) => void;
 }) {
-  const [action, setAction] = useState<SuccessfulVaultAction | null>(null);
+  const [action, setAction] = useState<SuccessfulMarketAction | null>(null);
   const [flowOpen, setFlowOpen] = useState(false);
   const [success, setSuccess] = useState(false);
 
   return (
     <>
-      <VaultSupplyForm
-        vault={vault}
+      <MarketRepayAndWithdrawCollateralForm
+        market={market}
         onSuccessfulActionSimulation={(action) => {
           setAction(action);
           setFlowOpen(true);
         }}
       />
 
-      <VaultActionFlow
-        vault={vault}
+      <MarketActionFlow
+        market={market}
         action={action}
         open={flowOpen}
         onOpenChange={(open) => {

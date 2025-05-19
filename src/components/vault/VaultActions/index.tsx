@@ -3,16 +3,15 @@
 import { useEffect, useMemo, useState } from "react";
 import { getAddress } from "viem";
 
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Drawer, DrawerContent, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
+import { PoweredByMorpho } from "@/components/ui/icons/PoweredByMorpho";
+import { Tabs } from "@/components/ui/tabs";
+import { TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Vault } from "@/data/whisk/getVault";
 import { useVaultPosition } from "@/hooks/useVaultPositions";
 import { useResponsiveContext } from "@/providers/ResponsiveProvider";
-
-import { Button } from "../ui/button";
-import { Card } from "../ui/card";
-import { Drawer, DrawerContent, DrawerTitle, DrawerTrigger } from "../ui/drawer";
-import { PoweredByMorpho } from "../ui/icons/PoweredByMorpho";
-import { Tabs } from "../ui/tabs";
-import { TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 
 import VaultSupply from "./VaultSupply";
 import VaultWithdraw from "./VaultWithdraw";

@@ -5,8 +5,8 @@ import { Table } from "@/components/ui/table";
 import { MarketSummary } from "@/data/whisk/getMarketSummaries";
 import { MarketTableDataEntry, useMarketTableData } from "@/hooks/useMarketTableData";
 
+import { TokenIcon } from "../TokenIcon";
 import { ApyTooltip } from "../Tooltips/ApyToolip";
-import { Avatar } from "../ui/avatar";
 import NumberFlow, { NumberFlowWithLoading } from "../ui/number-flow";
 import { Skeleton } from "../ui/skeleton";
 
@@ -26,20 +26,7 @@ function getColumns(isPositionLoading: boolean): ColumnDef<MarketTableDataEntry>
         const { marketSummary } = row.original;
         return marketSummary.collateralAsset ? (
           <div className="flex items-center gap-3">
-            <Avatar
-              src={marketSummary.collateralAsset.icon}
-              fallback={marketSummary.collateralAsset.symbol}
-              size="sm"
-              sub={
-                <Avatar
-                  src={marketSummary.chain.icon}
-                  alt={marketSummary.chain.name}
-                  fallback={marketSummary.chain.name}
-                  size="xs"
-                  className="border-background border-2"
-                />
-              }
-            />
+            <TokenIcon token={marketSummary.collateralAsset} chain={marketSummary.chain} size="md" />
             <span className="body-medium-plus">{marketSummary.collateralAsset.symbol}</span>
           </div>
         ) : (
@@ -56,20 +43,7 @@ function getColumns(isPositionLoading: boolean): ColumnDef<MarketTableDataEntry>
         const { marketSummary } = row.original;
         return (
           <div className="flex items-center gap-3">
-            <Avatar
-              src={marketSummary.loanAsset.icon}
-              fallback={marketSummary.loanAsset.symbol}
-              size="sm"
-              sub={
-                <Avatar
-                  src={marketSummary.chain.icon}
-                  alt={marketSummary.chain.name}
-                  fallback={marketSummary.chain.name}
-                  size="xs"
-                  className="border-background border-2"
-                />
-              }
-            />
+            <TokenIcon token={marketSummary.loanAsset} chain={marketSummary.chain} size="md" />
             <span className="body-medium-plus">{marketSummary.loanAsset.symbol}</span>
           </div>
         );

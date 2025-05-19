@@ -3,16 +3,15 @@
 import { useEffect, useMemo, useState } from "react";
 import { Hex } from "viem";
 
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Drawer, DrawerContent, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
+import { PoweredByMorpho } from "@/components/ui/icons/PoweredByMorpho";
+import { Tabs } from "@/components/ui/tabs";
+import { TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MarketNonIdle } from "@/data/whisk/getMarket";
 import { useMarketPosition } from "@/hooks/useMarketPositions";
 import { useResponsiveContext } from "@/providers/ResponsiveProvider";
-
-import { Button } from "../ui/button";
-import { Card } from "../ui/card";
-import { Drawer, DrawerContent, DrawerTitle, DrawerTrigger } from "../ui/drawer";
-import { PoweredByMorpho } from "../ui/icons/PoweredByMorpho";
-import { Tabs } from "../ui/tabs";
-import { TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 
 import MarketRepayAndWithdrawCollateral from "./MarketRepayAndWithdrawCollateral";
 import MarketSupplyCollateralAndBorrow from "./MarketSupplyCollateralAndBorrow";
