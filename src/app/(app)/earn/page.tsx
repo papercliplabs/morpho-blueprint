@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { Suspense } from "react";
 
+import { EarnSummaryMetrics, EarnSummaryMetricsSkeleton } from "@/components/EarnSummaryMetrics";
 import { AccountFilters } from "@/components/filters/AccountFilters";
 import { VaultFilters } from "@/components/filters/VaultFilters";
 import { MultiSelectOption } from "@/components/MultiSelect";
@@ -11,30 +12,44 @@ import { getVaultSummaries } from "@/data/whisk/getVaultSummaries";
 
 export default function EarnPage() {
   return (
-    <div className="flex w-full min-w-0 flex-col gap-4">
-      <h1>Earn</h1>
-
-      <div className="flex flex-col justify-between gap-4 md:flex-row">
-        <Suspense
-          fallback={
-            <div className="flex gap-4">
-              <Skeletons count={2} className="h-[40px] w-[200px]" />
-            </div>
-          }
-        >
-          <VaultFiltersWrapper />
-        </Suspense>
-        <AccountFilters />
+    <div className="flex w-full min-w-0 flex-col gap-6">
+      <div className="flex flex-col gap-1">
+        <h1>Earn</h1>
+        <p className="text-muted-foreground">Earn yield on assets by lending them out</p>
       </div>
 
-      <Card className="min-w-0">
-        <CardHeader>Vaults</CardHeader>
-        <Suspense fallback={<Skeleton className="h-[500px] w-full" />}>
-          <VaultTableWrapper />
-        </Suspense>
-      </Card>
+      <Suspense fallback={<EarnSummaryMetricsSkeleton />}>
+        <EarnSummaryMetricsWrapper />
+      </Suspense>
+
+      <section className="flex flex-col gap-4">
+        <div className="flex flex-col justify-between gap-4 md:flex-row">
+          <Suspense
+            fallback={
+              <div className="flex gap-4">
+                <Skeletons count={2} className="h-[40px] w-[116px] flex-1" />
+              </div>
+            }
+          >
+            <VaultFiltersWrapper />
+          </Suspense>
+          <AccountFilters />
+        </div>
+
+        <Card className="min-w-0">
+          <CardHeader>Vaults</CardHeader>
+          <Suspense fallback={<Skeleton className="h-[500px] w-full" />}>
+            <VaultTableWrapper />
+          </Suspense>
+        </Card>
+      </section>
     </div>
   );
+}
+
+async function EarnSummaryMetricsWrapper() {
+  const vaultSummaries = await getVaultSummaries();
+  return <EarnSummaryMetrics vaultSummaries={vaultSummaries} />;
 }
 
 async function VaultFiltersWrapper() {
