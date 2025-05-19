@@ -13,7 +13,7 @@ function Card({ children, className, ...props }: CardProps) {
 
 function CardHeader({ children, className, ...props }: CardHeaderProps) {
   return (
-    <header className={cn("pb-6", className)} {...props}>
+    <header className={cn("pb-4", className)} {...props}>
       <span className="heading-6">{children}</span>
     </header>
   );

@@ -33,6 +33,12 @@ export const METADATA = {
 export const WHITELISTED_VAULTS: Record<number, Address[]> = {
   [mainnet.id]: [getAddress("0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB")],
   [base.id]: [getAddress("0x616a4E1db48e22028f6bbf20444Cd3b8e3273738")],
+  [polygon.id]: [
+    getAddress("0x781FB7F6d845E3bE129289833b04d43Aa8558c42"), // USDC
+    getAddress("0xF5C81d25ee174d83f1FD202cA94AE6070d073cCF"), // WETH
+    getAddress("0xfD06859A671C21497a2EB8C5E3fEA48De924D6c8"), // USDT
+    getAddress("0x3F33F9f7e2D7cfBCBDf8ea8b870a6E3d449664c2"), // POL
+  ],
 };
 
 // ChainId -> MarketId

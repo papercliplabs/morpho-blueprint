@@ -11,6 +11,7 @@ type AvatarGroupProps = {
 } & React.ComponentProps<"div">;
 
 const spacing: Record<Exclude<AvatarProps["size"], undefined | null>, string> = {
+  "2xs": "-ml-2",
   xs: "-ml-2",
   sm: "-ml-2",
   md: "-ml-3",
