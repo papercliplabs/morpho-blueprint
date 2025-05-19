@@ -50,7 +50,7 @@ function VaultActionsDesktop({ vault, hasSupplyPosition }: { hasSupplyPosition: 
   }, [hasSupplyPosition]);
 
   return (
-    <Card className="w-[364px]">
+    <Card className="h-fit w-[364px] shrink-0">
       <Tabs defaultValue="supply" variant="underline" className="flex flex-col gap-6">
         <div className="w-full border-b">
           <TabsList className="w-fit">

@@ -5,8 +5,10 @@ import { Address } from "viem";
 
 import { TokenIcon } from "@/components/TokenIcon";
 import { BreakcrumbBack } from "@/components/ui/breakcrumb-back";
+import { Card, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import VaultActions from "@/components/vault/VaultActions";
+import { VaultKeyMetrics, VaultKeyMetricsSkeleton } from "@/components/vault/VaultKeyMetrics";
 import { VaultPositionHighlight } from "@/components/vault/VaultPositionHighlight";
 import { WHITELISTED_VAULTS } from "@/config";
 import { getVault } from "@/data/whisk/getVault";
@@ -46,9 +48,41 @@ export default async function VaultPage({ params }: { params: Promise<{ chainId:
         </Suspense>
       </section>
 
-      <Suspense fallback={<div>Loading...</div>}>
-        <VaultActionsWrapper chainId={chainId} vaultAddress={vaultAddress} />
-      </Suspense>
+      <div className="flex gap-3">
+        <div className="flex grow flex-col gap-3">
+          <Card>
+            <CardHeader>Key Metrics</CardHeader>
+            <Suspense fallback={<VaultKeyMetricsSkeleton />}>
+              <KeyMetricsWrapper chainId={chainId} vaultAddress={vaultAddress} />
+            </Suspense>
+          </Card>
+
+          {/* Hide until loaded in as this is conditionally rendered */}
+          <Suspense fallback={null}>
+            <VaultAboutCard chainId={chainId} vaultAddress={vaultAddress} />
+          </Suspense>
+
+          <Card>
+            <CardHeader>Market Allocation</CardHeader>
+            <div>TODO</div>
+          </Card>
+
+          <Card>
+            <CardHeader>Vault Info</CardHeader>
+            <div>TODO</div>
+          </Card>
+        </div>
+
+        <Suspense
+          fallback={
+            <Card className="h-[415px] w-[364px]">
+              <Skeleton className="h-full w-full" />
+            </Card>
+          }
+        >
+          <VaultActionsWrapper chainId={chainId} vaultAddress={vaultAddress} />
+        </Suspense>
+      </div>
     </div>
   );
 }
@@ -82,6 +116,32 @@ async function VaultHeader({ chainId, vaultAddress }: VaultIdentifier) {
 
       <VaultPositionHighlight vault={vault} />
     </div>
+  );
+}
+
+async function KeyMetricsWrapper({ chainId, vaultAddress }: VaultIdentifier) {
+  const vault = await getVault(chainId, vaultAddress);
+
+  if (!vault) {
+    return null;
+  }
+
+  return <VaultKeyMetrics vault={vault} />;
+}
+
+async function VaultAboutCard({ chainId, vaultAddress }: VaultIdentifier) {
+  const vault = await getVault(chainId, vaultAddress);
+
+  // Hide unless there is about content
+  if (!vault || !vault.metadata?.description) {
+    return null;
+  }
+
+  return (
+    <Card>
+      <CardHeader>About</CardHeader>
+      <p className="text-muted-foreground">{vault.metadata?.description}</p>
+    </Card>
   );
 }
 
