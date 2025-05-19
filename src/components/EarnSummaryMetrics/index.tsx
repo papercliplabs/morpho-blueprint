@@ -19,9 +19,9 @@ export function EarnSummaryMetrics({ vaultSummaries }: EarnSummaryMetricsProps) 
 
   return (
     <EarnSummaryMetricsLayout
-      totalSupply={<NumberFlow value={data.totalSuppliedUsd} format={{ currency: "USD" }} className="heading-5" />}
-      totalBorrow={<NumberFlow value={data.totalBorrowedUsd} format={{ currency: "USD" }} className="heading-5" />}
-      userDeposits={<NumberFlow value={data.userDepositsUsd} format={{ currency: "USD" }} className="heading-5" />}
+      totalSupplied={<NumberFlow value={data.totalSuppliedUsd} format={{ currency: "USD" }} className="heading-5" />}
+      totalBorrowed={<NumberFlow value={data.totalBorrowedUsd} format={{ currency: "USD" }} className="heading-5" />}
+      userDeposited={<NumberFlow value={data.userDepositsUsd} format={{ currency: "USD" }} className="heading-5" />}
       userEarnApy={<NumberFlow value={data.userEarnApy} format={{ style: "percent" }} className="heading-5" />}
     />
   );
@@ -30,37 +30,37 @@ export function EarnSummaryMetrics({ vaultSummaries }: EarnSummaryMetricsProps) 
 export function EarnSummaryMetricsSkeleton() {
   return (
     <EarnSummaryMetricsLayout
-      totalSupply={metricSkeleton}
-      totalBorrow={metricSkeleton}
-      userDeposits={metricSkeleton}
+      totalSupplied={metricSkeleton}
+      totalBorrowed={metricSkeleton}
+      userDeposited={metricSkeleton}
       userEarnApy={metricSkeleton}
     />
   );
 }
 
 interface EarnSummaryMetricsLayoutProps {
-  totalSupply: ReactNode;
-  totalBorrow: ReactNode;
+  totalSupplied: ReactNode;
+  totalBorrowed: ReactNode;
 
-  userDeposits: ReactNode;
+  userDeposited: ReactNode;
   userEarnApy: ReactNode;
 }
 
 function EarnSummaryMetricsLayout({
-  totalSupply,
-  totalBorrow,
-  userDeposits,
+  totalSupplied,
+  totalBorrowed,
+  userDeposited,
   userEarnApy,
 }: EarnSummaryMetricsLayoutProps) {
   return (
     <div className="flex flex-col justify-between gap-4 md:flex-row">
       <div className="flex gap-8">
-        <Metric label="Total supplied">{totalSupply}</Metric>
-        <Metric label="Total borrowed">{totalBorrow}</Metric>
+        <Metric label="Total supplied">{totalSupplied}</Metric>
+        <Metric label="Total borrowed">{totalBorrowed}</Metric>
       </div>
       <div className="flex gap-8">
         <Metric label="Your deposits" className="md:items-end">
-          {userDeposits}
+          {userDeposited}
         </Metric>
         <Metric label="Your earn APY" className="md:items-end">
           {userEarnApy}

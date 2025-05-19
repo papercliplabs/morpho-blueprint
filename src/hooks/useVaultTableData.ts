@@ -22,9 +22,9 @@ export function useVaultTableData({ vaultSummaries }: { vaultSummaries: VaultSum
   const { data: positions, isLoading } = useVaultPositions();
 
   const {
-    values: [chainsFilterValue, assetsFilterValue, curatorsFilterValue, accountFilterValues],
+    values: [chainsFilterValues, assetsFilterValues, curatorsFilterValues, accountFilterValues],
   } = useShallowSearchParams({
-    keys: [FilterKey.Chains, FilterKey.Assets, FilterKey.Curators, FilterKey.Account],
+    keys: [FilterKey.Chains, FilterKey.SupplyAssets, FilterKey.Curators, FilterKey.Account],
   });
 
   const data = useMemo(() => {
@@ -41,12 +41,12 @@ export function useVaultTableData({ vaultSummaries }: { vaultSummaries: VaultSum
   const filteredData = useMemo(() => {
     const filteredData = data.filter((dataEntry) => {
       const chainsFilterMatch =
-        chainsFilterValue.length === 0 || chainsFilterValue.includes(dataEntry.vaultSummary.chain.name.toString());
+        chainsFilterValues.length === 0 || chainsFilterValues.includes(dataEntry.vaultSummary.chain.name.toString());
       const assetsFilterMatch =
-        assetsFilterValue.length === 0 || assetsFilterValue.includes(dataEntry.vaultSummary.asset.symbol.toString());
+        assetsFilterValues.length === 0 || assetsFilterValues.includes(dataEntry.vaultSummary.asset.symbol.toString());
       // TODO: add curator filter
       const curatorsFilterMatch = true;
-      void curatorsFilterValue;
+      void curatorsFilterValues;
 
       let accountFilterMatch = true;
       const accountFilterValue = accountFilterValues[0];
@@ -68,7 +68,7 @@ export function useVaultTableData({ vaultSummaries }: { vaultSummaries: VaultSum
     });
 
     return filteredData;
-  }, [data, chainsFilterValue, assetsFilterValue, curatorsFilterValue, accountFilterValues]);
+  }, [data, chainsFilterValues, assetsFilterValues, curatorsFilterValues, accountFilterValues]);
 
   return { data: filteredData, isPositionsLoading: isLoading };
 }

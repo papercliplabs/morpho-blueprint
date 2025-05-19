@@ -17,7 +17,7 @@ type ApyTooltipContent = {
 const TOOLTIP_CONTENT: Record<ApyTooltipType, ApyTooltipContent> = {
   borrow: {
     title: "Borrow APY",
-    description: "Lorem ipsum",
+    description: "The net annual percent yield (APY) paid by borrowing from this market, including rewards.",
   },
   earn: {
     title: "Earn APY",

@@ -1,6 +1,8 @@
 export enum FilterKey {
   Chains = "chains",
-  Assets = "assets",
+  SupplyAssets = "supply-assets",
+  CollateralAssets = "collateral-assets",
+  LoanAssets = "loan-assets",
   Curators = "curators",
   Account = "account",
 }
