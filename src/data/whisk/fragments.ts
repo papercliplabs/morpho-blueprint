@@ -78,6 +78,8 @@ graphql(`
 
     marketId
 
+    borrowAssetsUsd
+
     collateralAsset {
       ...TokenInfoFragment
     }

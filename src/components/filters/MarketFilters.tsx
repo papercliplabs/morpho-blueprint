@@ -7,19 +7,19 @@ import { MultiSelect, MultiSelectOption } from "../MultiSelect";
 
 import { FilterKey } from "./types";
 
-interface VaultFiltersProps {
+interface MarketFiltersProps {
   chainOptions: MultiSelectOption[];
-  assetOptions: MultiSelectOption[];
-  curatorOptions: MultiSelectOption[];
+  collateralAssetOptions: MultiSelectOption[];
+  loanAssetOptions: MultiSelectOption[];
 }
 
-export function VaultFilters({ chainOptions, assetOptions, curatorOptions }: VaultFiltersProps) {
+export function MarketFilters({ chainOptions, collateralAssetOptions, loanAssetOptions }: MarketFiltersProps) {
   const {
-    values: [chainValues, assetValues, curatorValues],
+    values: [chainValues, collateralAssetValues, loanAssetValues],
     addShallowSearchParams,
     removeShallowSearchParams,
   } = useShallowSearchParams({
-    keys: [FilterKey.Chains, FilterKey.SupplyAssets, FilterKey.Curators],
+    keys: [FilterKey.Chains, FilterKey.CollateralAssets, FilterKey.LoanAssets],
   });
 
   const onSelect = useCallback(
@@ -43,22 +43,22 @@ export function VaultFilters({ chainOptions, assetOptions, curatorOptions }: Vau
           onReset={() => removeShallowSearchParams([FilterKey.Chains])}
         />
       )}
-      {assetOptions.length > 1 && (
+      {collateralAssetOptions.length > 1 && (
         <MultiSelect
-          emptyValue={assetValues.length === 0 ? "All Assets" : "Assets"}
-          options={assetOptions}
-          value={assetValues}
-          onSelect={(value) => onSelect(FilterKey.SupplyAssets, assetValues, value)}
-          onReset={() => removeShallowSearchParams([FilterKey.SupplyAssets])}
+          emptyValue={collateralAssetValues.length === 0 ? "All Collateral Assets" : "Collateral Assets"}
+          options={collateralAssetOptions}
+          value={collateralAssetValues}
+          onSelect={(value) => onSelect(FilterKey.CollateralAssets, collateralAssetValues, value)}
+          onReset={() => removeShallowSearchParams([FilterKey.CollateralAssets])}
         />
       )}
-      {curatorOptions.length > 1 && (
+      {loanAssetOptions.length > 1 && (
         <MultiSelect
-          emptyValue={curatorValues.length === 0 ? "All Curators" : "Curators"}
-          options={curatorOptions}
-          value={curatorValues}
-          onSelect={(value) => onSelect(FilterKey.Curators, curatorValues, value)}
-          onReset={() => removeShallowSearchParams([FilterKey.Curators])}
+          emptyValue={loanAssetValues.length === 0 ? "All Loan Assets" : "Loan Assets"}
+          options={loanAssetOptions}
+          value={loanAssetValues}
+          onSelect={(value) => onSelect(FilterKey.LoanAssets, loanAssetValues, value)}
+          onReset={() => removeShallowSearchParams([FilterKey.LoanAssets])}
         />
       )}
     </div>

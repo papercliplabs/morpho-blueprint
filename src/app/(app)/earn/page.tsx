@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { Suspense } from "react";
 
 import { EarnSummaryMetrics, EarnSummaryMetricsSkeleton } from "@/components/EarnSummaryMetrics";
@@ -6,6 +5,7 @@ import { AccountFilters } from "@/components/filters/AccountFilters";
 import { VaultFilters } from "@/components/filters/VaultFilters";
 import { MultiSelectOption } from "@/components/MultiSelect";
 import { VaultTable } from "@/components/tables/VaultTable";
+import { Avatar } from "@/components/ui/avatar";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Skeleton, Skeletons } from "@/components/ui/skeleton";
 import { getVaultSummaries } from "@/data/whisk/getVaultSummaries";
@@ -15,7 +15,7 @@ export default function EarnPage() {
     <div className="flex w-full min-w-0 flex-col gap-6">
       <div className="flex flex-col gap-1">
         <h1>Earn</h1>
-        <p className="text-muted-foreground">Earn yield on assets by lending them out</p>
+        <p className="text-muted-foreground">Earn yield on assets by lending them out.</p>
       </div>
 
       <Suspense fallback={<EarnSummaryMetricsSkeleton />}>
@@ -63,7 +63,7 @@ async function VaultFiltersWrapper() {
       value: vault.chain.name,
       component: (
         <>
-          <Image src={vault.chain.icon} width={24} height={24} className="size-6" alt={vault.chain.name} />
+          <Avatar src={vault.chain.icon} fallback={vault.chain.name} size="sm" alt={vault.chain.name} />
           {vault.chain.name}
         </>
       ),
@@ -72,7 +72,7 @@ async function VaultFiltersWrapper() {
       value: vault.asset.symbol,
       component: (
         <>
-          <Image src={vault.asset.icon} width={24} height={24} className="size-6" alt={vault.asset.symbol} />
+          <Avatar src={vault.asset.icon} fallback={vault.asset.symbol} size="sm" alt={vault.asset.symbol} />
           {vault.asset.symbol}
         </>
       ),
