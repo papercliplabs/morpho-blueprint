@@ -8,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
-type Option = {
+export type MultiSelectOption = {
   value: string;
   component: React.ReactNode;
 };
@@ -19,12 +19,12 @@ type MultiSelectProps = {
   emptyValue?: string | null;
   noResultsText?: string;
   value: string[];
-  options: Option[];
+  options: MultiSelectOption[];
   onSelect: (value: string) => void;
   onReset: () => void;
 };
 
-function MultiSelect({
+export function MultiSelect({
   emptyValue = null,
   defaultOpen = false,
   placeholder = "Search",
@@ -39,7 +39,7 @@ function MultiSelect({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="outline" role="combobox" aria-expanded={open} className="!body-medium w-[200px]">
+        <Button variant="outline" role="combobox" aria-expanded={open} className="!body-medium max-w-[200px] flex-1">
           <span className="flex flex-1 gap-1">
             {emptyValue}
             {value.length > 0 && <span>({value.length})</span>}
@@ -47,7 +47,7 @@ function MultiSelect({
           <ChevronDown className="ml-2 h-4 w-4 shrink-0" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0">
+      <PopoverContent className="w-[200px] p-0" align="start">
         <Command>
           <CommandInput placeholder={placeholder} className="body-large" />
           <CommandList>
@@ -78,5 +78,3 @@ function MultiSelect({
     </Popover>
   );
 }
-
-export { MultiSelect };
