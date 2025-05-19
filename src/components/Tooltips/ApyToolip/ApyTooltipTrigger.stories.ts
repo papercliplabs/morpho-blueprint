@@ -10,17 +10,12 @@ const meta = {
   },
   tags: ["autodocs"],
   args: {
-    type: "borrow",
     totalApy: 0.5,
     showSparkle: false,
     sparkleSide: "right",
     variant: "default",
   },
   argTypes: {
-    type: {
-      control: { type: "radio" },
-      options: ["borrow", "earn"],
-    },
     variant: {
       control: { type: "radio" },
       options: ["default", "sm"],

@@ -1,4 +1,3 @@
-import { Metric } from "@/components/Metric";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles } from "@/components/ui/icons/Sparkles";
@@ -28,19 +27,17 @@ const TOOLTIP_CONTENT: Record<ApyTooltipType, ApyTooltipContent> = {
 type ApyTooltipTriggerVariant = "default" | "sm";
 
 type ApyTooltipTriggerProps = {
-  type: ApyTooltipType;
   totalApy: number;
   showSparkle?: boolean;
-  variant: ApyTooltipTriggerVariant;
+  variant?: ApyTooltipTriggerVariant;
   sparkleSide?: "left" | "right";
 };
 
 function ApyTooltipTrigger({
   showSparkle = false,
   sparkleSide = "right",
-  type,
   totalApy,
-  variant,
+  variant = "default",
 }: ApyTooltipTriggerProps) {
   return variant == "sm" ? (
     <span className="body-medium-plus flex items-center gap-1">
@@ -49,13 +46,11 @@ function ApyTooltipTrigger({
       {showSparkle && sparkleSide === "right" && <Sparkles className="fill-primary size-4" />}
     </span>
   ) : (
-    <Metric label={TOOLTIP_CONTENT[type].title}>
-      <div className="flex items-center gap-1">
-        {showSparkle && sparkleSide === "left" && <Sparkles className="fill-primary size-6" />}
-        <NumberFlow className="heading-4" value={totalApy} format={{ style: "percent" }} />
-        {showSparkle && sparkleSide === "right" && <Sparkles className="fill-primary size-6" />}
-      </div>
-    </Metric>
+    <div className="flex items-center gap-1">
+      {showSparkle && sparkleSide === "left" && <Sparkles className="fill-primary size-6" />}
+      <NumberFlow className="heading-4" value={totalApy} format={{ style: "percent" }} />
+      {showSparkle && sparkleSide === "right" && <Sparkles className="fill-primary size-6" />}
+    </div>
   );
 }
 
@@ -143,7 +138,6 @@ function ApyTooltip({
           showSparkle={!!rewards && rewards.length > 0}
           sparkleSide={sparkleSide}
           totalApy={totalApy}
-          type={type}
           variant={triggerVariant}
         />
       </TooltipPopoverTrigger>
