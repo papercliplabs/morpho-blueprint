@@ -29,7 +29,7 @@ interface VaultWithdrawFormProps {
   onSuccessfulActionSimulation: (action: SuccessfulVaultAction) => void;
 }
 
-export default function VaultWithdrawForm({ vault, onSuccessfulActionSimulation }: VaultWithdrawFormProps) {
+export function VaultWithdrawForm({ vault, onSuccessfulActionSimulation }: VaultWithdrawFormProps) {
   const { address } = useAccount();
   const publicClient = usePublicClient({ chainId: vault.chain.id });
   const { open: openAppKit } = useAppKit();

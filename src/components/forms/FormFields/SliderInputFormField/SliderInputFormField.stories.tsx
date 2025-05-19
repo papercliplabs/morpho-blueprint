@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { ReactNode } from "react";
 import { useForm } from "react-hook-form";
 
-import { SliderInputFormField } from "@/components/Forms/FormFields/SliderInputFormField";
+import { SliderInputFormField } from "@/components/forms/FormFields/SliderInputFormField";
 import { Form } from "@/components/ui/form";
 
 function FormWrapper({ children }: { children: ReactNode }) {

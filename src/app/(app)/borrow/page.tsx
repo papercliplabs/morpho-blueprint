@@ -1,8 +1,8 @@
 import { Suspense } from "react";
 
-import { BorrowSummaryMetrics, BorrowSummaryMetricsSkeleton } from "@/components/BorrowSummaryMetrics";
 import { AccountFilters } from "@/components/filters/AccountFilters";
 import { MarketFilters } from "@/components/filters/MarketFilters";
+import { BorrowSummaryMetrics, BorrowSummaryMetricsSkeleton } from "@/components/market/BorrowSummaryMetrics";
 import { MultiSelectOption } from "@/components/MultiSelect";
 import { MarketTable } from "@/components/tables/MarketTable";
 import { Avatar } from "@/components/ui/avatar";

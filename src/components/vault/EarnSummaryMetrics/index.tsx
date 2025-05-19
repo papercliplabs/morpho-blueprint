@@ -1,12 +1,11 @@
 "use client";
 import { ReactNode } from "react";
 
+import { Metric } from "@/components/Metric";
+import NumberFlow from "@/components/ui/number-flow";
+import { Skeleton } from "@/components/ui/skeleton";
 import { VaultSummary } from "@/data/whisk/getVaultSummaries";
 import { useEarnSummaryMetrics } from "@/hooks/useEarnSummaryMetrics";
-
-import { Metric } from "../Metric";
-import NumberFlow from "../ui/number-flow";
-import { Skeleton } from "../ui/skeleton";
 
 interface EarnSummaryMetricsProps {
   vaultSummaries: VaultSummary[];

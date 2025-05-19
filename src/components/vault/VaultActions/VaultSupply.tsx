@@ -3,12 +3,11 @@
 import { useState } from "react";
 
 import { SuccessfulVaultAction } from "@/actions/utils/types";
+import { VaultActionFlow } from "@/components/ActionFlow/VaultActionFlow";
+import { VaultSupplyForm } from "@/components/forms/VaultSupplyForm";
 import { Vault } from "@/data/whisk/getVault";
 
-import { VaultActionFlow } from "../ActionFlow/VaultActionFlow";
-import VaultWithdrawForm from "../Forms/VaultWithdrawForm";
-
-export default function VaultWithdraw({
+export default function VaultSupply({
   vault,
   onFlowClosed,
 }: {
@@ -21,7 +20,7 @@ export default function VaultWithdraw({
 
   return (
     <>
-      <VaultWithdrawForm
+      <VaultSupplyForm
         vault={vault}
         onSuccessfulActionSimulation={(action) => {
           setAction(action);

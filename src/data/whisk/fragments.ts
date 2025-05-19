@@ -1,11 +1,17 @@
 import { graphql } from "@/generated/gql/whisk";
-import { TokenInfoFragmentFragment } from "@/generated/gql/whisk/graphql";
+import { ChainInfoFragmentFragment, TokenInfoFragmentFragment } from "@/generated/gql/whisk/graphql";
 
 graphql(`
   fragment TokenInfoFragment on Token {
     address
     symbol
     decimals
+    icon
+  }
+
+  fragment ChainInfoFragment on Chain {
+    id
+    name
     icon
   }
 
@@ -34,9 +40,7 @@ graphql(`
 
   fragment VaultSummaryFragment on MorphoVault {
     chain {
-      id
-      name
-      icon
+      ...ChainInfoFragment
     }
     vaultAddress
 
@@ -69,9 +73,7 @@ graphql(`
 
   fragment MarketSummaryFragment on MorphoMarket {
     chain {
-      id
-      name
-      icon
+      ...ChainInfoFragment
     }
 
     name
@@ -97,3 +99,4 @@ graphql(`
 
 // Some cleaner type names
 export type TokenInfo = TokenInfoFragmentFragment;
+export type ChainInfo = ChainInfoFragmentFragment;

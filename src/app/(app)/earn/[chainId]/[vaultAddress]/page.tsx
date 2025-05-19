@@ -3,7 +3,11 @@ import { Suspense } from "react";
 import { getAddress } from "viem";
 import { Address } from "viem";
 
-import VaultActions from "@/components/VaultActions";
+import { TokenIcon } from "@/components/TokenIcon";
+import { BreakcrumbBack } from "@/components/ui/breakcrumb-back";
+import { Skeleton } from "@/components/ui/skeleton";
+import VaultActions from "@/components/vault/VaultActions";
+import { VaultPositionHighlight } from "@/components/vault/VaultPositionHighlight";
 import { WHITELISTED_VAULTS } from "@/config";
 import { getVault } from "@/data/whisk/getVault";
 import { VaultIdentifier } from "@/utils/types";
@@ -24,14 +28,27 @@ export default async function VaultPage({ params }: { params: Promise<{ chainId:
   }
 
   return (
-    <div className="flex flex-col">
-      <h1>Vault</h1>
+    <div className="flex w-full min-w-0 flex-col gap-6">
+      <section className="flex flex-col gap-4">
+        <BreakcrumbBack label="Earn" href="/earn" />
+        <Suspense
+          fallback={
+            <div className="flex flex-col">
+              <div className="flex h-[64px] items-center gap-3">
+                <Skeleton className="size-8 rounded-full" />
+                <Skeleton className="h-[32px] w-[280px]" />
+              </div>
+              <Skeleton className="h-[20px] w-[140px]" />
+            </div>
+          }
+        >
+          <VaultHeader chainId={chainId} vaultAddress={vaultAddress} />
+        </Suspense>
+      </section>
+
       <Suspense fallback={<div>Loading...</div>}>
         <VaultActionsWrapper chainId={chainId} vaultAddress={vaultAddress} />
       </Suspense>
-      {/* <Suspense fallback={<div>Loading...</div>}>
-        <ExampleWrapper chainId={chainId} vaultAddress={vaultAddress} />
-      </Suspense> */}
     </div>
   );
 }
@@ -45,6 +62,29 @@ function UnsupportedVault() {
   );
 }
 
+async function VaultHeader({ chainId, vaultAddress }: VaultIdentifier) {
+  const vault = await getVault(chainId, vaultAddress);
+
+  if (!vault) {
+    return null;
+  }
+
+  return (
+    <div className="flex flex-col justify-between gap-4 md:flex-row">
+      <div className="flex flex-col">
+        <div className="flex h-[64px] items-center gap-3">
+          <TokenIcon token={vault.asset} chain={vault.chain} size="md" />
+          <h1 className="heading-3">{vault.name}</h1>
+        </div>
+        {/* TODO: add curator */}
+        <div className="text-muted-foreground">{vault.chain.name} • Curator</div>
+      </div>
+
+      <VaultPositionHighlight vault={vault} />
+    </div>
+  );
+}
+
 async function VaultActionsWrapper({ chainId, vaultAddress }: VaultIdentifier) {
   const vault = await getVault(chainId, vaultAddress);
 
@@ -54,13 +94,3 @@ async function VaultActionsWrapper({ chainId, vaultAddress }: VaultIdentifier) {
 
   return <VaultActions vault={vault} />;
 }
-
-// async function ExampleWrapper({ chainId, vaultAddress }: VaultIdentifier) {
-//   const vault = await getVault(chainId, vaultAddress);
-
-//   return (
-//     <div>
-//       <pre>{JSON.stringify(vault, null, 2)}</pre>
-//     </div>
-//   );
-// }

@@ -1,12 +1,11 @@
 "use client";
 import { ReactNode } from "react";
 
+import { Metric } from "@/components/Metric";
+import NumberFlow from "@/components/ui/number-flow";
+import { Skeleton } from "@/components/ui/skeleton";
 import { MarketSummary } from "@/data/whisk/getMarketSummaries";
 import { useBorrowSummaryMetrics } from "@/hooks/useBorrowSummaryMetrics";
-
-import { Metric } from "../Metric";
-import NumberFlow from "../ui/number-flow";
-import { Skeleton } from "../ui/skeleton";
 
 interface BorrowSummaryMetricsProps {
   marketSummaries: MarketSummary[];
