@@ -136,7 +136,7 @@ export function computeVaultPositionChange({
   }
 
   const currentSupply = descaleBigIntToNumber(currentPosition.supplyAssets, vault.asset.decimals);
-  const newSupply = currentSupply + supplyAmountChange;
+  const newSupply = Math.max(currentSupply + supplyAmountChange, 0);
 
   return {
     balance: {
