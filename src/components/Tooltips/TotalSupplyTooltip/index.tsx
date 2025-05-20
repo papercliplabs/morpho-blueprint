@@ -4,7 +4,7 @@ import { formatNumber } from "@/utils/format";
 
 type TotalSupplyTooltipSharedProps = {
   totalSupply: number;
-  supplyCap: number;
+  supplyCap: number | null;
 };
 
 type TotalSupplyTooltipTriggerProps = {
@@ -30,7 +30,7 @@ function TotalSupplyTooltipContent({ supplyCap, totalSupply }: TotalSupplyToolti
   const remainingCapacity = supplyCap ? supplyCap - totalSupply : Infinity;
 
   return (
-    <div className="body-small flex w-[300px] flex-col gap-4">
+    <div className="body-small flex flex-col gap-4">
       <div className="flex flex-col gap-3">
         <span className="body-medium-plus flex items-center gap-2">
           <span>Total Supply &bull; Usage: {formatNumber(usage, { style: "percent" })}</span>
@@ -41,7 +41,7 @@ function TotalSupplyTooltipContent({ supplyCap, totalSupply }: TotalSupplyToolti
       <span className="flex flex-col gap-2">
         <span className="flex justify-between">
           <span>Supply Cap</span>
-          <span>{formatNumber(supplyCap, { currency: "USD" })}</span>
+          <span>{supplyCap ? formatNumber(supplyCap, { currency: "USD" }) : "None"}</span>
         </span>
         <span className="flex justify-between">
           <span>Total Supplied</span>
@@ -51,7 +51,7 @@ function TotalSupplyTooltipContent({ supplyCap, totalSupply }: TotalSupplyToolti
       <div className="bg-border h-[1px]" />
       <span className="flex justify-between">
         <span>Remaining Capacity</span>
-        <span>{formatNumber(remainingCapacity, { currency: "USD" })}</span>
+        <span>{supplyCap == null ? "∞" : formatNumber(remainingCapacity, { currency: "USD" })}</span>
       </span>
     </div>
   );

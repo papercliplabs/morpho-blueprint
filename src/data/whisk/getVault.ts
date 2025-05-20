@@ -33,6 +33,12 @@ const query = graphql(`
       marketAllocations {
         market {
           marketId
+          chain {
+            ...ChainInfoFragment
+          }
+          isIdle
+          name
+          lltv
           collateralAsset {
             ...TokenInfoFragment
           }

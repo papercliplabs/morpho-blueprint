@@ -1,8 +1,10 @@
+import { ComponentProps } from "react";
+
 import { ChainInfo, TokenInfo } from "@/data/whisk/fragments";
 
 import { Avatar, AvatarProps } from "../ui/avatar";
 
-interface TokenIconProps {
+interface TokenIconProps extends Omit<ComponentProps<typeof Avatar>, "src" | "alt" | "fallback" | "size" | "sub"> {
   token: TokenInfo;
   chain: ChainInfo;
   size: "sm" | "md" | "lg";
@@ -24,7 +26,7 @@ const SIZE_MAP: Record<TokenIconProps["size"], { tokenSize: AvatarProps["size"];
   },
 };
 
-export function TokenIcon({ token, chain, size, showChain = true }: TokenIconProps) {
+export function TokenIcon({ token, chain, size, showChain = true, ...rest }: TokenIconProps) {
   return (
     <Avatar
       src={token.icon}
@@ -42,6 +44,7 @@ export function TokenIcon({ token, chain, size, showChain = true }: TokenIconPro
           />
         ) : null
       }
+      {...rest}
     />
   );
 }

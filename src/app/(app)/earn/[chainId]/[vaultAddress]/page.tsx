@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { getAddress } from "viem";
 import { Address } from "viem";
 
+import { MarketAllocationTable } from "@/components/tables/MarketAllocationTable";
 import { TokenIcon } from "@/components/TokenIcon";
 import { BreakcrumbBack } from "@/components/ui/breakcrumb-back";
 import { Card, CardHeader } from "@/components/ui/card";
@@ -50,8 +51,8 @@ export default async function VaultPage({ params }: { params: Promise<{ chainId:
         </Suspense>
       </section>
 
-      <div className="flex flex-col gap-3 lg:flex-row">
-        <div className="flex grow flex-col gap-3">
+      <div className="flex flex-col gap-6 lg:flex-row">
+        <div className="flex grow flex-col gap-6">
           <Card>
             <CardHeader>Key Metrics</CardHeader>
             <Suspense fallback={<VaultKeyMetricsSkeleton />}>
@@ -66,7 +67,9 @@ export default async function VaultPage({ params }: { params: Promise<{ chainId:
 
           <Card>
             <CardHeader>Market Allocation</CardHeader>
-            <div>TODO</div>
+            <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
+              <MarketAllocationTableWrapper chainId={chainId} vaultAddress={vaultAddress} />
+            </Suspense>
           </Card>
 
           <Card>
@@ -147,6 +150,16 @@ async function VaultAboutCard({ chainId, vaultAddress }: VaultIdentifier) {
       <p className="text-muted-foreground">{vault.metadata?.description}</p>
     </Card>
   );
+}
+
+async function MarketAllocationTableWrapper({ chainId, vaultAddress }: VaultIdentifier) {
+  const vault = await getVault(chainId, vaultAddress);
+
+  if (!vault) {
+    return null;
+  }
+
+  return <MarketAllocationTable vault={vault} />;
 }
 
 async function VaultInfoWrapper({ chainId, vaultAddress }: VaultIdentifier) {

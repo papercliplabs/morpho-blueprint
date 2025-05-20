@@ -82,8 +82,8 @@ export function TableRow({
       <div className="border-border w-fit min-w-full transition-colors not-last:border-b first:border-b">
         <div
           className={cn(
-            "hover:bg-accent flex w-full min-w-fit items-center transition-colors",
-            action?.type == "callback" && "hover:cursor-pointer",
+            "flex w-full min-w-fit items-center transition-colors",
+            action?.type == "callback" && "hover:bg-accent hover:cursor-pointer",
             className
           )}
           onClick={action?.type == "callback" ? action.callback : undefined}
