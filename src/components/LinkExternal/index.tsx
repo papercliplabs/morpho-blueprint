@@ -81,7 +81,7 @@ export function LinkExternalBlockExplorer({ chainId, children, className, ...pro
     <LinkExternal
       href={`${publicClient?.chain.blockExplorers?.default.url}${path}`}
       showArrow={true}
-      className={cn("text-foreground hover:no-underline", className)}
+      className={cn("text-foreground hover:no-underline hover:brightness-90", className)}
       {...props}
     >
       {children ?? (
