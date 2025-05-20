@@ -66,7 +66,6 @@ export const MarketSupplyCollateralAndBorrowForm = forwardRef<
         borrowAmount: z.string(),
       })
       .superRefine((data, ctx) => {
-        console.log("HERE");
         const supplyCollateralAmount = isNaN(Number(data.supplyCollateralAmount))
           ? 0
           : Number(data.supplyCollateralAmount);

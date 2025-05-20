@@ -1,11 +1,9 @@
 import { MarketId } from "@morpho-org/blue-sdk";
 import { MaybeDraft, SimulationState } from "@morpho-org/simulation-sdk";
-import { Address } from "viem";
+import { Address, parseUnits } from "viem";
 
 import { MAX_BORROW_LTV_MARGIN } from "@/config";
-import { descaleBigIntToNumber } from "@/utils/format";
-
-import { computeScaledAmount } from "./math";
+import { descaleBigIntToNumber, numberToString } from "@/utils/format";
 
 export interface SimulatedValueChange<T> {
   before: T;
@@ -92,7 +90,7 @@ export function computeMarketPositionChange(
   const ltvBefore = descaleBigIntToNumber(rawLtvBefore, 18);
   const ltvAfter = descaleBigIntToNumber(rawLtvAfter, 18);
 
-  const maxLtv = computeScaledAmount(marketAfter.params.lltv, 1 - MAX_BORROW_LTV_MARGIN);
+  const maxLtv = marketAfter.params.lltv - parseUnits(numberToString(MAX_BORROW_LTV_MARGIN), 18);
   const rawMaxBorrowBefore =
     initialSimulationState.getMarket(marketId).getMaxBorrowAssets(rawCollateralBefore, {
       maxLtv,
@@ -105,8 +103,8 @@ export function computeMarketPositionChange(
   const rawAvailableToBorrowBefore = rawMaxBorrowBefore - rawLoanBefore;
   const rawAvailableToBorrowAfter = rawMaxBorrowAfter - rawLoanAfter;
 
-  const availableToBorrowBefore = descaleBigIntToNumber(rawAvailableToBorrowBefore, loanAsset.decimals);
-  const availableToBorrowAfter = descaleBigIntToNumber(rawAvailableToBorrowAfter, loanAsset.decimals);
+  const availableToBorrowBefore = Math.max(descaleBigIntToNumber(rawAvailableToBorrowBefore, loanAsset.decimals), 0);
+  const availableToBorrowAfter = Math.max(descaleBigIntToNumber(rawAvailableToBorrowAfter, loanAsset.decimals), 0);
 
   return {
     collateral: {
