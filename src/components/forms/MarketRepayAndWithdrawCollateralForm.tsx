@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MarketId } from "@morpho-org/blue-sdk";
 import { useAppKit } from "@reown/appkit/react";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDebounce } from "use-debounce";
 import { Hex, maxUint256, parseUnits } from "viem";
@@ -73,60 +73,52 @@ export function MarketRepayAndWithdrawCollateralForm({
   const formSchema = useMemo(() => {
     return z
       .object({
-        repayAmount: z
-          .string()
-          .refine(
-            (val) => {
-              if (val == "") return true; // Allow empty
-              const num = Number(val);
-              return !isNaN(num) && num <= (positionBorrowAmount != undefined ? positionBorrowAmount : Infinity);
-            },
-            {
-              message: "Exceeds position.",
-            }
-          )
-          .refine(
-            (val) => {
-              if (val == "") return true; // Allow empty
-              const num = Number(val);
-              return !isNaN(num) && num <= (walletLoanAssetBalance != undefined ? walletLoanAssetBalance : Infinity);
-            },
-            {
-              message: "Exceeds wallet balance.",
-            }
-          ),
+        repayAmount: z.string(),
         isMaxRepay: z.boolean(),
-        withdrawCollateralAmount: z.string().refine(
-          (val) => {
-            if (val === "") return true; // Allow empty
-            return !isNaN(Number(val)) && Number(val) >= 0;
-          },
-          {
-            message: "Amount must be ≥ 0.",
-          }
-        ),
+        withdrawCollateralAmount: z.string(),
         isMaxWithdrawCollateral: z.boolean(),
       })
-      .refine(
-        (data) => {
-          if (!position) {
-            return true;
-          }
+      .superRefine((data, ctx) => {
+        const repayAmount = isNaN(Number(data.repayAmount)) ? 0 : Number(data.repayAmount);
+        const withdrawCollateralAmount = isNaN(Number(data.withdrawCollateralAmount))
+          ? 0
+          : Number(data.withdrawCollateralAmount);
 
-          const repayAmount = data.repayAmount == "" ? 0 : Number(data.repayAmount);
-          const withdrawCollateralAmount =
-            data.withdrawCollateralAmount == "" ? 0 : Number(data.withdrawCollateralAmount);
-
-          const maxWithdrawCollateral = computeMarketMaxWithdrawCollateral(market, position, repayAmount);
-
-          return withdrawCollateralAmount <= maxWithdrawCollateral;
-        },
-        {
-          message: "Causes unhealthy position.",
-          path: ["withdrawCollateralAmount"],
+        if (repayAmount <= 0 && withdrawCollateralAmount <= 0) {
+          ctx.addIssue({
+            path: ["repayAmount"],
+            code: z.ZodIssueCode.custom,
+            message: "One amount is required.",
+          });
+          ctx.addIssue({
+            path: ["withdrawCollateralAmount"],
+            code: z.ZodIssueCode.custom,
+            message: "One amount is required.",
+          });
         }
-      );
-  }, [positionBorrowAmount, walletLoanAssetBalance, position, market]);
+
+        const maxRepayAmount =
+          repayLimiter == "position" ? (positionBorrowAmount ?? Infinity) : (walletLoanAssetBalance ?? Infinity);
+        if (repayAmount > maxRepayAmount) {
+          ctx.addIssue({
+            path: ["repayAmount"],
+            code: z.ZodIssueCode.custom,
+            message: repayLimiter == "position" ? "Exceeds position." : "Exceeds wallet balance.",
+          });
+        }
+
+        if (position) {
+          const maxWithdrawCollateralAmount = computeMarketMaxWithdrawCollateral(market, position, repayAmount);
+          if (withdrawCollateralAmount > maxWithdrawCollateralAmount) {
+            ctx.addIssue({
+              path: ["withdrawCollateralAmount"],
+              code: z.ZodIssueCode.custom,
+              message: "Causes unhealthy position.",
+            });
+          }
+        }
+      });
+  }, [positionBorrowAmount, walletLoanAssetBalance, position, repayLimiter, market]);
 
   const form = useForm({
     mode: "onChange",
@@ -138,59 +130,6 @@ export function MarketRepayAndWithdrawCollateralForm({
       isMaxWithdrawCollateral: false,
     },
   });
-
-  async function handleSubmit({
-    repayAmount,
-    isMaxRepay,
-    withdrawCollateralAmount,
-    isMaxWithdrawCollateral,
-  }: z.infer<typeof formSchema>) {
-    if (!address) {
-      openAppKit();
-      return;
-    }
-
-    if (!publicClient) {
-      throw new Error(`Missing public client for chain ${market.chain.id}`);
-    }
-
-    setSimulationErrorMsg(null);
-    setSimulating(true);
-
-    let rawRepayAmount = parseUnits(repayAmount == "" ? "0" : repayAmount, market.loanAsset.decimals);
-    if (rawRepayAmount > 0n && isMaxRepay && repayLimiter == "position") {
-      rawRepayAmount = maxUint256;
-    }
-
-    let rawWithdrawCollateralAmount = parseUnits(
-      withdrawCollateralAmount == "" ? "0" : withdrawCollateralAmount,
-      market.collateralAsset.decimals
-    );
-    if (
-      rawWithdrawCollateralAmount > 0n &&
-      isMaxWithdrawCollateral &&
-      (positionBorrowAmount == 0 || rawRepayAmount == maxUint256)
-    ) {
-      // Only full withdraw if there is no loan or full repay
-      rawWithdrawCollateralAmount = maxUint256;
-    }
-
-    const action = await marketRepayAndWithdrawCollateralAction({
-      publicClient,
-      marketId: market.marketId as MarketId,
-      accountAddress: address,
-      repayAmount: rawRepayAmount,
-      withdrawCollateralAmount: rawWithdrawCollateralAmount,
-    });
-
-    if (action.status == "success") {
-      onSuccessfulActionSimulation(action);
-    } else {
-      setSimulationErrorMsg(action.message);
-    }
-
-    setSimulating(false);
-  }
 
   const repayAmount = useWatchNumberInputField(form.control, "repayAmount");
   const withdrawCollateralAmount = useWatchNumberInputField(form.control, "withdrawCollateralAmount");
@@ -221,10 +160,82 @@ export function MarketRepayAndWithdrawCollateralForm({
     );
   }, [market, position, debouncedWithdrawCollateralAmount, debouncedRepayAmount, isPositionLoading]);
 
-  // Anytime the debouncedRepayAmount changes, trigger the withdrawCollateralAmount validation since it depends on it
+  // Trigger dependent field validation
   useEffect(() => {
-    form.trigger("withdrawCollateralAmount");
-  }, [debouncedRepayAmount, form]);
+    const subscription = form.watch((_value, { name }) => {
+      if (name === "repayAmount" || name === "withdrawCollateralAmount") {
+        void form.trigger(["repayAmount", "withdrawCollateralAmount"]);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [form]);
+
+  const handleSubmit = useCallback(
+    async ({
+      repayAmount,
+      isMaxRepay,
+      withdrawCollateralAmount,
+      isMaxWithdrawCollateral,
+    }: z.infer<typeof formSchema>) => {
+      if (!address) {
+        openAppKit();
+        return;
+      }
+
+      if (!publicClient) {
+        throw new Error(`Missing public client for chain ${market.chain.id}`);
+      }
+
+      setSimulationErrorMsg(null);
+      setSimulating(true);
+
+      let rawRepayAmount = parseUnits(repayAmount == "" ? "0" : repayAmount, market.loanAsset.decimals);
+      if (rawRepayAmount > 0n && isMaxRepay && repayLimiter == "position") {
+        rawRepayAmount = maxUint256;
+      }
+
+      let rawWithdrawCollateralAmount = parseUnits(
+        withdrawCollateralAmount == "" ? "0" : withdrawCollateralAmount,
+        market.collateralAsset.decimals
+      );
+      if (
+        rawWithdrawCollateralAmount > 0n &&
+        isMaxWithdrawCollateral &&
+        (positionBorrowAmount == 0 || rawRepayAmount == maxUint256)
+      ) {
+        // Only full withdraw if there is no loan or full repay
+        rawWithdrawCollateralAmount = maxUint256;
+      }
+
+      const action = await marketRepayAndWithdrawCollateralAction({
+        publicClient,
+        marketId: market.marketId as MarketId,
+        accountAddress: address,
+        repayAmount: rawRepayAmount,
+        withdrawCollateralAmount: rawWithdrawCollateralAmount,
+      });
+
+      if (action.status == "success") {
+        onSuccessfulActionSimulation(action);
+      } else {
+        setSimulationErrorMsg(action.message);
+      }
+
+      setSimulating(false);
+    },
+    [
+      address,
+      openAppKit,
+      publicClient,
+      setSimulationErrorMsg,
+      setSimulating,
+      repayLimiter,
+      positionBorrowAmount,
+      market,
+      onSuccessfulActionSimulation,
+    ]
+  );
 
   return (
     <Form {...form}>

@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MarketId } from "@morpho-org/blue-sdk";
 import { useAppKit } from "@reown/appkit/react";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDebounce } from "use-debounce";
 import { Hex, getAddress, maxUint256, parseUnits } from "viem";
@@ -61,48 +61,50 @@ export function MarketSupplyCollateralAndBorrowForm({
   const formSchema = useMemo(() => {
     return z
       .object({
-        supplyCollateralAmount: z.string().refine(
-          (val) => {
-            if (val == "") return true; // Allow empty
-
-            const num = Number(val);
-            return (
-              !isNaN(num) &&
-              num <= (walletCollateralAssetBalance != undefined ? walletCollateralAssetBalance : Infinity)
-            );
-          },
-          {
-            message: "Amount exceeds wallet balance.",
-          }
-        ),
+        supplyCollateralAmount: z.string(),
         isMaxSupplyCollateral: z.boolean(),
-        borrowAmount: z.string().refine(
-          (val) => {
-            if (val === "") return true; // Allow empty
-            return !isNaN(Number(val)) && Number(val) >= 0;
-          },
-          {
-            message: "Amount must be ≥ 0.",
-          }
-        ),
+        borrowAmount: z.string(),
       })
-      .refine(
-        (data) => {
-          if (!position) {
-            return true;
-          }
+      .superRefine((data, ctx) => {
+        console.log("HERE");
+        const supplyCollateralAmount = isNaN(Number(data.supplyCollateralAmount))
+          ? 0
+          : Number(data.supplyCollateralAmount);
+        const borrowAmount = isNaN(Number(data.borrowAmount)) ? 0 : Number(data.borrowAmount);
 
-          const supplyCollateralAmount = data.supplyCollateralAmount == "" ? 0 : Number(data.supplyCollateralAmount);
-          const borrowAmount = data.borrowAmount == "" ? 0 : Number(data.borrowAmount);
-
-          const maxBorrow = computeAvailableToBorrow(market, position, supplyCollateralAmount, 0);
-          return borrowAmount <= maxBorrow;
-        },
-        {
-          message: "Exceeds max borrow.",
-          path: ["borrowAmount"],
+        if (supplyCollateralAmount <= 0 && borrowAmount <= 0) {
+          ctx.addIssue({
+            path: ["supplyCollateralAmount"],
+            code: z.ZodIssueCode.custom,
+            message: "One amount is required.",
+          });
+          ctx.addIssue({
+            path: ["borrowAmount"],
+            code: z.ZodIssueCode.custom,
+            message: "One amount is required.",
+          });
         }
-      );
+
+        const maxSupplyCollateralAmount = walletCollateralAssetBalance ?? Infinity;
+        if (supplyCollateralAmount > maxSupplyCollateralAmount) {
+          ctx.addIssue({
+            path: ["supplyCollateralAmount"],
+            code: z.ZodIssueCode.custom,
+            message: "Amount exceeds wallet balance.",
+          });
+        }
+
+        if (position) {
+          const maxBorrowAmount = computeAvailableToBorrow(market, position, supplyCollateralAmount, 0);
+          if (borrowAmount > maxBorrowAmount) {
+            ctx.addIssue({
+              path: ["borrowAmount"],
+              code: z.ZodIssueCode.custom,
+              message: "Exceeds max borrow.",
+            });
+          }
+        }
+      });
   }, [walletCollateralAssetBalance, position, market]);
 
   const form = useForm({
@@ -114,51 +116,6 @@ export function MarketSupplyCollateralAndBorrowForm({
       borrowAmount: "",
     },
   });
-
-  async function handleSubmit({
-    supplyCollateralAmount,
-    isMaxSupplyCollateral,
-    borrowAmount,
-  }: z.infer<typeof formSchema>) {
-    if (!address) {
-      openAppKit();
-      return;
-    }
-
-    if (!publicClient) {
-      throw new Error(`Missing public client for chain ${market.chain.id}`);
-    }
-
-    setSimulationErrorMsg(null);
-    setSimulating(true);
-
-    let rawSupplyCollateralAmount = parseUnits(
-      supplyCollateralAmount == "" ? "0" : supplyCollateralAmount,
-      market.collateralAsset.decimals
-    );
-    if (rawSupplyCollateralAmount > 0n && isMaxSupplyCollateral) {
-      rawSupplyCollateralAmount = maxUint256;
-    }
-
-    const rawBorrowAmount = parseUnits(borrowAmount == "" ? "0" : borrowAmount, market.loanAsset.decimals);
-
-    const action = await marketSupplyCollateralAndBorrowAction({
-      publicClient,
-      marketId: market.marketId as MarketId,
-      accountAddress: address,
-      collateralAmount: rawSupplyCollateralAmount,
-      borrowAmount: rawBorrowAmount,
-      allocatingVaultAddresses: market.vaultAllocations.map((v) => getAddress(v.vault.vaultAddress)),
-    });
-
-    if (action.status == "success") {
-      onSuccessfulActionSimulation(action);
-    } else {
-      setSimulationErrorMsg(action.message);
-    }
-
-    setSimulating(false);
-  }
 
   const supplyCollateralAmount = useWatchNumberInputField(form.control, "supplyCollateralAmount");
   const borrowAmount = useWatchNumberInputField(form.control, "borrowAmount");
@@ -189,10 +146,60 @@ export function MarketSupplyCollateralAndBorrowForm({
     );
   }, [market, position, debouncedSupplyCollateralAmount, debouncedBorrowAmount, isPositionLoading]);
 
-  // Anytime the debouncedSupplyCollateralAmount changes, trigger the borrowAmount validation since it depends on it
+  // Trigger dependent field validation
   useEffect(() => {
-    form.trigger("borrowAmount");
-  }, [debouncedSupplyCollateralAmount, form]);
+    const subscription = form.watch((_value, { name }) => {
+      if (name === "supplyCollateralAmount" || name === "borrowAmount") {
+        void form.trigger(["supplyCollateralAmount", "borrowAmount"]);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [form]);
+
+  const handleSubmit = useCallback(
+    async ({ supplyCollateralAmount, isMaxSupplyCollateral, borrowAmount }: z.infer<typeof formSchema>) => {
+      if (!address) {
+        openAppKit();
+        return;
+      }
+
+      if (!publicClient) {
+        throw new Error(`Missing public client for chain ${market.chain.id}`);
+      }
+
+      setSimulationErrorMsg(null);
+      setSimulating(true);
+
+      let rawSupplyCollateralAmount = parseUnits(
+        supplyCollateralAmount == "" ? "0" : supplyCollateralAmount,
+        market.collateralAsset.decimals
+      );
+      if (rawSupplyCollateralAmount > 0n && isMaxSupplyCollateral) {
+        rawSupplyCollateralAmount = maxUint256;
+      }
+
+      const rawBorrowAmount = parseUnits(borrowAmount == "" ? "0" : borrowAmount, market.loanAsset.decimals);
+
+      const action = await marketSupplyCollateralAndBorrowAction({
+        publicClient,
+        marketId: market.marketId as MarketId,
+        accountAddress: address,
+        collateralAmount: rawSupplyCollateralAmount,
+        borrowAmount: rawBorrowAmount,
+        allocatingVaultAddresses: market.vaultAllocations.map((v) => getAddress(v.vault.vaultAddress)),
+      });
+
+      if (action.status == "success") {
+        onSuccessfulActionSimulation(action);
+      } else {
+        setSimulationErrorMsg(action.message);
+      }
+
+      setSimulating(false);
+    },
+    [address, openAppKit, publicClient, setSimulationErrorMsg, setSimulating, market, onSuccessfulActionSimulation]
+  );
 
   return (
     <Form {...form}>

@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAppKit } from "@reown/appkit/react";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDebounce } from "use-debounce";
 import { getAddress, maxUint256, parseUnits } from "viem";
@@ -51,72 +51,40 @@ export function VaultSupplyForm({ vault, onSuccessfulActionSimulation }: VaultSu
   }, [position, vault.asset.decimals]);
 
   const formSchema = useMemo(() => {
-    return z.object({
-      supplyAmount: z
-        .string()
-        .nonempty("Amount is required.")
-        .refine(
-          (val) => {
-            const num = Number(val);
-            return !isNaN(num) && num > 0;
-          },
-          {
+    return z
+      .object({
+        supplyAmount: z.string().nonempty("Amount is required."),
+        isMaxSupply: z.boolean(),
+      })
+      .superRefine((data, ctx) => {
+        const supplyAmount = Number(data.supplyAmount);
+        if (isNaN(supplyAmount) || supplyAmount <= 0) {
+          ctx.addIssue({
+            path: ["supplyAmount"],
+            code: z.ZodIssueCode.custom,
             message: "Amount must be >0.",
-          }
-        )
-        .refine(
-          (val) => {
-            const num = Number(val);
-            return num <= (walletUnderlyingAssetBalance != undefined ? walletUnderlyingAssetBalance : Infinity);
-          },
-          {
+          });
+        }
+
+        const maxSupplyAmount = walletUnderlyingAssetBalance ?? Infinity;
+        if (supplyAmount > maxSupplyAmount) {
+          ctx.addIssue({
+            path: ["supplyAmount"],
+            code: z.ZodIssueCode.custom,
             message: "Amount exceeds wallet balance.",
-          }
-        ),
-      isMaxSupply: z.boolean(),
-    });
+          });
+        }
+      });
   }, [walletUnderlyingAssetBalance]);
 
   const form = useForm({
     mode: "onChange",
     resolver: zodResolver(formSchema),
     defaultValues: {
-      supplyAmount: undefined,
+      supplyAmount: "",
       isMaxSupply: false,
     },
   });
-
-  async function handleSubmit({ supplyAmount, isMaxSupply }: z.infer<typeof formSchema>) {
-    if (!address) {
-      openAppKit();
-      return;
-    }
-
-    if (!publicClient) {
-      throw new Error(`Missing public client for chain ${vault.chain.id}`);
-    }
-
-    setSimulationErrorMsg(null);
-    setSimulating(true);
-
-    const rawSupplyAmount = isMaxSupply ? maxUint256 : parseUnits(supplyAmount, vault.asset.decimals);
-
-    const action = await vaultSupplyAction({
-      publicClient,
-      vaultAddress: getAddress(vault.vaultAddress),
-      accountAddress: address,
-      supplyAmount: rawSupplyAmount,
-      allowWrappingNativeAssets: false, // TODO: revisit
-    });
-
-    if (action.status == "success") {
-      onSuccessfulActionSimulation(action);
-    } else {
-      setSimulationErrorMsg(action.message);
-    }
-
-    setSimulating(false);
-  }
 
   const supplyAmount = useWatchNumberInputField(form.control, "supplyAmount");
 
@@ -134,6 +102,41 @@ export function VaultSupplyForm({ vault, onSuccessfulActionSimulation }: VaultSu
 
     return <VaultActionSimulationMetrics vault={vault} positionChange={positionChange} isLoading={isPositionLoading} />;
   }, [debouncedSupplyAmount, position, vault, isPositionLoading]);
+
+  const handleSubmit = useCallback(
+    async ({ supplyAmount, isMaxSupply }: z.infer<typeof formSchema>) => {
+      if (!address) {
+        openAppKit();
+        return;
+      }
+
+      if (!publicClient) {
+        throw new Error(`Missing public client for chain ${vault.chain.id}`);
+      }
+
+      setSimulationErrorMsg(null);
+      setSimulating(true);
+
+      const rawSupplyAmount = isMaxSupply ? maxUint256 : parseUnits(supplyAmount, vault.asset.decimals);
+
+      const action = await vaultSupplyAction({
+        publicClient,
+        vaultAddress: getAddress(vault.vaultAddress),
+        accountAddress: address,
+        supplyAmount: rawSupplyAmount,
+        allowWrappingNativeAssets: false, // TODO: revisit
+      });
+
+      if (action.status == "success") {
+        onSuccessfulActionSimulation(action);
+      } else {
+        setSimulationErrorMsg(action.message);
+      }
+
+      setSimulating(false);
+    },
+    [address, openAppKit, publicClient, setSimulationErrorMsg, setSimulating, vault, onSuccessfulActionSimulation]
+  );
 
   return (
     <Form {...form}>
