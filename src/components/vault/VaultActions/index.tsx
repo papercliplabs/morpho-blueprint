@@ -20,24 +20,34 @@ export interface VaultActionsProps {
   vault: Vault;
 }
 
-export default function VaultActions({ vault }: VaultActionsProps) {
+export function ClientOnly({ children }: { children: React.ReactNode }) {
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    setReady(true);
+  }, []);
+
+  if (!ready) return null;
+  return <>{children}</>;
+}
+
+export function VaultActions({ vault }: VaultActionsProps) {
+  const { isDesktop } = useResponsiveContext();
   const { data: userVaultPosition } = useVaultPosition(vault.chain.id, getAddress(vault.vaultAddress));
-  const { isDesktop, hasMounted } = useResponsiveContext();
 
   const hasSupplyPosition = useMemo(() => {
     return BigInt(userVaultPosition?.supplyAssets ?? 0) > BigInt(0);
   }, [userVaultPosition]);
 
-  // Wait to render until we know to prevent layout glitches
-  if (!hasMounted) {
-    return null;
-  }
-
-  if (isDesktop) {
-    return <VaultActionsDesktop vault={vault} hasSupplyPosition={hasSupplyPosition} />;
-  } else {
-    return <VaultActionsMobile vault={vault} hasSupplyPosition={hasSupplyPosition} />;
-  }
+  return (
+    <div suppressHydrationWarning>
+      {isDesktop ? (
+        <VaultActionsDesktop vault={vault} hasSupplyPosition={hasSupplyPosition} />
+      ) : (
+        <VaultActionsMobile vault={vault} hasSupplyPosition={hasSupplyPosition} />
+      )}
+    </div>
+  );
 }
 
 function VaultActionsDesktop({ vault, hasSupplyPosition }: { hasSupplyPosition: boolean } & VaultActionsProps) {

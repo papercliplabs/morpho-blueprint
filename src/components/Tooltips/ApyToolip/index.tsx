@@ -69,7 +69,7 @@ type ApyTooltipContentProps = {
 
 function ApyTooltipContent({ type, totalApy, nativeApy, rewards, performanceFee }: ApyTooltipContentProps) {
   return (
-    <div className="flex w-[300px] flex-col gap-4">
+    <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-3">
         <span className="body-medium-plus">{TOOLTIP_CONTENT[type].title}</span>
         <span className="body-small">{TOOLTIP_CONTENT[type].description}</span>

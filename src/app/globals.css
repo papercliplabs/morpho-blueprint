@@ -46,6 +46,8 @@
   --radius-xl: calc(var(--radius) + 4px);
 
   --spacing-header: 76px;
+
+  --breakpoint-lg: 1080px;
 }
 
 @layer base {

@@ -22,7 +22,7 @@ export function TooltipPopoverTrigger({ className, ...props }: React.ComponentPr
   return isDesktop ? (
     <TooltipTrigger type="button" className={cn("cursor-pointer", className)} {...props} />
   ) : (
-    <PopoverTrigger type="button" {...props} />
+    <PopoverTrigger type="button" className={className} {...props} />
   );
 }
 

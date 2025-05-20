@@ -20,7 +20,7 @@ export const useResponsiveContext = () => {
 // Syncronized provider any components can use
 export const ResponsiveProvider = ({ children }: { children: React.ReactNode }) => {
   const isDesktop = useMediaQuery("(min-width: 1080px)", { defaultValue: true });
-  const [isDesktopHydrated, setIsDesktopHydrated] = useState(false);
+  const [isDesktopHydrated, setIsDesktopHydrated] = useState(true);
   const [hasMounted, setHasMounted] = useState(false);
 
   // Prevent hydration errors, always just render desktop first
