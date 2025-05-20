@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAppKit } from "@reown/appkit/react";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDebounce } from "use-debounce";
 import { getAddress, maxUint256, parseUnits } from "viem";
@@ -51,71 +51,40 @@ export function VaultWithdrawForm({ vault, onSuccessfulActionSimulation }: Vault
   }, [position, vault.asset.decimals]);
 
   const formSchema = useMemo(() => {
-    return z.object({
-      withdrawAmount: z
-        .string()
-        .nonempty("Amount is required.")
-        .refine(
-          (val) => {
-            const num = Number(val);
-            return !isNaN(num) && num > 0;
-          },
-          {
+    return z
+      .object({
+        withdrawAmount: z.string().nonempty("Amount is required."),
+        isMaxWithdraw: z.boolean(),
+      })
+      .superRefine((data, ctx) => {
+        const withdrawAmount = Number(data.withdrawAmount);
+        if (isNaN(withdrawAmount) || withdrawAmount <= 0) {
+          ctx.addIssue({
+            path: ["withdrawAmount"],
+            code: z.ZodIssueCode.custom,
             message: "Amount must be >0.",
-          }
-        )
-        .refine(
-          (val) => {
-            const num = Number(val);
-            return num <= (positionBalance != undefined ? positionBalance : Infinity);
-          },
-          {
+          });
+        }
+
+        const maxWithdrawAmount = positionBalance ?? Infinity;
+        if (withdrawAmount > maxWithdrawAmount) {
+          ctx.addIssue({
+            path: ["withdrawAmount"],
+            code: z.ZodIssueCode.custom,
             message: "Amount exceeds balance.",
-          }
-        ),
-      isMaxWithdraw: z.boolean(),
-    });
+          });
+        }
+      });
   }, [positionBalance]);
 
   const form = useForm({
     mode: "onChange",
     resolver: zodResolver(formSchema),
     defaultValues: {
-      withdrawAmount: undefined,
+      withdrawAmount: "",
       isMaxWithdraw: false,
     },
   });
-
-  async function handleSubmit({ withdrawAmount, isMaxWithdraw }: z.infer<typeof formSchema>) {
-    if (!address) {
-      openAppKit();
-      return;
-    }
-
-    if (!publicClient) {
-      throw new Error(`Missing public client for chain ${vault.chain.id}`);
-    }
-
-    setSimulationErrorMsg(null);
-    setSimulating(true);
-
-    const rawWithdrawAmount = isMaxWithdraw ? maxUint256 : parseUnits(withdrawAmount, vault.asset.decimals);
-
-    const action = await vaultWithdrawAction({
-      publicClient,
-      vaultAddress: getAddress(vault.vaultAddress),
-      accountAddress: address,
-      withdrawAmount: rawWithdrawAmount,
-    });
-
-    if (action.status == "success") {
-      onSuccessfulActionSimulation(action);
-    } else {
-      setSimulationErrorMsg(action.message);
-    }
-
-    setSimulating(false);
-  }
 
   const withdrawAmount = useWatchNumberInputField(form.control, "withdrawAmount");
 
@@ -133,6 +102,40 @@ export function VaultWithdrawForm({ vault, onSuccessfulActionSimulation }: Vault
 
     return <VaultActionSimulationMetrics vault={vault} positionChange={positionChange} isLoading={isPositionLoading} />;
   }, [debouncedWithdrawAmount, position, vault, isPositionLoading]);
+
+  const handleSubmit = useCallback(
+    async ({ withdrawAmount, isMaxWithdraw }: z.infer<typeof formSchema>) => {
+      if (!address) {
+        openAppKit();
+        return;
+      }
+
+      if (!publicClient) {
+        throw new Error(`Missing public client for chain ${vault.chain.id}`);
+      }
+
+      setSimulationErrorMsg(null);
+      setSimulating(true);
+
+      const rawWithdrawAmount = isMaxWithdraw ? maxUint256 : parseUnits(withdrawAmount, vault.asset.decimals);
+
+      const action = await vaultWithdrawAction({
+        publicClient,
+        vaultAddress: getAddress(vault.vaultAddress),
+        accountAddress: address,
+        withdrawAmount: rawWithdrawAmount,
+      });
+
+      if (action.status == "success") {
+        onSuccessfulActionSimulation(action);
+      } else {
+        setSimulationErrorMsg(action.message);
+      }
+
+      setSimulating(false);
+    },
+    [address, openAppKit, publicClient, setSimulationErrorMsg, setSimulating, onSuccessfulActionSimulation, vault]
+  );
 
   return (
     <Form {...form}>
