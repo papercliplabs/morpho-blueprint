@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { SuccessfulMarketAction } from "@/actions/utils/types";
 import { MarketActionFlow } from "@/components/ActionFlow/MarketActionFlow";
@@ -18,6 +18,8 @@ export default function MarketSupplyCollateralAndBorrow({
   const [flowOpen, setFlowOpen] = useState(false);
   const [success, setSuccess] = useState(false);
 
+  const formRef = useRef<{ reset: () => void }>(null);
+
   return (
     <>
       <MarketSupplyCollateralAndBorrowForm
@@ -26,6 +28,7 @@ export default function MarketSupplyCollateralAndBorrow({
           setAction(action);
           setFlowOpen(true);
         }}
+        ref={formRef}
       />
 
       <MarketActionFlow
@@ -40,6 +43,7 @@ export default function MarketSupplyCollateralAndBorrow({
         }}
         flowCompletionCb={() => {
           setSuccess(true);
+          formRef.current?.reset();
         }}
       />
     </>

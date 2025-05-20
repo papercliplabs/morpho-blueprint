@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAppKit } from "@reown/appkit/react";
-import { useCallback, useMemo, useState } from "react";
+import { forwardRef, useCallback, useImperativeHandle, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDebounce } from "use-debounce";
 import { getAddress, maxUint256, parseUnits } from "viem";
@@ -29,147 +29,159 @@ interface VaultSupplyFormProps {
   onSuccessfulActionSimulation: (action: SuccessfulVaultAction) => void;
 }
 
-export function VaultSupplyForm({ vault, onSuccessfulActionSimulation }: VaultSupplyFormProps) {
-  const { address } = useAccount();
-  const publicClient = usePublicClient({ chainId: vault.chain.id });
-  const { open: openAppKit } = useAppKit();
+export const VaultSupplyForm = forwardRef<{ reset: () => void }, VaultSupplyFormProps>(
+  ({ vault, onSuccessfulActionSimulation }, ref) => {
+    const { address } = useAccount();
+    const publicClient = usePublicClient({ chainId: vault.chain.id });
+    const { open: openAppKit } = useAppKit();
 
-  const [simulating, setSimulating] = useState(false);
-  const [simulationErrorMsg, setSimulationErrorMsg] = useState<string | null>(null);
+    const [simulating, setSimulating] = useState(false);
+    const [simulationErrorMsg, setSimulationErrorMsg] = useState<string | null>(null);
 
-  const { data: position, isLoading: isPositionLoading } = useVaultPosition(
-    vault.chain.id,
-    getAddress(vault.vaultAddress)
-  );
+    const { data: position, isLoading: isPositionLoading } = useVaultPosition(
+      vault.chain.id,
+      getAddress(vault.vaultAddress)
+    );
 
-  const walletUnderlyingAssetBalance = useMemo(() => {
-    if (!position?.walletUnderlyingAssetHolding) {
-      return undefined;
-    }
+    const walletUnderlyingAssetBalance = useMemo(() => {
+      if (!position?.walletUnderlyingAssetHolding) {
+        return undefined;
+      }
 
-    return descaleBigIntToNumber(position.walletUnderlyingAssetHolding.balance, vault.asset.decimals);
-  }, [position, vault.asset.decimals]);
+      return descaleBigIntToNumber(position.walletUnderlyingAssetHolding.balance, vault.asset.decimals);
+    }, [position, vault.asset.decimals]);
 
-  const formSchema = useMemo(() => {
-    return z
-      .object({
-        supplyAmount: z.string().nonempty("Amount is required."),
-        isMaxSupply: z.boolean(),
-      })
-      .superRefine((data, ctx) => {
-        const supplyAmount = Number(data.supplyAmount);
-        if (isNaN(supplyAmount) || supplyAmount <= 0) {
-          ctx.addIssue({
-            path: ["supplyAmount"],
-            code: z.ZodIssueCode.custom,
-            message: "Amount must be >0.",
-          });
-        }
+    const formSchema = useMemo(() => {
+      return z
+        .object({
+          supplyAmount: z.string().nonempty("Amount is required."),
+          isMaxSupply: z.boolean(),
+        })
+        .superRefine((data, ctx) => {
+          const supplyAmount = Number(data.supplyAmount);
+          if (isNaN(supplyAmount) || supplyAmount <= 0) {
+            ctx.addIssue({
+              path: ["supplyAmount"],
+              code: z.ZodIssueCode.custom,
+              message: "Amount must be >0.",
+            });
+          }
 
-        const maxSupplyAmount = walletUnderlyingAssetBalance ?? Infinity;
-        if (supplyAmount > maxSupplyAmount) {
-          ctx.addIssue({
-            path: ["supplyAmount"],
-            code: z.ZodIssueCode.custom,
-            message: "Amount exceeds wallet balance.",
-          });
-        }
-      });
-  }, [walletUnderlyingAssetBalance]);
+          const maxSupplyAmount = walletUnderlyingAssetBalance ?? Infinity;
+          if (supplyAmount > maxSupplyAmount) {
+            ctx.addIssue({
+              path: ["supplyAmount"],
+              code: z.ZodIssueCode.custom,
+              message: "Amount exceeds wallet balance.",
+            });
+          }
+        });
+    }, [walletUnderlyingAssetBalance]);
 
-  const form = useForm({
-    mode: "onChange",
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      supplyAmount: "",
-      isMaxSupply: false,
-    },
-  });
-
-  const supplyAmount = useWatchNumberInputField(form.control, "supplyAmount");
-
-  const missingAmountInput = useMemo(() => {
-    return supplyAmount == 0;
-  }, [supplyAmount]);
-
-  const [debouncedSupplyAmount] = useDebounce(supplyAmount, 300);
-  const simulationMetrics = useMemo(() => {
-    const positionChange = computeVaultPositionChange({
-      vault,
-      currentPosition: position,
-      supplyAmountChange: debouncedSupplyAmount,
+    const form = useForm({
+      mode: "onChange",
+      resolver: zodResolver(formSchema),
+      defaultValues: {
+        supplyAmount: "",
+        isMaxSupply: false,
+      },
     });
 
-    return <VaultActionSimulationMetrics vault={vault} positionChange={positionChange} isLoading={isPositionLoading} />;
-  }, [debouncedSupplyAmount, position, vault, isPositionLoading]);
+    // Expose reset method to parent
+    useImperativeHandle(ref, () => ({
+      reset: () => {
+        form.reset();
+      },
+    }));
 
-  const handleSubmit = useCallback(
-    async ({ supplyAmount, isMaxSupply }: z.infer<typeof formSchema>) => {
-      if (!address) {
-        openAppKit();
-        return;
-      }
+    const supplyAmount = useWatchNumberInputField(form.control, "supplyAmount");
 
-      if (!publicClient) {
-        throw new Error(`Missing public client for chain ${vault.chain.id}`);
-      }
+    const missingAmountInput = useMemo(() => {
+      return supplyAmount == 0;
+    }, [supplyAmount]);
 
-      setSimulationErrorMsg(null);
-      setSimulating(true);
-
-      const rawSupplyAmount = isMaxSupply ? maxUint256 : parseUnits(supplyAmount, vault.asset.decimals);
-
-      const action = await vaultSupplyAction({
-        publicClient,
-        vaultAddress: getAddress(vault.vaultAddress),
-        accountAddress: address,
-        supplyAmount: rawSupplyAmount,
-        allowWrappingNativeAssets: false, // TODO: revisit
+    const [debouncedSupplyAmount] = useDebounce(supplyAmount, 300);
+    const simulationMetrics = useMemo(() => {
+      const positionChange = computeVaultPositionChange({
+        vault,
+        currentPosition: position,
+        supplyAmountChange: debouncedSupplyAmount,
       });
 
-      if (action.status == "success") {
-        onSuccessfulActionSimulation(action);
-      } else {
-        setSimulationErrorMsg(action.message);
-      }
+      return (
+        <VaultActionSimulationMetrics vault={vault} positionChange={positionChange} isLoading={isPositionLoading} />
+      );
+    }, [debouncedSupplyAmount, position, vault, isPositionLoading]);
 
-      setSimulating(false);
-    },
-    [address, openAppKit, publicClient, setSimulationErrorMsg, setSimulating, vault, onSuccessfulActionSimulation]
-  );
+    const handleSubmit = useCallback(
+      async ({ supplyAmount, isMaxSupply }: z.infer<typeof formSchema>) => {
+        if (!address) {
+          openAppKit();
+          return;
+        }
 
-  return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)}>
-        <fieldset disabled={simulating} style={{ all: "unset", width: "100%" }}>
-          <div className="flex flex-col gap-6">
-            <AssetInputFormField
-              control={form.control}
-              name="supplyAmount"
-              header={`Supply ${vault.asset.symbol}`}
-              asset={vault.asset}
-              maxValue={walletUnderlyingAssetBalance}
-              setIsMax={(isMax) => {
-                form.setValue("isMaxSupply", isMax);
-              }}
-            />
+        if (!publicClient) {
+          throw new Error(`Missing public client for chain ${vault.chain.id}`);
+        }
 
-            {simulationMetrics}
+        setSimulationErrorMsg(null);
+        setSimulating(true);
 
-            <div className="flex flex-col gap-1">
-              <Button
-                type="submit"
-                disabled={simulating || !form.formState.isValid || missingAmountInput}
-                isLoading={simulating}
-                loadingMessage="Simulating"
-              >
-                {missingAmountInput ? "Enter an amount" : "Review"}
-              </Button>
-              <ErrorMessage message={simulationErrorMsg} />
+        const rawSupplyAmount = isMaxSupply ? maxUint256 : parseUnits(supplyAmount, vault.asset.decimals);
+
+        const action = await vaultSupplyAction({
+          publicClient,
+          vaultAddress: getAddress(vault.vaultAddress),
+          accountAddress: address,
+          supplyAmount: rawSupplyAmount,
+          allowWrappingNativeAssets: false, // TODO: revisit
+        });
+
+        if (action.status == "success") {
+          onSuccessfulActionSimulation(action);
+        } else {
+          setSimulationErrorMsg(action.message);
+        }
+
+        setSimulating(false);
+      },
+      [address, openAppKit, publicClient, setSimulationErrorMsg, setSimulating, vault, onSuccessfulActionSimulation]
+    );
+
+    return (
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(handleSubmit)}>
+          <fieldset disabled={simulating} style={{ all: "unset", width: "100%" }}>
+            <div className="flex flex-col gap-6">
+              <AssetInputFormField
+                control={form.control}
+                name="supplyAmount"
+                header={`Supply ${vault.asset.symbol}`}
+                asset={vault.asset}
+                maxValue={walletUnderlyingAssetBalance}
+                setIsMax={(isMax) => {
+                  form.setValue("isMaxSupply", isMax);
+                }}
+              />
+
+              {simulationMetrics}
+
+              <div className="flex flex-col gap-1">
+                <Button
+                  type="submit"
+                  disabled={simulating || !form.formState.isValid || missingAmountInput}
+                  isLoading={simulating}
+                  loadingMessage="Simulating"
+                >
+                  {missingAmountInput ? "Enter an amount" : "Review"}
+                </Button>
+                <ErrorMessage message={simulationErrorMsg} />
+              </div>
             </div>
-          </div>
-        </fieldset>
-      </form>
-    </Form>
-  );
-}
+          </fieldset>
+        </form>
+      </Form>
+    );
+  }
+);
+VaultSupplyForm.displayName = "VaultSupplyForm";

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { SuccessfulVaultAction } from "@/actions/utils/types";
 import { VaultActionFlow } from "@/components/ActionFlow/VaultActionFlow";
@@ -18,6 +18,8 @@ export default function VaultWithdraw({
   const [flowOpen, setFlowOpen] = useState(false);
   const [success, setSuccess] = useState(false);
 
+  const formRef = useRef<{ reset: () => void }>(null);
+
   return (
     <>
       <VaultWithdrawForm
@@ -26,6 +28,7 @@ export default function VaultWithdraw({
           setAction(action);
           setFlowOpen(true);
         }}
+        ref={formRef}
       />
 
       <VaultActionFlow
@@ -40,6 +43,7 @@ export default function VaultWithdraw({
         }}
         flowCompletionCb={() => {
           setSuccess(true);
+          formRef.current?.reset();
         }}
       />
     </>

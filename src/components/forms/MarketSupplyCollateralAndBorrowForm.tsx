@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MarketId } from "@morpho-org/blue-sdk";
 import { useAppKit } from "@reown/appkit/react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDebounce } from "use-debounce";
 import { Hex, getAddress, maxUint256, parseUnits } from "viem";
@@ -31,10 +31,10 @@ interface MarketSupplyCollateralAndBorrowFormProps {
   onSuccessfulActionSimulation: (action: SuccessfulMarketAction) => void;
 }
 
-export function MarketSupplyCollateralAndBorrowForm({
-  market,
-  onSuccessfulActionSimulation,
-}: MarketSupplyCollateralAndBorrowFormProps) {
+export const MarketSupplyCollateralAndBorrowForm = forwardRef<
+  { reset: () => void },
+  MarketSupplyCollateralAndBorrowFormProps
+>(({ market, onSuccessfulActionSimulation }, ref) => {
   const { address } = useAccount();
   const publicClient = usePublicClient({ chainId: market.chain.id });
   const { open: openAppKit } = useAppKit();
@@ -116,6 +116,13 @@ export function MarketSupplyCollateralAndBorrowForm({
       borrowAmount: "",
     },
   });
+
+  // Expose reset method to parent
+  useImperativeHandle(ref, () => ({
+    reset: () => {
+      form.reset();
+    },
+  }));
 
   const supplyCollateralAmount = useWatchNumberInputField(form.control, "supplyCollateralAmount");
   const borrowAmount = useWatchNumberInputField(form.control, "borrowAmount");
@@ -246,4 +253,5 @@ export function MarketSupplyCollateralAndBorrowForm({
       </form>
     </Form>
   );
-}
+});
+MarketSupplyCollateralAndBorrowForm.displayName = "MarketSupplyCollateralAndBorrowForm";
