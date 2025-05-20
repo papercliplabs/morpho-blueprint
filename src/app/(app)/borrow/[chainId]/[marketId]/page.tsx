@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { isHex } from "viem";
 
+import { IrmChart } from "@/components/IrmChart";
+import { IrmMetrics, IrmMetricsSkeleton } from "@/components/market/IrmMetrics";
 import MarketActions from "@/components/market/MarketActions";
 import { MarketKeyMetrics, MarketKeyMetricsSkeleton } from "@/components/market/MarketKeyMetrics";
 import { MarketName } from "@/components/market/MarketName";
@@ -71,10 +73,14 @@ export default async function MarketPage({ params }: { params: Promise<{ chainId
 
           <Card>
             <CardHeader>Interest Rate Model</CardHeader>
-            <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
-              {/* <VaultAllocationTableWrapper chainId={chainId} marketId={marketId} /> */}
-              TODO
-            </Suspense>
+            <div className="flex flex-col gap-8">
+              <Suspense fallback={<IrmMetricsSkeleton />}>
+                <IrmMetricsWrapper chainId={chainId} marketId={marketId} />
+              </Suspense>
+              <Suspense fallback={<Skeleton className="h-[216px] w-full" />}>
+                <IrmChartWrapper chainId={chainId} marketId={marketId} />
+              </Suspense>
+            </div>
           </Card>
 
           <Card>
@@ -147,6 +153,23 @@ async function VaultAllocationTableWrapper({ chainId, marketId }: MarketIdentifi
   }
 
   return <VaultAllocationTable market={market} />;
+}
+
+async function IrmMetricsWrapper({ chainId, marketId }: MarketIdentifier) {
+  const market = await getMarket(chainId, marketId);
+  if (!market) {
+    return null;
+  }
+
+  return <IrmMetrics market={market} />;
+}
+
+async function IrmChartWrapper({ chainId, marketId }: MarketIdentifier) {
+  const market = await getMarket(chainId, marketId);
+  if (!market) {
+    return null;
+  }
+  return <IrmChart data={market.irm.curve ?? []} currentUtilization={market.utilization} />;
 }
 
 async function MarketActionsWrapper({ chainId, marketId }: MarketIdentifier) {

@@ -77,7 +77,7 @@ function IrmChart({ data, currentUtilization }: IrmChartProps) {
 }
 
 function CustomActiveDot({ cx, cy, color }: DotProps) {
-  const r = 9;
+  const r = 6;
   return (
     <svg x={cx! - r} y={cy! - r} width={r * 2} height={r * 2} viewBox={`0 0 ${r * 2} ${r * 2}`} className="z-[100]">
       <circle cx={r} cy={r} r={r} fill={color} />
