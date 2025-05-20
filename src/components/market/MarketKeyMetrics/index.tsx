@@ -43,7 +43,7 @@ export function MarketKeyMetrics({ market }: MarketKeyMetricsProps) {
 }
 
 export function MarketKeyMetricsSkeleton() {
-  const metricSkeleton = <Skeleton className="h-[32px] w-[140px]" />;
+  const metricSkeleton = <Skeleton className="mt-0.5 h-[34px] w-[140px]" />;
   return (
     <MarketKeyMetricsLayout
       totalSupplyValue={metricSkeleton}

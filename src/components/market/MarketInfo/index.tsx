@@ -64,7 +64,7 @@ export function MarketInfo({ market }: MarketInfoProps) {
 }
 
 export function MarketInfoSkeleton() {
-  const metricSkeleton = <Skeleton className="h-[24px] w-[140px]" />;
+  const metricSkeleton = <Skeleton className="mt-0.5 h-[25px] w-[140px]" />;
   return (
     <MarketInfoLayout
       lltv={metricSkeleton}

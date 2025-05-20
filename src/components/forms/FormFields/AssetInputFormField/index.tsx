@@ -72,10 +72,10 @@ function AssetInputFormField<TFieldValues extends Record<string, any>>({
               )}
               {maxValue != undefined && (
                 <div className="flex h-[24px] items-center gap-1">
+                  <span>Available: </span>
                   <div className="relative">
                     <NumberFlow value={maxValue ?? 0} />
                   </div>
-                  <span>{asset.symbol}</span>
                   <Button
                     variant="secondary"
                     size="xs"

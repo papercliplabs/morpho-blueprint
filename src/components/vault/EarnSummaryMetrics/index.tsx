@@ -1,7 +1,7 @@
 "use client";
 import { ReactNode } from "react";
 
-import { Metric } from "@/components/Metric";
+import { MetricWithTooltip } from "@/components/Metric";
 import NumberFlow from "@/components/ui/number-flow";
 import { Skeleton } from "@/components/ui/skeleton";
 import { VaultSummary } from "@/data/whisk/getVaultSummaries";
@@ -11,7 +11,7 @@ interface EarnSummaryMetricsProps {
   vaultSummaries: VaultSummary[];
 }
 
-const metricSkeleton = <Skeleton className="h-[36px] w-[70px]" />;
+const metricSkeleton = <Skeleton className="mt-[2px] h-[28px] w-[90px]" />;
 
 export function EarnSummaryMetrics({ vaultSummaries }: EarnSummaryMetricsProps) {
   const { data } = useEarnSummaryMetrics({ vaultSummaries });
@@ -54,16 +54,28 @@ function EarnSummaryMetricsLayout({
   return (
     <div className="flex flex-col justify-between gap-4 md:flex-row">
       <div className="flex gap-8">
-        <Metric label="Total supplied">{totalSupplied}</Metric>
-        <Metric label="Total borrowed">{totalBorrowed}</Metric>
+        <MetricWithTooltip label="Total supplied" tooltip="Total supplied across all vaults within the table.">
+          {totalSupplied}
+        </MetricWithTooltip>
+        <MetricWithTooltip label="Total borrowed" tooltip="Total borrowed across all vaults within the table.">
+          {totalBorrowed}
+        </MetricWithTooltip>
       </div>
       <div className="flex gap-8">
-        <Metric label="Your deposits" className="md:items-end">
+        <MetricWithTooltip
+          label="Your deposits"
+          tooltip="Your deposits across all vaults within the table."
+          className="md:items-end"
+        >
           {userDeposited}
-        </Metric>
-        <Metric label="Your earn APY" className="md:items-end">
+        </MetricWithTooltip>
+        <MetricWithTooltip
+          label="Your earn APY"
+          tooltip="Your net earn APY across all vaults within the table."
+          className="md:items-end"
+        >
           {userEarnApy}
-        </Metric>
+        </MetricWithTooltip>
       </div>
     </div>
   );

@@ -31,7 +31,7 @@ export function IrmMetrics({ market }: IrmMetricsProps) {
 }
 
 export function IrmMetricsSkeleton() {
-  const skeleton = <Skeleton className="h-[32px] w-[140px]" />;
+  const skeleton = <Skeleton className="mt-0.5 h-[25px] w-[140px]" />;
   return <IrmMetricsLayout targetUtilization={skeleton} currentUtilization={skeleton} irmAddress={skeleton} />;
 }
 

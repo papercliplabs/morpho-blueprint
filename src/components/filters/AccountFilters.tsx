@@ -1,5 +1,7 @@
 "use client";
+import { useAppKit } from "@reown/appkit/react";
 import { useMemo } from "react";
+import { useAccount } from "wagmi";
 
 import { useShallowSearchParams } from "@/hooks/useShallowSearchParams";
 
@@ -14,6 +16,8 @@ export function AccountFilters() {
   } = useShallowSearchParams({
     keys: [FilterKey.Account],
   });
+  const { isConnected } = useAccount();
+  const { open: openAppKit } = useAppKit();
 
   const value = useMemo(() => {
     if (accountFilterValues.length === 0) {
@@ -24,14 +28,18 @@ export function AccountFilters() {
 
   return (
     <Tabs
-      value={value}
+      value={isConnected ? value : "all"}
       onValueChange={(value) => addShallowSearchParams([{ key: FilterKey.Account, value }])}
       variant="default"
     >
       <TabsList>
         <TabsTrigger value="all">All</TabsTrigger>
-        <TabsTrigger value="positions">My positions</TabsTrigger>
-        <TabsTrigger value="wallet">In wallet</TabsTrigger>
+        <TabsTrigger value="positions" onClick={() => !isConnected && openAppKit()}>
+          My positions
+        </TabsTrigger>
+        <TabsTrigger value="wallet" onClick={() => !isConnected && openAppKit()}>
+          In wallet
+        </TabsTrigger>
       </TabsList>
     </Tabs>
   );

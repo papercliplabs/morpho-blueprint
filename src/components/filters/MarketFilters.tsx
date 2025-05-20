@@ -5,8 +5,8 @@ import { useShallowSearchParams } from "@/hooks/useShallowSearchParams";
 
 import { MultiSelect, MultiSelectOption } from "../MultiSelect";
 
+import { ResetFiltersButton } from "./ResetFiltersButton";
 import { FilterKey } from "./types";
-
 interface MarketFiltersProps {
   chainOptions: MultiSelectOption[];
   collateralAssetOptions: MultiSelectOption[];
@@ -61,6 +61,7 @@ export function MarketFilters({ chainOptions, collateralAssetOptions, loanAssetO
           onReset={() => removeShallowSearchParams([FilterKey.LoanAssets])}
         />
       )}
+      <ResetFiltersButton />
     </div>
   );
 }
