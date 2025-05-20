@@ -41,7 +41,7 @@ function AssetInputFormField<TFieldValues extends Record<string, any>>({
               <FormControl>
                 <Input
                   className={clsx(
-                    "heading-3 border-none bg-transparent p-0 shadow-none focus:ring-0 focus:ring-offset-0",
+                    "heading-3 rounded-none border-none bg-transparent p-0 shadow-none focus:ring-0 focus:ring-offset-0",
                     fieldState.error && !!field.value && "text-destructive"
                   )}
                   placeholder="0"
