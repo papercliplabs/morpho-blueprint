@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAppKit } from "@reown/appkit/react";
-import { useCallback, useMemo, useState } from "react";
+import { forwardRef, useCallback, useImperativeHandle, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDebounce } from "use-debounce";
 import { getAddress, maxUint256, parseUnits } from "viem";
@@ -29,146 +29,158 @@ interface VaultWithdrawFormProps {
   onSuccessfulActionSimulation: (action: SuccessfulVaultAction) => void;
 }
 
-export function VaultWithdrawForm({ vault, onSuccessfulActionSimulation }: VaultWithdrawFormProps) {
-  const { address } = useAccount();
-  const publicClient = usePublicClient({ chainId: vault.chain.id });
-  const { open: openAppKit } = useAppKit();
+export const VaultWithdrawForm = forwardRef<{ reset: () => void }, VaultWithdrawFormProps>(
+  ({ vault, onSuccessfulActionSimulation }, ref) => {
+    const { address } = useAccount();
+    const publicClient = usePublicClient({ chainId: vault.chain.id });
+    const { open: openAppKit } = useAppKit();
 
-  const [simulating, setSimulating] = useState(false);
-  const [simulationErrorMsg, setSimulationErrorMsg] = useState<string | null>(null);
+    const [simulating, setSimulating] = useState(false);
+    const [simulationErrorMsg, setSimulationErrorMsg] = useState<string | null>(null);
 
-  const { data: position, isLoading: isPositionLoading } = useVaultPosition(
-    vault.chain.id,
-    getAddress(vault.vaultAddress)
-  );
+    const { data: position, isLoading: isPositionLoading } = useVaultPosition(
+      vault.chain.id,
+      getAddress(vault.vaultAddress)
+    );
 
-  const positionBalance = useMemo(() => {
-    if (!position?.supplyAssets) {
-      return undefined;
-    }
+    const positionBalance = useMemo(() => {
+      if (!position?.supplyAssets) {
+        return undefined;
+      }
 
-    return descaleBigIntToNumber(position.supplyAssets, vault.asset.decimals);
-  }, [position, vault.asset.decimals]);
+      return descaleBigIntToNumber(position.supplyAssets, vault.asset.decimals);
+    }, [position, vault.asset.decimals]);
 
-  const formSchema = useMemo(() => {
-    return z
-      .object({
-        withdrawAmount: z.string().nonempty("Amount is required."),
-        isMaxWithdraw: z.boolean(),
-      })
-      .superRefine((data, ctx) => {
-        const withdrawAmount = Number(data.withdrawAmount);
-        if (isNaN(withdrawAmount) || withdrawAmount <= 0) {
-          ctx.addIssue({
-            path: ["withdrawAmount"],
-            code: z.ZodIssueCode.custom,
-            message: "Amount must be >0.",
-          });
-        }
+    const formSchema = useMemo(() => {
+      return z
+        .object({
+          withdrawAmount: z.string().nonempty("Amount is required."),
+          isMaxWithdraw: z.boolean(),
+        })
+        .superRefine((data, ctx) => {
+          const withdrawAmount = Number(data.withdrawAmount);
+          if (isNaN(withdrawAmount) || withdrawAmount <= 0) {
+            ctx.addIssue({
+              path: ["withdrawAmount"],
+              code: z.ZodIssueCode.custom,
+              message: "Amount must be >0.",
+            });
+          }
 
-        const maxWithdrawAmount = positionBalance ?? Infinity;
-        if (withdrawAmount > maxWithdrawAmount) {
-          ctx.addIssue({
-            path: ["withdrawAmount"],
-            code: z.ZodIssueCode.custom,
-            message: "Amount exceeds balance.",
-          });
-        }
-      });
-  }, [positionBalance]);
+          const maxWithdrawAmount = positionBalance ?? Infinity;
+          if (withdrawAmount > maxWithdrawAmount) {
+            ctx.addIssue({
+              path: ["withdrawAmount"],
+              code: z.ZodIssueCode.custom,
+              message: "Amount exceeds balance.",
+            });
+          }
+        });
+    }, [positionBalance]);
 
-  const form = useForm({
-    mode: "onChange",
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      withdrawAmount: "",
-      isMaxWithdraw: false,
-    },
-  });
-
-  const withdrawAmount = useWatchNumberInputField(form.control, "withdrawAmount");
-
-  const missingAmountInput = useMemo(() => {
-    return withdrawAmount == 0;
-  }, [withdrawAmount]);
-
-  const [debouncedWithdrawAmount] = useDebounce(withdrawAmount, 300);
-  const simulationMetrics = useMemo(() => {
-    const positionChange = computeVaultPositionChange({
-      vault,
-      currentPosition: position,
-      supplyAmountChange: -debouncedWithdrawAmount,
+    const form = useForm({
+      mode: "onChange",
+      resolver: zodResolver(formSchema),
+      defaultValues: {
+        withdrawAmount: "",
+        isMaxWithdraw: false,
+      },
     });
 
-    return <VaultActionSimulationMetrics vault={vault} positionChange={positionChange} isLoading={isPositionLoading} />;
-  }, [debouncedWithdrawAmount, position, vault, isPositionLoading]);
+    // Expose reset method to parent
+    useImperativeHandle(ref, () => ({
+      reset: () => {
+        form.reset();
+      },
+    }));
 
-  const handleSubmit = useCallback(
-    async ({ withdrawAmount, isMaxWithdraw }: z.infer<typeof formSchema>) => {
-      if (!address) {
-        openAppKit();
-        return;
-      }
+    const withdrawAmount = useWatchNumberInputField(form.control, "withdrawAmount");
 
-      if (!publicClient) {
-        throw new Error(`Missing public client for chain ${vault.chain.id}`);
-      }
+    const missingAmountInput = useMemo(() => {
+      return withdrawAmount == 0;
+    }, [withdrawAmount]);
 
-      setSimulationErrorMsg(null);
-      setSimulating(true);
-
-      const rawWithdrawAmount = isMaxWithdraw ? maxUint256 : parseUnits(withdrawAmount, vault.asset.decimals);
-
-      const action = await vaultWithdrawAction({
-        publicClient,
-        vaultAddress: getAddress(vault.vaultAddress),
-        accountAddress: address,
-        withdrawAmount: rawWithdrawAmount,
+    const [debouncedWithdrawAmount] = useDebounce(withdrawAmount, 300);
+    const simulationMetrics = useMemo(() => {
+      const positionChange = computeVaultPositionChange({
+        vault,
+        currentPosition: position,
+        supplyAmountChange: -debouncedWithdrawAmount,
       });
 
-      if (action.status == "success") {
-        onSuccessfulActionSimulation(action);
-      } else {
-        setSimulationErrorMsg(action.message);
-      }
+      return (
+        <VaultActionSimulationMetrics vault={vault} positionChange={positionChange} isLoading={isPositionLoading} />
+      );
+    }, [debouncedWithdrawAmount, position, vault, isPositionLoading]);
 
-      setSimulating(false);
-    },
-    [address, openAppKit, publicClient, setSimulationErrorMsg, setSimulating, onSuccessfulActionSimulation, vault]
-  );
+    const handleSubmit = useCallback(
+      async ({ withdrawAmount, isMaxWithdraw }: z.infer<typeof formSchema>) => {
+        if (!address) {
+          openAppKit();
+          return;
+        }
 
-  return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)}>
-        <fieldset disabled={simulating} style={{ all: "unset", width: "100%" }}>
-          <div className="flex flex-col gap-6">
-            <AssetInputFormField
-              control={form.control}
-              name="withdrawAmount"
-              header={`Withdraw ${vault.asset.symbol}`}
-              asset={vault.asset}
-              maxValue={positionBalance}
-              setIsMax={(isMax) => {
-                form.setValue("isMaxWithdraw", isMax);
-              }}
-            />
+        if (!publicClient) {
+          throw new Error(`Missing public client for chain ${vault.chain.id}`);
+        }
 
-            {simulationMetrics}
+        setSimulationErrorMsg(null);
+        setSimulating(true);
 
-            <div className="flex flex-col gap-1">
-              <Button
-                type="submit"
-                disabled={simulating || !form.formState.isValid || missingAmountInput}
-                isLoading={simulating}
-                loadingMessage="Simulating"
-              >
-                {missingAmountInput ? "Enter an amount" : "Review"}
-              </Button>
-              <ErrorMessage message={simulationErrorMsg} />
+        const rawWithdrawAmount = isMaxWithdraw ? maxUint256 : parseUnits(withdrawAmount, vault.asset.decimals);
+
+        const action = await vaultWithdrawAction({
+          publicClient,
+          vaultAddress: getAddress(vault.vaultAddress),
+          accountAddress: address,
+          withdrawAmount: rawWithdrawAmount,
+        });
+
+        if (action.status == "success") {
+          onSuccessfulActionSimulation(action);
+        } else {
+          setSimulationErrorMsg(action.message);
+        }
+
+        setSimulating(false);
+      },
+      [address, openAppKit, publicClient, setSimulationErrorMsg, setSimulating, onSuccessfulActionSimulation, vault]
+    );
+
+    return (
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(handleSubmit)}>
+          <fieldset disabled={simulating} style={{ all: "unset", width: "100%" }}>
+            <div className="flex flex-col gap-6">
+              <AssetInputFormField
+                control={form.control}
+                name="withdrawAmount"
+                header={`Withdraw ${vault.asset.symbol}`}
+                asset={vault.asset}
+                maxValue={positionBalance}
+                setIsMax={(isMax) => {
+                  form.setValue("isMaxWithdraw", isMax);
+                }}
+              />
+
+              {simulationMetrics}
+
+              <div className="flex flex-col gap-1">
+                <Button
+                  type="submit"
+                  disabled={simulating || !form.formState.isValid || missingAmountInput}
+                  isLoading={simulating}
+                  loadingMessage="Simulating"
+                >
+                  {missingAmountInput ? "Enter an amount" : "Review"}
+                </Button>
+                <ErrorMessage message={simulationErrorMsg} />
+              </div>
             </div>
-          </div>
-        </fieldset>
-      </form>
-    </Form>
-  );
-}
+          </fieldset>
+        </form>
+      </Form>
+    );
+  }
+);
+VaultWithdrawForm.displayName = "VaultWithdrawForm";

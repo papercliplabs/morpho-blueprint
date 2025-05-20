@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MarketId } from "@morpho-org/blue-sdk";
 import { useAppKit } from "@reown/appkit/react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDebounce } from "use-debounce";
 import { Hex, maxUint256, parseUnits } from "viem";
@@ -33,10 +33,10 @@ interface MarketRepayAndWithdrawCollateralFormProps {
 
 type RepayLimiter = "wallet-balance" | "position";
 
-export function MarketRepayAndWithdrawCollateralForm({
-  market,
-  onSuccessfulActionSimulation,
-}: MarketRepayAndWithdrawCollateralFormProps) {
+export const MarketRepayAndWithdrawCollateralForm = forwardRef<
+  { reset: () => void },
+  MarketRepayAndWithdrawCollateralFormProps
+>(({ market, onSuccessfulActionSimulation }, ref) => {
   const { address } = useAccount();
   const publicClient = usePublicClient({ chainId: market.chain.id });
   const { open: openAppKit } = useAppKit();
@@ -130,6 +130,13 @@ export function MarketRepayAndWithdrawCollateralForm({
       isMaxWithdrawCollateral: false,
     },
   });
+
+  // Expose reset method to parent
+  useImperativeHandle(ref, () => ({
+    reset: () => {
+      form.reset();
+    },
+  }));
 
   const repayAmount = useWatchNumberInputField(form.control, "repayAmount");
   const withdrawCollateralAmount = useWatchNumberInputField(form.control, "withdrawCollateralAmount");
@@ -285,4 +292,5 @@ export function MarketRepayAndWithdrawCollateralForm({
       </form>
     </Form>
   );
-}
+});
+MarketRepayAndWithdrawCollateralForm.displayName = "MarketRepayAndWithdrawCollateralForm";
