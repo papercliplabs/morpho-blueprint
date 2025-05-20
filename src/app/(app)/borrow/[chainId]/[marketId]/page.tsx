@@ -3,9 +3,10 @@ import { Suspense } from "react";
 import { isHex } from "viem";
 
 import MarketActions from "@/components/market/MarketActions";
-import { MarketIdentifier as MarketIdentifierComponent } from "@/components/market/MarketIdentifier";
 import { MarketKeyMetrics, MarketKeyMetricsSkeleton } from "@/components/market/MarketKeyMetrics";
+import { MarketName } from "@/components/market/MarketName";
 import { MarketPositionHighlight } from "@/components/market/MarketPositionHighlight";
+import { VaultAllocationTable } from "@/components/tables/VaultAllocationTable";
 import { BreakcrumbBack } from "@/components/ui/breakcrumb-back";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -64,16 +65,15 @@ export default async function MarketPage({ params }: { params: Promise<{ chainId
           <Card>
             <CardHeader>Vault Allocation</CardHeader>
             <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
-              TODO
-              {/* <MarketAllocationTableWrapper chainId={chainId} vaultAddress={vaultAddress} /> */}
+              <VaultAllocationTableWrapper chainId={chainId} marketId={marketId} />
             </Suspense>
           </Card>
 
           <Card>
             <CardHeader>Interest Rate Model</CardHeader>
             <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
+              {/* <VaultAllocationTableWrapper chainId={chainId} marketId={marketId} /> */}
               TODO
-              {/* <MarketAllocationTableWrapper chainId={chainId} vaultAddress={vaultAddress} /> */}
             </Suspense>
           </Card>
 
@@ -119,7 +119,7 @@ async function MarketHeader({ chainId, marketId }: MarketIdentifier) {
     <div className="flex flex-col justify-between gap-4 md:flex-row">
       <div className="flex flex-col">
         <div className="flex h-[64px] items-center gap-3">
-          <MarketIdentifierComponent variant="default" {...market} />
+          <MarketName variant="default" {...market} />
         </div>
         <div className="text-muted-foreground">{market.chain.name}</div>
       </div>
@@ -137,6 +137,16 @@ async function KeyMetricsWrapper({ chainId, marketId }: MarketIdentifier) {
   }
 
   return <MarketKeyMetrics market={market} />;
+}
+
+async function VaultAllocationTableWrapper({ chainId, marketId }: MarketIdentifier) {
+  const market = await getMarket(chainId, marketId);
+
+  if (!market) {
+    return null;
+  }
+
+  return <VaultAllocationTable market={market} />;
 }
 
 async function MarketActionsWrapper({ chainId, marketId }: MarketIdentifier) {

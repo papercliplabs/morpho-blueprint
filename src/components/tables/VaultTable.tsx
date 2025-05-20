@@ -6,8 +6,8 @@ import { VaultSummary } from "@/data/whisk/getVaultSummaries";
 import { VaultTableDataEntry, useVaultTableData } from "@/hooks/useVaultTableData";
 
 import AvatarGroup from "../AvatarGroup";
-import { TokenIcon } from "../TokenIcon";
 import { ApyTooltip } from "../Tooltips/ApyToolip";
+import { VaultName } from "../vault/VaultName";
 
 import { TableAssetAmount } from "./Elements/TableAssetAmount";
 
@@ -22,17 +22,7 @@ function getColumns(isPositionLoading: boolean): ColumnDef<VaultTableDataEntry>[
       header: "Vault Name",
       cell: ({ row }) => {
         const { vaultSummary } = row.original;
-        return (
-          <div className="flex gap-3">
-            <TokenIcon token={vaultSummary.asset} chain={vaultSummary.chain} size="md" />
-            <div className="flex flex-col justify-between">
-              <span className="body-medium-plus">{vaultSummary.name}</span>
-              <span className="body-small-plus text-muted-foreground">
-                {vaultSummary.asset.symbol} • {vaultSummary.chain.name}
-              </span>
-            </div>
-          </div>
-        );
+        return <VaultName chain={vaultSummary.chain} name={vaultSummary.name} asset={vaultSummary.asset} />;
       },
       minSize: 260,
     },
