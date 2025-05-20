@@ -14,7 +14,7 @@ interface MarketIdentifierProps {
   variant?: "default" | "sm";
 }
 
-export function MarketIdentifier({
+export function MarketName({
   chain,
   name,
   collateralAsset,

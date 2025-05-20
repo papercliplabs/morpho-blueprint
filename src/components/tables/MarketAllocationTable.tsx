@@ -4,7 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Table } from "@/components/ui/table";
 import { Vault } from "@/data/whisk/getVault";
 
-import { MarketIdentifier } from "../market/MarketIdentifier";
+import { MarketName } from "../market/MarketName";
 import { ApyTooltip } from "../Tooltips/ApyToolip";
 import { TotalSupplyTooltip } from "../Tooltips/TotalSupplyTooltip";
 import NumberFlow from "../ui/number-flow";
@@ -20,7 +20,7 @@ const columns: ColumnDef<Vault["marketAllocations"][number]>[] = [
     header: "Market Name",
     cell: ({ row }) => {
       const { market } = row.original;
-      return <MarketIdentifier variant="sm" {...market} />;
+      return <MarketName variant="sm" {...market} />;
     },
     minSize: 260,
   },

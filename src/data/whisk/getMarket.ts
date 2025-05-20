@@ -34,6 +34,12 @@ const query = graphql(`
           vaultAddress
           name
           curatorAddress
+          asset {
+            ...TokenInfoFragment
+          }
+          chain {
+            ...ChainInfoFragment
+          }
           # TODO: missing curator in Whisk
         }
         position {
