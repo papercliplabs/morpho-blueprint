@@ -7,7 +7,9 @@ import { TokenIcon } from "@/components/TokenIcon";
 import { BreakcrumbBack } from "@/components/ui/breakcrumb-back";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import VaultActions from "@/components/vault/VaultActions";
+import { VaultActions } from "@/components/vault/VaultActions";
+import { VaultInfoSkeleton } from "@/components/vault/VaultInfo";
+import { VaultInfo } from "@/components/vault/VaultInfo";
 import { VaultKeyMetrics, VaultKeyMetricsSkeleton } from "@/components/vault/VaultKeyMetrics";
 import { VaultPositionHighlight } from "@/components/vault/VaultPositionHighlight";
 import { WHITELISTED_VAULTS } from "@/config";
@@ -48,7 +50,7 @@ export default async function VaultPage({ params }: { params: Promise<{ chainId:
         </Suspense>
       </section>
 
-      <div className="flex gap-3">
+      <div className="flex flex-col gap-3 lg:flex-row">
         <div className="flex grow flex-col gap-3">
           <Card>
             <CardHeader>Key Metrics</CardHeader>
@@ -69,13 +71,15 @@ export default async function VaultPage({ params }: { params: Promise<{ chainId:
 
           <Card>
             <CardHeader>Vault Info</CardHeader>
-            <div>TODO</div>
+            <Suspense fallback={<VaultInfoSkeleton />}>
+              <VaultInfoWrapper chainId={chainId} vaultAddress={vaultAddress} />
+            </Suspense>
           </Card>
         </div>
 
         <Suspense
           fallback={
-            <Card className="h-[415px] w-[364px]">
+            <Card className="hidden h-[415px] w-full shrink-0 md:w-[364px] lg:block">
               <Skeleton className="h-full w-full" />
             </Card>
           }
@@ -143,6 +147,16 @@ async function VaultAboutCard({ chainId, vaultAddress }: VaultIdentifier) {
       <p className="text-muted-foreground">{vault.metadata?.description}</p>
     </Card>
   );
+}
+
+async function VaultInfoWrapper({ chainId, vaultAddress }: VaultIdentifier) {
+  const vault = await getVault(chainId, vaultAddress);
+
+  if (!vault) {
+    return null;
+  }
+
+  return <VaultInfo vault={vault} />;
 }
 
 async function VaultActionsWrapper({ chainId, vaultAddress }: VaultIdentifier) {

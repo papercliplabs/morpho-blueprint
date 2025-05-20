@@ -12,9 +12,9 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     <ThemeProvider>
       <WalletProvider>
         <TanstackQueryProvider>
-          <TooltipProvider>
-            <ResponsiveProvider>{children}</ResponsiveProvider>
-          </TooltipProvider>
+          <ResponsiveProvider>
+            <TooltipProvider>{children}</TooltipProvider>
+          </ResponsiveProvider>
         </TanstackQueryProvider>
       </WalletProvider>
     </ThemeProvider>

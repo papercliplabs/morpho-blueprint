@@ -13,7 +13,7 @@ interface VaultKeyMetricsProps {
 export function VaultKeyMetrics({ vault }: VaultKeyMetricsProps) {
   return (
     <VaultKeyMetricsLayout
-      totalDepositsValue={<NumberFlow value={vault.liquidityAssetsUsd} format={{ currency: "USD" }} />}
+      totalDepositsValue={<NumberFlow value={vault.supplyAssetsUsd} format={{ currency: "USD" }} />}
       availableLiquidityValue={<NumberFlow value={vault.liquidityAssetsUsd} format={{ currency: "USD" }} />}
       supplyApyValue={
         <ApyTooltipTrigger totalApy={vault.supplyApy.total} showSparkle={vault.supplyApy.rewards.length > 0} />
@@ -56,14 +56,22 @@ function VaultKeyMetricsLayout({
   supplyApyTooltip,
 }: VaultKeyMetricsLayoutProps) {
   return (
-    <div className="flex gap-6">
-      <MetricWithTooltip label="Total deposits" className="heading-4 flex-1" tooltip="TODO">
+    <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+      <MetricWithTooltip
+        label="Total deposits"
+        className="heading-4"
+        tooltip="The total amount of assets currently deposited in the vault."
+      >
         {totalDepositsValue}
       </MetricWithTooltip>
-      <MetricWithTooltip label="Available liquidity" className="heading-4 flex-1" tooltip="TODO">
+      <MetricWithTooltip
+        label="Available liquidity"
+        className="heading-4"
+        tooltip="The available assets that are not currently bring borrowed."
+      >
         {availableLiquidityValue}
       </MetricWithTooltip>
-      <MetricWithTooltip label="Supply APY" className="heading-4 flex-1" tooltip={supplyApyTooltip}>
+      <MetricWithTooltip label="Supply APY" className="heading-4" tooltip={supplyApyTooltip}>
         {supplyApyValue}
       </MetricWithTooltip>
     </div>
