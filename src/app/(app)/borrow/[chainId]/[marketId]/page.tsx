@@ -5,6 +5,7 @@ import { isHex } from "viem";
 import { IrmChart } from "@/components/IrmChart";
 import { IrmMetrics, IrmMetricsSkeleton } from "@/components/market/IrmMetrics";
 import MarketActions from "@/components/market/MarketActions";
+import { MarketInfo, MarketInfoSkeleton } from "@/components/market/MarketInfo";
 import { MarketKeyMetrics, MarketKeyMetricsSkeleton } from "@/components/market/MarketKeyMetrics";
 import { MarketName } from "@/components/market/MarketName";
 import { MarketPositionHighlight } from "@/components/market/MarketPositionHighlight";
@@ -85,9 +86,9 @@ export default async function MarketPage({ params }: { params: Promise<{ chainId
 
           <Card>
             <CardHeader>Market Info</CardHeader>
-            {/* <Suspense fallback={<VaultInfoSkeleton />}>
-              <VaultInfoWrapper chainId={chainId} vaultAddress={vaultAddress} />
-            </Suspense> */}
+            <Suspense fallback={<MarketInfoSkeleton />}>
+              <MarketInfoWrapper chainId={chainId} marketId={marketId} />
+            </Suspense>
           </Card>
         </div>
 
@@ -170,6 +171,14 @@ async function IrmChartWrapper({ chainId, marketId }: MarketIdentifier) {
     return null;
   }
   return <IrmChart data={market.irm.curve ?? []} currentUtilization={market.utilization} />;
+}
+
+async function MarketInfoWrapper({ chainId, marketId }: MarketIdentifier) {
+  const market = await getMarket(chainId, marketId);
+  if (!market) {
+    return null;
+  }
+  return <MarketInfo market={market} />;
 }
 
 async function MarketActionsWrapper({ chainId, marketId }: MarketIdentifier) {
