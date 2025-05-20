@@ -4,6 +4,7 @@ import { isHex } from "viem";
 
 import MarketActions from "@/components/market/MarketActions";
 import { MarketIdentifier as MarketIdentifierComponent } from "@/components/market/MarketIdentifier";
+import { MarketKeyMetrics, MarketKeyMetricsSkeleton } from "@/components/market/MarketKeyMetrics";
 import { MarketPositionHighlight } from "@/components/market/MarketPositionHighlight";
 import { BreakcrumbBack } from "@/components/ui/breakcrumb-back";
 import { Card, CardHeader } from "@/components/ui/card";
@@ -37,7 +38,10 @@ export default async function MarketPage({ params }: { params: Promise<{ chainId
           fallback={
             <div className="flex flex-col">
               <div className="flex h-[64px] items-center gap-3">
-                <Skeleton className="size-8 rounded-full" />
+                <div className="flex flex-row items-center">
+                  <Skeleton className="size-8 rounded-full" />
+                  <Skeleton className="-ml-3 size-8 rounded-full" />
+                </div>
                 <Skeleton className="h-[32px] w-[280px]" />
               </div>
               <Skeleton className="h-[20px] w-[140px]" />
@@ -52,9 +56,9 @@ export default async function MarketPage({ params }: { params: Promise<{ chainId
         <div className="flex grow flex-col gap-6">
           <Card>
             <CardHeader>Key Metrics</CardHeader>
-            {/* <Suspense fallback={<VaultKeyMetricsSkeleton />}>
-              <KeyMetricsWrapper chainId={chainId} vaultAddress={vaultAddress} />
-            </Suspense> */}
+            <Suspense fallback={<MarketKeyMetricsSkeleton />}>
+              <KeyMetricsWrapper chainId={chainId} marketId={marketId} />
+            </Suspense>
           </Card>
 
           <Card>
@@ -83,7 +87,7 @@ export default async function MarketPage({ params }: { params: Promise<{ chainId
 
         <Suspense
           fallback={
-            <Card className="hidden h-[415px] w-full shrink-0 md:w-[364px] lg:block">
+            <Card className="hidden h-[624px] w-full shrink-0 md:w-[364px] lg:block">
               <Skeleton className="h-full w-full" />
             </Card>
           }
@@ -123,6 +127,16 @@ async function MarketHeader({ chainId, marketId }: MarketIdentifier) {
       <MarketPositionHighlight market={market} />
     </div>
   );
+}
+
+async function KeyMetricsWrapper({ chainId, marketId }: MarketIdentifier) {
+  const market = await getMarket(chainId, marketId);
+
+  if (!market) {
+    return null;
+  }
+
+  return <MarketKeyMetrics market={market} />;
 }
 
 async function MarketActionsWrapper({ chainId, marketId }: MarketIdentifier) {

@@ -22,22 +22,21 @@ export interface MarketActionsProps {
 
 export default function MarketActions({ market }: MarketActionsProps) {
   const { data: userMarketPosition } = useMarketPosition(market.chain.id, market.marketId as Hex);
-  const { isDesktop, hasMounted } = useResponsiveContext();
+  const { isDesktop } = useResponsiveContext();
 
   const hasBorrowPosition = useMemo(() => {
     return BigInt(userMarketPosition?.borrowAssets ?? 0) > BigInt(0);
   }, [userMarketPosition]);
 
-  // Wait to render until we know to prevent layout glitches
-  if (!hasMounted) {
-    return null;
-  }
-
-  if (isDesktop) {
-    return <MarketActionsDesktop market={market} hasBorrowPosition={hasBorrowPosition} />;
-  } else {
-    return <MarketActionsMobile market={market} hasBorrowPosition={hasBorrowPosition} />;
-  }
+  return (
+    <div suppressHydrationWarning>
+      {isDesktop ? (
+        <MarketActionsDesktop market={market} hasBorrowPosition={hasBorrowPosition} />
+      ) : (
+        <MarketActionsMobile market={market} hasBorrowPosition={hasBorrowPosition} />
+      )}
+    </div>
+  );
 }
 
 function MarketActionsDesktop({ market, hasBorrowPosition }: { hasBorrowPosition: boolean } & MarketActionsProps) {

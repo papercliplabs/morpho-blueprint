@@ -14,6 +14,9 @@ const query = graphql(`
 
       isIdle
 
+      supplyAssets
+      supplyAssetsUsd
+
       collateralAsset {
         priceUsd
       }
@@ -23,7 +26,7 @@ const query = graphql(`
       }
 
       liquidityAssetsUsd
-      # publicAllocatorSharedLiquidityAssetsUsd
+      publicAllocatorSharedLiquidityAssetsUsd
       # Disabled for now, need better implementation in Whisk for chains with many many vaults and markets...
 
       vaultAllocations {

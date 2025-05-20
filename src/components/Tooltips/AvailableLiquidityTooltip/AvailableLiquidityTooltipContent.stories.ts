@@ -12,7 +12,6 @@ const meta = {
   args: {
     marketLiquidity: 1367.42,
     publicAllocatorLiquidity: 9534000,
-    totalLiquidity: 9540000,
   },
 } satisfies Meta<typeof AvailableLiquidityTooltipContent>;
 

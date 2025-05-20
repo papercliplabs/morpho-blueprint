@@ -5,16 +5,14 @@ import { formatNumber } from "@/utils/format";
 type AvailableLiquidityTooltipContentProps = {
   marketLiquidity: number;
   publicAllocatorLiquidity: number;
-  totalLiquidity: number;
 };
 
 function AvailableLiquidityTooltipContent({
   marketLiquidity,
   publicAllocatorLiquidity,
-  totalLiquidity,
 }: AvailableLiquidityTooltipContentProps) {
   return (
-    <div className="body-small flex w-[300px] flex-col gap-4">
+    <div className="body-small flex flex-col gap-4">
       <div className="flex flex-col gap-3">
         <span className="body-medium-plus">Market Liquidity</span>
         <span>
@@ -35,7 +33,9 @@ function AvailableLiquidityTooltipContent({
       <div className="bg-border h-[1px]" />
       <span className="flex justify-between">
         <span>Total Available Liquidity</span>
-        <span className="body-small-plus">{formatNumber(totalLiquidity, { currency: "USD" })}</span>
+        <span className="body-small-plus">
+          {formatNumber(marketLiquidity + publicAllocatorLiquidity, { currency: "USD" })}
+        </span>
       </span>
     </div>
   );
@@ -43,23 +43,18 @@ function AvailableLiquidityTooltipContent({
 
 type AvailableLiquidityTooltipProps = AvailableLiquidityTooltipContentProps;
 
-function AvailableLiquidityTooltip({
-  marketLiquidity,
-  publicAllocatorLiquidity,
-  totalLiquidity,
-}: AvailableLiquidityTooltipProps) {
+function AvailableLiquidityTooltip({ marketLiquidity, publicAllocatorLiquidity }: AvailableLiquidityTooltipProps) {
   return (
     <TooltipPopover>
       <TooltipPopoverTrigger>
         <Metric label="Available Liquidity">
-          <h4>{formatNumber(totalLiquidity, { currency: "USD" })}</h4>
+          <h4>{formatNumber(marketLiquidity + publicAllocatorLiquidity, { currency: "USD" })}</h4>
         </Metric>
       </TooltipPopoverTrigger>
       <TooltipPopoverContent>
         <AvailableLiquidityTooltipContent
           marketLiquidity={marketLiquidity}
           publicAllocatorLiquidity={publicAllocatorLiquidity}
-          totalLiquidity={totalLiquidity}
         />
       </TooltipPopoverContent>
     </TooltipPopover>
