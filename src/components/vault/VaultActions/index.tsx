@@ -70,11 +70,11 @@ function VaultActionsDesktop({ vault, hasSupplyPosition }: { hasSupplyPosition: 
         </div>
         <TabsContent value="supply" className="flex flex-col gap-6">
           <VaultSupply vault={vault} />
-          <PoweredByMorpho className="mx-auto" />
+          <PoweredByMorpho className="text-muted-foreground mx-auto" />
         </TabsContent>
         <TabsContent value="withdraw" className="flex flex-col gap-6">
           <VaultWithdraw vault={vault} />
-          <PoweredByMorpho className="mx-auto" />
+          <PoweredByMorpho className="text-muted-foreground mx-auto" />
         </TabsContent>
       </Tabs>
     </Card>
@@ -102,7 +102,7 @@ function VaultActionsMobile({ vault, hasSupplyPosition }: { hasSupplyPosition: b
               }
             }}
           />
-          <PoweredByMorpho className="mx-auto" />
+          <PoweredByMorpho className="text-muted-foreground mx-auto" />
         </DrawerContent>
       </Drawer>
 
@@ -123,7 +123,7 @@ function VaultActionsMobile({ vault, hasSupplyPosition }: { hasSupplyPosition: b
               }
             }}
           />
-          <PoweredByMorpho className="mx-auto" />
+          <PoweredByMorpho className="text-muted-foreground mx-auto" />
         </DrawerContent>
       </Drawer>
     </div>

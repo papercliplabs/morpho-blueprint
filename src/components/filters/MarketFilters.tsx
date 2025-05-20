@@ -46,6 +46,7 @@ export function MarketFilters({ chainOptions, collateralAssetOptions, loanAssetO
       {collateralAssetOptions.length > 1 && (
         <MultiSelect
           emptyValue={collateralAssetValues.length === 0 ? "All Collateral Assets" : "Collateral Assets"}
+          placeholder="Search for token"
           options={collateralAssetOptions}
           value={collateralAssetValues}
           onSelect={(value) => onSelect(FilterKey.CollateralAssets, collateralAssetValues, value)}
@@ -55,6 +56,7 @@ export function MarketFilters({ chainOptions, collateralAssetOptions, loanAssetO
       {loanAssetOptions.length > 1 && (
         <MultiSelect
           emptyValue={loanAssetValues.length === 0 ? "All Loan Assets" : "Loan Assets"}
+          placeholder="Search for token"
           options={loanAssetOptions}
           value={loanAssetValues}
           onSelect={(value) => onSelect(FilterKey.LoanAssets, loanAssetValues, value)}

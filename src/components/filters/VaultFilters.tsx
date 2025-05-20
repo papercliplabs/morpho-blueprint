@@ -47,6 +47,7 @@ export function VaultFilters({ chainOptions, assetOptions, curatorOptions }: Vau
       {assetOptions.length > 1 && (
         <MultiSelect
           emptyValue={assetValues.length === 0 ? "All Assets" : "Assets"}
+          placeholder="Search for token"
           options={assetOptions}
           value={assetValues}
           onSelect={(value) => onSelect(FilterKey.SupplyAssets, assetValues, value)}
