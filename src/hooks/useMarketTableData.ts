@@ -1,6 +1,7 @@
 "use client";
 import { useMemo } from "react";
 import { Hex } from "viem";
+import { useAccount } from "wagmi";
 
 import { FilterKey } from "@/components/filters/types";
 import { MarketPosition } from "@/data/whisk/getMarketPositions";
@@ -20,6 +21,7 @@ export function useMarketTableData({ marketSummaries }: { marketSummaries: Marke
   isPositionsLoading: boolean;
 } {
   const { data: positions, isLoading } = useMarketPositions();
+  const { isConnected } = useAccount();
 
   const {
     values: [chainsFilterValues, collateralAssetFilterValues, loanAssetFilterValues, accountFilterValues],
@@ -54,7 +56,7 @@ export function useMarketTableData({ marketSummaries }: { marketSummaries: Marke
 
       let accountFilterMatch = true;
       const accountFilterValue = accountFilterValues[0];
-      if (dataEntry.position != undefined && accountFilterValue) {
+      if (dataEntry.position != undefined && accountFilterValue && isConnected) {
         switch (accountFilterValue) {
           case "positions":
             accountFilterMatch = BigInt(dataEntry.position.collateralAssets) > 0n;
@@ -72,7 +74,7 @@ export function useMarketTableData({ marketSummaries }: { marketSummaries: Marke
     });
 
     return filteredData;
-  }, [data, chainsFilterValues, collateralAssetFilterValues, loanAssetFilterValues, accountFilterValues]);
+  }, [data, chainsFilterValues, collateralAssetFilterValues, loanAssetFilterValues, accountFilterValues, isConnected]);
 
   return { data: filteredData, isPositionsLoading: isLoading };
 }

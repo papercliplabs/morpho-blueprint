@@ -32,7 +32,7 @@ const tabsListVariants = cva("flex items-center", {
   variants: {
     variant: {
       default: "bg-muted rounded-md p-1",
-      underline: "bg-background",
+      underline: "bg-transparent",
       filled: "bg-background gap-0.5",
     },
   },
@@ -46,21 +46,24 @@ function TabsList({ className, ...props }: React.ComponentProps<typeof TabsPrimi
   return <TabsPrimitive.List data-slot="tabs-list" className={tabsListVariants({ className, variant })} {...props} />;
 }
 
-const tabsTriggerVariants = cva("flex h-8 flex-grow items-center justify-center transition cursor-pointer", {
-  variants: {
-    variant: {
-      default:
-        "data-[state=active]:bg-card data-[state=active]:body-medium-plus body-medium text-foreground bg-transparent rounded-sm data-[state=active]:shadow px-4",
-      underline:
-        "bg-background border-b-2 border-transparent hover:border-muted-foreground hover:bg-accent px-3 data-[state=active]:border-primary data-[state=active]:text-primary",
-      filled:
-        "bg-background rounded-sm hover:bg-accent px-4 body-medium data-[state=active]:body-medium-plus data-[state=active]:bg-accent",
+const tabsTriggerVariants = cva(
+  "flex h-8 flex-grow items-center justify-center transition cursor-pointer disabled:opacity-50",
+  {
+    variants: {
+      variant: {
+        default:
+          "data-[state=active]:bg-card data-[state=active]:body-medium-plus body-medium text-foreground bg-transparent rounded-sm data-[state=active]:shadow px-4",
+        underline:
+          "bg-transparent border-b-2 border-transparent hover:border-muted-foreground hover:bg-accent px-3 data-[state=active]:border-primary data-[state=active]:text-primary",
+        filled:
+          "bg-background rounded-sm hover:bg-accent px-4 body-medium data-[state=active]:body-medium-plus data-[state=active]:bg-accent",
+      },
     },
-  },
-  defaultVariants: {
-    variant: "default",
-  },
-});
+    defaultVariants: {
+      variant: "default",
+    },
+  }
+);
 
 function TabsTrigger({ className, ...props }: React.ComponentProps<typeof TabsPrimitive.Trigger>) {
   const variant = useTabVariantContext();

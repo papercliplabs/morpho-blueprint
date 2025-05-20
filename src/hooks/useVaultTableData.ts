@@ -1,6 +1,7 @@
 "use client";
 import { useMemo } from "react";
 import { getAddress } from "viem";
+import { useAccount } from "wagmi";
 
 import { FilterKey } from "@/components/filters/types";
 import { VaultPosition } from "@/data/whisk/getVaultPositions";
@@ -20,6 +21,7 @@ export function useVaultTableData({ vaultSummaries }: { vaultSummaries: VaultSum
   isPositionsLoading: boolean;
 } {
   const { data: positions, isLoading } = useVaultPositions();
+  const { isConnected } = useAccount();
 
   const {
     values: [chainsFilterValues, assetsFilterValues, curatorsFilterValues, accountFilterValues],
@@ -50,7 +52,7 @@ export function useVaultTableData({ vaultSummaries }: { vaultSummaries: VaultSum
 
       let accountFilterMatch = true;
       const accountFilterValue = accountFilterValues[0];
-      if (dataEntry.position != undefined && accountFilterValue) {
+      if (dataEntry.position != undefined && accountFilterValue && isConnected) {
         switch (accountFilterValue) {
           case "positions":
             accountFilterMatch = BigInt(dataEntry.position.supplyAssets) > 0n;
@@ -68,7 +70,7 @@ export function useVaultTableData({ vaultSummaries }: { vaultSummaries: VaultSum
     });
 
     return filteredData;
-  }, [data, chainsFilterValues, assetsFilterValues, curatorsFilterValues, accountFilterValues]);
+  }, [data, chainsFilterValues, assetsFilterValues, curatorsFilterValues, accountFilterValues, isConnected]);
 
   return { data: filteredData, isPositionsLoading: isLoading };
 }

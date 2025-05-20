@@ -11,7 +11,7 @@ interface BorrowSummaryMetricsProps {
   marketSummaries: MarketSummary[];
 }
 
-const metricSkeleton = <Skeleton className="h-[36px] w-[70px]" />;
+const metricSkeleton = <Skeleton className="mt-[2px] h-[28px] w-[90px]" />;
 
 export function BorrowSummaryMetrics({ marketSummaries }: BorrowSummaryMetricsProps) {
   const { data } = useBorrowSummaryMetrics({ marketSummaries });

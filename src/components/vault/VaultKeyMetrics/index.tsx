@@ -31,7 +31,7 @@ export function VaultKeyMetrics({ vault }: VaultKeyMetricsProps) {
 }
 
 export function VaultKeyMetricsSkeleton() {
-  const metricSkeleton = <Skeleton className="h-[32px] w-[140px]" />;
+  const metricSkeleton = <Skeleton className="mt-0.5 h-[34px] w-[140px]" />;
   return (
     <VaultKeyMetricsLayout
       totalDepositsValue={metricSkeleton}

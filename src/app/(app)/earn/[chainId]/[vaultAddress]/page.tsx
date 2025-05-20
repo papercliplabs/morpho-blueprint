@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { getAddress } from "viem";
@@ -6,6 +7,7 @@ import { Address } from "viem";
 import { MarketAllocationTable } from "@/components/tables/MarketAllocationTable";
 import { TokenIcon } from "@/components/TokenIcon";
 import { BreakcrumbBack } from "@/components/ui/breakcrumb-back";
+import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { VaultActions } from "@/components/vault/VaultActions";
@@ -52,7 +54,7 @@ export default async function VaultPage({ params }: { params: Promise<{ chainId:
       </section>
 
       <div className="flex flex-col gap-6 lg:flex-row">
-        <div className="flex grow flex-col gap-6">
+        <div className="flex min-w-0 grow flex-col gap-6">
           <Card>
             <CardHeader>Key Metrics</CardHeader>
             <Suspense fallback={<VaultKeyMetricsSkeleton />}>
@@ -98,7 +100,10 @@ function UnsupportedVault() {
   return (
     <div className="flex w-full grow flex-col items-center justify-center gap-6 text-center">
       <h1>Unsupported Vault</h1>
-      <p className="text-content-secondary">This vault is not currently supported on this interface.</p>
+      <p className="text-content-secondary">This selected vault is not currently supported on this interface.</p>
+      <Link href="/earn">
+        <Button>Return Home</Button>
+      </Link>
     </div>
   );
 }

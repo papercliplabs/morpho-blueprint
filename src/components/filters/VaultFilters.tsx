@@ -5,6 +5,7 @@ import { useShallowSearchParams } from "@/hooks/useShallowSearchParams";
 
 import { MultiSelect, MultiSelectOption } from "../MultiSelect";
 
+import { ResetFiltersButton } from "./ResetFiltersButton";
 import { FilterKey } from "./types";
 
 interface VaultFiltersProps {
@@ -33,7 +34,7 @@ export function VaultFilters({ chainOptions, assetOptions, curatorOptions }: Vau
   );
 
   return (
-    <div className="flex gap-4">
+    <div className="flex gap-3">
       {chainOptions.length > 1 && (
         <MultiSelect
           emptyValue={chainValues.length === 0 ? "All Chains" : "Chains"}
@@ -61,6 +62,7 @@ export function VaultFilters({ chainOptions, assetOptions, curatorOptions }: Vau
           onReset={() => removeShallowSearchParams([FilterKey.Curators])}
         />
       )}
+      <ResetFiltersButton />
     </div>
   );
 }

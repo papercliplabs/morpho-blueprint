@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { isHex } from "viem";
@@ -11,6 +12,7 @@ import { MarketName } from "@/components/market/MarketName";
 import { MarketPositionHighlight } from "@/components/market/MarketPositionHighlight";
 import { VaultAllocationTable } from "@/components/tables/VaultAllocationTable";
 import { BreakcrumbBack } from "@/components/ui/breakcrumb-back";
+import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { WHITELISTED_MARKETS } from "@/config";
@@ -57,7 +59,7 @@ export default async function MarketPage({ params }: { params: Promise<{ chainId
       </section>
 
       <div className="flex flex-col gap-6 lg:flex-row">
-        <div className="flex grow flex-col gap-6">
+        <div className="flex min-w-0 grow flex-col gap-6">
           <Card>
             <CardHeader>Key Metrics</CardHeader>
             <Suspense fallback={<MarketKeyMetricsSkeleton />}>
@@ -110,7 +112,10 @@ function UnsupportedMarket() {
   return (
     <div className="flex w-full grow flex-col items-center justify-center gap-6 text-center">
       <h1>Unsupported Market</h1>
-      <p className="text-content-secondary">This market is not currently supported on this interface.</p>
+      <p className="text-content-secondary">This selected market is not currently supported on this interface.</p>
+      <Link href="/earn">
+        <Button>Return Home</Button>
+      </Link>
     </div>
   );
 }
