@@ -48,13 +48,14 @@ export function ActionFlowProvider({ chainId, flowCompletionCb, action, children
   const [lastTransactionHash, setLastTransactionHash] = useState<Hex | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const { data: client } = useConnectorClient();
+  const { data: client } = useConnectorClient({ chainId });
   const { connector } = useAccount();
   const { open } = useAppKit();
 
-  const publicClient = usePublicClient();
+  const publicClient = usePublicClient({ chainId });
   const { switchChainAsync } = useSwitchChain();
   const queryClient = useQueryClient();
+  const { chainId: accountChainId } = useAccount();
 
   const startFlow = useCallback(async () => {
     // Must be connected
@@ -64,7 +65,7 @@ export function ActionFlowProvider({ chainId, flowCompletionCb, action, children
     }
 
     // Must be on the correct chain
-    if (client.chain.id != chainId) {
+    if (accountChainId != chainId) {
       const { id } = await switchChainAsync({ chainId });
       if (id != chainId) {
         throw new Error("Unable to automaitcally switch chains.");
@@ -180,6 +181,7 @@ export function ActionFlowProvider({ chainId, flowCompletionCb, action, children
     connector,
     queryClient,
     open,
+    accountChainId,
   ]);
 
   return (
