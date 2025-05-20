@@ -5,7 +5,26 @@ import * as React from "react";
 
 import { cn } from "@/utils/shadcn";
 
-const TooltipProvider = TooltipPrimitive.Provider;
+// const TooltipProvider = TooltipPrimitive.Provider;
+// const TooltipProviderNew = React.forwardRef<
+//   React.ElementRef<typeof TooltipPrimitive.Provider>,
+//   React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Provider>
+// >(({ children, delayDuration = 350 }, ref) => {
+//   return (
+//     <TooltipPrimitive.Provider ref={ref} delayDuration={delayDuration}>
+//       {children}
+//     </TooltipPrimitive.Provider>
+//   );
+// });
+// TooltipProviderNew.displayName = TooltipPrimitive.Provider.displayName;
+
+const TooltipProvider = ({
+  delayDuration = 150,
+  skipDelayDuration = 0,
+  ...props
+}: React.ComponentProps<typeof TooltipPrimitive.Provider>) => (
+  <TooltipPrimitive.Provider delayDuration={delayDuration} skipDelayDuration={skipDelayDuration} {...props} />
+);
 
 const Tooltip = TooltipPrimitive.Root;
 
