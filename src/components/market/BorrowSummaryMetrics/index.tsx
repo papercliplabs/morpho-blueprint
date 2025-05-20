@@ -1,7 +1,7 @@
 "use client";
 import { ReactNode } from "react";
 
-import { Metric } from "@/components/Metric";
+import { MetricWithTooltip } from "@/components/Metric";
 import NumberFlow from "@/components/ui/number-flow";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MarketSummary } from "@/data/whisk/getMarketSummaries";
@@ -51,15 +51,28 @@ function BorrowSummaryMetricsLayout({
   return (
     <div className="flex flex-col justify-between gap-4 md:flex-row">
       <div className="flex gap-8">
-        <Metric label="Total borrowed">{totalBorrowed}</Metric>
+        <MetricWithTooltip
+          label="Total borrowed"
+          tooltip="The total amount of loan assets borrowed from all markets in the table."
+        >
+          {totalBorrowed}
+        </MetricWithTooltip>
       </div>
       <div className="flex gap-8">
-        <Metric label="Your borrows" className="md:items-end">
+        <MetricWithTooltip
+          label="Your borrows"
+          tooltip="Sum of your borrows across all markets in the table."
+          className="md:items-end"
+        >
           {userBorrowed}
-        </Metric>
-        <Metric label="Your borrow APY" className="md:items-end">
+        </MetricWithTooltip>
+        <MetricWithTooltip
+          label="Your borrow APY"
+          tooltip="Your net borrow APY across all markets in the table."
+          className="md:items-end"
+        >
           {userBorrowApy}
-        </Metric>
+        </MetricWithTooltip>
       </div>
     </div>
   );

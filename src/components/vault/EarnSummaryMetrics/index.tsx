@@ -64,14 +64,14 @@ function EarnSummaryMetricsLayout({
       <div className="flex gap-8">
         <MetricWithTooltip
           label="Your deposits"
-          tooltip="Your deposits across all vaults within the table."
+          tooltip="Sum of your deposits across all vaults in the table."
           className="md:items-end"
         >
           {userDeposited}
         </MetricWithTooltip>
         <MetricWithTooltip
           label="Your earn APY"
-          tooltip="Your net earn APY across all vaults within the table."
+          tooltip="Your net earn APY across all vaults in the table."
           className="md:items-end"
         >
           {userEarnApy}
