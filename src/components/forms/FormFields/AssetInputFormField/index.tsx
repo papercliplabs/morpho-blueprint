@@ -2,18 +2,19 @@
 
 import clsx from "clsx";
 
-import { Avatar } from "@/components/ui/avatar";
+import { TokenIcon } from "@/components/TokenIcon";
 import { Button } from "@/components/ui/button";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import NumberFlow from "@/components/ui/number-flow";
-import { TokenInfo } from "@/data/whisk/fragments";
+import { ChainInfo, TokenInfo } from "@/data/whisk/fragments";
 import { numberToString } from "@/utils/format";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 interface AssetInputFormFieldProps<TFieldValues extends Record<string, any>>
   extends Omit<React.ComponentProps<typeof FormField<TFieldValues>>, "render"> {
   header: string;
+  chain: ChainInfo;
   asset: TokenInfo & { priceUsd: number | null };
   setIsMax?: (isMax: boolean) => void;
   maxValue?: number;
@@ -21,6 +22,7 @@ interface AssetInputFormFieldProps<TFieldValues extends Record<string, any>>
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 function AssetInputFormField<TFieldValues extends Record<string, any>>({
+  chain,
   asset,
   header,
   maxValue,
@@ -61,7 +63,7 @@ function AssetInputFormField<TFieldValues extends Record<string, any>>({
               </FormControl>
               {!!asset && (
                 <div className="flex items-center gap-1.5 px-2">
-                  <Avatar src={asset.icon} fallback={asset.symbol} size="xs" />
+                  <TokenIcon token={asset} chain={chain} size="sm" />
                   <span className="body-medium-plus">{asset.symbol}</span>
                 </div>
               )}

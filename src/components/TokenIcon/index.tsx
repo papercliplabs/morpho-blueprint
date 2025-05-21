@@ -14,7 +14,7 @@ interface TokenIconProps extends Omit<ComponentProps<typeof Avatar>, "src" | "al
 const SIZE_MAP: Record<TokenIconProps["size"], { tokenSize: AvatarProps["size"]; chainSize: AvatarProps["size"] }> = {
   sm: {
     tokenSize: "sm",
-    chainSize: "2xs",
+    chainSize: "xs",
   },
   md: {
     tokenSize: "md",

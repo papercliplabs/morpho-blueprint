@@ -217,6 +217,7 @@ export const MarketSupplyCollateralAndBorrowForm = forwardRef<
                 control={form.control}
                 name="supplyCollateralAmount"
                 header={`Add ${market.collateralAsset.symbol}`}
+                chain={market.chain}
                 asset={market.collateralAsset}
                 maxValue={walletCollateralAssetBalance}
                 setIsMax={(isMax) => {
@@ -227,6 +228,7 @@ export const MarketSupplyCollateralAndBorrowForm = forwardRef<
                 control={form.control}
                 name="borrowAmount"
                 header={`Borrow ${market.loanAsset.symbol}`}
+                chain={market.chain}
                 asset={market.loanAsset}
                 maxValue={maxBorrowAmount}
               />

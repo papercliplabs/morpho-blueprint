@@ -254,6 +254,7 @@ export const MarketRepayAndWithdrawCollateralForm = forwardRef<
                 control={form.control}
                 name="repayAmount"
                 header={`Repay ${market.loanAsset.symbol}`}
+                chain={market.chain}
                 asset={market.loanAsset}
                 maxValue={Math.min(
                   positionBorrowAmount ?? Number.MAX_VALUE,
@@ -267,6 +268,7 @@ export const MarketRepayAndWithdrawCollateralForm = forwardRef<
                 control={form.control}
                 name="withdrawCollateralAmount"
                 header={`Withdraw ${market.collateralAsset.symbol}`}
+                chain={market.chain}
                 asset={market.collateralAsset}
                 maxValue={maxWithdrawCollateralAmount}
               />
