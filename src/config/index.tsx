@@ -81,3 +81,6 @@ export const KNOWN_ADDRESSES: Record<Address, { name: string; iconSrc?: string }
     iconSrc: "/identity/compound.png",
   },
 };
+
+// Controls the visibility of any dark mode toggles
+export const ENABLE_DARK_MODE_TOGGLE = true;
