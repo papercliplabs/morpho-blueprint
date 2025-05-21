@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Suspense } from "react";
 
 import { AccountFilters } from "@/components/filters/AccountFilters";
@@ -63,11 +64,12 @@ async function MarketFiltersWrapper() {
       value: marketSummary.chain.name,
       component: (
         <>
-          <Avatar
+          <Image
             src={marketSummary.chain.icon}
-            fallback={marketSummary.chain.name}
-            size="sm"
             alt={marketSummary.chain.name}
+            width={24}
+            height={24}
+            className="size-6 rounded-[4px]"
           />
           {marketSummary.chain.name}
         </>

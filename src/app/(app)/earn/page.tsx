@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Suspense } from "react";
 
 import { AccountFilters } from "@/components/filters/AccountFilters";
@@ -63,7 +64,13 @@ async function VaultFiltersWrapper() {
       value: vault.chain.name,
       component: (
         <>
-          <Avatar src={vault.chain.icon} fallback={vault.chain.name} size="sm" alt={vault.chain.name} />
+          <Image
+            src={vault.chain.icon}
+            alt={vault.chain.name}
+            width={24}
+            height={24}
+            className="size-6 rounded-[4px]"
+          />
           {vault.chain.name}
         </>
       ),
