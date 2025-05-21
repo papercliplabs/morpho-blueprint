@@ -4,6 +4,7 @@ import * as AvatarPrimitive from "@radix-ui/react-avatar";
 import { VariantProps, cva } from "class-variance-authority";
 import * as React from "react";
 
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/utils/shadcn";
 
 const AvatarRoot = React.forwardRef<
@@ -32,7 +33,7 @@ const AvatarFallback = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <AvatarPrimitive.Fallback
     ref={ref}
-    className={cn("bg-primary text-background flex h-full w-full items-center justify-center rounded-full", className)}
+    className={cn("text-background flex h-full w-full items-center justify-center rounded-full", className)}
     {...props}
   />
 ));
@@ -57,17 +58,18 @@ const avatarVariants = cva("", {
 type AvatarProps = {
   src?: string | Blob;
   alt?: string;
-  fallback: React.ReactNode;
   sub?: React.ReactNode;
 } & VariantProps<typeof avatarVariants> &
   React.ComponentProps<"span">;
 
-function Avatar({ className, src, alt, fallback, sub, size }: AvatarProps) {
+function Avatar({ className, src, alt, sub, size }: AvatarProps) {
   return (
     <span className="relative flex h-fit w-fit">
       <AvatarRoot className={cn(avatarVariants({ className, size }))}>
         <AvatarImage src={src} alt={alt} />
-        <AvatarFallback>{fallback}</AvatarFallback>
+        <AvatarFallback>
+          <Skeleton className="h-full w-full" />
+        </AvatarFallback>
       </AvatarRoot>
       {!!sub && (
         <span className="absolute right-0 bottom-0 translate-x-1/4 translate-y-1/4 items-center justify-center overflow-hidden">

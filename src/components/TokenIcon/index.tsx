@@ -31,7 +31,6 @@ export function TokenIcon({ token, chain, size, showChain = true, ...rest }: Tok
   return (
     <Avatar
       src={token.icon}
-      fallback={token.symbol}
       size={SIZE_MAP[size].tokenSize}
       alt={token.symbol}
       sub={

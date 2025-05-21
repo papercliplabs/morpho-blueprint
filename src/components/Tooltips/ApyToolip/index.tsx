@@ -84,7 +84,7 @@ function ApyTooltipContent({ type, totalApy, nativeApy, rewards, performanceFee 
             return (
               <span key={reward.asset.symbol} className="flex justify-between">
                 <span className="flex items-center gap-2">
-                  {reward.asset.symbol} <Avatar src={reward.asset.icon} fallback={reward.asset.symbol} size="xs" />
+                  {reward.asset.symbol} <Avatar src={reward.asset.icon} size="xs" />
                 </span>
                 {formatNumber(reward.apr, { style: "percent", signDisplay: "exceptZero" })}
               </span>

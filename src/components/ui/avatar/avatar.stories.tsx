@@ -18,7 +18,6 @@ const meta = {
   },
   tags: ["autodocs"],
   args: {
-    fallback: "CN",
     src: "https://github.com/shadcn.png",
     alt: "Very Cool Avatar!",
     size: "md",
@@ -35,6 +34,12 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
+
+export const Fallback: Story = {
+  args: {
+    src: undefined,
+  },
+};
 
 export const ExtraLarge: Story = {
   args: {

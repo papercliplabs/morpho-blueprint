@@ -30,7 +30,6 @@ function AssetChangeSummary({
     >
       <Avatar
         src={asset.icon}
-        fallback={asset.symbol}
         alt={asset.symbol}
         sub={
           amount > 0 ? <Plus className="fill-primary stroke-white" /> : <Minus className="fill-primary stroke-white" />
