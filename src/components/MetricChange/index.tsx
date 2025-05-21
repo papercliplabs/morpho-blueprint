@@ -15,8 +15,8 @@ interface MetricChangeProps extends React.ComponentProps<"div"> {
 
 export function MetricChange({ name, initialValue, finalValue, className, ...props }: MetricChangeProps) {
   return (
-    <div className={cn("flex items-center justify-between overflow-hidden", className)} {...props}>
-      <span className="body-medium text-secondary-foreground">{name}</span>
+    <div className={cn("text-muted flex items-center justify-between overflow-hidden", className)} {...props}>
+      <span className="body-medium text-muted-foreground">{name}</span>
       <MetricChangeValues initialValue={initialValue} finalValue={finalValue} />
     </div>
   );
@@ -27,10 +27,14 @@ export function MetricChangeValues({ initialValue, finalValue }: { initialValue:
     <MotionConfig transition={{ duration: 0.3, type: "spring", bounce: 0 }}>
       <motion.div
         layout
-        className="body-medium-plus text-muted-foreground relative flex items-center gap-1 overflow-hidden"
+        className="body-medium-plus text-card-foreground relative flex items-center gap-1 overflow-hidden"
       >
         <AnimatePresence initial={false} mode="popLayout">
-          <motion.span layout key="initial" className={clsx("transition-colors", !finalValue && "text-foreground")}>
+          <motion.span
+            layout
+            key="initial"
+            className={clsx("transition-colors", !finalValue && "text-card-foreground")}
+          >
             {initialValue}
           </motion.span>
 

@@ -141,8 +141,8 @@ export function MarketActionSimulationMetrics({
         }
       />
       <div className="flex items-center justify-between overflow-hidden">
-        <span className="body-medium text-secondary-foreground">LTV / LLTV</span>
-        <div className="inline-flex whitespace-pre-wrap">
+        <span className="body-medium text-muted-foreground">LTV / LLTV</span>
+        <div className="body-medium-plus text-card-foreground inline-flex whitespace-pre-wrap">
           <MetricChangeValues
             initialValue={
               <div className="inline-flex">
