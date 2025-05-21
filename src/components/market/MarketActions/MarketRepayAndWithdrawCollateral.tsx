@@ -32,6 +32,7 @@ export default function MarketRepayAndWithdrawCollateral({
       />
 
       <MarketActionFlow
+        trackingTag="market-repay-and-withdraw-collateral"
         market={market}
         action={action}
         open={flowOpen}

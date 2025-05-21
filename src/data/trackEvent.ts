@@ -2,13 +2,19 @@
 
 // Track event from server action so client can't block
 export async function trackEvent(name: string, payload: Record<string, string | number>) {
+  const timestamp = Math.floor(Date.now() / 1000);
+  const fullPayload = {
+    ...payload,
+    timestamp,
+  };
+
   // Server logging for now in case the payload exceeds event max event size
-  console.log("event-from-server: ", name, payload);
+  console.log("event-from-server: ", name, fullPayload);
 
   // Plausible
-  if (process.env.NEXT_PUBLIC_PLAUSIBLE_DATA_DOMAIN) {
+  if (process.env.NEXT_PUBLIC_PLAUSIBLE_DATA_DOMAIN && process.env.NEXT_PUBLIC_PLAUSIBLE_BASE_URL) {
     try {
-      const resp = await fetch("https://plausible.paperclip.xyz/api/event", {
+      const resp = await fetch(`${process.env.NEXT_PUBLIC_PLAUSIBLE_BASE_URL}/api/event`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -18,7 +24,7 @@ export async function trackEvent(name: string, payload: Record<string, string | 
           domain: process.env.NEXT_PUBLIC_PLAUSIBLE_DATA_DOMAIN,
           name,
           url: process.env.NEXT_PUBLIC_URL,
-          props: payload,
+          props: fullPayload,
         }),
       });
       if (!resp.ok) {

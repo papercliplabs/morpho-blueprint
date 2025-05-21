@@ -1,5 +1,7 @@
 import pRetry, { type Options } from "p-retry";
 
+import { trackEvent } from "@/data/trackEvent";
+
 export const defaultPromiseRetryOptions: Options = {
   retries: 5,
   minTimeout: 400,
@@ -40,7 +42,10 @@ export async function fetchJsonResponse<T>(
       return await fetchInternal();
     }
   } catch (e) {
-    console.error(`fetchJsonResponse failed: url: ${url}, error: ${e}`);
+    trackEvent("fetch-json-response-failed", {
+      url: url.toString(),
+      error: `${e}`,
+    });
     throw e;
   }
 }

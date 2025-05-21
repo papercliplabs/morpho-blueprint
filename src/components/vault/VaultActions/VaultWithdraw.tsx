@@ -32,6 +32,7 @@ export default function VaultWithdraw({
       />
 
       <VaultActionFlow
+        trackingTag="vault-withdraw"
         vault={vault}
         action={action}
         open={flowOpen}
