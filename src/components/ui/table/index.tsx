@@ -67,7 +67,7 @@ export function TableRow({
   if (action?.type == "link") {
     return (
       // Annoying hack for the scroll sync to work
-      <div className="border-border w-fit min-w-full border-b">
+      <div className="border-border w-fit min-w-full not-last:border-b">
         <Link
           href={action.href}
           className={cn("hover:bg-accent flex w-full min-w-fit items-center transition-colors", className)}

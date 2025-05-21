@@ -62,7 +62,7 @@ export function VaultInfo({ vault }: VaultInfoProps) {
 }
 
 export function VaultInfoSkeleton() {
-  const metricSkeleton = <Skeleton className="mt-0.5 h-[25px] w-[140px]" />;
+  const metricSkeleton = <Skeleton className="mt-0.5 h-[28px] w-[140px]" />;
   return (
     <VaultInfoLayout
       performanceFee={metricSkeleton}
@@ -93,7 +93,7 @@ function VaultInfoLayout({
   guardianAddress,
 }: VaultInfoLayoutProps) {
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+    <div className="grid grid-cols-1 gap-4 gap-y-4 md:grid-cols-3 md:gap-y-10">
       <MetricWithTooltip label="Performance Fee" tooltip="The percentage of vault profits the fee recipient receives.">
         {performanceFee}
       </MetricWithTooltip>

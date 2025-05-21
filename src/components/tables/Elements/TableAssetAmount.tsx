@@ -34,7 +34,7 @@ export function TableAssetAmount({ asset, amount, amountUsd, isLoading }: TableA
       <NumberFlow value={amountUsd ?? undefined} format={{ currency: "USD" }} className="body-medium-plus" />
       <NumberFlow
         value={amountBigInt ? descaleBigIntToNumber(amountBigInt, asset.decimals) : undefined}
-        className="body-small-plus text-muted-foreground"
+        className="body-small text-muted-foreground"
       />
     </div>
   );

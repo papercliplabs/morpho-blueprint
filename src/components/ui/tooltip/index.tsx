@@ -5,7 +5,13 @@ import * as React from "react";
 
 import { cn } from "@/utils/shadcn";
 
-const TooltipProvider = TooltipPrimitive.Provider;
+const TooltipProvider = ({
+  delayDuration = 150,
+  skipDelayDuration = 0,
+  ...props
+}: React.ComponentProps<typeof TooltipPrimitive.Provider>) => (
+  <TooltipPrimitive.Provider delayDuration={delayDuration} skipDelayDuration={skipDelayDuration} {...props} />
+);
 
 const Tooltip = TooltipPrimitive.Root;
 

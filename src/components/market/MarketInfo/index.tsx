@@ -64,7 +64,7 @@ export function MarketInfo({ market }: MarketInfoProps) {
 }
 
 export function MarketInfoSkeleton() {
-  const metricSkeleton = <Skeleton className="mt-0.5 h-[25px] w-[140px]" />;
+  const metricSkeleton = <Skeleton className="mt-0.5 h-[28px] w-[140px]" />;
   return (
     <MarketInfoLayout
       lltv={metricSkeleton}
@@ -95,7 +95,7 @@ function MarketInfoLayout({
   oraclePrice,
 }: VaultInfoLayoutProps) {
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+    <div className="grid grid-cols-1 gap-4 gap-y-4 md:grid-cols-3 md:gap-y-10">
       <MetricWithTooltip
         label="LLTV"
         tooltip="The liquidation loan-to-value (LLTV) threshold sets the limit at which positions become eligible for liquidation."
