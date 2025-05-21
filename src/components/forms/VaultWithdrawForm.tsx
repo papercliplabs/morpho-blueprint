@@ -156,6 +156,7 @@ export const VaultWithdrawForm = forwardRef<{ reset: () => void }, VaultWithdraw
                 control={form.control}
                 name="withdrawAmount"
                 header={`Withdraw ${vault.asset.symbol}`}
+                chain={vault.chain}
                 asset={vault.asset}
                 maxValue={positionBalance}
                 setIsMax={(isMax) => {

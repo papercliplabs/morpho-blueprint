@@ -157,6 +157,7 @@ export const VaultSupplyForm = forwardRef<{ reset: () => void }, VaultSupplyForm
                 control={form.control}
                 name="supplyAmount"
                 header={`Supply ${vault.asset.symbol}`}
+                chain={vault.chain}
                 asset={vault.asset}
                 maxValue={walletUnderlyingAssetBalance}
                 setIsMax={(isMax) => {
