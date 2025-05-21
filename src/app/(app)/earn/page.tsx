@@ -91,7 +91,7 @@ async function VaultFiltersWrapper() {
         value: curator.name,
         component: (
           <>
-            <Avatar src={curator.image} fallback={curator.name} size="sm" alt={curator.name} />
+            <Avatar src={curator.image} size="sm" alt={curator.name} />
             {curator.name}
           </>
         ),
