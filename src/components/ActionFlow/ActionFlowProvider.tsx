@@ -39,9 +39,19 @@ interface ActionFlowProviderProps {
   action: SuccessfulAction;
   flowCompletionCb?: () => void;
   children: ReactNode;
+
+  trackingPayload: {
+    tag: string;
+  } & Record<string, string | number>;
 }
 
-export function ActionFlowProvider({ chainId, flowCompletionCb, action, children }: ActionFlowProviderProps) {
+export function ActionFlowProvider({
+  chainId,
+  flowCompletionCb,
+  action,
+  trackingPayload,
+  children,
+}: ActionFlowProviderProps) {
   const [flowState, setFlowState] = useState<ActionFlowState>("review");
   const [activeStep, setActiveStep] = useState<number>(0);
   const [actionState, setActionState] = useState<ActionState>("pending-wallet");
@@ -75,6 +85,7 @@ export function ActionFlowProvider({ chainId, flowCompletionCb, action, children
     if (flowState == "review") {
       // For tracking purposes to determine if we are seeing issues with a specific connector
       const connectorName = connector?.name ?? "unknown";
+      const accountAddress = client.account.address;
 
       // Reset state
       setFlowState("active");
@@ -83,9 +94,7 @@ export function ActionFlowProvider({ chainId, flowCompletionCb, action, children
       setLastTransactionHash(null);
       setError(null);
 
-      const isOfacSanctioned = await fetchJsonResponse<boolean>(
-        `/api/account/${client.account.address}/is-ofac-sanctioned`
-      );
+      const isOfacSanctioned = await fetchJsonResponse<boolean>(`/api/account/${accountAddress}/is-ofac-sanctioned`);
       if (isOfacSanctioned) {
         setError("This action is not available to OFAC sanctioned accounts.");
         setFlowState("review");
@@ -111,10 +120,11 @@ export function ActionFlowProvider({ chainId, flowCompletionCb, action, children
           } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error);
             void trackEvent("tx-gas-estimate-failed", {
-              accountAddress: client.account.address,
+              accountAddress,
               connector: connectorName,
               error: errorMessage,
               stepName: step.name,
+              ...trackingPayload,
             });
 
             setError("Error: Unable to estimate gas. Please try again.");
@@ -124,7 +134,14 @@ export function ActionFlowProvider({ chainId, flowCompletionCb, action, children
 
           const hash = await sendTransaction(client, { ...txReq, gas: gasEstimateWithBuffer });
           setLastTransactionHash(hash);
-          void trackEvent("transaction", { hash, status: "pending", connector: connectorName, name: step.name });
+          void trackEvent("transaction", {
+            accountAddress,
+            hash,
+            status: "pending",
+            connector: connectorName,
+            stepName: step.name,
+            ...trackingPayload,
+          });
 
           // Uses public client instead so polling happens through our RPC provider
           // Not the users wallet provider, which may be unreliable
@@ -136,7 +153,14 @@ export function ActionFlowProvider({ chainId, flowCompletionCb, action, children
           });
 
           if (receipt.status == "success") {
-            void trackEvent("transaction", { hash, status: "success", connector: connectorName, name: step.name });
+            void trackEvent("transaction", {
+              accountAddress,
+              hash,
+              status: "success",
+              connector: connectorName,
+              stepName: step.name,
+              ...trackingPayload,
+            });
             setActiveStep((step) => step + 1);
 
             // Trigger data revalidation
@@ -144,7 +168,14 @@ export function ActionFlowProvider({ chainId, flowCompletionCb, action, children
             void queryClient.invalidateQueries({ type: "all" });
             void queryClient.refetchQueries({ type: "all" });
           } else {
-            void trackEvent("transaction", { hash, status: "failed", connector: connectorName, name: step.name });
+            void trackEvent("transaction", {
+              accountAddress,
+              hash,
+              status: "failed",
+              connector: connectorName,
+              stepName: step.name,
+              ...trackingPayload,
+            });
             setFlowState("failed");
             return;
           }
@@ -155,9 +186,10 @@ export function ActionFlowProvider({ chainId, flowCompletionCb, action, children
         setError(errorMessage);
         setFlowState("review");
         void trackEvent("transaction-flow-error", {
-          accountAddress: client.account.address,
+          accountAddress,
           connector: connectorName,
           error: errorMessage,
+          ...trackingPayload,
         });
         return;
       }
@@ -182,6 +214,7 @@ export function ActionFlowProvider({ chainId, flowCompletionCb, action, children
     queryClient,
     open,
     accountChainId,
+    trackingPayload,
   ]);
 
   return (

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 
+import Analytics from "@/components/Analytics";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import Providers from "@/providers";
@@ -33,6 +34,7 @@ export default async function RootLayout({
               <Footer />
             </div>
           </div>
+          <Analytics />
         </Providers>
       </body>
     </html>

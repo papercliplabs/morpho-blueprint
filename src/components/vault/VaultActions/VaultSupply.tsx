@@ -32,6 +32,7 @@ export default function VaultSupply({
       />
 
       <VaultActionFlow
+        trackingTag="vault-supply"
         vault={vault}
         action={action}
         open={flowOpen}

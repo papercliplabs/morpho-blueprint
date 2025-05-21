@@ -13,10 +13,12 @@ import { ActionFlow, ActionFlowProps } from ".";
 export function VaultActionFlow({
   vault,
   action,
+  trackingTag,
   ...props
-}: Omit<ActionFlowProps, "summary" | "metrics" | "chainId" | "actionName"> & {
+}: Omit<ActionFlowProps, "summary" | "metrics" | "chainId" | "actionName" | "trackingPayload"> & {
   action: VaultAction | null;
   vault: Vault;
+  trackingTag: string;
 }) {
   return (
     <ActionFlow
@@ -25,9 +27,27 @@ export function VaultActionFlow({
       summary={action && <VaultActionSummary vault={vault} positionChange={action.positionChange} />}
       metrics={action && <VaultActionSimulationMetrics vault={vault} positionChange={action.positionChange} />}
       actionName={action ? vaultPositionChangeToActionName(action.positionChange) : "Send Transaction"} // Fallback won't occur
+      trackingPayload={getTrackingPayload(vault, action, trackingTag)}
       {...props}
     />
   );
+}
+
+function getTrackingPayload(vault: Vault, action: VaultAction | null, tag: string) {
+  const basePayload = {
+    tag,
+    vaultAddress: vault.vaultAddress,
+  };
+
+  if (!action || action.status !== "success") {
+    return basePayload;
+  }
+
+  const delta = action.positionChange.balance.after - action.positionChange.balance.before;
+  return {
+    ...basePayload,
+    amount: Math.abs(delta),
+  };
 }
 
 export function VaultActionSummary({ vault, positionChange }: { vault: Vault; positionChange: VaultPositionChange }) {

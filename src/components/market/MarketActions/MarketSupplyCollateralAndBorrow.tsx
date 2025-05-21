@@ -32,6 +32,7 @@ export default function MarketSupplyCollateralAndBorrow({
       />
 
       <MarketActionFlow
+        trackingTag="market-supply-collateral-and-borrow"
         market={market}
         action={action}
         open={flowOpen}

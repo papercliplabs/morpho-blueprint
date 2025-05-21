@@ -16,10 +16,12 @@ import { ActionFlow, ActionFlowProps } from ".";
 export function MarketActionFlow({
   market,
   action,
+  trackingTag,
   ...props
-}: Omit<ActionFlowProps, "summary" | "metrics" | "chainId" | "actionName"> & {
+}: Omit<ActionFlowProps, "summary" | "metrics" | "chainId" | "actionName" | "trackingPayload"> & {
   market: MarketNonIdle;
   action: MarketAction | null;
+  trackingTag: string;
 }) {
   return (
     <ActionFlow
@@ -28,9 +30,29 @@ export function MarketActionFlow({
       summary={action && <MarketActionSummary market={market} positionChange={action.positionChange} />}
       metrics={action && <MarketActionSimulationMetrics market={market} positionChange={action.positionChange} />}
       actionName={action ? marketPositionChangeToActionName(action.positionChange) : "Send Transaction"} // Fallback won't occur
+      trackingPayload={getTrackingPayload(market, action, trackingTag)}
       {...props}
     />
   );
+}
+
+function getTrackingPayload(market: Market, action: MarketAction | null, tag: string) {
+  const basePayload = {
+    tag,
+    marketId: market.marketId,
+  };
+
+  if (!action || action.status !== "success") {
+    return basePayload;
+  }
+
+  const collateralDelta = action.positionChange.collateral.after - action.positionChange.collateral.before;
+  const loanDelta = action.positionChange.loan.after - action.positionChange.loan.before;
+  return {
+    ...basePayload,
+    collateralAmount: Math.abs(collateralDelta),
+    loanAmount: Math.abs(loanDelta),
+  };
 }
 
 export function MarketActionSummary({
