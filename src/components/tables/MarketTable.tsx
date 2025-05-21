@@ -26,7 +26,12 @@ function getColumns(isPositionLoading: boolean): ColumnDef<MarketTableDataEntry>
         const { marketSummary } = row.original;
         return marketSummary.collateralAsset ? (
           <div className="flex items-center gap-3">
-            <TokenIcon token={marketSummary.collateralAsset} chain={marketSummary.chain} size="md" />
+            <TokenIcon
+              token={marketSummary.collateralAsset}
+              chain={marketSummary.chain}
+              size="md"
+              chainClassName="border-[var(--row-color)]"
+            />
             <span className="body-medium-plus">{marketSummary.collateralAsset.symbol}</span>
           </div>
         ) : (
@@ -43,7 +48,12 @@ function getColumns(isPositionLoading: boolean): ColumnDef<MarketTableDataEntry>
         const { marketSummary } = row.original;
         return (
           <div className="flex items-center gap-3">
-            <TokenIcon token={marketSummary.loanAsset} chain={marketSummary.chain} size="md" />
+            <TokenIcon
+              token={marketSummary.loanAsset}
+              chain={marketSummary.chain}
+              size="md"
+              chainClassName="border-[var(--row-color)]"
+            />
             <span className="body-medium-plus">{marketSummary.loanAsset.symbol}</span>
           </div>
         );

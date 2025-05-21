@@ -63,7 +63,7 @@ function AssetInputFormField<TFieldValues extends Record<string, any>>({
               </FormControl>
               {!!asset && (
                 <div className="flex items-center gap-1.5 px-2">
-                  <TokenIcon token={asset} chain={chain} size="sm" />
+                  <TokenIcon token={asset} chain={chain} size="sm" chainClassName="border-muted" />
                   <span className="body-medium-plus">{asset.symbol}</span>
                 </div>
               )}

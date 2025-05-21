@@ -2,6 +2,7 @@ import Image from "next/image";
 import { ComponentProps } from "react";
 
 import { ChainInfo, TokenInfo } from "@/data/whisk/fragments";
+import { cn } from "@/utils/shadcn";
 
 import { Avatar, AvatarProps } from "../ui/avatar";
 
@@ -10,6 +11,7 @@ interface TokenIconProps extends Omit<ComponentProps<typeof Avatar>, "src" | "al
   chain: ChainInfo;
   size: "sm" | "md" | "lg";
   showChain?: boolean;
+  chainClassName?: string;
 }
 
 const SIZE_MAP: Record<TokenIconProps["size"], { tokenSize: AvatarProps["size"]; chainSize: AvatarProps["size"] }> = {
@@ -27,7 +29,7 @@ const SIZE_MAP: Record<TokenIconProps["size"], { tokenSize: AvatarProps["size"];
   },
 };
 
-export function TokenIcon({ token, chain, size, showChain = true, ...rest }: TokenIconProps) {
+export function TokenIcon({ chainClassName, token, chain, size, showChain = true, ...rest }: TokenIconProps) {
   return (
     <Avatar
       src={token.icon}
@@ -40,7 +42,7 @@ export function TokenIcon({ token, chain, size, showChain = true, ...rest }: Tok
             alt={chain.name}
             width={16}
             height={16}
-            className="border-background rounded-[6px] border-2"
+            className={cn("border-background rounded-[6px] border-2 transition-colors", chainClassName)}
           />
         ) : null
       }

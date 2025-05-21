@@ -22,7 +22,7 @@ const columns: ColumnDef<Market["vaultAllocations"][number]>[] = [
     header: "Vault Name",
     cell: ({ row }) => {
       const { vault } = row.original;
-      return <VaultName {...vault} />;
+      return <VaultName {...vault} chainClassName="border-[var(--row-color)]" />;
     },
     minSize: 260,
   },
@@ -41,7 +41,8 @@ const columns: ColumnDef<Market["vaultAllocations"][number]>[] = [
           }))}
           max={2}
           size="sm"
-          className="rounded-full border"
+          className="rounded-full"
+          avatarClassName="border-[var(--row-color)]"
         />
       ) : (
         "None"

@@ -39,7 +39,7 @@ const AvatarFallback = React.forwardRef<
 ));
 AvatarFallback.displayName = AvatarPrimitive.Fallback.displayName;
 
-const avatarVariants = cva("", {
+const avatarVariants = cva("transition-colors", {
   variants: {
     size: {
       xl: "w-12 h-12 body-large",
@@ -67,7 +67,7 @@ function Avatar({ className, src, alt, sub, size }: AvatarProps) {
     <span className="relative flex h-fit w-fit">
       <AvatarRoot className={cn(avatarVariants({ className, size }))}>
         <AvatarImage src={src} alt={alt} />
-        <AvatarFallback>
+        <AvatarFallback className="bg-card">
           <Skeleton className="h-full w-full" />
         </AvatarFallback>
       </AvatarRoot>

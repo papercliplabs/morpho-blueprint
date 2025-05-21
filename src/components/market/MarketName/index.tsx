@@ -7,19 +7,25 @@ import { ChainInfo, TokenInfo } from "@/data/whisk/fragments";
 
 interface MarketIdentifierProps {
   chain: ChainInfo;
-  name: string;
   collateralAsset: TokenInfo | null;
-  loanAsset: TokenInfo;
+  collateralAssetClassName?: string;
   lltv: number;
+  loanAssetChainClassName?: string;
+  loanAsset: TokenInfo;
+  loanAssetClassName?: string;
+  name: string;
   variant?: "default" | "sm";
 }
 
 export function MarketName({
   chain,
-  name,
   collateralAsset,
-  loanAsset,
+  collateralAssetClassName,
   lltv,
+  loanAssetChainClassName,
+  loanAsset,
+  loanAssetClassName,
+  name,
   variant = "default",
 }: MarketIdentifierProps) {
   return (
@@ -31,14 +37,15 @@ export function MarketName({
             chain={chain}
             size="md"
             showChain={false}
-            className="border-background border-2"
+            className={clsx("border-background border-2", collateralAssetClassName)}
           />
         )}
         <TokenIcon
           token={loanAsset}
           chain={chain}
           size="md"
-          className={clsx("border-background border-2", collateralAsset && "-ml-3")}
+          className={clsx("border-background border-2", collateralAsset && "-ml-3", loanAssetClassName)}
+          chainClassName={loanAssetChainClassName}
         />
         {!collateralAsset && <div className="w-[20px]" />}
       </div>

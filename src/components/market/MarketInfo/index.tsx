@@ -36,7 +36,7 @@ export function MarketInfo({ market }: MarketInfoProps) {
             address={getAddress(market.collateralAsset.address)}
             className="heading-6"
           >
-            <TokenIcon token={market.collateralAsset} chain={market.chain} size="sm" />
+            <TokenIcon token={market.collateralAsset} chain={market.chain} chainClassName="border-card" size="sm" />
             {market.collateralAsset.symbol}
           </LinkExternalBlockExplorer>
         ) : (
@@ -50,7 +50,7 @@ export function MarketInfo({ market }: MarketInfoProps) {
           address={getAddress(market.loanAsset.address)}
           className="heading-6"
         >
-          <TokenIcon token={market.loanAsset} chain={market.chain} size="sm" />
+          <TokenIcon token={market.loanAsset} chain={market.chain} chainClassName="border-card" size="sm" />
           {market.loanAsset.symbol}
         </LinkExternalBlockExplorer>
       }

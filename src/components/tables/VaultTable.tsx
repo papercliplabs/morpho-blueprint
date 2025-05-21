@@ -22,7 +22,14 @@ function getColumns(isPositionLoading: boolean): ColumnDef<VaultTableDataEntry>[
       header: "Vault Name",
       cell: ({ row }) => {
         const { vaultSummary } = row.original;
-        return <VaultName chain={vaultSummary.chain} name={vaultSummary.name} asset={vaultSummary.asset} />;
+        return (
+          <VaultName
+            chain={vaultSummary.chain}
+            name={vaultSummary.name}
+            asset={vaultSummary.asset}
+            chainClassName="border-[var(--row-color)]"
+          />
+        );
       },
       minSize: 240,
     },
@@ -93,6 +100,7 @@ function getColumns(isPositionLoading: boolean): ColumnDef<VaultTableDataEntry>[
             max={2}
             size="sm"
             className="rounded-full border"
+            avatarClassName="border-[var(--row-color)]"
           />
         ) : (
           "None"
@@ -113,6 +121,7 @@ function getColumns(isPositionLoading: boolean): ColumnDef<VaultTableDataEntry>[
             }))}
             max={4}
             size="sm"
+            avatarClassName="border-[var(--row-color)]"
           />
         );
       },

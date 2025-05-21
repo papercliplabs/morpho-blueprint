@@ -8,6 +8,7 @@ type AvatarGroupProps = {
   max?: number;
   size?: AvatarProps["size"];
   showOverflow?: boolean;
+  avatarClassName?: string;
 } & React.ComponentProps<"div">;
 
 const spacing: Record<Exclude<AvatarProps["size"], undefined | null>, string> = {
@@ -20,6 +21,7 @@ const spacing: Record<Exclude<AvatarProps["size"], undefined | null>, string> = 
 };
 
 export default function AvatarGroup({
+  avatarClassName,
   avatars: allAvatars,
   className,
   max = 6,
@@ -37,7 +39,7 @@ export default function AvatarGroup({
             key={index}
             {...avatarProps}
             size={size}
-            className={clsx(index > 0 && spacing[size ?? "md"], "border-background border-2")}
+            className={clsx(index > 0 && spacing[size ?? "md"], "border-background border-2", avatarClassName)}
           />
         ))}
       </div>
