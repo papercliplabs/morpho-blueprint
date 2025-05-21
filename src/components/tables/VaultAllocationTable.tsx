@@ -5,6 +5,7 @@ import { getAddress } from "viem";
 import { Table } from "@/components/ui/table";
 import { Market } from "@/data/whisk/getMarket";
 
+import AvatarGroup from "../AvatarGroup";
 import { TotalSupplyTooltip } from "../Tooltips/TotalSupplyTooltip";
 import NumberFlow from "../ui/number-flow";
 import { VaultName } from "../vault/VaultName";
@@ -24,7 +25,29 @@ const columns: ColumnDef<Market["vaultAllocations"][number]>[] = [
     },
     minSize: 260,
   },
-  // TODO: curator
+  {
+    id: "curator",
+    accessorFn: (row) => row.vault.metadata?.curators[0]?.name ?? "",
+    header: "Curator",
+    cell: ({ row }) => {
+      const { vault } = row.original;
+      const curators = vault.metadata?.curators ?? [];
+      return curators.length > 0 ? (
+        <AvatarGroup
+          avatars={curators.map((curator) => ({
+            src: curator.image,
+            fallback: curator.name,
+          }))}
+          max={2}
+          size="sm"
+          className="rounded-full border"
+        />
+      ) : (
+        "None"
+      );
+    },
+    minSize: 130,
+  },
   {
     id: "supplyShare",
     accessorKey: "marketSupplyShare",

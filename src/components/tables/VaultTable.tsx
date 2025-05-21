@@ -24,7 +24,7 @@ function getColumns(isPositionLoading: boolean): ColumnDef<VaultTableDataEntry>[
         const { vaultSummary } = row.original;
         return <VaultName chain={vaultSummary.chain} name={vaultSummary.name} asset={vaultSummary.asset} />;
       },
-      minSize: 260,
+      minSize: 240,
     },
     {
       id: "yourDeposits",
@@ -41,7 +41,7 @@ function getColumns(isPositionLoading: boolean): ColumnDef<VaultTableDataEntry>[
           />
         );
       },
-      minSize: 160,
+      minSize: 140,
     },
     {
       id: "inWallet",
@@ -58,7 +58,7 @@ function getColumns(isPositionLoading: boolean): ColumnDef<VaultTableDataEntry>[
           />
         );
       },
-      minSize: 160,
+      minSize: 140,
     },
     {
       id: "totalDeposits",
@@ -75,9 +75,31 @@ function getColumns(isPositionLoading: boolean): ColumnDef<VaultTableDataEntry>[
           />
         );
       },
-      minSize: 160,
+      minSize: 140,
     },
-    // TODO: add curator
+    {
+      id: "curator",
+      accessorFn: (row) => row.vaultSummary.metadata?.curators[0]?.name ?? "",
+      header: "Curator",
+      cell: ({ row }) => {
+        const { vaultSummary } = row.original;
+        const curators = vaultSummary.metadata?.curators ?? [];
+        return curators.length > 0 ? (
+          <AvatarGroup
+            avatars={curators.map((curator) => ({
+              src: curator.image,
+              fallback: curator.name,
+            }))}
+            max={2}
+            size="sm"
+            className="rounded-full border"
+          />
+        ) : (
+          "None"
+        );
+      },
+      minSize: 130,
+    },
     {
       id: "collateral",
       accessorFn: (row) => row.vaultSummary.marketAllocations.length,
@@ -95,7 +117,7 @@ function getColumns(isPositionLoading: boolean): ColumnDef<VaultTableDataEntry>[
           />
         );
       },
-      minSize: 160,
+      minSize: 150,
     },
     {
       id: "supplyApy",
@@ -114,7 +136,7 @@ function getColumns(isPositionLoading: boolean): ColumnDef<VaultTableDataEntry>[
           />
         );
       },
-      minSize: 160,
+      minSize: 140,
     },
   ];
 }

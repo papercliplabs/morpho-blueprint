@@ -70,17 +70,5 @@ export const PUBLIC_ALLOCATOR_SUPPLY_TARGET_UTILIZATION = BigInt(90_000000000000
 // [0, 1], Only allow a max borrow origination of up to this % below LLTV
 export const MAX_BORROW_LTV_MARGIN = 0.05;
 
-// Used to display a name and icon for addresses instead of the raw address in the UI
-export const KNOWN_ADDRESSES: Record<Address, { name: string; iconSrc?: string } | undefined> = {
-  [getAddress("0x9E33faAE38ff641094fa68c65c2cE600b3410585")]: {
-    name: "Gauntlet",
-    iconSrc: "/identity/gauntlet.png",
-  },
-  [getAddress("0xCC3E7c85Bb0EE4f09380e041fee95a0caeDD4a02")]: {
-    name: "Compound DAO",
-    iconSrc: "/identity/compound.png",
-  },
-};
-
 // Controls the visibility of any dark mode toggles
 export const ENABLE_DARK_MODE_TOGGLE = true;
