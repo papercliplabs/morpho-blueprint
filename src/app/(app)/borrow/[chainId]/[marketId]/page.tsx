@@ -32,7 +32,7 @@ export default async function MarketPage({ params }: { params: Promise<{ chainId
     notFound();
   }
 
-  if (!WHITELISTED_MARKETS[chainId].includes(marketId)) {
+  if (!WHITELISTED_MARKETS[chainId]?.includes(marketId)) {
     return <UnsupportedMarket />;
   }
 

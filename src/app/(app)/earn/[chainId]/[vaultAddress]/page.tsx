@@ -30,7 +30,7 @@ export default async function VaultPage({ params }: { params: Promise<{ chainId:
     notFound();
   }
 
-  if (!WHITELISTED_VAULTS[chainId].includes(vaultAddress)) {
+  if (!WHITELISTED_VAULTS[chainId]?.includes(vaultAddress)) {
     return <UnsupportedVault />;
   }
 
