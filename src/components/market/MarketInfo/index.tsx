@@ -95,41 +95,37 @@ function MarketInfoLayout({
   oraclePrice,
 }: VaultInfoLayoutProps) {
   return (
-    <div className="flex flex-col gap-4 md:gap-10">
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <MetricWithTooltip
-          label="LLTV"
-          tooltip="The liquidation loan-to-value (LLTV) threshold sets the limit at which positions become eligible for liquidation."
-        >
-          {lltv}
-        </MetricWithTooltip>
-        <MetricWithTooltip
-          label="Liquidation Penality"
-          tooltip="The penalty incurred by borrowers upon liquidation, designed to incentivize liquidators."
-        >
-          {liquidationPenality}
-        </MetricWithTooltip>
-        <MetricWithTooltip
-          label="Oracle Address"
-          tooltip="The address of the oracle contract used to price the collateral asset."
-        >
-          {oracleAddress}
-        </MetricWithTooltip>
-      </div>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <MetricWithTooltip
-          label="Collateral Asset"
-          tooltip="The collateral asset of the market that can be used to borrow against."
-        >
-          {collateralAsset}
-        </MetricWithTooltip>
-        <MetricWithTooltip label="Loan Asset" tooltip="The loan asset of the market that can be borrowed.">
-          {loanAsset}
-        </MetricWithTooltip>
-        <MetricWithTooltip label="Oracle Price" tooltip="The current price from the markets oracle.">
-          {oraclePrice}
-        </MetricWithTooltip>
-      </div>
+    <div className="grid grid-cols-1 gap-4 gap-y-4 md:grid-cols-3 md:gap-y-10">
+      <MetricWithTooltip
+        label="LLTV"
+        tooltip="The liquidation loan-to-value (LLTV) threshold sets the limit at which positions become eligible for liquidation."
+      >
+        {lltv}
+      </MetricWithTooltip>
+      <MetricWithTooltip
+        label="Liquidation Penality"
+        tooltip="The penalty incurred by borrowers upon liquidation, designed to incentivize liquidators."
+      >
+        {liquidationPenality}
+      </MetricWithTooltip>
+      <MetricWithTooltip
+        label="Oracle Address"
+        tooltip="The address of the oracle contract used to price the collateral asset."
+      >
+        {oracleAddress}
+      </MetricWithTooltip>
+      <MetricWithTooltip
+        label="Collateral Asset"
+        tooltip="The collateral asset of the market that can be used to borrow against."
+      >
+        {collateralAsset}
+      </MetricWithTooltip>
+      <MetricWithTooltip label="Loan Asset" tooltip="The loan asset of the market that can be borrowed.">
+        {loanAsset}
+      </MetricWithTooltip>
+      <MetricWithTooltip label="Oracle Price" tooltip="The current price from the markets oracle.">
+        {oraclePrice}
+      </MetricWithTooltip>
     </div>
   );
 }

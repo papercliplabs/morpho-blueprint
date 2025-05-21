@@ -93,41 +93,34 @@ function VaultInfoLayout({
   guardianAddress,
 }: VaultInfoLayoutProps) {
   return (
-    <div className="flex flex-col gap-4 md:gap-10">
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <MetricWithTooltip
-          label="Performance Fee"
-          tooltip="The percentage of vault profits the fee recipient receives."
-        >
-          {performanceFee}
-        </MetricWithTooltip>
-        <MetricWithTooltip label="Fee Recipient" tooltip="The recipient of the performance fee.">
-          {feeRecipient}
-        </MetricWithTooltip>
-        <MetricWithTooltip
-          label="Owner"
-          tooltip="The owner of the vault, which can manage all configurable vault parameters."
-        >
-          {owner}
-        </MetricWithTooltip>
-      </div>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <MetricWithTooltip label="Vault Address" tooltip="The address of the vault contract.">
-          {vaultAddress}
-        </MetricWithTooltip>
-        <MetricWithTooltip
-          label="Curator"
-          tooltip="The entity or protocol responsible for managing the vault's strategy."
-        >
-          {curator}
-        </MetricWithTooltip>
-        <MetricWithTooltip
-          label="Guardian Address"
-          tooltip="A security role in the vault that can intervene to protect funds if needed."
-        >
-          {guardianAddress}
-        </MetricWithTooltip>
-      </div>
+    <div className="grid grid-cols-1 gap-4 gap-y-4 md:grid-cols-3 md:gap-y-10">
+      <MetricWithTooltip label="Performance Fee" tooltip="The percentage of vault profits the fee recipient receives.">
+        {performanceFee}
+      </MetricWithTooltip>
+      <MetricWithTooltip label="Fee Recipient" tooltip="The recipient of the performance fee.">
+        {feeRecipient}
+      </MetricWithTooltip>
+      <MetricWithTooltip
+        label="Owner"
+        tooltip="The owner of the vault, which can manage all configurable vault parameters."
+      >
+        {owner}
+      </MetricWithTooltip>
+      <MetricWithTooltip label="Vault Address" tooltip="The address of the vault contract.">
+        {vaultAddress}
+      </MetricWithTooltip>
+      <MetricWithTooltip
+        label="Curator"
+        tooltip="The entity or protocol responsible for managing the vault's strategy."
+      >
+        {curator}
+      </MetricWithTooltip>
+      <MetricWithTooltip
+        label="Guardian Address"
+        tooltip="A security role in the vault that can intervene to protect funds if needed."
+      >
+        {guardianAddress}
+      </MetricWithTooltip>
     </div>
   );
 }
