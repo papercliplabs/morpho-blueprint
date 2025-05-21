@@ -64,13 +64,20 @@ export function TableRow({
   className,
   children,
 }: HTMLAttributes<HTMLDivElement> & { action?: TableRowAction }) {
+  const tableRowColors = "bg-[var(--row-color)] [--row-color:var(--card)]";
+
   if (action?.type == "link") {
     return (
       // Annoying hack for the scroll sync to work
       <div className="border-border w-fit min-w-full not-last:border-b">
         <Link
           href={action.href}
-          className={cn("hover:bg-accent flex w-full min-w-fit items-center transition-colors", className)}
+          className={cn(
+            "flex w-full min-w-fit items-center transition-colors",
+            tableRowColors,
+            "hover:[--row-color:var(--accent)]",
+            className
+          )}
         >
           {children}
         </Link>
@@ -83,7 +90,8 @@ export function TableRow({
         <div
           className={cn(
             "flex w-full min-w-fit items-center transition-colors",
-            action?.type == "callback" && "hover:bg-accent hover:cursor-pointer",
+            tableRowColors,
+            action?.type == "callback" && "hover:cursor-pointer hover:[--row-color:var(--accent)]",
             className
           )}
           onClick={action?.type == "callback" ? action.callback : undefined}
