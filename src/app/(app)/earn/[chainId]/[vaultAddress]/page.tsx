@@ -1,9 +1,11 @@
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { getAddress } from "viem";
 import { Address } from "viem";
 
+import LinkExternal from "@/components/LinkExternal";
 import { MarketAllocationTable } from "@/components/tables/MarketAllocationTable";
 import { TokenIcon } from "@/components/TokenIcon";
 import { BreakcrumbBack } from "@/components/ui/breakcrumb-back";
@@ -115,6 +117,9 @@ async function VaultHeader({ chainId, vaultAddress }: VaultIdentifier) {
     return null;
   }
 
+  // Only show first one for now
+  const curator = vault.metadata?.curators?.[0];
+
   return (
     <div className="flex flex-col justify-between gap-4 md:flex-row">
       <div className="flex flex-col">
@@ -122,8 +127,25 @@ async function VaultHeader({ chainId, vaultAddress }: VaultIdentifier) {
           <TokenIcon token={vault.asset} chain={vault.chain} size="md" />
           <h1 className="heading-3">{vault.name}</h1>
         </div>
-        {/* TODO: add curator */}
-        <div className="text-muted-foreground">{vault.chain.name} • Curator</div>
+        <div className="text-muted-foreground inline">
+          {vault.chain.name}
+          {curator && (
+            <span>
+              {" "}
+              • curated by{" "}
+              <LinkExternal href={curator.url} className="text-foreground inline">
+                {curator.name}{" "}
+                <Image
+                  src={curator.image}
+                  alt={curator.name}
+                  width={24}
+                  height={24}
+                  className="inline size-6 shrink-0 rounded-full"
+                />
+              </LinkExternal>
+            </span>
+          )}
+        </div>
       </div>
 
       <VaultPositionHighlight vault={vault} />

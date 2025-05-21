@@ -46,9 +46,9 @@ export function useVaultTableData({ vaultSummaries }: { vaultSummaries: VaultSum
         chainsFilterValues.length === 0 || chainsFilterValues.includes(dataEntry.vaultSummary.chain.name.toString());
       const assetsFilterMatch =
         assetsFilterValues.length === 0 || assetsFilterValues.includes(dataEntry.vaultSummary.asset.symbol.toString());
-      // TODO: add curator filter
-      const curatorsFilterMatch = true;
-      void curatorsFilterValues;
+      const curatorsFilterMatch =
+        curatorsFilterValues.length === 0 ||
+        curatorsFilterValues.includes(dataEntry.vaultSummary.metadata?.curators[0]?.name ?? "N/A");
 
       let accountFilterMatch = true;
       const accountFilterValue = accountFilterValues[0];

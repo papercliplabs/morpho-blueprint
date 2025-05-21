@@ -21,7 +21,6 @@ const query = graphql(`
 
       metadata {
         description
-        # TODO: missing curator in Whisk
       }
 
       performanceFee

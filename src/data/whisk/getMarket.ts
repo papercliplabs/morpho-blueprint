@@ -40,7 +40,11 @@ const query = graphql(`
           chain {
             ...ChainInfoFragment
           }
-          # TODO: missing curator in Whisk
+          metadata {
+            curators {
+              ...CuratorInfoFragment
+            }
+          }
         }
         position {
           supplyAssetsUsd

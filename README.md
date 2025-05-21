@@ -8,7 +8,7 @@ An open source [Next.js](https://nextjs.org/) whitelabeled frontend for the [Mor
 
 Install Dependencies
 ```bash
-bun i
+pnpm i
 ```
 
 Create and populate environment variables
@@ -19,24 +19,18 @@ cp .env.example .env
 
 Start the development server
 ```bash
-bun dev
+pnpm dev
 ```
 
 Run tests
 ```bash
 # Run all tests
-bun run test
-
-# Vitest only
-bun run test:vitest
-
-# Playwright only
-bun run test:playwright
+pnpm run test
 ```
 
 Build
 ```bash
-bun run build
+pnpm run build
 ```
 
 ---

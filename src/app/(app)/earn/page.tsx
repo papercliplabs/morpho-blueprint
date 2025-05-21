@@ -84,7 +84,19 @@ async function VaultFiltersWrapper() {
         </>
       ),
     };
-    // TODO: add curators to Whisk
+
+    const curator = vault.metadata?.curators[0];
+    if (curator) {
+      curatorOptionsMap[curator.name] = {
+        value: curator.name,
+        component: (
+          <>
+            <Avatar src={curator.image} fallback={curator.name} size="sm" alt={curator.name} />
+            {curator.name}
+          </>
+        ),
+      };
+    }
   }
 
   return (

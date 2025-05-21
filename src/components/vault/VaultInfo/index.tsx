@@ -110,7 +110,7 @@ function VaultInfoLayout({
         {vaultAddress}
       </MetricWithTooltip>
       <MetricWithTooltip
-        label="Curator"
+        label="Curator Address"
         tooltip="The entity or protocol responsible for managing the vault's strategy."
       >
         {curator}

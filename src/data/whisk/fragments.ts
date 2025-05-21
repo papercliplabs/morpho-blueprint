@@ -1,5 +1,9 @@
 import { graphql } from "@/generated/gql/whisk";
-import { ChainInfoFragmentFragment, TokenInfoFragmentFragment } from "@/generated/gql/whisk/graphql";
+import {
+  ChainInfoFragmentFragment,
+  CuratorInfoFragmentFragment,
+  TokenInfoFragmentFragment,
+} from "@/generated/gql/whisk/graphql";
 
 graphql(`
   fragment TokenInfoFragment on Token {
@@ -13,6 +17,12 @@ graphql(`
     id
     name
     icon
+  }
+
+  fragment CuratorInfoFragment on Curators {
+    name
+    image
+    url
   }
 
   fragment VaultApyFragment on ApyAndSupplyApy {
@@ -51,7 +61,11 @@ graphql(`
     }
 
     curatorAddress
-    # TODO: missing curator in Whisk
+    metadata {
+      curators {
+        ...CuratorInfoFragment
+      }
+    }
 
     supplyAssets
     supplyAssetsUsd
@@ -100,3 +114,4 @@ graphql(`
 // Some cleaner type names
 export type TokenInfo = TokenInfoFragmentFragment;
 export type ChainInfo = ChainInfoFragmentFragment;
+export type CuratorInfo = CuratorInfoFragmentFragment;

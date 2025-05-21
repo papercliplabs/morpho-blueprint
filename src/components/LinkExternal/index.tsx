@@ -1,11 +1,9 @@
 "use client";
 import { ArrowUpRight } from "lucide-react";
-import Image from "next/image";
 import { AnchorHTMLAttributes, ComponentProps } from "react";
 import { Address } from "viem";
 import { usePublicClient } from "wagmi";
 
-import { KNOWN_ADDRESSES } from "@/config";
 import { formatAddress } from "@/utils/format";
 import { cn } from "@/utils/shadcn";
 
@@ -60,16 +58,13 @@ export function LinkExternalBlockExplorer({ chainId, children, className, ...pro
 
   let path: string;
   let displayName: string;
-  let displayIcon: string | undefined = undefined;
   switch (type) {
     case "address":
       if (!props.address) {
         return <div className={cn("text-muted-foreground", className)}>None</div>;
       }
       path = `/address/${props.address}`;
-      const knownAddress = KNOWN_ADDRESSES[props.address];
-      displayName = knownAddress?.name ?? formatAddress(props.address);
-      displayIcon = knownAddress?.iconSrc;
+      displayName = formatAddress(props.address);
       break;
     case "tx":
       path = `/tx/${props.txHash}`;
@@ -84,20 +79,7 @@ export function LinkExternalBlockExplorer({ chainId, children, className, ...pro
       className={cn("text-foreground hover:no-underline hover:brightness-90", className)}
       {...props}
     >
-      {children ?? (
-        <>
-          {displayName}
-          {displayIcon && (
-            <Image
-              src={displayIcon}
-              width={24}
-              height={24}
-              alt={displayName}
-              className="h-6 w-6 shrink-0 rounded-[4px] border"
-            />
-          )}
-        </>
-      )}
+      {children ?? displayName}
     </LinkExternal>
   );
 }
