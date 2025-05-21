@@ -17,7 +17,7 @@ const columnHelper = createColumnHelper<Row>();
 const columns = [
   columnHelper.accessor("avatarUrl", {
     cell: ({ row }) => {
-      return <Avatar src={row.original.avatarUrl} fallback="?" />;
+      return <Avatar src={row.original.avatarUrl} />;
     },
     header: "Avatar",
     enableSorting: false,

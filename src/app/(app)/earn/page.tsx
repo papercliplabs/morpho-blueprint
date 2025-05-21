@@ -79,7 +79,7 @@ async function VaultFiltersWrapper() {
       value: vault.asset.symbol,
       component: (
         <>
-          <Avatar src={vault.asset.icon} fallback={vault.asset.symbol} size="sm" alt={vault.asset.symbol} />
+          <Avatar src={vault.asset.icon} size="sm" alt={vault.asset.symbol} />
           {vault.asset.symbol}
         </>
       ),

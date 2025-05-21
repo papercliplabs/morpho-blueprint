@@ -21,7 +21,7 @@ const meta = {
         value: "WETH",
         component: (
           <div className="flex flex-1 items-center gap-2">
-            <Avatar fallback="CN" src="https://github.com/shadcn.png" size="sm" />
+            <Avatar src="https://github.com/shadcn.png" size="sm" />
             <span className="body-medium-plus">WETH</span>
           </div>
         ),
@@ -30,7 +30,7 @@ const meta = {
         value: "USDC",
         component: (
           <div className="flex flex-1 items-center gap-2">
-            <Avatar fallback="CN" src="https://github.com/shadcn.png" size="sm" />
+            <Avatar src="https://github.com/shadcn.png" size="sm" />
             <span className="body-medium-plus">USDC</span>
           </div>
         ),

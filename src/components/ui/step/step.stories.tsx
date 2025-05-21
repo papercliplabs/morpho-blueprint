@@ -49,6 +49,6 @@ export const Complete: Story = {
 
 export const CustomIcon: Story = {
   args: {
-    icon: <Avatar fallback="CN" src="https://github.com/shadcn.png" size="sm" />,
+    icon: <Avatar src="https://github.com/shadcn.png" size="sm" />,
   },
 };

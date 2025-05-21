@@ -81,12 +81,7 @@ async function MarketFiltersWrapper() {
         value: marketSummary.collateralAsset.symbol,
         component: (
           <>
-            <Avatar
-              src={marketSummary.collateralAsset.icon}
-              fallback={marketSummary.collateralAsset.symbol}
-              size="sm"
-              alt={marketSummary.collateralAsset.symbol}
-            />
+            <Avatar src={marketSummary.collateralAsset.icon} size="sm" alt={marketSummary.collateralAsset.symbol} />
             {marketSummary.collateralAsset.symbol}
           </>
         ),
@@ -97,12 +92,7 @@ async function MarketFiltersWrapper() {
       value: marketSummary.loanAsset.symbol,
       component: (
         <>
-          <Avatar
-            src={marketSummary.loanAsset.icon}
-            fallback={marketSummary.loanAsset.symbol}
-            size="sm"
-            alt={marketSummary.loanAsset.symbol}
-          />
+          <Avatar src={marketSummary.loanAsset.icon} size="sm" alt={marketSummary.loanAsset.symbol} />
           {marketSummary.loanAsset.symbol}
         </>
       ),

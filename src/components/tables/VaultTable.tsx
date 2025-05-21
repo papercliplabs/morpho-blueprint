@@ -110,7 +110,6 @@ function getColumns(isPositionLoading: boolean): ColumnDef<VaultTableDataEntry>[
           <AvatarGroup
             avatars={vaultSummary.marketAllocations.map((allocation) => ({
               src: allocation.market.collateralAsset?.icon,
-              fallback: allocation.market.collateralAsset?.symbol,
             }))}
             max={4}
             size="sm"
