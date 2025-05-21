@@ -34,7 +34,7 @@ export function VaultFilters({ chainOptions, assetOptions, curatorOptions }: Vau
   );
 
   return (
-    <div className="flex gap-4 overflow-x-auto">
+    <div className="flex gap-4 overflow-x-auto pb-0.5">
       {chainOptions.length > 1 && (
         <MultiSelect
           emptyValue={chainValues.length === 0 ? "All Chains" : "Chains"}

@@ -27,7 +27,7 @@ export default function BorrowPage() {
         <div className="flex flex-col justify-between gap-4 md:flex-row">
           <Suspense
             fallback={
-              <div className="flex gap-4">
+              <div className="flex gap-4 pb-0.5">
                 <Skeletons count={3} className="h-[40px] w-[116px] flex-1" />
               </div>
             }
