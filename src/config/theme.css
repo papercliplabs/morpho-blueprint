@@ -1,84 +1,62 @@
 :root {
   /* Border radius */
   --radius: 0.5rem;
-  --button-radius: 0.5rem;
+  --button-radius: 999px;
 
-  /* Light mode colors, or base colors if the deployment has set featureFlags.darkModeToggle to false */
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.2103 0.0059 285.89);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.2103 0.0059 285.89);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.2103 0.0059 285.89);
-  --primary: oklch(0.5461 0.2152 262.88);
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.9674 0.0013 286.38);
-  --secondary-foreground: oklch(0.2103 0.0059 285.89);
-  --muted: oklch(0.9674 0.0013 286.38);
-  --muted-foreground: oklch(0.5517 0.0138 285.94);
-  --accent: oklch(0.9674 0.0013 286.38);
-  --accent-foreground: oklch(0.5461 0.2152 262.88);
-  --destructive: oklch(0.6368 0.2078 25.33);
-  --border: oklch(0.9197 0.004 286.32);
-  --input: oklch(0.8711 0.0055 286.29);
+  --background: oklch(0.2046 0 0);
+  --foreground: oklch(0.9431 0 0);
+  --card: oklch(0.2393 0 0);
+  --card-foreground: oklch(0.9431 0 0);
+  --popover: oklch(0.2727 0 0);
+  --popover-foreground: oklch(0.9431 0 0);
+  --primary: oklch(0.9911 0 0);
+  --primary-foreground: oklch(0.2046 0 0);
+  --secondary: oklch(0.3052 0 0);
+  --secondary-foreground: oklch(0.9431 0 0);
+  --muted: oklch(0.3052 0 0);
+  --muted-foreground: oklch(0.5575 0.0165 244.89);
+  --accent: oklch(0.3052 0 0);
+  --accent-foreground: oklch(0.2103 0.0059 285.89);
+  --destructive: oklch(0.5915 0.202 21.24);
+  --border: oklch(0.3092 0 0);
+  --input: oklch(0.3092 0 0);
   --ring: oklch(0.5461 0.2152 262.88);
-  --chart-1: oklch(0.6461 0.1943 41.12);
-  --chart-2: oklch(0.6002 0.1038 184.7);
-  --chart-3: oklch(0.6089 0.1109 221.72);
-  --chart-4: oklch(0.7952 0.1617 86.05);
-  --chart-5: oklch(0.7686 0.1647 70.08);
-}
-
-/* Dark mode colors - not required if the deployment has set featureFlags.darkModeToggle to false */
-.dark {
-  --background: oklch(0.1408 0.0044 285.82);
-  --foreground: oklch(1 0 0);
-  --card: oklch(0.2103 0.0059 285.89);
-  --card-foreground: oklch(1 0 0);
-  --popover: oklch(0.2739 0.0055 286.03);
-  --popover-foreground: oklch(1 0 0);
-  --primary: oklch(0.6231 0.188 259.81);
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.3703 0.0119 285.81);
-  --secondary-foreground: oklch(1 0 0);
-  --muted: oklch(0.2739 0.0055 286.03);
-  --muted-foreground: oklch(0.7155 0 0);
-  --accent: oklch(0.3703 0.0119 285.81);
-  --accent-foreground: oklch(0.6231 0.188 259.81);
-  --destructive: oklch(0.6368 0.2078 25.33);
-  --border: oklch(0.2739 0.0055 286.03);
-  --input: oklch(0.2686 0 0);
-  --ring: oklch(0.5555 0 0);
-  --chart-1: oklch(0.4882 0.2172 264.38);
-  --chart-2: oklch(0.6959 0.1491 162.48);
-  --chart-3: oklch(0.7686 0.1647 70.08);
-  --chart-4: oklch(0.6268 0.2325 303.9);
-  --chart-5: oklch(0.5916 0.218 0.58);
+  --chart-1: oklch(0.709 0.1592 293.54);
+  --chart-2: oklch(0.7148 0.1257 215.22);
+  --chart-3: oklch(0.8003 0.1821 151.71);
+  --chart-4: oklch(0.7686 0.1647 70.08);
+  --chart-5: oklch(0.7106 0.1661 22.22);
 }
 
 /* Typography - using Tailwind CSS utility classes (https://tailwindcss.com/docs/styling-with-utility-classes) */
 @utility heading-1 {
   @apply text-[36px] leading-[48px] font-[600] tracking-[-0.79];
+  font-family: var(--font-ibm-plex-mono);
 }
 
 @utility heading-2 {
   @apply text-[32px] leading-[36px] font-[600] tracking-[-0.69];
+  font-family: var(--font-ibm-plex-mono);
 }
 
 @utility heading-3 {
   @apply text-[28px] leading-[32px] font-[600] tracking-[-0.59];
+  font-family: var(--font-ibm-plex-mono);
 }
 
 @utility heading-4 {
   @apply text-[24px] leading-[32px] font-[600] tracking-[-0.47];
+  font-family: var(--font-ibm-plex-mono);
 }
 
 @utility heading-5 {
   @apply text-[20px] leading-[24px] font-[600];
+  font-family: var(--font-ibm-plex-mono);
 }
 
 @utility heading-6 {
   @apply text-[18px] leading-[24px] font-[600];
+  font-family: var(--font-ibm-plex-mono);
 }
 
 @utility body-large-plus {
