@@ -23,7 +23,7 @@ export function MarketName({
   variant = "default",
 }: MarketIdentifierProps) {
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex w-full items-center gap-3">
       <div className="flex">
         {collateralAsset && (
           <TokenIcon
@@ -42,16 +42,21 @@ export function MarketName({
         />
         {!collateralAsset && <div className="w-[20px]" />}
       </div>
-      <div className={clsx("flex items-center gap-2", variant === "sm" ? "body-medium-plus" : "heading-3")}>
+      <div
+        className={clsx(
+          "overflow-hidden text-ellipsis whitespace-nowrap",
+          variant === "sm" ? "body-medium-plus" : "heading-3"
+        )}
+      >
         {name}
-        <Badge variant={variant === "sm" ? "small" : "default"}>
-          <NumberFlow
-            value={lltv}
-            format={{ style: "percent", minimumFractionDigits: 0, maximumFractionDigits: 0 }}
-            className={variant === "sm" ? "body-small-plus" : "body-medium-plus"}
-          />
-        </Badge>
       </div>
+      <Badge variant={variant === "sm" ? "small" : "default"}>
+        <NumberFlow
+          value={lltv}
+          format={{ style: "percent", minimumFractionDigits: 0, maximumFractionDigits: 0 }}
+          className={variant === "sm" ? "body-small-plus" : "body-medium-plus"}
+        />
+      </Badge>
     </div>
   );
 }
