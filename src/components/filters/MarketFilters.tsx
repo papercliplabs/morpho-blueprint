@@ -33,7 +33,7 @@ export function MarketFilters({ chainOptions, collateralAssetOptions, loanAssetO
   );
 
   return (
-    <div className="flex gap-4">
+    <div className="flex gap-4 overflow-x-auto">
       {chainOptions.length > 1 && (
         <MultiSelect
           emptyValue={chainValues.length === 0 ? "All Chains" : "Chains"}
