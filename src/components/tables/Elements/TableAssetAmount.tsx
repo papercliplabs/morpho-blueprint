@@ -19,7 +19,8 @@ export function TableAssetAmount({ asset, amount, amountUsd, isLoading }: TableA
     );
   }
 
-  if (amount == undefined || amountUsd == undefined) {
+  if (amount == undefined) {
+    // Render "-" only if we have no amount, no USD price is ok
     return <div className="text-muted-foreground body-medium-plus">-</div>;
   }
 
