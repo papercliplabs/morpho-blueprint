@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { ComponentProps } from "react";
 
 import { ChainInfo, TokenInfo } from "@/data/whisk/fragments";
@@ -35,12 +36,12 @@ export function TokenIcon({ token, chain, size, showChain = true, ...rest }: Tok
       alt={token.symbol}
       sub={
         showChain ? (
-          <Avatar
+          <Image
             src={chain.icon}
             alt={chain.name}
-            fallback={chain.name}
-            size={SIZE_MAP[size].chainSize}
-            className="border-background border-2"
+            width={16}
+            height={16}
+            className="border-background rounded-[6px] border-2"
           />
         ) : null
       }
