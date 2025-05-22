@@ -1,6 +1,7 @@
+import { ReactNode } from "react";
 import { Address, Chain } from "viem";
 
-import { SUPPORTED_CHAIN_IDS } from ".";
+import { SUPPORTED_CHAIN_IDS } from "@/config";
 
 // You shouldn't modify this file unless deploying a full custom fork
 
@@ -13,6 +14,7 @@ export interface AppConfig {
     appName: string;
     appDescription: string;
     appIcon: string;
+    logoComponent: ReactNode;
   };
   links: {
     termsOfService?: string;
