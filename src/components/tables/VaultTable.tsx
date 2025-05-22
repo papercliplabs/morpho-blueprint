@@ -2,6 +2,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 
 import { Table } from "@/components/ui/table";
+import { APP_CONFIG } from "@/config";
 import { VaultSummary } from "@/data/whisk/getVaultSummaries";
 import { VaultTableDataEntry, useVaultTableData } from "@/hooks/useVaultTableData";
 
@@ -15,7 +16,8 @@ interface VaultTableProps {
   vaultSummaries: VaultSummary[];
 }
 
-function getColumns(isPositionLoading: boolean): ColumnDef<VaultTableDataEntry>[] {
+type Column = ColumnDef<VaultTableDataEntry>;
+function getColumns(isPositionLoading: boolean): Column[] {
   return [
     {
       accessorKey: "vaultSummary.name",
@@ -84,30 +86,34 @@ function getColumns(isPositionLoading: boolean): ColumnDef<VaultTableDataEntry>[
       },
       minSize: 140,
     },
-    {
-      id: "curator",
-      accessorFn: (row) => row.vaultSummary.metadata?.curators[0]?.name ?? "",
-      header: "Curator",
-      cell: ({ row }) => {
-        const { vaultSummary } = row.original;
-        const curators = vaultSummary.metadata?.curators ?? [];
-        return curators.length > 0 ? (
-          <AvatarGroup
-            avatars={curators.map((curator) => ({
-              src: curator.image,
-              fallback: curator.name,
-            }))}
-            max={2}
-            size="sm"
-            className="rounded-full border"
-            avatarClassName="border-[var(--row-color)]"
-          />
-        ) : (
-          "None"
-        );
-      },
-      minSize: 130,
-    },
+    ...(APP_CONFIG.featureFlags.curatorColumn
+      ? [
+          {
+            id: "curator",
+            accessorFn: (row) => row.vaultSummary.metadata?.curators[0]?.name ?? "",
+            header: "Curator",
+            cell: ({ row }) => {
+              const { vaultSummary } = row.original;
+              const curators = vaultSummary.metadata?.curators ?? [];
+              return curators.length > 0 ? (
+                <AvatarGroup
+                  avatars={curators.map((curator) => ({
+                    src: curator.image,
+                    fallback: curator.name,
+                  }))}
+                  max={2}
+                  size="sm"
+                  className="rounded-full border"
+                  avatarClassName="border-[var(--row-color)]"
+                />
+              ) : (
+                "None"
+              );
+            },
+            minSize: 130,
+          } as Column,
+        ]
+      : []),
     {
       id: "collateral",
       accessorFn: (row) => row.vaultSummary.marketAllocations.length,

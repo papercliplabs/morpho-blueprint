@@ -32,6 +32,7 @@ export interface AppConfig {
     publicAllocatorSupplyTargetUtilizationWad: bigint; // Scaled by WAD
   };
   featureFlags: {
+    curatorColumn: boolean;
     darkModeToggle: boolean;
   };
   fonts: {
