@@ -74,6 +74,7 @@ graphql(`
 
     marketAllocations {
       market {
+        marketId
         collateralAsset {
           ...TokenInfoFragment
         }

@@ -1,5 +1,5 @@
 import { MarketPositionChange, VaultPositionChange } from "@/actions/utils/positionChange";
-import { MAX_BORROW_LTV_MARGIN } from "@/config";
+import { APP_CONFIG } from "@/config";
 import { MarketNonIdle } from "@/data/whisk/getMarket";
 import { MarketPosition } from "@/data/whisk/getMarketPositions";
 import { Vault } from "@/data/whisk/getVault";
@@ -19,7 +19,8 @@ export function computeAvailableToBorrow(
   const newLoan = Math.max(currentLoan + borrowAmountChange, 0);
 
   // Includes margin for borrow origination
-  const maxLoan = newCollateral * market.collateralPriceInLoanAsset * (market.lltv - MAX_BORROW_LTV_MARGIN);
+  const maxLoan =
+    newCollateral * market.collateralPriceInLoanAsset * (market.lltv - APP_CONFIG.actionParameters.maxBorrowLtvMargin);
 
   return Math.max(maxLoan - newLoan, 0);
 }
@@ -36,7 +37,8 @@ export function computeMarketMaxWithdrawCollateral(
   const collateral = descaleBigIntToNumber(currentPosition.collateralAssets, market.collateralAsset.decimals);
   const currentLoan = descaleBigIntToNumber(currentPosition.borrowAssets, market.loanAsset.decimals);
   const newLoan = currentLoan - loanRepaymentAmount;
-  const minRequiredCollateral = newLoan / (market.lltv - MAX_BORROW_LTV_MARGIN) / market.collateralPriceInLoanAsset;
+  const minRequiredCollateral =
+    newLoan / (market.lltv - APP_CONFIG.actionParameters.maxBorrowLtvMargin) / market.collateralPriceInLoanAsset;
   const collateralWithdrawMax = collateral - minRequiredCollateral;
   return Math.max(collateralWithdrawMax, 0);
 }

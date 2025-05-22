@@ -59,6 +59,7 @@ const query = graphql(`
 `);
 
 export const getVault = cache(async (chainId: number, vaultAddress: Address): Promise<Vault | null> => {
+  console.log("getVault", chainId, vaultAddress);
   const data = await executeWhiskQuery(query, {
     chainId,
     vaultAddress,

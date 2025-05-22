@@ -1,7 +1,7 @@
 import "server-only";
 import { cache } from "react";
 
-import { WHITELISTED_VAULTS } from "@/config";
+import { APP_CONFIG } from "@/config";
 import { graphql } from "@/generated/gql/whisk";
 
 import { executeWhiskQuery } from "./execute";
@@ -15,7 +15,8 @@ const query = graphql(`
 `);
 
 export const getVaultSummaries = cache(async () => {
-  const queryVariables = Object.entries(WHITELISTED_VAULTS);
+  console.log("getVaultSummaries");
+  const queryVariables = Object.entries(APP_CONFIG.whitelistedVaults);
 
   const responses = await Promise.all(
     queryVariables.map(

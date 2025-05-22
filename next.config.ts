@@ -94,6 +94,34 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "raw.githubusercontent.com",
+        port: "",
+        pathname: "/trustwallet/assets/**",
+      },
+      {
+        protocol: "https",
+        hostname: "coin-images.coingecko.com",
+        port: "",
+        pathname: "/coins/images/**",
+      },
+      {
+        protocol: "https",
+        hostname: "cdn.morpho.org",
+        port: "",
+        pathname: "**",
+      },
+      {
+        protocol: "https",
+        hostname: "cdn.whisk.so",
+        port: "",
+        pathname: "**",
+      },
+    ],
+  },
 };
 
 export default nextConfig;

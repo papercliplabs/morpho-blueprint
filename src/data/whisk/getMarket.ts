@@ -72,6 +72,7 @@ const query = graphql(`
 `);
 
 export const getMarket = cache(async (chainId: number, marketId: Hex): Promise<Market | null> => {
+  console.log("getMarket", chainId, marketId);
   const data = await executeWhiskQuery(query, {
     chainId,
     marketId,

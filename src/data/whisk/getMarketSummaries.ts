@@ -1,10 +1,10 @@
 import "server-only";
 import { cache } from "react";
 
-import { WHITELISTED_MARKETS } from "@/config";
 import { graphql } from "@/generated/gql/whisk";
 
 import { executeWhiskQuery } from "./execute";
+import { getWhitelistedMarketIds } from "./getWhitelistedMarketIds";
 
 const query = graphql(`
   query getMarketSummaries($chainId: Number!, $marketIds: [String!]!) {
@@ -15,7 +15,9 @@ const query = graphql(`
 `);
 
 export const getMarketSummaries = cache(async () => {
-  const queryVariables = Object.entries(WHITELISTED_MARKETS);
+  console.log("getMarketSummaries");
+  const whitelistedMarketIds = await getWhitelistedMarketIds();
+  const queryVariables = Object.entries(whitelistedMarketIds);
 
   const responses = await Promise.all(
     queryVariables.map(

@@ -5,7 +5,7 @@ import { InputBundlerOperation } from "@morpho-org/bundler-sdk-viem";
 import { MaybeDraft, SimulationState } from "@morpho-org/simulation-sdk";
 import { Address } from "viem";
 
-import { PUBLIC_ALLOCATOR_SUPPLY_TARGET_UTILIZATION } from "@/config";
+import { APP_CONFIG } from "@/config";
 
 import { Subbundle } from "./types";
 
@@ -68,7 +68,7 @@ export function subbundleFromInputOps({
   let { operations } = populateBundle(inputOps, simulationState, {
     publicAllocatorOptions: {
       enabled: true,
-      defaultSupplyTargetUtilization: PUBLIC_ALLOCATOR_SUPPLY_TARGET_UTILIZATION,
+      defaultSupplyTargetUtilization: APP_CONFIG.actionParameters.publicAllocatorSupplyTargetUtilizationWad,
     },
   });
   operations = finalizeBundle(operations, simulationState, accountAddress);

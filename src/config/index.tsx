@@ -1,74 +1,81 @@
-import { AppKitNetwork } from "@reown/appkit/networks";
-import { Address, Hex, getAddress } from "viem";
-import { base, mainnet, polygon } from "viem/chains";
+import { getAddress } from "viem";
+import { base, mainnet, polygon, worldchain } from "viem/chains";
 
-export const NETWORK_CONFIGS: { network: AppKitNetwork; rpcUrls: string[] }[] = [
-  {
-    network: mainnet,
-    rpcUrls: ["TODO"],
+import { AppConfig } from "./types";
+
+export const SUPPORTED_CHAIN_IDS = [mainnet.id, polygon.id, base.id, worldchain.id] as const;
+
+export const APP_CONFIG: AppConfig = {
+  reownProjectId: "0bd03f980c18061297ab3a379e97dba0",
+  chainConfig: {
+    [mainnet.id]: {
+      chain: mainnet,
+      rpcUrls: [process.env.MAINNET_RPC_URL_1!, process.env.MAINNET_RPC_URL_2!],
+    },
+    [base.id]: {
+      chain: base,
+      rpcUrls: [process.env.BASE_RPC_URL_1!, process.env.BASE_RPC_URL_2!],
+    },
+    [worldchain.id]: {
+      chain: base,
+      rpcUrls: [process.env.WORLDCHAIN_RPC_URL_1!, process.env.WORLDCHAIN_RPC_URL_2!],
+    },
+    [polygon.id]: {
+      chain: polygon,
+      rpcUrls: [process.env.POLYGON_RPC_URL_1!, process.env.POLYGON_RPC_URL_2!],
+    },
   },
-  {
-    network: polygon,
-    rpcUrls: [],
+  metadata: {
+    appName: "Morpho",
+    appDescription: "Morpho",
+    appIcon: "TODO",
   },
-  {
-    network: base,
-    rpcUrls: [],
+  links: {
+    termsOfService: undefined,
+    privacyPolicy: undefined,
+    support: undefined,
   },
-];
-
-export const LINKS = {
-  termsOfService: "TODO",
-  privacyPolicy: "TODO",
-  support: "TODO",
+  whitelistedVaults: {
+    [mainnet.id]: [
+      getAddress("0x95EeF579155cd2C5510F312c8fA39208c3Be01a8"), // USDT
+      // getAddress("0x78Fc2c2eD1A4cDb5402365934aE5648aDAd094d0"), // WETH
+      // getAddress("0x60d715515d4411f7F43e4206dc5d4a3677f0eC78"), // USDC
+      // getAddress("0x4F460bb11cf958606C69A963B4A17f9DaEEea8b6"), // USDC (fx protocol collateral tokens)
+      // getAddress("0xE0C98605f279e4D7946d25B75869c69802823763"), // WBTC
+      // getAddress("0xA02F5E93f783baF150Aa1F8b341Ae90fe0a772f7"), // cbBTC
+      getAddress("0xBE40491F3261Fd42724F1AEb465796eb11c06ddF"), // FRAX
+      // getAddress("0x89D80f5e9BC88d8021b352064ae73F0eAf79EBd8"), // USDA
+      // getAddress("0x43fD147d5319B8Cf39a6e57143684Efca9CF3613"), // tBTC
+      // getAddress("0x64964E162Aa18d32f91eA5B24a09529f811AEB8e"), // USDC (prime)
+    ],
+    [base.id]: [
+      // getAddress("0xbb819D845b573B5D7C538F5b85057160cfb5f313"), // eUSD
+      // getAddress("0xB7890CEE6CF4792cdCC13489D36D9d42726ab863"), // USDC (universal collateral assets)
+      getAddress("0x12AFDeFb2237a5963e7BAb3e2D46ad0eee70406e"), // USDC
+      // getAddress("0x6e37C95b43566E538D8C278eb69B00FC717a001b"), // verUSDC (against RWA)
+      // getAddress("0xA2Cac0023a4797b4729Db94783405189a4203AFc"), // WETH
+      // getAddress("0x80D9964fEb4A507dD697b4437Fc5b25b618CE446"), // WETH (pyth oracles only)
+      // getAddress("0x0FaBfEAcedf47e890c50C8120177fff69C6a1d9B"), // USDC (pyth oracles only)
+      // getAddress("0x30B8A2c8E7Fa41e77b54b8FaF45c610e7aD909E3"), // MAI
+      getAddress("0x8c3A6B12332a6354805Eb4b72ef619aEdd22BcdD"), // Degen
+      // getAddress("0xdB90A4e973B7663ce0Ccc32B6FbD37ffb19BfA83"), // USDC (degen collateral)
+      // getAddress("0x00dfDb8C7295a03DCf1ADfF4D21eB5D9D19FB330"), // Resolv USR
+    ],
+    [worldchain.id]: [
+      getAddress("0x0db7e405278c2674f462ac9d9eb8b8346d1c1571"), // WETH
+      getAddress("0x348831b46876d3df2db98bdec5e3b4083329ab9f"), // WLD
+      getAddress("0xb1e80387ebe53ff75a89736097d34dc8d9e9045b"), // USDC
+      // getAddress("0xbc8c37467c5df9d50b42294b8628c25888becf61"), // WBTC
+    ],
+    [polygon.id]: [
+      getAddress("0xF91D80E43272DBC610551E8c872E0438d62C1c69"), // WPOL
+    ],
+  },
+  actionParameters: {
+    maxBorrowLtvMargin: 0.05,
+    publicAllocatorSupplyTargetUtilizationWad: BigInt(90_0000000000000000),
+  },
+  featureFlags: {
+    darkModeToggle: true,
+  },
 };
-
-export const METADATA = {
-  appName: "",
-  appDescription: "",
-  appIcon: "",
-};
-
-// ChainId -> Addresses
-export const WHITELISTED_VAULTS: Record<number, Address[]> = {
-  [mainnet.id]: [getAddress("0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB")],
-  [base.id]: [getAddress("0x616a4E1db48e22028f6bbf20444Cd3b8e3273738")],
-  [polygon.id]: [
-    getAddress("0x781FB7F6d845E3bE129289833b04d43Aa8558c42"), // USDC
-    getAddress("0xF5C81d25ee174d83f1FD202cA94AE6070d073cCF"), // WETH
-    getAddress("0xfD06859A671C21497a2EB8C5E3fEA48De924D6c8"), // USDT
-    getAddress("0x3F33F9f7e2D7cfBCBDf8ea8b870a6E3d449664c2"), // POL
-  ],
-};
-
-// ChainId -> MarketId
-export const WHITELISTED_MARKETS: Record<number, Hex[]> = {
-  // [mainnet.id]: ["0x3a85e619751152991742810df6ec69ce473daef99e28a64ab2340d7b7ccfee49"],
-  [base.id]: ["0x8793cf302b8ffd655ab97bd1c695dbd967807e8367a65cb2f4edaf1380ba1bda"],
-  [polygon.id]: [
-    "0xa5b7ae7654d5041c28cb621ee93397394c7aee6c6e16c7e0fd030128d87ee1a3",
-    "0xfacd2aaa4ba788e9161c4572a44ce7bbe0944768fac271859d9034f2422e606c", // USDC idle
-    "0x1cfe584af3db05c7f39d60e458a87a8b2f6b5d8c6125631984ec489f1d13553b", // WBTC/USDC - 86%
-    "0x1947267c49c3629c5ed59c88c411e8cf28c4d2afdb5da046dc8e3846a4761794", // MATICx/USDC - 77%
-    "0xa5b7ae7654d5041c28cb621ee93397394c7aee6c6e16c7e0fd030128d87ee1a3", // WETH/USDC - 86%
-    "0x7506b33817b57f686e37b87b5d4c5c93fdef4cffd21bbf9291f18b2f29ab0550", // POL/USDC - 77%
-    "0xd1485762dd5256b99530b6b07ab9d20c8d31b605dd5f27ad0c6dec2a18179ac6", // compWETH/USDC - 86%
-    "0x8513df298cab92cafba1bae394420b7150aa40a5fac649c7168404bd5174a54c", // sACRED/USDC - 77%
-
-    "0x372f25501f88e5e8b9373b8076985870b7c1cbd0903f26a1fef34790dbdb3607", // USDT idle
-    "0x2476bb905e3d94acd7b402b3d70d411eeb6ace82afd3007da69a0d5904dfc998", // WBTC/USDT - 86%
-    "0x41e537c46cc0e2f82aa69107cd72573f585602d8c33c9b440e08eaba5e8fded1", // MATICx/USDC - 77%
-    "0x01550b8779f4ca978fc16591537f3852c02c3491f597db93d9bb299dcbf5ddbe", // WETH/USDT - 86%
-    "0x267f344f5af0d85e95f253a2f250985a9fb9fca34a3342299e20c83b6906fc80", // POL/USDT - 77%
-    "0xa8c2e5b31d1f3fb6c000bd49355d091f71e7c866fcb74a1cb2562ef67157bc2a", // compWETH/USDT - 86%
-  ],
-};
-
-// Target utilization above which the public allocator shared liquidity algorithm is enabled for borrowing (WAD)
-export const PUBLIC_ALLOCATOR_SUPPLY_TARGET_UTILIZATION = BigInt(90_0000000000000000);
-
-// [0, 1], Only allow a max borrow origination of up to this % below LLTV
-export const MAX_BORROW_LTV_MARGIN = 0.05;
-
-// Controls the visibility of any dark mode toggles
-export const ENABLE_DARK_MODE_TOGGLE = true;

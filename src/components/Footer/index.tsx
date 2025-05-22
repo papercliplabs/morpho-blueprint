@@ -1,14 +1,16 @@
-import { ENABLE_DARK_MODE_TOGGLE, LINKS } from "@/config";
+import { APP_CONFIG } from "@/config";
 
 import LinkExternal from "../LinkExternal";
 import { PoweredByMorpho } from "../ui/icons/PoweredByMorpho";
 
 import { ThemeToggle } from "./ThemeToggle";
 
+const { support, termsOfService, privacyPolicy } = APP_CONFIG.links;
+
 const FOOTER_ITEMS: { name: string; href: string }[] = [
-  { name: "Support", href: LINKS.support },
-  { name: "Privacy", href: LINKS.termsOfService },
-  { name: "Terms", href: LINKS.privacyPolicy },
+  ...(support ? [{ name: "Support", href: support }] : []),
+  ...(termsOfService ? [{ name: "Terms", href: termsOfService }] : []),
+  ...(privacyPolicy ? [{ name: "Privacy", href: privacyPolicy }] : []),
 ];
 
 export function Footer() {
@@ -25,7 +27,7 @@ export function Footer() {
         ))}
       </div>
 
-      {ENABLE_DARK_MODE_TOGGLE && <ThemeToggle />}
+      {APP_CONFIG.featureFlags.darkModeToggle && <ThemeToggle />}
     </footer>
   );
 }

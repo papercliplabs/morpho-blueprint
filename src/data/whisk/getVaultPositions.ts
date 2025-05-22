@@ -2,7 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { Address, getAddress } from "viem";
 
-import { WHITELISTED_VAULTS } from "@/config";
+import { APP_CONFIG } from "@/config";
 import { graphql } from "@/generated/gql/whisk";
 import { GetVaultPositionsQuery } from "@/generated/gql/whisk/graphql";
 
@@ -31,7 +31,8 @@ const query = graphql(`
 
 // ChainId -> VaultAddress -> VaultPosition
 export const getVaultPositions = cache(async (accountAddress: Address): Promise<VaultPositionMap> => {
-  const partialQueryVariables = Object.entries(WHITELISTED_VAULTS);
+  console.log("getVaultPositions", accountAddress);
+  const partialQueryVariables = Object.entries(APP_CONFIG.whitelistedVaults);
 
   const responses = await Promise.all(
     partialQueryVariables.map(

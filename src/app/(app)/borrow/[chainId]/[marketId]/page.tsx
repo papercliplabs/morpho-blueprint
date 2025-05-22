@@ -15,8 +15,9 @@ import { BreakcrumbBack } from "@/components/ui/breakcrumb-back";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { WHITELISTED_MARKETS } from "@/config";
+import { SupportedChainId } from "@/config/types";
 import { getMarket, isNonIdleMarket } from "@/data/whisk/getMarket";
+import { getWhitelistedMarketIds } from "@/data/whisk/getWhitelistedMarketIds";
 import { MarketIdentifier } from "@/utils/types";
 
 export default async function MarketPage({ params }: { params: Promise<{ chainId: string; marketId: string }> }) {
@@ -32,12 +33,12 @@ export default async function MarketPage({ params }: { params: Promise<{ chainId
     notFound();
   }
 
-  if (!WHITELISTED_MARKETS[chainId]?.includes(marketId)) {
-    return <UnsupportedMarket />;
-  }
-
   return (
-    <div className="flex w-full min-w-0 flex-col gap-6">
+    <div className="relative flex w-full min-w-0 flex-col gap-6">
+      <Suspense fallback={null}>
+        <WhitelistCheck chainId={chainId} marketId={marketId} />
+      </Suspense>
+
       <section className="flex flex-col gap-4">
         <BreakcrumbBack label="Borrow" href="/borrow" />
         <Suspense
@@ -108,11 +109,22 @@ export default async function MarketPage({ params }: { params: Promise<{ chainId
   );
 }
 
-function UnsupportedMarket() {
+async function WhitelistCheck({ chainId, marketId }: MarketIdentifier) {
+  const market = await getMarket(chainId, marketId);
+  const whitelistedMarketIds = await getWhitelistedMarketIds();
+
+  if (!market) {
+    notFound();
+  }
+
+  if (whitelistedMarketIds[chainId as SupportedChainId].includes(marketId)) {
+    return null;
+  }
+
   return (
-    <div className="flex w-full grow flex-col items-center justify-center gap-6 text-center">
+    <div className="bg-background absolute -inset-1 z-10 flex grow flex-col items-center justify-center gap-6 text-center">
       <h1>Unsupported Market</h1>
-      <p className="text-content-secondary">This selected market is not currently supported on this interface.</p>
+      <p className="text-content-secondary">This market is not currently supported on this interface.</p>
       <Link href="/earn">
         <Button>Return Home</Button>
       </Link>
