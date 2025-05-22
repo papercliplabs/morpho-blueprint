@@ -8,7 +8,7 @@ export default function Minus({ className, ...props }: React.ComponentProps<"svg
       viewBox="0 0 16 16"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className={clsx(["fill-current", "stroke-background"], className)}
+      className={clsx(["fill-primary", "stroke-primary-foreground"], className)}
       {...props}
     >
       <rect x="1" y="1" width="14" height="14" rx="7" />
