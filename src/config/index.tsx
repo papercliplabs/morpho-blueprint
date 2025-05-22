@@ -10,19 +10,19 @@ export const APP_CONFIG: AppConfig = {
   chainConfig: {
     [mainnet.id]: {
       chain: mainnet,
-      rpcUrls: [process.env.MAINNET_RPC_URL_1!, process.env.MAINNET_RPC_URL_2!],
+      rpcUrls: [process.env.NEXT_PUBLIC_MAINNET_RPC_URL_1!, process.env.NEXT_PUBLIC_MAINNET_RPC_URL_2!],
     },
     [base.id]: {
       chain: base,
-      rpcUrls: [process.env.BASE_RPC_URL_1!, process.env.BASE_RPC_URL_2!],
+      rpcUrls: [process.env.NEXT_PUBLIC_BASE_RPC_URL_1!, process.env.NEXT_PUBLIC_BASE_RPC_URL_2!],
     },
     [worldchain.id]: {
-      chain: base,
-      rpcUrls: [process.env.WORLDCHAIN_RPC_URL_1!, process.env.WORLDCHAIN_RPC_URL_2!],
+      chain: worldchain,
+      rpcUrls: [process.env.NEXT_PUBLIC_WORLDCHAIN_RPC_URL_1!, process.env.NEXT_PUBLIC_WORLDCHAIN_RPC_URL_2!],
     },
     [polygon.id]: {
       chain: polygon,
-      rpcUrls: [process.env.POLYGON_RPC_URL_1!, process.env.POLYGON_RPC_URL_2!],
+      rpcUrls: [process.env.NEXT_PUBLIC_POLYGON_RPC_URL_1!, process.env.NEXT_PUBLIC_POLYGON_RPC_URL_2!],
     },
   },
   metadata: {
