@@ -52,6 +52,19 @@
   --breakpoint-lg: 1080px;
 }
 
+* {
+  /* TODO: Connect kit themeing */
+  /* --ck-body-color: var(--foreground);
+  --ck-body-color-muted: var(--muted-foreground);
+
+  --ck-primary-button-color: var(--secondary-foreground);
+  --ck-primary-button-background: var(--secondary);
+  --ck-primary-button-border-radius: var(--radius-button);
+  --ck-primary-button-hover-background: rgba(var(--secondary), 0.1);
+
+  --ck-body-background: var(--card); */
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

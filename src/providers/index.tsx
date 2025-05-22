@@ -10,13 +10,13 @@ import { WalletProvider } from "./WalletProvider";
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider>
-      <WalletProvider>
-        <TanstackQueryProvider>
+      <TanstackQueryProvider>
+        <WalletProvider>
           <ResponsiveProvider>
             <TooltipProvider>{children}</TooltipProvider>
           </ResponsiveProvider>
-        </TanstackQueryProvider>
-      </WalletProvider>
+        </WalletProvider>
+      </TanstackQueryProvider>
     </ThemeProvider>
   );
 }

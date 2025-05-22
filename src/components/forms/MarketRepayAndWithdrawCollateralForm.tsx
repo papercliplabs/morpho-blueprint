@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MarketId } from "@morpho-org/blue-sdk";
-import { useAppKit } from "@reown/appkit/react";
+import { useModal } from "connectkit";
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDebounce } from "use-debounce";
@@ -39,7 +39,7 @@ export const MarketRepayAndWithdrawCollateralForm = forwardRef<
 >(({ market, onSuccessfulActionSimulation }, ref) => {
   const { address } = useAccount();
   const publicClient = usePublicClient({ chainId: market.chain.id });
-  const { open: openAppKit } = useAppKit();
+  const { setOpen: setConnectKitOpen } = useModal();
 
   const [simulating, setSimulating] = useState(false);
   const [simulationErrorMsg, setSimulationErrorMsg] = useState<string | null>(null);
@@ -186,7 +186,7 @@ export const MarketRepayAndWithdrawCollateralForm = forwardRef<
       isMaxWithdrawCollateral,
     }: z.infer<typeof formSchema>) => {
       if (!address) {
-        openAppKit();
+        setConnectKitOpen(true);
         return;
       }
 
@@ -233,7 +233,7 @@ export const MarketRepayAndWithdrawCollateralForm = forwardRef<
     },
     [
       address,
-      openAppKit,
+      setConnectKitOpen,
       publicClient,
       setSimulationErrorMsg,
       setSimulating,

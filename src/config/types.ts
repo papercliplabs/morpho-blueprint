@@ -11,10 +11,11 @@ export type SupportedChainId = (typeof SUPPORTED_CHAIN_IDS)[number];
 export interface AppConfig {
   reownProjectId: string;
   chainConfig: Record<SupportedChainId, { chain: Chain; rpcUrls: [string, ...string[]] }>;
-  metadata: {
-    appName: string;
-    appDescription: string;
-    appIcon: string;
+  appMetadata: {
+    url: string;
+    name: string;
+    description: string;
+    icon: string;
     logoComponent: ReactNode;
   };
   links: {

@@ -1,6 +1,6 @@
 "use client";
-import { useAppKit } from "@reown/appkit/react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useModal } from "connectkit";
 import { ReactNode, createContext, useCallback, useContext, useState } from "react";
 import { Hex } from "viem";
 import { estimateGas, sendTransaction, waitForTransactionReceipt } from "viem/actions";
@@ -60,7 +60,7 @@ export function ActionFlowProvider({
 
   const { data: client } = useConnectorClient({ chainId });
   const { connector } = useAccount();
-  const { open } = useAppKit();
+  const { setOpen: setConnectKitOpen } = useModal();
 
   const publicClient = usePublicClient({ chainId });
   const { switchChainAsync } = useSwitchChain();
@@ -70,7 +70,7 @@ export function ActionFlowProvider({
   const startFlow = useCallback(async () => {
     // Must be connected
     if (!client || !publicClient) {
-      open();
+      setConnectKitOpen(true);
       return;
     }
 
@@ -212,7 +212,7 @@ export function ActionFlowProvider({
     switchChainAsync,
     connector,
     queryClient,
-    open,
+    setConnectKitOpen,
     accountChainId,
     trackingPayload,
   ]);

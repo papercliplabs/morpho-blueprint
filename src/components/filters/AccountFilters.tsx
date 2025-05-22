@@ -1,5 +1,5 @@
 "use client";
-import { useAppKit } from "@reown/appkit/react";
+import { useModal } from "connectkit";
 import { useMemo } from "react";
 import { useAccount } from "wagmi";
 
@@ -17,7 +17,7 @@ export function AccountFilters() {
     keys: [FilterKey.Account],
   });
   const { isConnected } = useAccount();
-  const { open: openAppKit } = useAppKit();
+  const { setOpen: setConnectKitOpen } = useModal();
 
   const value = useMemo(() => {
     if (accountFilterValues.length === 0) {
@@ -34,10 +34,10 @@ export function AccountFilters() {
     >
       <TabsList>
         <TabsTrigger value="all">All</TabsTrigger>
-        <TabsTrigger value="positions" onClick={() => !isConnected && openAppKit()}>
+        <TabsTrigger value="positions" onClick={() => !isConnected && setConnectKitOpen(true)}>
           My positions
         </TabsTrigger>
-        <TabsTrigger value="wallet" onClick={() => !isConnected && openAppKit()}>
+        <TabsTrigger value="wallet" onClick={() => !isConnected && setConnectKitOpen(true)}>
           In wallet
         </TabsTrigger>
       </TabsList>
