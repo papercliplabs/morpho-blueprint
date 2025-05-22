@@ -116,9 +116,18 @@ function getColumns(isPositionLoading: boolean): ColumnDef<VaultTableDataEntry>[
         const { vaultSummary } = row.original;
         return (
           <AvatarGroup
-            avatars={vaultSummary.marketAllocations.map((allocation) => ({
-              src: allocation.market.collateralAsset?.icon,
-            }))}
+            avatars={vaultSummary.marketAllocations
+              .filter((allocation) => allocation.market.collateralAsset)
+              .reduce(
+                (unique, allocation) => {
+                  const icon = allocation.market.collateralAsset!.icon;
+                  if (!unique.some((item) => item.src === icon)) {
+                    unique.push({ src: icon });
+                  }
+                  return unique;
+                },
+                [] as { src: string }[]
+              )}
             max={4}
             size="sm"
             avatarClassName="border-[var(--row-color)]"
