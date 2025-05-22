@@ -1,4 +1,4 @@
-import { Inter } from "next/font/google";
+import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import { getAddress } from "viem";
 import { base, mainnet, polygon, worldchain } from "viem/chains";
 
@@ -7,8 +7,14 @@ import { AppConfig } from "./types";
 
 export const SUPPORTED_CHAIN_IDS = [mainnet.id, polygon.id, base.id, worldchain.id] as const;
 
-const inter = Inter({
+const ibmPlexSans = IBM_Plex_Sans({
   variable: "--font-main",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
+
+const ibmPlexMono = IBM_Plex_Mono({
+  variable: "--font-ibm-plex-mono",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
 });
@@ -86,10 +92,11 @@ export const APP_CONFIG: AppConfig = {
     publicAllocatorSupplyTargetUtilizationWad: BigInt(90_0000000000000000),
   },
   featureFlags: {
-    curatorColumn: true,
-    darkModeToggle: true,
+    curatorColumn: false,
+    darkModeToggle: false,
   },
   fonts: {
-    main: inter,
+    main: ibmPlexSans,
+    others: [ibmPlexMono],
   },
 };
