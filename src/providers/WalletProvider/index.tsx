@@ -3,21 +3,21 @@ import { createAppKit } from "@reown/appkit/react";
 import React, { type ReactNode } from "react";
 import { type Config, WagmiProvider } from "wagmi";
 
-import { LINKS, METADATA } from "@/config";
+import { APP_CONFIG } from "@/config";
 
-import { customRpcUrls, networks, projectId, wagmiAdapter } from "./wagmi";
+import { customRpcUrls, networks, wagmiAdapter } from "./wagmi";
 
 const metadata = {
-  name: METADATA.appName,
-  description: METADATA.appDescription,
+  name: APP_CONFIG.metadata.appName,
+  description: APP_CONFIG.metadata.appDescription,
   url: process.env.NEXT_PUBLIC_URL!, // Origin must match domain & subdomain
-  icons: [METADATA.appIcon],
+  icons: [APP_CONFIG.metadata.appIcon],
 };
 
 // Modal config
 export const modal = createAppKit({
   adapters: [wagmiAdapter],
-  projectId,
+  projectId: APP_CONFIG.reownProjectId,
   networks,
   metadata,
   features: {
@@ -29,8 +29,8 @@ export const modal = createAppKit({
     socials: false,
     send: false,
   },
-  termsConditionsUrl: LINKS.termsOfService,
-  privacyPolicyUrl: LINKS.privacyPolicy,
+  termsConditionsUrl: APP_CONFIG.links.termsOfService,
+  privacyPolicyUrl: APP_CONFIG.links.privacyPolicy,
   customRpcUrls,
   enableNetworkSwitch: false,
 });

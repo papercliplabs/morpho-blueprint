@@ -23,7 +23,7 @@ import { Address, zeroAddress } from "viem";
 import { getBlock } from "viem/actions";
 
 import { PublicClientWithChain } from "@/actions/utils/types";
-import { PUBLIC_ALLOCATOR_SUPPLY_TARGET_UTILIZATION } from "@/config";
+import { APP_CONFIG } from "@/config";
 
 type GetSimulationStateMarketTypeParameters = {
   actionType: "market";
@@ -242,7 +242,8 @@ export async function getMarketSimulationStateAccountingForPublicReallocation({
   const supplyAssets = market.totalSupplyAssets;
   const borrowAssets = market.totalBorrowAssets + requestedBorrowAmount;
   const utilization = supplyAssets > BigInt(0) ? (borrowAssets * MathLib.WAD) / supplyAssets : BigInt(0);
-  const requiresPublicReallocation = utilization > PUBLIC_ALLOCATOR_SUPPLY_TARGET_UTILIZATION;
+  const requiresPublicReallocation =
+    utilization > APP_CONFIG.actionParameters.publicAllocatorSupplyTargetUtilizationWad;
 
   if (!requiresPublicReallocation) {
     return simulationStateWithoutPublicReallocation;

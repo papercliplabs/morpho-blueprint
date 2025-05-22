@@ -2,7 +2,7 @@ import { MarketId } from "@morpho-org/blue-sdk";
 import { MaybeDraft, SimulationState } from "@morpho-org/simulation-sdk";
 import { Address, parseUnits } from "viem";
 
-import { MAX_BORROW_LTV_MARGIN } from "@/config";
+import { APP_CONFIG } from "@/config";
 import { descaleBigIntToNumber, numberToString } from "@/utils/format";
 
 export interface SimulatedValueChange<T> {
@@ -90,7 +90,8 @@ export function computeMarketPositionChange(
   const ltvBefore = descaleBigIntToNumber(rawLtvBefore, 18);
   const ltvAfter = descaleBigIntToNumber(rawLtvAfter, 18);
 
-  const maxLtv = marketAfter.params.lltv - parseUnits(numberToString(MAX_BORROW_LTV_MARGIN), 18);
+  const maxLtv =
+    marketAfter.params.lltv - parseUnits(numberToString(APP_CONFIG.actionParameters.maxBorrowLtvMargin), 18);
   const rawMaxBorrowBefore =
     initialSimulationState.getMarket(marketId).getMaxBorrowAssets(rawCollateralBefore, {
       maxLtv,

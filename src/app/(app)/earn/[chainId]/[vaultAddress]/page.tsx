@@ -17,7 +17,8 @@ import { VaultInfoSkeleton } from "@/components/vault/VaultInfo";
 import { VaultInfo } from "@/components/vault/VaultInfo";
 import { VaultKeyMetrics, VaultKeyMetricsSkeleton } from "@/components/vault/VaultKeyMetrics";
 import { VaultPositionHighlight } from "@/components/vault/VaultPositionHighlight";
-import { WHITELISTED_VAULTS } from "@/config";
+import { APP_CONFIG } from "@/config";
+import { SupportedChainId } from "@/config/types";
 import { getVault } from "@/data/whisk/getVault";
 import { VaultIdentifier } from "@/utils/types";
 
@@ -32,7 +33,7 @@ export default async function VaultPage({ params }: { params: Promise<{ chainId:
     notFound();
   }
 
-  if (!WHITELISTED_VAULTS[chainId]?.includes(vaultAddress)) {
+  if (!APP_CONFIG.whitelistedVaults[chainId as SupportedChainId]?.includes(vaultAddress)) {
     return <UnsupportedVault />;
   }
 

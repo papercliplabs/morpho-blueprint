@@ -2,11 +2,11 @@ import "server-only";
 import { cache } from "react";
 import { Address, Hex } from "viem";
 
-import { WHITELISTED_MARKETS } from "@/config";
 import { graphql } from "@/generated/gql/whisk";
 import { GetMarketPositionsQuery } from "@/generated/gql/whisk/graphql";
 
 import { executeWhiskQuery } from "./execute";
+import { getWhitelistedMarketIds } from "./getWhitelistedMarketIds";
 
 const query = graphql(`
   query getMarketPositions($chainId: Number!, $marketIds: [String!]!, $accountAddress: String!) {
@@ -41,7 +41,9 @@ const query = graphql(`
 
 // ChainId -> MarketId -> MarketPosition
 export const getMarketPositions = cache(async (accountAddress: Address): Promise<MarketPositionMap> => {
-  const partialQueryVariables = Object.entries(WHITELISTED_MARKETS);
+  console.log("getMarketPositions", accountAddress);
+  const whitelistedMarketIds = await getWhitelistedMarketIds();
+  const partialQueryVariables = Object.entries(whitelistedMarketIds);
 
   const responses = await Promise.all(
     partialQueryVariables.map(
