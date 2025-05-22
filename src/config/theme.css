@@ -1,6 +1,8 @@
-/* Light mode colors */
 :root {
   --radius: 0.5rem;
+  --button-radius: 0.5rem;
+
+  /* Light mode colors */
   --background: oklch(1 0 0);
   --foreground: oklch(0.141 0.005 285.823);
   --card: oklch(1 0 0);

@@ -45,6 +45,8 @@
   --radius-lg: calc(var(--radius) + 2px);
   --radius-xl: calc(var(--radius) + 4px);
 
+  --radius-button: var(--button-radius);
+
   --spacing-header: 76px;
 
   --breakpoint-lg: 1080px;
