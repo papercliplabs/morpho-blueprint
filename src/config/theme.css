@@ -32,26 +32,32 @@
 /* Typography */
 @utility heading-1 {
   @apply text-[36px] leading-[48px] font-[600] tracking-[-0.79];
+  font-family: var(--font-ibm-plex-mono);
 }
 
 @utility heading-2 {
   @apply text-[32px] leading-[36px] font-[600] tracking-[-0.69];
+  font-family: var(--font-ibm-plex-mono);
 }
 
 @utility heading-3 {
   @apply text-[28px] leading-[32px] font-[600] tracking-[-0.59];
+  font-family: var(--font-ibm-plex-mono);
 }
 
 @utility heading-4 {
   @apply text-[24px] leading-[32px] font-[600] tracking-[-0.47];
+  font-family: var(--font-ibm-plex-mono);
 }
 
 @utility heading-5 {
   @apply text-[20px] leading-[24px] font-[600];
+  font-family: var(--font-ibm-plex-mono);
 }
 
 @utility heading-6 {
   @apply text-[18px] leading-[24px] font-[600];
+  font-family: var(--font-ibm-plex-mono);
 }
 
 @utility body-large-plus {
