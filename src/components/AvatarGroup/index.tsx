@@ -39,7 +39,7 @@ export default function AvatarGroup({
             key={index}
             {...avatarProps}
             size={size}
-            className={clsx(index > 0 && spacing[size ?? "md"], "border-background border-2", avatarClassName)}
+            className={clsx(index > 0 && spacing[size ?? "md"], "border-background border-1", avatarClassName)}
           />
         ))}
       </div>
