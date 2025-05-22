@@ -1,3 +1,4 @@
+import { NextFontWithVariable } from "next/dist/compiled/@next/font";
 import { ReactNode } from "react";
 import { Address, Chain } from "viem";
 
@@ -31,5 +32,9 @@ export interface AppConfig {
   };
   featureFlags: {
     darkModeToggle: boolean;
+  };
+  fonts: {
+    main: NextFontWithVariable; // Veriable name must be "--font-main"
+    others?: NextFontWithVariable[]; // These are not used in core theme, but you can use css variables directly for typography
   };
 }

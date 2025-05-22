@@ -1,17 +1,13 @@
+import clsx from "clsx";
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 
 import Analytics from "@/components/Analytics";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
+import { APP_CONFIG } from "@/config";
 import Providers from "@/providers";
 
 import "./globals.css";
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "Morpho Whitelabel App",
@@ -25,7 +21,13 @@ export default async function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} antialiased`}>
+      <body
+        className={clsx(
+          APP_CONFIG.fonts.main.variable,
+          APP_CONFIG.fonts.others?.map((f) => f.variable),
+          "antialiased"
+        )}
+      >
         <Providers>
           <div className="flex min-h-[100dvh] w-full flex-col items-center">
             <Header />

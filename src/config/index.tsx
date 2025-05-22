@@ -1,3 +1,4 @@
+import { Inter } from "next/font/google";
 import { getAddress } from "viem";
 import { base, mainnet, polygon, worldchain } from "viem/chains";
 
@@ -5,6 +6,12 @@ import { Logo } from "./components/Logo";
 import { AppConfig } from "./types";
 
 export const SUPPORTED_CHAIN_IDS = [mainnet.id, polygon.id, base.id, worldchain.id] as const;
+
+const inter = Inter({
+  variable: "--font-main",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
 
 export const APP_CONFIG: AppConfig = {
   reownProjectId: "0bd03f980c18061297ab3a379e97dba0",
@@ -79,5 +86,8 @@ export const APP_CONFIG: AppConfig = {
   },
   featureFlags: {
     darkModeToggle: true,
+  },
+  fonts: {
+    main: inter,
   },
 };
