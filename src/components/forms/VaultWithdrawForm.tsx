@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useAppKit } from "@reown/appkit/react";
+import { useModal } from "connectkit";
 import { forwardRef, useCallback, useImperativeHandle, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDebounce } from "use-debounce";
@@ -33,7 +33,7 @@ export const VaultWithdrawForm = forwardRef<{ reset: () => void }, VaultWithdraw
   ({ vault, onSuccessfulActionSimulation }, ref) => {
     const { address } = useAccount();
     const publicClient = usePublicClient({ chainId: vault.chain.id });
-    const { open: openAppKit } = useAppKit();
+    const { setOpen: setConnectKitOpen } = useModal();
 
     const [simulating, setSimulating] = useState(false);
     const [simulationErrorMsg, setSimulationErrorMsg] = useState<string | null>(null);
@@ -116,7 +116,7 @@ export const VaultWithdrawForm = forwardRef<{ reset: () => void }, VaultWithdraw
     const handleSubmit = useCallback(
       async ({ withdrawAmount, isMaxWithdraw }: z.infer<typeof formSchema>) => {
         if (!address) {
-          openAppKit();
+          setConnectKitOpen(true);
           return;
         }
 
@@ -144,9 +144,16 @@ export const VaultWithdrawForm = forwardRef<{ reset: () => void }, VaultWithdraw
 
         setSimulating(false);
       },
-      [address, openAppKit, publicClient, setSimulationErrorMsg, setSimulating, onSuccessfulActionSimulation, vault]
+      [
+        address,
+        setConnectKitOpen,
+        publicClient,
+        setSimulationErrorMsg,
+        setSimulating,
+        onSuccessfulActionSimulation,
+        vault,
+      ]
     );
-
     return (
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)}>

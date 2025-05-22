@@ -33,10 +33,11 @@ export const APP_CONFIG: AppConfig = {
       rpcUrls: [process.env.NEXT_PUBLIC_POLYGON_RPC_URL_1!, process.env.NEXT_PUBLIC_POLYGON_RPC_URL_2!],
     },
   },
-  metadata: {
-    appName: "Morpho",
-    appDescription: "Morpho",
-    appIcon: "/vercel.svg",
+  appMetadata: {
+    url: process.env.NEXT_PUBLIC_URL!,
+    name: "Morpho",
+    description: "Morpho",
+    icon: "/vercel.svg",
     logoComponent: <Logo />,
   },
   links: {

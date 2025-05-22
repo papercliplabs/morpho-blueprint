@@ -54,7 +54,8 @@ const cspHeader = `
         https://verify.walletconnect.com 
         https://verify.walletconnect.org 
         https://secure.walletconnect.com 
-        https://secure.walletconnect.org;
+        https://secure.walletconnect.org
+        https://app.family.co;
     upgrade-insecure-requests;
     report-to csp-report-endpoint;
 `;
