@@ -1,6 +1,5 @@
 "use client";
 import { ColumnDef } from "@tanstack/react-table";
-import { useMemo } from "react";
 
 import { Table } from "@/components/ui/table";
 import { Vault } from "@/data/whisk/getVault";
@@ -73,14 +72,15 @@ const columns: ColumnDef<Vault["marketAllocations"][number]>[] = [
 ];
 
 export function MarketAllocationTable({ vault }: MarketAllocationTableProps) {
-  const data = useMemo(() => {
-    return vault.marketAllocations.filter((market) => market.vaultSupplyShare > 0);
-  }, [vault]);
+  // TODO: Don't filter any out for now
+  // const data = useMemo(() => {
+  //   return vault.marketAllocations.filter((market) => market.vaultSupplyShare > 0);
+  // }, [vault]);
 
   return (
     <Table
       columns={columns}
-      data={data}
+      data={vault.marketAllocations}
       initialSort={[{ id: "allocation", desc: true }]}
       rowAction={(row) =>
         row.market.isIdle
