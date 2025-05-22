@@ -64,13 +64,20 @@ export function TableRow({
   className,
   children,
 }: HTMLAttributes<HTMLDivElement> & { action?: TableRowAction }) {
+  const tableRowColors = "bg-[var(--row-color)] [--row-color:var(--card)]";
+
   if (action?.type == "link") {
     return (
       // Annoying hack for the scroll sync to work
       <div className="border-border w-fit min-w-full not-last:border-b">
         <Link
           href={action.href}
-          className={cn("hover:bg-accent flex w-full min-w-fit items-center transition-colors", className)}
+          className={cn(
+            "flex w-full min-w-fit items-center transition-colors",
+            tableRowColors,
+            "hover:[--row-color:var(--accent)]",
+            className
+          )}
         >
           {children}
         </Link>
@@ -83,7 +90,8 @@ export function TableRow({
         <div
           className={cn(
             "flex w-full min-w-fit items-center transition-colors",
-            action?.type == "callback" && "hover:bg-accent hover:cursor-pointer",
+            tableRowColors,
+            action?.type == "callback" && "hover:cursor-pointer hover:[--row-color:var(--accent)]",
             className
           )}
           onClick={action?.type == "callback" ? action.callback : undefined}
@@ -148,10 +156,10 @@ export function Table<TData, TValue>({ columns, data, initialSort, rowAction }: 
 
   return (
     <ScrollSync>
-      <div className="border-border relative h-fit min-w-0 grow overflow-x-visible rounded-md border" ref={tableRef}>
+      <div className="border-border relative h-fit min-w-0 grow overflow-hidden rounded-md border" ref={tableRef}>
         {/* Gradients on left and right for mobile */}
-        <div className="from-background absolute top-0 bottom-0 left-0 z-[10] w-4 rounded-l-md bg-gradient-to-r to-transparent md:hidden" />
-        <div className="from-background absolute top-0 right-0 bottom-0 z-[10] w-4 rounded-r-md bg-gradient-to-l to-transparent md:hidden" />
+        <div className="from-card absolute top-0 bottom-0 left-0 z-[10] w-4 rounded-l-md bg-gradient-to-r to-transparent md:hidden" />
+        <div className="from-card absolute top-0 right-0 bottom-0 z-[10] w-4 rounded-r-md bg-gradient-to-l to-transparent md:hidden" />
         <div className="sticky top-[calc(var(--header-height)-2px)] z-[5] min-w-full">
           <ScrollSyncPane>
             <div className="scrollbar-none overflow-auto overscroll-x-none">

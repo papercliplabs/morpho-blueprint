@@ -21,7 +21,15 @@ const columns: ColumnDef<Vault["marketAllocations"][number]>[] = [
     header: "Market Name",
     cell: ({ row }) => {
       const { market } = row.original;
-      return <MarketName variant="sm" {...market} />;
+      return (
+        <MarketName
+          variant="sm"
+          {...market}
+          collateralAssetClassName="border-[var(--row-color)]"
+          loanAssetClassName="border-[var(--row-color)]"
+          loanAssetChainClassName="border-[var(--row-color)]"
+        />
+      );
     },
     minSize: 260,
   },
