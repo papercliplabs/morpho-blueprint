@@ -28,14 +28,7 @@ function AssetChangeSummary({
       className={cn("bg-muted flex w-full items-center justify-between gap-3 rounded-sm px-4 py-3", className)}
       {...props}
     >
-      <Avatar
-        src={asset.icon}
-        alt={asset.symbol}
-        sub={
-          amount > 0 ? <Plus className="fill-primary stroke-white" /> : <Minus className="fill-primary stroke-white" />
-        }
-        size="md"
-      />
+      <Avatar src={asset.icon} alt={asset.symbol} sub={amount > 0 ? <Plus /> : <Minus />} size="md" />
       <div className="flex flex-grow flex-col">
         <span className="body-medium-plus">{label}</span>
         {description && <span className="body-small text-muted-foreground">{description}</span>}
