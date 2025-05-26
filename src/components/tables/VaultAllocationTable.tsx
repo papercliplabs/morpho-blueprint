@@ -15,7 +15,8 @@ interface VaultAllocationTableProps {
   market: Market;
 }
 
-const columns: ColumnDef<Market["vaultAllocations"][number]>[] = [
+type Column = ColumnDef<Market["vaultAllocations"][number]>;
+const columns: Column[] = [
   {
     id: "vault",
     accessorFn: (row) => row.vault.name,
@@ -37,7 +38,6 @@ const columns: ColumnDef<Market["vaultAllocations"][number]>[] = [
         <AvatarGroup
           avatars={curators.map((curator) => ({
             src: curator.image,
-            fallback: curator.name,
           }))}
           max={2}
           size="sm"

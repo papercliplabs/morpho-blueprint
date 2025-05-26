@@ -86,6 +86,7 @@ export const APP_CONFIG: AppConfig = {
     publicAllocatorSupplyTargetUtilizationWad: BigInt(90_0000000000000000),
   },
   featureFlags: {
+    curatorColumn: true,
     darkModeToggle: true,
   },
   fonts: {

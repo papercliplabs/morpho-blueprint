@@ -1,6 +1,7 @@
 "use client";
 import { useCallback } from "react";
 
+import { APP_CONFIG } from "@/config";
 import { useShallowSearchParams } from "@/hooks/useShallowSearchParams";
 
 import { MultiSelect, MultiSelectOption } from "../MultiSelect";
@@ -54,7 +55,7 @@ export function VaultFilters({ chainOptions, assetOptions, curatorOptions }: Vau
           onReset={() => removeShallowSearchParams([FilterKey.SupplyAssets])}
         />
       )}
-      {curatorOptions.length > 1 && (
+      {APP_CONFIG.featureFlags.curatorColumn && curatorOptions.length > 1 && (
         <MultiSelect
           emptyValue={curatorValues.length === 0 ? "All Curators" : "Curators"}
           options={curatorOptions}
