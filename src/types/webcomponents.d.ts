@@ -6,7 +6,7 @@ declare global {
       "powered-by-morpho": React.DetailedHTMLProps<
         React.HTMLAttributes<HTMLElement> & {
           theme: "dark" | "light";
-          placement: "center" | "left" | "right";
+          placement: "center" | "bottom-left" | "bottom-right" | "top-left" | "top-right";
         },
         HTMLElement
       >;

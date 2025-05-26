@@ -3,11 +3,12 @@ import { useTheme } from "next-themes";
 import "./snippet.ts";
 
 type PoweredByMorphoProps = {
-  placement?: "left" | "right" | "center";
+  placement?: "center" | "bottom-left" | "bottom-right" | "top-left" | "top-right";
 } & React.ComponentProps<"div">;
 
 function PoweredByMorpho({ className, placement }: PoweredByMorphoProps) {
   const { resolvedTheme } = useTheme();
+
   return (
     <div className={className}>
       {/* @ts-expect-error Property 'powered-by-morpho' does not exist on type 'JSX.IntrinsicElements' */}

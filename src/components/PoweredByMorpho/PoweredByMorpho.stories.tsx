@@ -23,7 +23,7 @@ const meta = {
   argTypes: {
     placement: {
       control: { type: "select" },
-      options: ["left", "right", "center"],
+      options: ["center", "bottom-left", "bottom-right", "top-left", "top-right"],
     },
   },
 } satisfies Meta<typeof PoweredByMorpho>;
