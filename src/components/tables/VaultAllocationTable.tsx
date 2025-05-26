@@ -4,7 +4,6 @@ import { useMemo } from "react";
 import { getAddress } from "viem";
 
 import { Table } from "@/components/ui/table";
-import { APP_CONFIG } from "@/config";
 import { Market } from "@/data/whisk/getMarket";
 
 import AvatarGroup from "../AvatarGroup";
@@ -28,33 +27,29 @@ const columns: Column[] = [
     },
     minSize: 260,
   },
-  ...(APP_CONFIG.featureFlags.curatorColumn
-    ? [
-        {
-          id: "curator",
-          accessorFn: (row) => row.vault.metadata?.curators[0]?.name ?? "",
-          header: "Curator",
-          cell: ({ row }) => {
-            const { vault } = row.original;
-            const curators = vault.metadata?.curators ?? [];
-            return curators.length > 0 ? (
-              <AvatarGroup
-                avatars={curators.map((curator) => ({
-                  src: curator.image,
-                }))}
-                max={2}
-                size="sm"
-                className="rounded-full"
-                avatarClassName="border-[var(--row-color)]"
-              />
-            ) : (
-              "None"
-            );
-          },
-          minSize: 130,
-        } as Column,
-      ]
-    : []),
+  {
+    id: "curator",
+    accessorFn: (row) => row.vault.metadata?.curators[0]?.name ?? "",
+    header: "Curator",
+    cell: ({ row }) => {
+      const { vault } = row.original;
+      const curators = vault.metadata?.curators ?? [];
+      return curators.length > 0 ? (
+        <AvatarGroup
+          avatars={curators.map((curator) => ({
+            src: curator.image,
+          }))}
+          max={2}
+          size="sm"
+          className="rounded-full"
+          avatarClassName="border-[var(--row-color)]"
+        />
+      ) : (
+        "None"
+      );
+    },
+    minSize: 130,
+  },
   {
     id: "supplyShare",
     accessorKey: "marketSupplyShare",
