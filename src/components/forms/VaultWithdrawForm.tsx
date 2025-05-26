@@ -175,10 +175,11 @@ export const VaultWithdrawForm = forwardRef<{ reset: () => void }, VaultWithdraw
 
               <div className="flex flex-col gap-1">
                 <Button
-                  type="submit"
                   disabled={simulating || !form.formState.isValid || missingAmountInput}
                   isLoading={simulating}
                   loadingMessage="Simulating"
+                  size="lg"
+                  type="submit"
                 >
                   {missingAmountInput ? "Enter an amount" : "Review"}
                 </Button>

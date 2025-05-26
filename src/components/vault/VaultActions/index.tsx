@@ -89,7 +89,9 @@ function VaultActionsMobile({ vault, hasSupplyPosition }: { hasSupplyPosition: b
     <div className="bg-background fixed right-0 bottom-0 left-0 z-[20] flex items-center gap-[10px] border-t px-6 py-4">
       <Drawer open={supplyOpen} onOpenChange={setSupplyOpen}>
         <DrawerTrigger asChild>
-          <Button className="flex-1">Supply</Button>
+          <Button className="flex-1" size="lg">
+            Supply
+          </Button>
         </DrawerTrigger>
         <DrawerContent className="flex flex-col gap-6">
           <DrawerTitle>Supply</DrawerTitle>
@@ -108,7 +110,7 @@ function VaultActionsMobile({ vault, hasSupplyPosition }: { hasSupplyPosition: b
 
       <Drawer open={withdrawOpen} onOpenChange={setWithdrawOpen}>
         <DrawerTrigger asChild>
-          <Button className="flex-1" variant="secondary" disabled={!hasSupplyPosition}>
+          <Button className="flex-1" variant="secondary" size="lg" disabled={!hasSupplyPosition}>
             Withdraw
           </Button>
         </DrawerTrigger>

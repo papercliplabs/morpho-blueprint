@@ -103,7 +103,7 @@ function ActionFlowDialog({ open, onOpenChange, actionName, summary, metrics }: 
             <Separator />
             {metrics}
             <div className="flex w-full min-w-0 flex-col gap-1">
-              <Button onClick={startFlow} className="w-full">
+              <Button onClick={startFlow} size="lg" className="w-full">
                 {actionName}
               </Button>
               <ErrorMessage message={error} />
