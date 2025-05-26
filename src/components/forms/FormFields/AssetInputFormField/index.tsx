@@ -33,17 +33,17 @@ function AssetInputFormField<TFieldValues extends Record<string, any>>({
     <FormField
       {...props}
       render={({ field, fieldState }) => (
-        <FormItem className="bg-muted group has-focus:border-primary flex flex-col gap-2 rounded-md border-2 border-transparent p-4 transition">
+        <FormItem className="bg-muted group has-focus:border-primary flex flex-col rounded-md border-2 border-transparent p-4 transition">
           <div className="text-muted-foreground flex items-center gap-2">
             <FormLabel className="body-small-plus">{header}</FormLabel>
             <FormMessage />
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-1">
             <div className="flex min-w-0 items-center justify-between gap-4">
               <FormControl>
                 <Input
                   className={clsx(
-                    "!heading-3 rounded-none border-none bg-transparent p-0 shadow-none focus:ring-0 focus:ring-offset-0",
+                    "!heading-3 h-12 rounded-none border-none bg-transparent p-0 shadow-none focus:ring-0 focus:ring-offset-0",
                     fieldState.error && !!field.value && "text-destructive"
                   )}
                   placeholder="0"
