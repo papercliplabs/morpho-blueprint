@@ -37,14 +37,14 @@ export function MarketName({
             chain={chain}
             size="md"
             showChain={false}
-            className={clsx("border-background border-2", collateralAssetClassName)}
+            className={clsx("border-background border-1", collateralAssetClassName)}
           />
         )}
         <TokenIcon
           token={loanAsset}
           chain={chain}
           size="md"
-          className={clsx("border-background border-2", collateralAsset && "-ml-3", loanAssetClassName)}
+          className={clsx("border-background border-1", collateralAsset && "-ml-3", loanAssetClassName)}
           chainClassName={loanAssetChainClassName}
         />
         {!collateralAsset && <div className="w-[20px]" />}

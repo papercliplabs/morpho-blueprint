@@ -42,7 +42,7 @@ export function TokenIcon({ chainClassName, token, chain, size, showChain = true
             alt={chain.name}
             width={16}
             height={16}
-            className={cn("border-background rounded-[6px] border-2 transition-colors", chainClassName)}
+            className={cn("border-background rounded-[6px] border-1 transition-colors", chainClassName)}
           />
         ) : null
       }
