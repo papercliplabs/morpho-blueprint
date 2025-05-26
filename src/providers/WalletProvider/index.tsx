@@ -8,7 +8,13 @@ import { wagmiConfig } from "./wagmi";
 export function WalletProvider({ children }: { children: ReactNode }) {
   return (
     <WagmiProvider config={wagmiConfig}>
-      <ConnectKitProvider>{children}</ConnectKitProvider>
+      <ConnectKitProvider
+        options={{
+          avoidLayoutShift: false,
+        }}
+      >
+        {children}
+      </ConnectKitProvider>
     </WagmiProvider>
   );
 }
