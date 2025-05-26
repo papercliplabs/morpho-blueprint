@@ -280,10 +280,11 @@ export const MarketRepayAndWithdrawCollateralForm = forwardRef<
 
             <div className="flex flex-col gap-1">
               <Button
-                type="submit"
                 disabled={simulating || !form.formState.isValid || missingAmountInputs}
                 isLoading={simulating}
                 loadingMessage="Simulating"
+                size="lg"
+                type="submit"
               >
                 {missingAmountInputs ? "Enter an amount" : "Review"}
               </Button>

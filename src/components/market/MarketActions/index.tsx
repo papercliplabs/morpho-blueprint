@@ -78,7 +78,9 @@ function MarketActionsMobile({ market, hasBorrowPosition }: { hasBorrowPosition:
     <div className="bg-background fixed right-0 bottom-0 left-0 z-[20] flex items-center gap-[10px] border-t px-6 py-4">
       <Drawer open={supplyCollateralAndBorrowOpen} onOpenChange={setSupplyCollateralAndBorrowOpen}>
         <DrawerTrigger asChild>
-          <Button className="flex-1">Borrow</Button>
+          <Button className="flex-1" size="lg">
+            Borrow
+          </Button>
         </DrawerTrigger>
         <DrawerContent className="flex flex-col gap-6">
           <DrawerTitle>Supply</DrawerTitle>
@@ -96,7 +98,7 @@ function MarketActionsMobile({ market, hasBorrowPosition }: { hasBorrowPosition:
 
       <Drawer open={repayAndWithdrawCollateralOpen} onOpenChange={setRepayAndWithdrawCollateralOpen}>
         <DrawerTrigger asChild>
-          <Button className="flex-1" variant="secondary" disabled={!hasBorrowPosition}>
+          <Button className="flex-1" variant="secondary" size="lg" disabled={!hasBorrowPosition}>
             Repay
           </Button>
         </DrawerTrigger>
