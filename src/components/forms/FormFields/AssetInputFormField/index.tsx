@@ -42,6 +42,7 @@ function AssetInputFormField<TFieldValues extends Record<string, any>>({
             <div className="flex min-w-0 items-center justify-between gap-4">
               <FormControl>
                 <Input
+                  autoComplete="off"
                   className={clsx(
                     "!heading-3 h-12 rounded-none border-none bg-transparent p-0 shadow-none focus:ring-0 focus:ring-offset-0",
                     fieldState.error && !!field.value && "text-destructive"
