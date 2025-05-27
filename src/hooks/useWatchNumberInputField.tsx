@@ -9,7 +9,7 @@ export function useWatchNumberInputField<
   const rawValue = useWatch({ control, name }) as unknown as string | undefined | null;
 
   const numericValue = useMemo(() => {
-    if (rawValue === undefined || rawValue === null || rawValue === "") {
+    if (rawValue === undefined || rawValue === null || rawValue === "" || rawValue === ".") {
       return 0;
     }
 
