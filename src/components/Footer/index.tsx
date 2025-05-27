@@ -1,7 +1,7 @@
+import { PoweredByMorpho } from "@/components/PoweredByMorpho";
 import { APP_CONFIG } from "@/config";
 
 import LinkExternal from "../LinkExternal";
-import { PoweredByMorpho } from "../ui/icons/PoweredByMorpho";
 
 import { ThemeToggle } from "./ThemeToggle";
 

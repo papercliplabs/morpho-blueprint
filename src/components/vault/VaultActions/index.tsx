@@ -3,10 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { getAddress } from "viem";
 
+import { PoweredByMorpho } from "@/components/PoweredByMorpho";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Drawer, DrawerContent, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
-import { PoweredByMorpho } from "@/components/ui/icons/PoweredByMorpho";
 import { Tabs } from "@/components/ui/tabs";
 import { TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Vault } from "@/data/whisk/getVault";
@@ -70,11 +70,11 @@ function VaultActionsDesktop({ vault, hasSupplyPosition }: { hasSupplyPosition: 
         </div>
         <TabsContent value="supply" className="flex flex-col gap-6">
           <VaultSupply vault={vault} />
-          <PoweredByMorpho className="text-muted-foreground mx-auto" />
+          <PoweredByMorpho className="mx-auto" />
         </TabsContent>
         <TabsContent value="withdraw" className="flex flex-col gap-6">
           <VaultWithdraw vault={vault} />
-          <PoweredByMorpho className="text-muted-foreground mx-auto" />
+          <PoweredByMorpho className="mx-auto" />
         </TabsContent>
       </Tabs>
     </Card>
@@ -104,7 +104,7 @@ function VaultActionsMobile({ vault, hasSupplyPosition }: { hasSupplyPosition: b
               }
             }}
           />
-          <PoweredByMorpho className="text-muted-foreground mx-auto" />
+          <PoweredByMorpho className="mx-auto" />
         </DrawerContent>
       </Drawer>
 
@@ -125,7 +125,7 @@ function VaultActionsMobile({ vault, hasSupplyPosition }: { hasSupplyPosition: b
               }
             }}
           />
-          <PoweredByMorpho className="text-muted-foreground mx-auto" />
+          <PoweredByMorpho className="mx-auto" />
         </DrawerContent>
       </Drawer>
     </div>

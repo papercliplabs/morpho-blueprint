@@ -3,10 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { Hex } from "viem";
 
+import { PoweredByMorpho } from "@/components/PoweredByMorpho";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Drawer, DrawerContent, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
-import { PoweredByMorpho } from "@/components/ui/icons/PoweredByMorpho";
 import { Tabs } from "@/components/ui/tabs";
 import { TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MarketNonIdle } from "@/data/whisk/getMarket";
@@ -59,11 +59,11 @@ function MarketActionsDesktop({ market, hasBorrowPosition }: { hasBorrowPosition
         </div>
         <TabsContent value="borrow" className="flex flex-col gap-6">
           <MarketSupplyCollateralAndBorrow market={market} />
-          <PoweredByMorpho className="text-muted-foreground mx-auto" />
+          <PoweredByMorpho className="mx-auto" />
         </TabsContent>
         <TabsContent value="repay" className="flex flex-col gap-6">
           <MarketRepayAndWithdrawCollateral market={market} />
-          <PoweredByMorpho className="text-muted-foreground mx-auto" />
+          <PoweredByMorpho className="mx-auto" />
         </TabsContent>
       </Tabs>
     </Card>
