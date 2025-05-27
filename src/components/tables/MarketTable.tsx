@@ -4,6 +4,8 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Table } from "@/components/ui/table";
 import { MarketSummary } from "@/data/whisk/getMarketSummaries";
 import { MarketTableDataEntry, useMarketTableData } from "@/hooks/useMarketTableData";
+import { descaleBigIntToNumber } from "@/utils/format";
+import { sortTableAssetAmount } from "@/utils/sort";
 
 import { TokenIcon } from "../TokenIcon";
 import { ApyTooltip } from "../Tooltips/ApyToolip";
@@ -11,6 +13,7 @@ import NumberFlow, { NumberFlowWithLoading } from "../ui/number-flow";
 import { Skeleton } from "../ui/skeleton";
 
 import { TableAssetAmount } from "./Elements/TableAssetAmount";
+
 
 interface MarketTableProps {
   marketSummaries: MarketSummary[];
@@ -75,6 +78,13 @@ function getColumns(isPositionLoading: boolean): ColumnDef<MarketTableDataEntry>
           />
         );
       },
+      sortingFn: (a, b) =>
+        sortTableAssetAmount(
+          descaleBigIntToNumber(a.original.position?.borrowAssets ?? "0", a.original.marketSummary.loanAsset.decimals),
+          a.original.position?.borrowAssetsUsd,
+          descaleBigIntToNumber(b.original.position?.borrowAssets ?? "0", b.original.marketSummary.loanAsset.decimals),
+          b.original.position?.borrowAssetsUsd
+        ),
       minSize: 160,
     },
     {
@@ -94,6 +104,19 @@ function getColumns(isPositionLoading: boolean): ColumnDef<MarketTableDataEntry>
           "N/A"
         );
       },
+      sortingFn: (a, b) =>
+        sortTableAssetAmount(
+          descaleBigIntToNumber(
+            a.original.position?.walletCollateralAssetHolding?.balance ?? "0",
+            a.original.marketSummary.loanAsset.decimals
+          ),
+          a.original.position?.walletCollateralAssetHolding?.balanceUsd,
+          descaleBigIntToNumber(
+            b.original.position?.walletCollateralAssetHolding?.balance ?? "0",
+            b.original.marketSummary.loanAsset.decimals
+          ),
+          b.original.position?.walletCollateralAssetHolding?.balanceUsd
+        ),
       minSize: 160,
     },
     {
