@@ -15,13 +15,11 @@ function PoweredByMorpho({ className, placement }: PoweredByMorphoProps) {
     if (resolvedTheme) {
       ref.current?.setAttribute("theme", resolvedTheme);
     }
-  }, [resolvedTheme]);
 
-  useEffect(() => {
     if (placement) {
       ref.current?.setAttribute("placement", placement);
     }
-  }, [placement]);
+  }, [resolvedTheme, placement]);
 
   return (
     <div className={className}>
