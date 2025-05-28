@@ -61,58 +61,39 @@ export const MarketSupplyCollateralAndBorrowForm = forwardRef<
   const formSchema = useMemo(() => {
     return z
       .object({
-        supplyCollateralAmount: z.string(),
+        supplyCollateralAmount: z.coerce
+          .number({ message: "Amount is required." })
+          .gt(0, { message: "Amount is required." })
+          .lte(walletCollateralAssetBalance ?? Infinity, { message: "Amount exceeds wallet balance." })
+          .or(z.literal(undefined)),
         isMaxSupplyCollateral: z.boolean(),
-        borrowAmount: z.string(),
+        borrowAmount: z.coerce
+          .number({ message: "Amount is required." })
+          .gt(0, { message: "Amount is required." })
+          .or(z.literal(undefined)),
       })
-      .superRefine((data, ctx) => {
-        const supplyCollateralAmount = isNaN(Number(data.supplyCollateralAmount))
-          ? 0
-          : Number(data.supplyCollateralAmount);
-        const borrowAmount = isNaN(Number(data.borrowAmount)) ? 0 : Number(data.borrowAmount);
-
-        if (supplyCollateralAmount <= 0 && borrowAmount <= 0) {
-          ctx.addIssue({
-            path: ["supplyCollateralAmount"],
-            code: z.ZodIssueCode.custom,
-            message: "One amount is required.",
-          });
-          ctx.addIssue({
-            path: ["borrowAmount"],
-            code: z.ZodIssueCode.custom,
-            message: "One amount is required.",
-          });
-        }
-
-        const maxSupplyCollateralAmount = walletCollateralAssetBalance ?? Infinity;
-        if (supplyCollateralAmount > maxSupplyCollateralAmount) {
-          ctx.addIssue({
-            path: ["supplyCollateralAmount"],
-            code: z.ZodIssueCode.custom,
-            message: "Amount exceeds wallet balance.",
-          });
-        }
-
-        if (position) {
-          const maxBorrowAmount = computeAvailableToBorrow(market, position, supplyCollateralAmount, 0);
-          if (borrowAmount > maxBorrowAmount) {
-            ctx.addIssue({
-              path: ["borrowAmount"],
-              code: z.ZodIssueCode.custom,
-              message: "Exceeds max borrow.",
-            });
+      .refine(
+        (data) => {
+          if (position) {
+            const { borrowAmount, supplyCollateralAmount } = data;
+            if (borrowAmount && supplyCollateralAmount) {
+              const maxBorrowAmount = computeAvailableToBorrow(market, position, supplyCollateralAmount, 0);
+              return borrowAmount <= maxBorrowAmount;
+            }
+            return true;
           }
-        }
-      });
+        },
+        { message: "Exceeds max borrow.", path: ["borrowAmount"] }
+      );
   }, [walletCollateralAssetBalance, position, market]);
 
   const form = useForm({
     mode: "onChange",
     resolver: zodResolver(formSchema),
     defaultValues: {
-      supplyCollateralAmount: "",
+      supplyCollateralAmount: undefined,
       isMaxSupplyCollateral: false,
-      borrowAmount: "",
+      borrowAmount: undefined,
     },
   });
 
@@ -156,7 +137,7 @@ export const MarketSupplyCollateralAndBorrowForm = forwardRef<
   useEffect(() => {
     const subscription = form.watch((_value, { name }) => {
       if (name === "supplyCollateralAmount" || name === "borrowAmount") {
-        void form.trigger(["supplyCollateralAmount", "borrowAmount"]);
+        form.trigger(["supplyCollateralAmount", "borrowAmount"]);
       }
     });
 
@@ -178,14 +159,17 @@ export const MarketSupplyCollateralAndBorrowForm = forwardRef<
       setSimulating(true);
 
       let rawSupplyCollateralAmount = parseUnits(
-        supplyCollateralAmount == "" ? "0" : supplyCollateralAmount,
+        supplyCollateralAmount == undefined ? "0" : supplyCollateralAmount.toString(),
         market.collateralAsset.decimals
       );
       if (rawSupplyCollateralAmount > 0n && isMaxSupplyCollateral) {
         rawSupplyCollateralAmount = maxUint256;
       }
 
-      const rawBorrowAmount = parseUnits(borrowAmount == "" ? "0" : borrowAmount, market.loanAsset.decimals);
+      const rawBorrowAmount = parseUnits(
+        borrowAmount == undefined ? "0" : borrowAmount.toString(),
+        market.loanAsset.decimals
+      );
 
       const action = await marketSupplyCollateralAndBorrowAction({
         publicClient,
