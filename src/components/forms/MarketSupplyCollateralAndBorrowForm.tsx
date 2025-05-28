@@ -155,7 +155,7 @@ export const MarketSupplyCollateralAndBorrowForm = forwardRef<
   // Trigger dependent field validation
   useEffect(() => {
     const subscription = form.watch((_value, { name }) => {
-      if (name === "supplyCollateralAmount" || name === "borrowAmount") {
+      if (!form.formState.isDirty && (name === "supplyCollateralAmount" || name === "borrowAmount")) {
         void form.trigger(["supplyCollateralAmount", "borrowAmount"]);
       }
     });
