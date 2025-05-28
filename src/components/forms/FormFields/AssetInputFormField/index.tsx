@@ -71,7 +71,10 @@ function AssetInputFormField<TFieldValues extends Record<string, any>>({
             </div>
             <div className="text-muted-foreground body-small flex h-[24px] items-center justify-between">
               {asset.priceUsd != null && (
-                <NumberFlow value={(field.value ?? 0) * asset.priceUsd} format={{ currency: "USD" }} />
+                <NumberFlow
+                  value={(isNaN(field.value) ? 0 : field.value) * asset.priceUsd}
+                  format={{ currency: "USD" }}
+                />
               )}
               {maxValue != undefined && (
                 <div className="flex h-[24px] items-center gap-1">
