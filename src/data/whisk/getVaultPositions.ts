@@ -11,12 +11,10 @@ import { executeWhiskQuery } from "./execute";
 const query = graphql(`
   query getVaultPositions($chainId: Number!, $vaultAddresses: [String!]!, $accountAddress: String!) {
     morphoVaultPositions(chainId: $chainId, vaultAddresses: $vaultAddresses, accountAddress: $accountAddress) {
-      vault {
-        chain {
-          id
-        }
-        vaultAddress
+      chain {
+        id
       }
+      vaultAddress
 
       supplyAssets
       supplyAssetsUsd
@@ -47,10 +45,10 @@ export const getVaultPositions = cache(async (accountAddress: Address): Promise<
 
   const data: VaultPositionMap = {};
   for (const position of responses.flatMap((resp) => resp.morphoVaultPositions)) {
-    if (!data[position.vault.chain.id]) {
-      data[position.vault.chain.id] = {};
+    if (!data[position.chain.id]) {
+      data[position.chain.id] = {};
     }
-    data[position.vault.chain.id][getAddress(position.vault.vaultAddress)] = position;
+    data[position.chain.id][getAddress(position.vaultAddress)] = position;
   }
 
   return data;

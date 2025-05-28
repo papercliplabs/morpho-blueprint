@@ -11,12 +11,10 @@ import { getWhitelistedMarketIds } from "./getWhitelistedMarketIds";
 const query = graphql(`
   query getMarketPositions($chainId: Number!, $marketIds: [String!]!, $accountAddress: String!) {
     morphoMarketPositions(chainId: $chainId, marketIds: $marketIds, accountAddress: $accountAddress) {
-      market {
-        chain {
-          id
-        }
-        marketId
+      chain {
+        id
       }
+      marketId
 
       collateralAssets
       collateralAssetsUsd
@@ -58,10 +56,10 @@ export const getMarketPositions = cache(async (accountAddress: Address): Promise
 
   const data: MarketPositionMap = {};
   for (const position of responses.flatMap((resp) => resp.morphoMarketPositions)) {
-    if (!data[position.market.chain.id]) {
-      data[position.market.chain.id] = {};
+    if (!data[position.chain.id]) {
+      data[position.chain.id] = {};
     }
-    data[position.market.chain.id][position.market.marketId as Hex] = position;
+    data[position.chain.id][position.marketId as Hex] = position;
   }
 
   return data;
