@@ -42,6 +42,7 @@ function AssetInputFormField<TFieldValues extends Record<string, any>>({
             <div className="flex min-w-0 items-center justify-between gap-4">
               <FormControl>
                 <Input
+                  autoComplete="off"
                   className={clsx(
                     "!heading-3 h-12 rounded-none border-none bg-transparent p-0 shadow-none focus:ring-0 focus:ring-offset-0",
                     fieldState.error && !!field.value && "text-destructive"
@@ -70,7 +71,10 @@ function AssetInputFormField<TFieldValues extends Record<string, any>>({
             </div>
             <div className="text-muted-foreground body-small flex h-[24px] items-center justify-between">
               {asset.priceUsd != null && (
-                <NumberFlow value={(field.value ?? 0) * asset.priceUsd} format={{ currency: "USD" }} />
+                <NumberFlow
+                  value={(isNaN(field.value) ? 0 : field.value) * asset.priceUsd}
+                  format={{ currency: "USD" }}
+                />
               )}
               {maxValue != undefined && (
                 <div className="flex h-[24px] items-center gap-1">
