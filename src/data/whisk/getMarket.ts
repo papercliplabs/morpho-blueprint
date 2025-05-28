@@ -46,6 +46,7 @@ const query = graphql(`
             }
           }
         }
+        enabled
         position {
           supplyAssetsUsd
         }
