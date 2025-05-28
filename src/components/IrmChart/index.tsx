@@ -89,7 +89,7 @@ function CustomActiveDot({ cx, cy, color }: DotProps) {
 function CustomTooltip({ active, payload }: ComponentProps<typeof Tooltip>) {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-card body-small flex flex-col gap-4 rounded-lg px-5 py-4 shadow-md">
+      <div className="bg-popover body-small flex flex-col gap-4 rounded-lg border px-5 py-4 shadow-md">
         <div className="flex items-center justify-between gap-6">
           <span>Utilization:</span>
           {formatNumber(payload[0]?.payload?.utilization ?? 0, { style: "percent" })}
