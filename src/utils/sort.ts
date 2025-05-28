@@ -4,7 +4,6 @@ function sortTableAssetAmount(
   balanceB: number,
   balanceBUsd: number | undefined | null
 ) {
-  console.log(balanceA, balanceAUsd, balanceB, balanceBUsd);
   const aHasUsd = balanceAUsd && balanceAUsd > 0;
   const bHasUsd = balanceBUsd && balanceBUsd > 0;
 
