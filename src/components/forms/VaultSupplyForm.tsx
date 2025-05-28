@@ -52,37 +52,21 @@ export const VaultSupplyForm = forwardRef<{ reset: () => void }, VaultSupplyForm
     }, [position, vault.asset.decimals]);
 
     const formSchema = useMemo(() => {
-      return z
-        .object({
-          supplyAmount: z.string().nonempty("Amount is required."),
-          isMaxSupply: z.boolean(),
-        })
-        .superRefine((data, ctx) => {
-          const supplyAmount = Number(data.supplyAmount);
-          if (isNaN(supplyAmount) || supplyAmount <= 0) {
-            ctx.addIssue({
-              path: ["supplyAmount"],
-              code: z.ZodIssueCode.custom,
-              message: "Amount must be >0.",
-            });
-          }
-
-          const maxSupplyAmount = walletUnderlyingAssetBalance ?? Infinity;
-          if (supplyAmount > maxSupplyAmount) {
-            ctx.addIssue({
-              path: ["supplyAmount"],
-              code: z.ZodIssueCode.custom,
-              message: "Amount exceeds wallet balance.",
-            });
-          }
-        });
+      return z.object({
+        supplyAmount: z.coerce
+          .number({ message: "Amount is required." })
+          .gt(0, { message: "Amount is required." })
+          .lte(walletUnderlyingAssetBalance ?? Infinity, { message: "Amount exceeds wallet balance." })
+          .or(z.literal(undefined)),
+        isMaxSupply: z.boolean(),
+      });
     }, [walletUnderlyingAssetBalance]);
 
     const form = useForm({
       mode: "onChange",
       resolver: zodResolver(formSchema),
       defaultValues: {
-        supplyAmount: "",
+        supplyAmount: undefined,
         isMaxSupply: false,
       },
     });
@@ -127,7 +111,9 @@ export const VaultSupplyForm = forwardRef<{ reset: () => void }, VaultSupplyForm
         setSimulationErrorMsg(null);
         setSimulating(true);
 
-        const rawSupplyAmount = isMaxSupply ? maxUint256 : parseUnits(supplyAmount, vault.asset.decimals);
+        const rawSupplyAmount = isMaxSupply
+          ? maxUint256
+          : parseUnits(supplyAmount ? supplyAmount.toString() : "0", vault.asset.decimals);
 
         const action = await vaultSupplyAction({
           publicClient,

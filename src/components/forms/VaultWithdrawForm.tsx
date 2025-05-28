@@ -52,37 +52,21 @@ export const VaultWithdrawForm = forwardRef<{ reset: () => void }, VaultWithdraw
     }, [position, vault.asset.decimals]);
 
     const formSchema = useMemo(() => {
-      return z
-        .object({
-          withdrawAmount: z.string().nonempty("Amount is required."),
-          isMaxWithdraw: z.boolean(),
-        })
-        .superRefine((data, ctx) => {
-          const withdrawAmount = Number(data.withdrawAmount);
-          if (isNaN(withdrawAmount) || withdrawAmount <= 0) {
-            ctx.addIssue({
-              path: ["withdrawAmount"],
-              code: z.ZodIssueCode.custom,
-              message: "Amount must be >0.",
-            });
-          }
-
-          const maxWithdrawAmount = positionBalance ?? Infinity;
-          if (withdrawAmount > maxWithdrawAmount) {
-            ctx.addIssue({
-              path: ["withdrawAmount"],
-              code: z.ZodIssueCode.custom,
-              message: "Amount exceeds balance.",
-            });
-          }
-        });
+      return z.object({
+        withdrawAmount: z.coerce
+          .number({ message: "Amount is required." })
+          .gt(0, { message: "Amount is required." })
+          .lte(positionBalance ?? Infinity, { message: "Amount exceeds balance." })
+          .or(z.literal(undefined)),
+        isMaxWithdraw: z.boolean(),
+      });
     }, [positionBalance]);
 
     const form = useForm({
       mode: "onChange",
       resolver: zodResolver(formSchema),
       defaultValues: {
-        withdrawAmount: "",
+        withdrawAmount: undefined,
         isMaxWithdraw: false,
       },
     });
@@ -127,7 +111,9 @@ export const VaultWithdrawForm = forwardRef<{ reset: () => void }, VaultWithdraw
         setSimulationErrorMsg(null);
         setSimulating(true);
 
-        const rawWithdrawAmount = isMaxWithdraw ? maxUint256 : parseUnits(withdrawAmount, vault.asset.decimals);
+        const rawWithdrawAmount = isMaxWithdraw
+          ? maxUint256
+          : parseUnits(withdrawAmount ? withdrawAmount.toString() : "0", vault.asset.decimals);
 
         const action = await vaultWithdrawAction({
           publicClient,

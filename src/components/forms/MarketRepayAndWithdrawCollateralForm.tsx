@@ -73,60 +73,45 @@ export const MarketRepayAndWithdrawCollateralForm = forwardRef<
   const formSchema = useMemo(() => {
     return z
       .object({
-        repayAmount: z.string(),
+        repayAmount: z.coerce
+          .number({ message: "Amount is required." })
+          .gt(0, { message: "Amount is required." })
+          .lte(
+            repayLimiter === "position" ? (positionBorrowAmount ?? Infinity) : (walletLoanAssetBalance ?? Infinity),
+            { message: repayLimiter === "position" ? "Exceeds position." : "Exceeds wallet balance." }
+          )
+          .or(z.literal(undefined)),
         isMaxRepay: z.boolean(),
-        withdrawCollateralAmount: z.string(),
+        withdrawCollateralAmount: z.coerce
+          .number({ message: "Amount is required." })
+          .gt(0, { message: "Amount is required." }),
         isMaxWithdrawCollateral: z.boolean(),
       })
-      .superRefine((data, ctx) => {
-        const repayAmount = isNaN(Number(data.repayAmount)) ? 0 : Number(data.repayAmount);
-        const withdrawCollateralAmount = isNaN(Number(data.withdrawCollateralAmount))
-          ? 0
-          : Number(data.withdrawCollateralAmount);
+      .refine(
+        (data) => {
+          const { repayAmount, withdrawCollateralAmount } = data;
 
-        if (repayAmount <= 0 && withdrawCollateralAmount <= 0) {
-          ctx.addIssue({
-            path: ["repayAmount"],
-            code: z.ZodIssueCode.custom,
-            message: "One amount is required.",
-          });
-          ctx.addIssue({
-            path: ["withdrawCollateralAmount"],
-            code: z.ZodIssueCode.custom,
-            message: "One amount is required.",
-          });
-        }
-
-        const maxRepayAmount =
-          repayLimiter == "position" ? (positionBorrowAmount ?? Infinity) : (walletLoanAssetBalance ?? Infinity);
-        if (repayAmount > maxRepayAmount) {
-          ctx.addIssue({
-            path: ["repayAmount"],
-            code: z.ZodIssueCode.custom,
-            message: repayLimiter == "position" ? "Exceeds position." : "Exceeds wallet balance.",
-          });
-        }
-
-        if (position) {
-          const maxWithdrawCollateralAmount = computeMarketMaxWithdrawCollateral(market, position, repayAmount);
-          if (withdrawCollateralAmount > maxWithdrawCollateralAmount) {
-            ctx.addIssue({
-              path: ["withdrawCollateralAmount"],
-              code: z.ZodIssueCode.custom,
-              message: "Causes unhealthy position.",
-            });
+          if (!!position && repayAmount) {
+            const maxWithdrawCollateralAmount = computeMarketMaxWithdrawCollateral(market, position, repayAmount);
+            return withdrawCollateralAmount <= maxWithdrawCollateralAmount;
           }
+
+          return true;
+        },
+        {
+          message: "Causes unhealthy position.",
+          path: ["withdrawCollateralAmount"],
         }
-      });
+      );
   }, [positionBorrowAmount, walletLoanAssetBalance, position, repayLimiter, market]);
 
   const form = useForm({
     mode: "onChange",
     resolver: zodResolver(formSchema),
     defaultValues: {
-      repayAmount: "",
+      repayAmount: undefined,
       isMaxRepay: false,
-      withdrawCollateralAmount: "",
+      withdrawCollateralAmount: undefined,
       isMaxWithdrawCollateral: false,
     },
   });
@@ -197,13 +182,16 @@ export const MarketRepayAndWithdrawCollateralForm = forwardRef<
       setSimulationErrorMsg(null);
       setSimulating(true);
 
-      let rawRepayAmount = parseUnits(repayAmount == "" ? "0" : repayAmount, market.loanAsset.decimals);
+      let rawRepayAmount = parseUnits(
+        repayAmount == undefined ? "0" : repayAmount.toString(),
+        market.loanAsset.decimals
+      );
       if (rawRepayAmount > 0n && isMaxRepay && repayLimiter == "position") {
         rawRepayAmount = maxUint256;
       }
 
       let rawWithdrawCollateralAmount = parseUnits(
-        withdrawCollateralAmount == "" ? "0" : withdrawCollateralAmount,
+        withdrawCollateralAmount == undefined ? "0" : withdrawCollateralAmount.toString(),
         market.collateralAsset.decimals
       );
       if (
