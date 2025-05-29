@@ -39,7 +39,7 @@ export function MarketPositionHighlight({ market }: MarketPositionHighlightProps
             alt={market.loanAsset.symbol}
             width={12}
             height={12}
-            className="size-3 shrink-0"
+            className="border-border size-3 shrink-0 rounded-full border"
           />
           <NumberFlowWithLoading
             value={data?.borrowAssets ? descaleBigIntToNumber(data.borrowAssets, market.loanAsset.decimals) : undefined}
