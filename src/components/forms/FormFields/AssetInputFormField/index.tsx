@@ -44,7 +44,7 @@ function AssetInputFormField<TFieldValues extends Record<string, any>>({
                 <Input
                   autoComplete="off"
                   className={clsx(
-                    "!heading-3 h-12 rounded-none border-none bg-transparent p-0 shadow-none focus:ring-0 focus:ring-offset-0",
+                    "!heading-2 h-12 rounded-none border-none bg-transparent p-0 shadow-none focus:ring-0 focus:ring-offset-0",
                     fieldState.error && !!field.value && "text-destructive"
                   )}
                   placeholder="0"
@@ -63,9 +63,9 @@ function AssetInputFormField<TFieldValues extends Record<string, any>>({
                 />
               </FormControl>
               {!!asset && (
-                <div className="flex items-center gap-1.5 px-2">
+                <div className="flex items-center gap-2 px-2">
                   <TokenIcon token={asset} chain={chain} size="sm" chainClassName="border-muted" />
-                  <span className="body-medium-plus">{asset.symbol}</span>
+                  <span className="body-large-plus">{asset.symbol}</span>
                 </div>
               )}
             </div>
