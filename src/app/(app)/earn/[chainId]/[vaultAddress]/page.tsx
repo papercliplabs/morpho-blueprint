@@ -128,23 +128,25 @@ async function VaultHeader({ chainId, vaultAddress }: VaultIdentifier) {
           <TokenIcon token={vault.asset} chain={vault.chain} size="md" />
           <h1 className="heading-3">{vault.name}</h1>
         </div>
-        <div className="text-muted-foreground inline">
+        <div className="text-muted-foreground flex items-center gap-2">
           {vault.chain.name}
           {curator && (
-            <span>
-              {" "}
-              • curated by{" "}
-              <LinkExternal href={curator.url} className="text-foreground inline">
-                {curator.name}{" "}
-                <Image
-                  src={curator.image}
-                  alt={curator.name}
-                  width={24}
-                  height={24}
-                  className="inline size-6 shrink-0 rounded-full"
-                />
-              </LinkExternal>
-            </span>
+            <>
+              <span>&bull;</span>
+              <div className="flex items-center gap-1">
+                <span>Curated by</span>
+                <LinkExternal href={curator.url} className="text-foreground">
+                  {curator.name}
+                  <Image
+                    src={curator.image}
+                    alt={curator.name}
+                    width={24}
+                    height={24}
+                    className="inline size-6 shrink-0 rounded-full border"
+                  />
+                </LinkExternal>
+              </div>
+            </>
           )}
         </div>
       </div>
