@@ -1,8 +1,9 @@
 "use client";
+import clsx from "clsx";
 import { ReactNode } from "react";
 
 import { MetricWithTooltip } from "@/components/Metric";
-import NumberFlow from "@/components/ui/number-flow";
+import NumberFlow, { NumberFlowWithLoading } from "@/components/ui/number-flow";
 import { Skeleton } from "@/components/ui/skeleton";
 import { VaultSummary } from "@/data/whisk/getVaultSummaries";
 import { useEarnSummaryMetrics } from "@/hooks/useEarnSummaryMetrics";
@@ -11,17 +12,35 @@ interface EarnSummaryMetricsProps {
   vaultSummaries: VaultSummary[];
 }
 
-const metricSkeleton = <Skeleton className="mt-[2px] h-[28px] w-[90px]" />;
+function MetricSkeleton({ className, ...props }: React.ComponentProps<"div">) {
+  return <Skeleton className={clsx("mt-[2px] h-[28px]", className)} {...props} />;
+}
 
 export function EarnSummaryMetrics({ vaultSummaries }: EarnSummaryMetricsProps) {
-  const { data } = useEarnSummaryMetrics({ vaultSummaries });
+  const { data, isPositionsLoading } = useEarnSummaryMetrics({ vaultSummaries });
 
   return (
     <EarnSummaryMetricsLayout
       totalSupplied={<NumberFlow value={data.totalSuppliedUsd} format={{ currency: "USD" }} className="heading-5" />}
       totalBorrowed={<NumberFlow value={data.totalBorrowedUsd} format={{ currency: "USD" }} className="heading-5" />}
-      userDeposited={<NumberFlow value={data.userDepositsUsd} format={{ currency: "USD" }} className="heading-5" />}
-      userEarnApy={<NumberFlow value={data.userEarnApy} format={{ style: "percent" }} className="heading-5" />}
+      userDeposited={
+        <NumberFlowWithLoading
+          isLoading={isPositionsLoading}
+          value={data.userDepositsUsd}
+          format={{ currency: "USD" }}
+          className="heading-5"
+          loadingContent={<MetricSkeleton className="w-[90px]" />}
+        />
+      }
+      userEarnApy={
+        <NumberFlowWithLoading
+          isLoading={isPositionsLoading}
+          value={data.userEarnApy}
+          format={{ style: "percent" }}
+          className="heading-5"
+          loadingContent={<Skeleton className="mt-[2px] h-[28px] w-[84px]" />}
+        />
+      }
     />
   );
 }
@@ -29,10 +48,10 @@ export function EarnSummaryMetrics({ vaultSummaries }: EarnSummaryMetricsProps) 
 export function EarnSummaryMetricsSkeleton() {
   return (
     <EarnSummaryMetricsLayout
-      totalSupplied={metricSkeleton}
-      totalBorrowed={metricSkeleton}
-      userDeposited={metricSkeleton}
-      userEarnApy={metricSkeleton}
+      totalSupplied={<MetricSkeleton className="w-[90px]" />}
+      totalBorrowed={<MetricSkeleton className="w-[90px]" />}
+      userDeposited={<MetricSkeleton className="w-[90px]" />}
+      userEarnApy={<MetricSkeleton className="w-[84px]" />}
     />
   );
 }
