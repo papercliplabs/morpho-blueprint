@@ -54,10 +54,18 @@ function EarnSummaryMetricsLayout({
   return (
     <div className="flex flex-col justify-between gap-4 md:flex-row">
       <div className="flex gap-8">
-        <MetricWithTooltip label="Total supplied" tooltip="Total supplied across all vaults within the table.">
+        <MetricWithTooltip
+          className="flex-1"
+          label="Total supplied"
+          tooltip="Total supplied across all vaults within the table."
+        >
           {totalSupplied}
         </MetricWithTooltip>
-        <MetricWithTooltip label="Total borrowed" tooltip="Total borrowed across all vaults within the table.">
+        <MetricWithTooltip
+          className="flex-1"
+          label="Total borrowed"
+          tooltip="Total borrowed across all vaults within the table."
+        >
           {totalBorrowed}
         </MetricWithTooltip>
       </div>
@@ -65,14 +73,14 @@ function EarnSummaryMetricsLayout({
         <MetricWithTooltip
           label="Your deposits"
           tooltip="Sum of your deposits across all vaults in the table."
-          className="md:items-end"
+          className="flex-1 md:items-end"
         >
           {userDeposited}
         </MetricWithTooltip>
         <MetricWithTooltip
           label="Your earn APY"
           tooltip="Your net earn APY across all vaults in the table."
-          className="md:items-end"
+          className="flex-1 md:items-end"
         >
           {userEarnApy}
         </MetricWithTooltip>

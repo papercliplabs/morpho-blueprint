@@ -52,6 +52,7 @@ function BorrowSummaryMetricsLayout({
     <div className="flex flex-col justify-between gap-4 md:flex-row">
       <div className="flex gap-8">
         <MetricWithTooltip
+          className="flex-1"
           label="Total borrowed"
           tooltip="The total amount of loan assets borrowed from all markets in the table."
         >
@@ -62,14 +63,14 @@ function BorrowSummaryMetricsLayout({
         <MetricWithTooltip
           label="Your borrows"
           tooltip="Sum of your borrows across all markets in the table."
-          className="md:items-end"
+          className="flex-1 md:items-end"
         >
           {userBorrowed}
         </MetricWithTooltip>
         <MetricWithTooltip
           label="Your borrow APY"
           tooltip="Your net borrow APY across all markets in the table."
-          className="md:items-end"
+          className="flex-1 md:items-end"
         >
           {userBorrowApy}
         </MetricWithTooltip>
