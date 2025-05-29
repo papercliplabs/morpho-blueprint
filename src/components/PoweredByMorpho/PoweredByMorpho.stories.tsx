@@ -18,13 +18,7 @@ const meta = {
   ],
   tags: ["autodocs"],
   args: {
-    placement: "center",
-  },
-  argTypes: {
-    placement: {
-      control: { type: "select" },
-      options: ["center", "bottom-left", "bottom-right", "top-left", "top-right"],
-    },
+    showTooltip: true,
   },
 } satisfies Meta<typeof PoweredByMorpho>;
 
@@ -32,3 +26,4 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
+export const NoTooltip: Story = { args: { showTooltip: false } };

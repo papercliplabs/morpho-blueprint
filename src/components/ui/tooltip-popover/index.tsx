@@ -5,11 +5,13 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { useResponsiveContext } from "@/providers/ResponsiveProvider";
 import { cn } from "@/utils/shadcn";
 
-export function TooltipPopover({ children }: { children: React.ReactNode }) {
+type TooltipPopoverProps = React.ComponentProps<typeof TooltipProvider>;
+
+export function TooltipPopover({ children, ...props }: TooltipPopoverProps) {
   const { isDesktop } = useResponsiveContext();
 
   return isDesktop ? (
-    <TooltipProvider>
+    <TooltipProvider {...props}>
       <Tooltip>{children}</Tooltip>
     </TooltipProvider>
   ) : (
