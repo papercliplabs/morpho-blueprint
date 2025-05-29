@@ -74,7 +74,7 @@ const columns: Column[] = [
 
 export function VaultAllocationTable({ market }: VaultAllocationTableProps) {
   const data = useMemo(() => {
-    return market.vaultAllocations.filter((vault) => vault.marketSupplyShare > 0);
+    return market.vaultAllocations.filter((vault) => vault.enabled);
   }, [market]);
 
   return (

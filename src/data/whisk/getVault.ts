@@ -48,6 +48,7 @@ const query = graphql(`
             ...MarketApyFragment
           }
         }
+        enabled
         position {
           supplyAssetsUsd
         }
