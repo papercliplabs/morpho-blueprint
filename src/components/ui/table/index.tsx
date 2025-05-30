@@ -3,20 +3,23 @@
 import "@tanstack/react-table";
 import {
   ColumnDef,
+  PaginationState,
   RowData,
   SortingState,
   getCoreRowModel,
+  getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 import { flexRender } from "@tanstack/react-table";
 import { cva } from "class-variance-authority";
 import clsx from "clsx";
-import { ChevronsUpDown } from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronsUpDown } from "lucide-react";
 import Link from "next/link";
 import { HTMLAttributes, useEffect, useRef, useState } from "react";
 import { ScrollSync, ScrollSyncPane } from "react-scroll-sync";
 
+import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/utils/shadcn";
 
@@ -126,11 +129,21 @@ export function TableCell({ minWidth, className, style, ...props }: TableCellPro
 interface TableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  initialPagination?: PaginationState;
   initialSort?: SortingState;
   rowAction: (row: TData) => TableRowAction | null;
 }
 
-export function Table<TData, TValue>({ columns, data, initialSort, rowAction }: TableProps<TData, TValue>) {
+export function Table<TData, TValue>({
+  columns,
+  data,
+  initialPagination = {
+    pageSize: 10,
+    pageIndex: 0,
+  },
+  initialSort,
+  rowAction,
+}: TableProps<TData, TValue>) {
   const tableRef = useRef<HTMLDivElement>(null);
   const [sorting, setSorting] = useState<SortingState>(initialSort ?? []);
 
@@ -149,85 +162,109 @@ export function Table<TData, TValue>({ columns, data, initialSort, rowAction }: 
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
     state: {
       sorting,
+    },
+    initialState: {
+      pagination: initialPagination,
     },
   });
 
   return (
-    <ScrollSync>
-      <div className="border-border relative h-fit min-w-0 grow overflow-hidden rounded-md border" ref={tableRef}>
-        {/* Gradients on left and right for mobile */}
-        <div className="from-card absolute top-0 bottom-0 left-0 z-[10] w-4 rounded-l-md bg-gradient-to-r to-transparent md:hidden" />
-        <div className="from-card absolute top-0 right-0 bottom-0 z-[10] w-4 rounded-r-md bg-gradient-to-l to-transparent md:hidden" />
-        <div className="sticky top-[calc(var(--header-height)-2px)] z-[5] min-w-full">
-          <ScrollSyncPane>
-            <div className="scrollbar-none overflow-auto overscroll-x-none">
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow
-                  key={headerGroup.id}
-                  className="text-muted-foreground body-small-plus h-12 hover:bg-transparent"
-                >
-                  {headerGroup.headers.map((header) => {
-                    const cellContent = (
-                      <div
-                        className={clsx(
-                          "flex h-12 items-center gap-1 select-none",
-                          header.column.columnDef.enableSorting !== false && "hover:cursor-pointer"
-                        )}
-                      >
-                        {flexRender(header.column.columnDef.header, header.getContext())}
-                        {header.column.columnDef.enableSorting == false ? null : (
-                          <SortIcon state={header.column.getIsSorted()} />
-                        )}
-                      </div>
-                    );
+    <>
+      <ScrollSync>
+        <div className="border-border relative h-fit min-w-0 grow overflow-hidden rounded-md border" ref={tableRef}>
+          {/* Gradients on left and right for mobile */}
+          <div className="from-card absolute top-0 bottom-0 left-0 z-[10] w-4 rounded-l-md bg-gradient-to-r to-transparent md:hidden" />
+          <div className="from-card absolute top-0 right-0 bottom-0 z-[10] w-4 rounded-r-md bg-gradient-to-l to-transparent md:hidden" />
+          <div className="sticky top-[calc(var(--header-height)-2px)] z-[5] min-w-full">
+            <ScrollSyncPane>
+              <div className="scrollbar-none overflow-auto overscroll-x-none">
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow
+                    key={headerGroup.id}
+                    className="text-muted-foreground body-small-plus h-12 hover:bg-transparent"
+                  >
+                    {headerGroup.headers.map((header) => {
+                      const cellContent = (
+                        <div
+                          className={clsx(
+                            "flex h-12 items-center gap-1 select-none",
+                            header.column.columnDef.enableSorting !== false && "hover:cursor-pointer"
+                          )}
+                        >
+                          {flexRender(header.column.columnDef.header, header.getContext())}
+                          {header.column.columnDef.enableSorting == false ? null : (
+                            <SortIcon state={header.column.getIsSorted()} />
+                          )}
+                        </div>
+                      );
 
-                    const tooltip = header.column.columnDef.meta?.tooltip;
-                    return (
-                      <TableCell
-                        minWidth={header.column.columnDef.minSize}
-                        key={header.id}
-                        onClick={header.column.getToggleSortingHandler()}
-                      >
-                        {tooltip ? (
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger>{cellContent}</TooltipTrigger>
-                              <TooltipContent>{tooltip}</TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        ) : (
-                          cellContent
-                        )}
+                      const tooltip = header.column.columnDef.meta?.tooltip;
+                      return (
+                        <TableCell
+                          minWidth={header.column.columnDef.minSize}
+                          key={header.id}
+                          onClick={header.column.getToggleSortingHandler()}
+                        >
+                          {tooltip ? (
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger>{cellContent}</TooltipTrigger>
+                                <TooltipContent>{tooltip}</TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          ) : (
+                            cellContent
+                          )}
+                        </TableCell>
+                      );
+                    })}
+                  </TableRow>
+                ))}
+              </div>
+            </ScrollSyncPane>
+          </div>
+          <ScrollSyncPane>
+            <div className="scrollbar-none body-medium-plus flex w-full flex-col overflow-x-auto overscroll-x-none">
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow action={rowAction(row.original) ?? undefined} className="group h-[72px] gap-0" key={row.id}>
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell minWidth={cell.column.columnDef.minSize} key={cell.id}>
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
-                    );
-                  })}
-                </TableRow>
-              ))}
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <div className="text-muted-foreground flex h-[100px] flex-col items-center justify-center gap-1">
+                  <span>No items</span>
+                </div>
+              )}
             </div>
           </ScrollSyncPane>
         </div>
-        <ScrollSyncPane>
-          <div className="scrollbar-none body-medium-plus flex w-full flex-col overflow-x-auto overscroll-x-none">
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow action={rowAction(row.original) ?? undefined} className="group h-[72px] gap-0" key={row.id}>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell minWidth={cell.column.columnDef.minSize} key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <div className="text-muted-foreground flex h-[100px] flex-col items-center justify-center gap-1">
-                <span>No items</span>
-              </div>
-            )}
-          </div>
-        </ScrollSyncPane>
-      </div>
-    </ScrollSync>
+      </ScrollSync>
+      {table.getPageCount() > 1 && (
+        <div className="flex items-center justify-end gap-2 pt-6">
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={!table.getCanPreviousPage()}
+            onClick={() => table.previousPage()}
+          >
+            <ChevronLeft className="size-4" />
+          </Button>
+          <span className="text-muted-foreground body-medium">
+            {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+          </span>
+          <Button size="sm" variant="outline" disabled={!table.getCanNextPage()} onClick={() => table.nextPage()}>
+            <ChevronRight className="size-4" />
+          </Button>
+        </div>
+      )}
+    </>
   );
 }
