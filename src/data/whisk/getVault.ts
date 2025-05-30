@@ -1,4 +1,5 @@
 import "server-only";
+import { unstable_cache } from "next/cache";
 import { cache } from "react";
 import { Address } from "viem";
 
@@ -59,14 +60,19 @@ const query = graphql(`
   }
 `);
 
-export const getVault = cache(async (chainId: number, vaultAddress: Address): Promise<Vault | null> => {
-  console.log("getVault", chainId, vaultAddress);
-  const data = await executeWhiskQuery(query, {
-    chainId,
-    vaultAddress,
-  });
+export const getVault = cache(
+  unstable_cache(
+    async (chainId: number, vaultAddress: Address): Promise<Vault | null> => {
+      const data = await executeWhiskQuery(query, {
+        chainId,
+        vaultAddress,
+      });
 
-  return data.morphoVault;
-});
+      return data.morphoVault;
+    },
+    ["getVault"],
+    { revalidate: 10 } // Light cache, mostly to help in dev
+  )
+);
 
 export type Vault = NonNullable<GetVaultQuery["morphoVault"]>;

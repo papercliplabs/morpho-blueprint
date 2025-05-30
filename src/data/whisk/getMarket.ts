@@ -1,4 +1,5 @@
 import "server-only";
+import { unstable_cache } from "next/cache";
 import { cache } from "react";
 import { Hex } from "viem";
 
@@ -72,15 +73,20 @@ const query = graphql(`
   }
 `);
 
-export const getMarket = cache(async (chainId: number, marketId: Hex): Promise<Market | null> => {
-  console.log("getMarket", chainId, marketId);
-  const data = await executeWhiskQuery(query, {
-    chainId,
-    marketId,
-  });
+export const getMarket = cache(
+  unstable_cache(
+    async (chainId: number, marketId: Hex): Promise<Market | null> => {
+      const data = await executeWhiskQuery(query, {
+        chainId,
+        marketId,
+      });
 
-  return data.morphoMarket;
-});
+      return data.morphoMarket;
+    },
+    ["getMarket"],
+    { revalidate: 10 } // Light cache, mostly to help in dev
+  )
+);
 
 export type Market = NonNullable<GetMarketQuery["morphoMarket"]>;
 export type MarketNonIdle = Market & { isIdle: false; collateralAsset: NonNullable<Market["collateralAsset"]> };
