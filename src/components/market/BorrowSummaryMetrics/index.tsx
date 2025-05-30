@@ -1,8 +1,9 @@
 "use client";
+import clsx from "clsx";
 import { ReactNode } from "react";
 
 import { MetricWithTooltip } from "@/components/Metric";
-import NumberFlow from "@/components/ui/number-flow";
+import { NumberFlowWithLoading } from "@/components/ui/number-flow";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MarketSummary } from "@/data/whisk/getMarketSummaries";
 import { useBorrowSummaryMetrics } from "@/hooks/useBorrowSummaryMetrics";
@@ -11,16 +12,42 @@ interface BorrowSummaryMetricsProps {
   marketSummaries: MarketSummary[];
 }
 
-const metricSkeleton = <Skeleton className="mt-[2px] h-[28px] w-[90px]" />;
+function MetricSkeleton({ className, ...props }: React.ComponentProps<"div">) {
+  return <Skeleton className={clsx("mt-[2px] h-[28px]", className)} {...props} />;
+}
 
 export function BorrowSummaryMetrics({ marketSummaries }: BorrowSummaryMetricsProps) {
-  const { data } = useBorrowSummaryMetrics({ marketSummaries });
+  const { data, isPositionsLoading } = useBorrowSummaryMetrics({ marketSummaries });
 
   return (
     <BorrowSummaryMetricsLayout
-      totalBorrowed={<NumberFlow value={data.totalBorrowedUsd} format={{ currency: "USD" }} className="heading-5" />}
-      userBorrowed={<NumberFlow value={data.userBorrowsUsd} format={{ currency: "USD" }} className="heading-5" />}
-      userBorrowApy={<NumberFlow value={data.userBorrowApy} format={{ style: "percent" }} className="heading-5" />}
+      totalBorrowed={
+        <NumberFlowWithLoading
+          isLoading={isPositionsLoading}
+          loadingContent={<MetricSkeleton className="w-[90px]" />}
+          value={data.totalBorrowedUsd}
+          format={{ currency: "USD" }}
+          className="heading-5"
+        />
+      }
+      userBorrowed={
+        <NumberFlowWithLoading
+          isLoading={isPositionsLoading}
+          loadingContent={<MetricSkeleton className="w-[90px]" />}
+          value={data.userBorrowsUsd}
+          format={{ currency: "USD" }}
+          className="heading-5"
+        />
+      }
+      userBorrowApy={
+        <NumberFlowWithLoading
+          isLoading={isPositionsLoading}
+          loadingContent={<MetricSkeleton className="w-[90px]" />}
+          value={data.userBorrowApy}
+          format={{ style: "percent" }}
+          className="heading-5"
+        />
+      }
     />
   );
 }
@@ -28,9 +55,9 @@ export function BorrowSummaryMetrics({ marketSummaries }: BorrowSummaryMetricsPr
 export function BorrowSummaryMetricsSkeleton() {
   return (
     <BorrowSummaryMetricsLayout
-      totalBorrowed={metricSkeleton}
-      userBorrowed={metricSkeleton}
-      userBorrowApy={metricSkeleton}
+      totalBorrowed={<MetricSkeleton className="w-[90px]" />}
+      userBorrowed={<MetricSkeleton className="w-[90px]" />}
+      userBorrowApy={<MetricSkeleton className="w-[90px]" />}
     />
   );
 }
