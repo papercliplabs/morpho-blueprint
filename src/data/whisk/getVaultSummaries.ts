@@ -1,4 +1,5 @@
 import "server-only";
+import { unstable_cache } from "next/cache";
 import { cache } from "react";
 
 import { APP_CONFIG } from "@/config";
@@ -14,21 +15,26 @@ const query = graphql(`
   }
 `);
 
-export const getVaultSummaries = cache(async () => {
-  console.log("getVaultSummaries");
-  const queryVariables = Object.entries(APP_CONFIG.whitelistedVaults);
+export const getVaultSummaries = cache(
+  unstable_cache(
+    async () => {
+      const queryVariables = Object.entries(APP_CONFIG.whitelistedVaults);
 
-  const responses = await Promise.all(
-    queryVariables.map(
-      async ([chainId, addresses]) =>
-        await executeWhiskQuery(query, {
-          chainId: parseInt(chainId),
-          addresses,
-        })
-    )
-  );
+      const responses = await Promise.all(
+        queryVariables.map(
+          async ([chainId, addresses]) =>
+            await executeWhiskQuery(query, {
+              chainId: parseInt(chainId),
+              addresses,
+            })
+        )
+      );
 
-  return responses.flatMap((resp) => resp.morphoVaults);
-});
+      return responses.flatMap((resp) => resp.morphoVaults);
+    },
+    ["getVaultSummaries"],
+    { revalidate: 10 } // Light cache, mostly to help in dev
+  )
+);
 
 export type VaultSummary = NonNullable<Awaited<ReturnType<typeof getVaultSummaries>>>[number];

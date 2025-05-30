@@ -1,4 +1,5 @@
 import "server-only";
+import { unstable_cache } from "next/cache";
 import { cache } from "react";
 
 import { graphql } from "@/generated/gql/whisk";
@@ -14,22 +15,27 @@ const query = graphql(`
   }
 `);
 
-export const getMarketSummaries = cache(async () => {
-  console.log("getMarketSummaries");
-  const whitelistedMarketIds = await getWhitelistedMarketIds();
-  const queryVariables = Object.entries(whitelistedMarketIds);
+export const getMarketSummaries = cache(
+  unstable_cache(
+    async () => {
+      const whitelistedMarketIds = await getWhitelistedMarketIds();
+      const queryVariables = Object.entries(whitelistedMarketIds);
 
-  const responses = await Promise.all(
-    queryVariables.map(
-      async ([chainId, marketIds]) =>
-        await executeWhiskQuery(query, {
-          chainId: parseInt(chainId),
-          marketIds,
-        })
-    )
-  );
+      const responses = await Promise.all(
+        queryVariables.map(
+          async ([chainId, marketIds]) =>
+            await executeWhiskQuery(query, {
+              chainId: parseInt(chainId),
+              marketIds,
+            })
+        )
+      );
 
-  return responses.flatMap((resp) => resp.morphoMarkets);
-});
+      return responses.flatMap((resp) => resp.morphoMarkets);
+    },
+    ["getMarketSummaries"],
+    { revalidate: 10 } // Light cache, mostly to help in dev
+  )
+);
 
 export type MarketSummary = NonNullable<Awaited<ReturnType<typeof getMarketSummaries>>>[number];
