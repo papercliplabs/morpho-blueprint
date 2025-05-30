@@ -34,7 +34,13 @@ export function VaultPositionHighlight({ vault }: VaultPositionHighlightProps) {
           className="heading-5"
         />
         <div className="flex items-center gap-1">
-          <Image src={vault.asset.icon} alt={vault.asset.symbol} width={12} height={12} className="size-3 shrink-0" />
+          <Image
+            src={vault.asset.icon}
+            alt={vault.asset.symbol}
+            width={12}
+            height={12}
+            className="border-border size-3 shrink-0 rounded-full border"
+          />
           <NumberFlowWithLoading
             value={data?.supplyAssets ? descaleBigIntToNumber(data.supplyAssets, vault.asset.decimals) : undefined}
             loadingContent={<Skeleton className="h-[15px] w-[40px]" />}
