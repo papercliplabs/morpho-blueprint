@@ -22,7 +22,7 @@ export default function BorrowPage() {
     <div className="flex w-full min-w-0 flex-col gap-6">
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
-          <h2>Borrow</h2>
+          <h1 className="heading-2">Borrow</h1>
           <p className="text-muted-foreground">Borrow assets against your collateral.</p>
         </div>
 
