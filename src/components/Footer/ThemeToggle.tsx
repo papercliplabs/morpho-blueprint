@@ -12,7 +12,7 @@ export function ThemeToggle() {
       onClick={() => setTheme(resolvedTheme === "light" ? "dark" : "light")}
       variant="ghost"
       size="sm"
-      className="rounded-full"
+      className="text-foreground rounded-full"
     >
       <Sun className="hidden size-4 dark:block" />
       <Moon className="size-4 dark:hidden" />
