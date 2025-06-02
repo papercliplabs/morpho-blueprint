@@ -34,7 +34,7 @@ export async function vaultSupplyAction({
   if (supplyAmount <= 0n) {
     return {
       status: "error",
-      message: "Supply amount must be greater than 0",
+      message: "Supply amount must be greater than 0.",
     };
   }
 

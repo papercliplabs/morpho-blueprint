@@ -32,13 +32,13 @@ export async function marketSupplyCollateralAndBorrowAction({
   if (collateralAmount < 0n || borrowAmount < 0n) {
     return {
       status: "error",
-      message: "Collateral and borrow amounts cannot be negative",
+      message: "Collateral and borrow amounts cannot be negative.",
     };
   }
   if (collateralAmount == 0n && borrowAmount == 0n) {
     return {
       status: "error",
-      message: "Collateral and borrow amounts cannot both be 0",
+      message: "Collateral and borrow amounts cannot both be 0.",
     };
   }
 

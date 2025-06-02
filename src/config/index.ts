@@ -38,7 +38,7 @@ export const APP_CONFIG: AppConfig = {
     name: "Morpho",
     description: "Morpho",
     icon: "/vercel.svg",
-    logoComponent: <Logo />,
+    logoComponent: Logo(),
   },
   links: {
     termsOfService: undefined,
