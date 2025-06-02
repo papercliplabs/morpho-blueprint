@@ -13,7 +13,7 @@ interface BorrowSummaryMetricsProps {
 }
 
 function MetricSkeleton({ className, ...props }: React.ComponentProps<"div">) {
-  return <Skeleton className={clsx("mt-[2px] h-[28px]", className)} {...props} />;
+  return <Skeleton className={clsx("mt-[2px] h-[34px]", className)} {...props} />;
 }
 
 export function BorrowSummaryMetrics({ marketSummaries }: BorrowSummaryMetricsProps) {
@@ -27,7 +27,7 @@ export function BorrowSummaryMetrics({ marketSummaries }: BorrowSummaryMetricsPr
           loadingContent={<MetricSkeleton className="w-[90px]" />}
           value={data.totalBorrowedUsd}
           format={{ currency: "USD" }}
-          className="heading-5"
+          className="heading-4"
         />
       }
       userBorrowed={
@@ -36,7 +36,7 @@ export function BorrowSummaryMetrics({ marketSummaries }: BorrowSummaryMetricsPr
           loadingContent={<MetricSkeleton className="w-[90px]" />}
           value={data.userBorrowsUsd}
           format={{ currency: "USD" }}
-          className="heading-5"
+          className="heading-4"
         />
       }
       userBorrowApy={
@@ -45,7 +45,7 @@ export function BorrowSummaryMetrics({ marketSummaries }: BorrowSummaryMetricsPr
           loadingContent={<MetricSkeleton className="w-[90px]" />}
           value={data.userBorrowApy}
           format={{ style: "percent" }}
-          className="heading-5"
+          className="heading-4"
         />
       }
     />
