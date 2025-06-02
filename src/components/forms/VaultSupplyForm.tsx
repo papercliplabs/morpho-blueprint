@@ -173,6 +173,8 @@ export const VaultSupplyForm = forwardRef<{ reset: () => void }, VaultSupplyForm
                 }}
               />
 
+              <div className="bg-border h-[1px]" />
+
               {simulationMetrics}
 
               <div className="flex flex-col gap-1">

@@ -96,7 +96,7 @@ export function VaultActionSimulationMetrics({
         }
       />
       <MetricChange
-        name="Apy"
+        name="APY"
         initialValue={
           <ApyTooltip
             type="earn"
