@@ -93,7 +93,7 @@ function VaultInfoLayout({
   guardianAddress,
 }: VaultInfoLayoutProps) {
   return (
-    <div className="grid grid-cols-1 gap-4 gap-y-4 md:grid-cols-3 md:gap-y-10">
+    <div className="grid grid-cols-1 gap-6 gap-y-6 md:grid-cols-3 md:gap-y-10">
       <MetricWithTooltip label="Performance Fee" tooltip="The percentage of vault profits the fee recipient receives.">
         {performanceFee}
       </MetricWithTooltip>
