@@ -56,7 +56,7 @@ function VaultKeyMetricsLayout({
   supplyApyTooltip,
 }: VaultKeyMetricsLayoutProps) {
   return (
-    <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+    <div className="grid grid-cols-2 gap-6 md:grid-cols-3">
       <MetricWithTooltip
         label="Total deposits"
         className="heading-4"
