@@ -13,7 +13,7 @@ interface EarnSummaryMetricsProps {
 }
 
 function MetricSkeleton({ className, ...props }: React.ComponentProps<"div">) {
-  return <Skeleton className={clsx("mt-[2px] h-[28px]", className)} {...props} />;
+  return <Skeleton className={clsx("mt-[2px] h-[34px]", className)} {...props} />;
 }
 
 export function EarnSummaryMetrics({ vaultSummaries }: EarnSummaryMetricsProps) {
@@ -21,14 +21,14 @@ export function EarnSummaryMetrics({ vaultSummaries }: EarnSummaryMetricsProps) 
 
   return (
     <EarnSummaryMetricsLayout
-      totalSupplied={<NumberFlow value={data.totalSuppliedUsd} format={{ currency: "USD" }} className="heading-5" />}
-      totalBorrowed={<NumberFlow value={data.totalBorrowedUsd} format={{ currency: "USD" }} className="heading-5" />}
+      totalSupplied={<NumberFlow value={data.totalSuppliedUsd} format={{ currency: "USD" }} className="heading-4" />}
+      totalBorrowed={<NumberFlow value={data.totalBorrowedUsd} format={{ currency: "USD" }} className="heading-4" />}
       userDeposited={
         <NumberFlowWithLoading
           isLoading={isPositionsLoading}
           value={data.userDepositsUsd}
           format={{ currency: "USD" }}
-          className="heading-5"
+          className="heading-4"
           loadingContent={<MetricSkeleton className="w-[90px]" />}
         />
       }
@@ -37,7 +37,7 @@ export function EarnSummaryMetrics({ vaultSummaries }: EarnSummaryMetricsProps) 
           isLoading={isPositionsLoading}
           value={data.userEarnApy}
           format={{ style: "percent" }}
-          className="heading-5"
+          className="heading-4"
           loadingContent={<Skeleton className="mt-[2px] h-[28px] w-[84px]" />}
         />
       }
