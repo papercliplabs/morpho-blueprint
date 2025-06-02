@@ -59,11 +59,11 @@ function MarketActionsDesktop({ market, hasBorrowPosition }: { hasBorrowPosition
         </div>
         <TabsContent value="borrow" className="flex flex-col gap-6">
           <MarketSupplyCollateralAndBorrow market={market} />
-          <PoweredByMorpho className="mx-auto" />
+          <PoweredByMorpho className="text-muted-foreground mx-auto" />
         </TabsContent>
         <TabsContent value="repay" className="flex flex-col gap-6">
           <MarketRepayAndWithdrawCollateral market={market} />
-          <PoweredByMorpho className="mx-auto" />
+          <PoweredByMorpho className="text-muted-foreground mx-auto" />
         </TabsContent>
       </Tabs>
     </Card>
