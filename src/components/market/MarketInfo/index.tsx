@@ -95,7 +95,7 @@ function MarketInfoLayout({
   oraclePrice,
 }: VaultInfoLayoutProps) {
   return (
-    <div className="grid grid-cols-1 gap-4 gap-y-4 md:grid-cols-3 md:gap-y-10">
+    <div className="grid grid-cols-1 gap-6 gap-y-6 md:grid-cols-3 md:gap-y-10">
       <MetricWithTooltip
         label="LLTV"
         tooltip="The liquidation loan-to-value (LLTV) threshold sets the limit at which positions become eligible for liquidation."
