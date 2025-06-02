@@ -29,13 +29,13 @@ export async function marketRepayAndWithdrawCollateralAction({
   if (repayAmount < 0n || withdrawCollateralAmount < 0n) {
     return {
       status: "error",
-      message: "Repay and withdraw collateral amounts cannot be negative",
+      message: "Repay and withdraw collateral amounts cannot be negative.",
     };
   }
   if (repayAmount == 0n && withdrawCollateralAmount == 0n) {
     return {
       status: "error",
-      message: "Repay and withdraw collateral amounts cannot both be 0",
+      message: "Repay and withdraw collateral amounts cannot both be 0.",
     };
   }
 

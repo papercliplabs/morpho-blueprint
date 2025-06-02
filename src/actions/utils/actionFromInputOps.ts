@@ -39,7 +39,7 @@ export function actionFromInputOps(
   } catch (e) {
     return {
       status: "error",
-      message: `Simulation Error: ${(e instanceof Error ? e.message : JSON.stringify(e)).split("0x")[0]}`,
+      message: `Simulation Error: ${e instanceof Error ? e.message : JSON.stringify(e)}`,
     };
   }
 }

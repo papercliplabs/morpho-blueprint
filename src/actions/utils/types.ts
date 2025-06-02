@@ -1,5 +1,5 @@
 import { SignatureRequirementFunction } from "@morpho-org/bundler-sdk-viem";
-import { Address, Hex, PublicClient, TransactionRequest as ViemTransactionRequest } from "viem";
+import { Address, Client, Hex, PublicClient, TransactionRequest as ViemTransactionRequest } from "viem";
 
 import { MarketPositionChange, VaultPositionChange } from "./positionChange";
 
@@ -37,4 +37,4 @@ export type VaultAction = SuccessfulVaultAction | ErrorAction;
 export type SuccessfulMarketAction = SuccessfulAction & { positionChange: MarketPositionChange };
 export type MarketAction = SuccessfulMarketAction | ErrorAction;
 
-export type PublicClientWithChain = PublicClient & { chain: NonNullable<PublicClient["chain"]> };
+export type PublicClientWithChain = Client & { chain: NonNullable<PublicClient["chain"]> };
