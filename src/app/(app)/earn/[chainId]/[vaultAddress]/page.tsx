@@ -129,12 +129,14 @@ async function VaultHeader({ chainId, vaultAddress }: VaultIdentifier) {
           <h1 className="heading-3">{vault.name}</h1>
         </div>
         <div className="text-muted-foreground flex items-center gap-2">
-          {vault.chain.name}
+          <span>
+            Chain: <span className="text-foreground">{vault.chain.name}</span>
+          </span>
           {curator && (
             <>
               <span>&bull;</span>
               <div className="flex items-center gap-1">
-                <span>Curated by</span>
+                <span>Curator: </span>
                 <LinkExternal href={curator.url} className="text-foreground">
                   {curator.name}
                   <Image
