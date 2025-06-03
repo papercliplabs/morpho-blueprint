@@ -151,7 +151,9 @@ async function MarketHeader({ chainId, marketId }: MarketIdentifier) {
         <div className="flex h-[64px] items-center gap-3">
           <MarketName variant="default" {...market} />
         </div>
-        <div className="text-muted-foreground">{market.chain.name}</div>
+        <div className="text-muted-foreground">
+          Chain: <span className="text-foreground">{market.chain.name}</span>
+        </div>
       </div>
 
       <MarketPositionHighlight market={market} />

@@ -20,14 +20,16 @@ export const metadata: Metadata = {
 export default function EarnPage() {
   return (
     <div className="flex w-full min-w-0 flex-col gap-6">
-      <div className="flex flex-col gap-1">
-        <h1>Earn</h1>
-        <p className="text-muted-foreground">Earn yield on assets by lending them out.</p>
-      </div>
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-1">
+          <h1 className="heading-2">Earn</h1>
+          <p className="text-muted-foreground">Earn yield on assets by lending them out.</p>
+        </div>
 
-      <Suspense fallback={<EarnSummaryMetricsSkeleton />}>
-        <EarnSummaryMetricsWrapper />
-      </Suspense>
+        <Suspense fallback={<EarnSummaryMetricsSkeleton />}>
+          <EarnSummaryMetricsWrapper />
+        </Suspense>
+      </div>
 
       <section className="flex flex-col gap-4">
         <div className="flex flex-col justify-between gap-4 md:flex-row">

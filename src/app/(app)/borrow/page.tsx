@@ -20,14 +20,16 @@ export const metadata: Metadata = {
 export default function BorrowPage() {
   return (
     <div className="flex w-full min-w-0 flex-col gap-6">
-      <div className="flex flex-col gap-1">
-        <h1>Borrow</h1>
-        <p className="text-muted-foreground">Borrow assets against your collateral.</p>
-      </div>
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-1">
+          <h1 className="heading-2">Borrow</h1>
+          <p className="text-muted-foreground">Borrow assets against your collateral.</p>
+        </div>
 
-      <Suspense fallback={<BorrowSummaryMetricsSkeleton />}>
-        <BorrowSummaryMetricsWrapper />
-      </Suspense>
+        <Suspense fallback={<BorrowSummaryMetricsSkeleton />}>
+          <BorrowSummaryMetricsWrapper />
+        </Suspense>
+      </div>
 
       <section className="flex flex-col gap-4">
         <div className="flex flex-col justify-between gap-4 md:flex-row">

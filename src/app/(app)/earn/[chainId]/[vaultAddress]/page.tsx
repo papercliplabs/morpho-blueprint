@@ -184,7 +184,7 @@ async function VaultAboutCard({ chainId, vaultAddress }: VaultIdentifier) {
   return (
     <Card>
       <CardHeader>About</CardHeader>
-      <p className="text-muted-foreground">{vault.metadata?.description}</p>
+      <p className="text-muted-foreground body-large">{vault.metadata?.description}</p>
     </Card>
   );
 }

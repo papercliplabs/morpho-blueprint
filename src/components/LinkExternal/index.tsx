@@ -28,7 +28,7 @@ export default function LinkExternal({
       target="_blank"
       rel={`noopener ${keepReferrer ? "" : "noreferrer"} ${noFollow ? "nofollow" : ""}`}
       className={cn(
-        "text-primary flex items-center gap-2 underline-offset-2 transition-all hover:underline active:scale-98 active:opacity-50",
+        "text-primary flex items-center gap-1 underline-offset-2 transition-all hover:underline active:scale-98 active:opacity-50",
         className
       )}
       {...props}
