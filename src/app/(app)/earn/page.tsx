@@ -1,3 +1,4 @@
+import { Metadata } from "next";
 import Image from "next/image";
 import { Suspense } from "react";
 
@@ -9,7 +10,12 @@ import { Avatar } from "@/components/ui/avatar";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Skeleton, Skeletons } from "@/components/ui/skeleton";
 import { EarnSummaryMetrics, EarnSummaryMetricsSkeleton } from "@/components/vault/EarnSummaryMetrics";
+import { APP_CONFIG } from "@/config";
 import { getVaultSummaries } from "@/data/whisk/getVaultSummaries";
+
+export const metadata: Metadata = {
+  title: `${APP_CONFIG.appMetadata.name} | Earn`,
+};
 
 export default function EarnPage() {
   return (

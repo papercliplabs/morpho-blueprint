@@ -22,7 +22,7 @@ export const wagmiConfig = createConfig(
 
     appDescription: APP_CONFIG.appMetadata.description,
     appUrl: APP_CONFIG.appMetadata.url,
-    appIcon: APP_CONFIG.appMetadata.icon,
+    appIcon: APP_CONFIG.appMetadata.images.icons.svg,
 
     ssr: true,
   })
