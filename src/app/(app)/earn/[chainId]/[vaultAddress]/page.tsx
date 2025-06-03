@@ -1,3 +1,4 @@
+import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -21,6 +22,10 @@ import { APP_CONFIG } from "@/config";
 import { SupportedChainId } from "@/config/types";
 import { getVault } from "@/data/whisk/getVault";
 import { VaultIdentifier } from "@/utils/types";
+
+export const metadata: Metadata = {
+  title: `${APP_CONFIG.appMetadata.name} | Vault`,
+};
 
 export default async function VaultPage({ params }: { params: Promise<{ chainId: string; vaultAddress: string }> }) {
   const { chainId: chainIdString, vaultAddress: vaultAddressString } = await params;

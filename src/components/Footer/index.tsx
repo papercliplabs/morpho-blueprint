@@ -5,7 +5,7 @@ import LinkExternal from "../LinkExternal";
 
 import { ThemeToggle } from "./ThemeToggle";
 
-const { support, termsOfService, privacyPolicy } = APP_CONFIG.links;
+const { support, termsOfService, privacyPolicy } = APP_CONFIG.appMetadata.links;
 
 const FOOTER_ITEMS: { name: string; href: string }[] = [
   ...(support ? [{ name: "Support", href: support }] : []),

@@ -1,5 +1,7 @@
 "use server";
 
+import { APP_CONFIG } from "@/config";
+
 // Track event from server action so client can't block
 export async function trackEvent(name: string, payload: Record<string, string | number>) {
   const timestamp = Math.floor(Date.now() / 1000);
@@ -18,12 +20,12 @@ export async function trackEvent(name: string, payload: Record<string, string | 
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Origin: process.env.NEXT_PUBLIC_URL!,
+          Origin: APP_CONFIG.appMetadata.url,
         },
         body: JSON.stringify({
           domain: process.env.NEXT_PUBLIC_PLAUSIBLE_DATA_DOMAIN,
           name,
-          url: process.env.NEXT_PUBLIC_URL,
+          url: APP_CONFIG.appMetadata.url,
           props: fullPayload,
         }),
       });

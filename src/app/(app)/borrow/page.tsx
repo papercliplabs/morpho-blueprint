@@ -1,3 +1,4 @@
+import { Metadata } from "next";
 import Image from "next/image";
 import { Suspense } from "react";
 
@@ -9,7 +10,12 @@ import { MarketTable } from "@/components/tables/MarketTable";
 import { Avatar } from "@/components/ui/avatar";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Skeleton, Skeletons } from "@/components/ui/skeleton";
+import { APP_CONFIG } from "@/config";
 import { getMarketSummaries } from "@/data/whisk/getMarketSummaries";
+
+export const metadata: Metadata = {
+  title: `${APP_CONFIG.appMetadata.name} | Borrow`,
+};
 
 export default function BorrowPage() {
   return (

@@ -1,9 +1,9 @@
 :root {
-  /* Radius */
+  /* Border radius */
   --radius: 0.5rem;
   --button-radius: 0.5rem;
 
-  /* Light mode colors */
+  /* Light mode colors, or base colors if the deployment has set featureFlags.darkModeToggle to false */
   --background: oklch(1 0 0);
   --foreground: oklch(0.141 0.005 285.823);
   --card: oklch(1 0 0);
@@ -37,7 +37,7 @@
   --sidebar-ring: oklch(0.623 0.214 259.815);
 }
 
-/* Dark mode colors */
+/* Dark mode colors - not required if the deployment has set featureFlags.darkModeToggle to false */
 .dark {
   --background: oklch(0.141 0.005 285.823);
   --foreground: oklch(0.985 0 0);
@@ -72,7 +72,7 @@
   --sidebar-ring: oklch(0.488 0.243 264.376);
 }
 
-/* Typography */
+/* Typography - using Tailwind CSS utility classes (https://tailwindcss.com/docs/styling-with-utility-classes) */
 @utility heading-1 {
   @apply text-[36px] leading-[48px] font-[600] tracking-[-0.79];
 }

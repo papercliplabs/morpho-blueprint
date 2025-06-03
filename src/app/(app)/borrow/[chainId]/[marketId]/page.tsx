@@ -1,3 +1,4 @@
+import { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -15,10 +16,15 @@ import { BreakcrumbBack } from "@/components/ui/breakcrumb-back";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { APP_CONFIG } from "@/config";
 import { SupportedChainId } from "@/config/types";
 import { getMarket, isNonIdleMarket } from "@/data/whisk/getMarket";
 import { getWhitelistedMarketIds } from "@/data/whisk/getWhitelistedMarketIds";
 import { MarketIdentifier } from "@/utils/types";
+
+export const metadata: Metadata = {
+  title: `${APP_CONFIG.appMetadata.name} | Market`,
+};
 
 export default async function MarketPage({ params }: { params: Promise<{ chainId: string; marketId: string }> }) {
   const { chainId: chainIdString, marketId } = await params;
