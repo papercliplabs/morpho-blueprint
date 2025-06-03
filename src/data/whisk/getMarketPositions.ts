@@ -1,5 +1,4 @@
 import "server-only";
-import { unstable_cache } from "next/cache";
 import { cache } from "react";
 import { Address, Hex } from "viem";
 
@@ -39,37 +38,31 @@ const query = graphql(`
 `);
 
 // ChainId -> MarketId -> MarketPosition
-export const getMarketPositions = cache(
-  unstable_cache(
-    async (accountAddress: Address): Promise<MarketPositionMap> => {
-      const whitelistedMarketIds = await getWhitelistedMarketIds();
-      const partialQueryVariables = Object.entries(whitelistedMarketIds);
+export const getMarketPositions = cache(async (accountAddress: Address): Promise<MarketPositionMap> => {
+  const whitelistedMarketIds = await getWhitelistedMarketIds();
+  const partialQueryVariables = Object.entries(whitelistedMarketIds);
 
-      const responses = await Promise.all(
-        partialQueryVariables.map(
-          async ([chainId, marketIds]) =>
-            await executeWhiskQuery(query, {
-              chainId: parseInt(chainId),
-              marketIds,
-              accountAddress,
-            })
-        )
-      );
+  const responses = await Promise.all(
+    partialQueryVariables.map(
+      async ([chainId, marketIds]) =>
+        await executeWhiskQuery(query, {
+          chainId: parseInt(chainId),
+          marketIds,
+          accountAddress,
+        })
+    )
+  );
 
-      const data: MarketPositionMap = {};
-      for (const position of responses.flatMap((resp) => resp.morphoMarketPositions)) {
-        if (!data[position.chain.id]) {
-          data[position.chain.id] = {};
-        }
-        data[position.chain.id][position.marketId as Hex] = position;
-      }
+  const data: MarketPositionMap = {};
+  for (const position of responses.flatMap((resp) => resp.morphoMarketPositions)) {
+    if (!data[position.chain.id]) {
+      data[position.chain.id] = {};
+    }
+    data[position.chain.id][position.marketId as Hex] = position;
+  }
 
-      return data;
-    },
-    ["getMarketPositions"],
-    { revalidate: 5 } // Light cache, mostly to help in dev
-  )
-);
+  return data;
+});
 
 export type MarketPosition = NonNullable<GetMarketPositionsQuery["morphoMarketPositions"]>[number];
 export type MarketPositionMap = Record<number, Record<Hex, MarketPosition>>;

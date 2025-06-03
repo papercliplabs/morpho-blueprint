@@ -162,11 +162,6 @@ export function ActionFlowProvider({
               ...trackingPayload,
             });
             setActiveStep((step) => step + 1);
-
-            // Trigger data revalidation
-            // void revalidatePages();
-            void queryClient.invalidateQueries({ type: "all" });
-            void queryClient.refetchQueries({ type: "all" });
           } else {
             void trackEvent("transaction", {
               accountAddress,
@@ -193,6 +188,11 @@ export function ActionFlowProvider({
         });
         return;
       }
+
+      // Trigger data revalidation
+      // void revalidatePages();
+      void queryClient.invalidateQueries({ type: "all" });
+      void queryClient.refetchQueries({ type: "all" });
 
       setFlowState("success");
       flowCompletionCb?.();
