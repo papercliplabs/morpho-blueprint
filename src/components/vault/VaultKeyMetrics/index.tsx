@@ -23,6 +23,7 @@ export function VaultKeyMetrics({ vault }: VaultKeyMetricsProps) {
           type="earn"
           nativeApy={vault.supplyApy.base}
           totalApy={vault.supplyApy.total}
+          performanceFee={vault.supplyApy.performanceFee}
           rewards={vault.supplyApy.rewards}
         />
       }
