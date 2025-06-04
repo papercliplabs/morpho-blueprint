@@ -64,6 +64,7 @@ const columns: ColumnDef<Vault["marketAllocations"][number]>[] = [
           type="earn"
           nativeApy={market.supplyApy.base}
           totalApy={market.supplyApy.total}
+          rewards={market.supplyApy.rewards}
           triggerVariant="sm"
         />
       );
