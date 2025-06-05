@@ -24,7 +24,7 @@ function PopoverDrawer({ children, ...props }: PopoverDrawerProps) {
   );
 }
 
-function PopoverDrawerTrigger({ className, ...props }: React.ComponentProps<typeof DrawerTrigger>) {
+function PopoverDrawerTrigger({ className, ...props }: React.ComponentProps<typeof PopoverTrigger>) {
   const { isDesktop } = useResponsiveContext();
   return isDesktop ? (
     <PopoverTrigger type="button" className={cn("cursor-pointer", className)} {...props} />
@@ -33,7 +33,7 @@ function PopoverDrawerTrigger({ className, ...props }: React.ComponentProps<type
   );
 }
 
-function PopoverDrawerContent(props: React.ComponentProps<typeof DrawerContent>) {
+function PopoverDrawerContent(props: React.ComponentProps<typeof PopoverContent>) {
   const { isDesktop } = useResponsiveContext();
   return isDesktop ? <PopoverContent {...props} /> : <DrawerContent {...props} />;
 }
