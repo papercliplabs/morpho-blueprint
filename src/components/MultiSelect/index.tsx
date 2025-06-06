@@ -6,7 +6,8 @@ import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+
+import { PopoverDrawer, PopoverDrawerContent, PopoverDrawerTrigger } from "../ui/popover-drawer";
 
 export type MultiSelectOption = {
   value: string;
@@ -37,8 +38,8 @@ export function MultiSelect({
   const [open, setOpen] = React.useState(defaultOpen);
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
+    <PopoverDrawer open={open} onOpenChange={setOpen}>
+      <PopoverDrawerTrigger asChild>
         <Button
           variant="outline"
           role="combobox"
@@ -51,8 +52,8 @@ export function MultiSelect({
           </span>
           <ChevronDown className="ml-2 h-4 w-4 shrink-0" />
         </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0" align="start">
+      </PopoverDrawerTrigger>
+      <PopoverDrawerContent className="w-full p-0 md:w-[200px]" align="start">
         <Command>
           <CommandInput placeholder={placeholder} className="body-large" />
           <CommandList>
@@ -79,7 +80,7 @@ export function MultiSelect({
             </Button>
           </div>
         </Command>
-      </PopoverContent>
-    </Popover>
+      </PopoverDrawerContent>
+    </PopoverDrawer>
   );
 }

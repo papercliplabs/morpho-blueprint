@@ -3,12 +3,20 @@ import { fn } from "@storybook/test";
 import React from "react";
 
 import { MultiSelect } from "@/components/MultiSelect";
+import { ResponsiveProvider } from "@/providers/ResponsiveProvider";
 
 import { Avatar } from "../ui/avatar";
 
 const meta = {
   title: "Components/MultiSelect",
   component: MultiSelect,
+  decorators: [
+    (Story) => (
+      <ResponsiveProvider>
+        <Story />
+      </ResponsiveProvider>
+    ),
+  ],
   parameters: {
     layout: "centered",
   },
