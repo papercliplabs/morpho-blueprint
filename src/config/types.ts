@@ -46,6 +46,7 @@ export interface AppConfig {
   featureFlags: {
     curatorColumn: boolean; // Controls if the curator column should be shown on the earn pages table
     darkModeToggle: boolean; // Controls if the dark mode toggle should be shown in the footer
+    showUnsupportedVaults: boolean; // Controls if unsupported vaults are shown in the market pages vault allocation table
   };
   fonts: {
     main: NextFontWithVariable; // Main font for the app. Variable name of font MUST be "--font-main"

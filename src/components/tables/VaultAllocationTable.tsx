@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { getAddress } from "viem";
 
 import { Table } from "@/components/ui/table";
+import { APP_CONFIG } from "@/config";
 import { Market } from "@/data/whisk/getMarket";
 
 import AvatarGroup from "../AvatarGroup";
@@ -74,7 +75,14 @@ const columns: Column[] = [
 
 export function VaultAllocationTable({ market }: VaultAllocationTableProps) {
   const data = useMemo(() => {
-    return market.vaultAllocations.filter((vault) => vault.enabled);
+    const supportedVaultIdentifiers = Object.entries(APP_CONFIG.whitelistedVaults).map(([chainId, vaults]) =>
+      vaults.map((vault) => `${chainId}:${vault}`)
+    );
+    return market.vaultAllocations.filter((allocation) => {
+      const identifier = `${allocation.vault.chain.id}:${allocation.vault.vaultAddress}`;
+      const isWhitelisted = supportedVaultIdentifiers.some((identifiers) => identifiers.includes(identifier));
+      return allocation.enabled && (APP_CONFIG.featureFlags.showUnsupportedVaults || isWhitelisted);
+    });
   }, [market]);
 
   return (

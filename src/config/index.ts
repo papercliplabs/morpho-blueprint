@@ -79,6 +79,7 @@ export const APP_CONFIG: AppConfig = {
   featureFlags: {
     curatorColumn: true,
     darkModeToggle: true,
+    showUnsupportedVaults: true,
   },
   fonts: {
     main: inter,
