@@ -60,7 +60,7 @@ export function MarketName({
       <Badge variant={variant === "sm" ? "small" : "default"}>
         <NumberFlow
           value={lltv}
-          format={{ style: "percent", minimumFractionDigits: 0, maximumFractionDigits: 0 }}
+          format={{ style: "percent", minimumFractionDigits: 1, maximumFractionDigits: 2 }}
           className={variant === "sm" ? "body-small-plus" : "body-medium-plus"}
         />
       </Badge>
