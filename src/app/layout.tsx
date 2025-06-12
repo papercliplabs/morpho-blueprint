@@ -7,6 +7,7 @@ import { Header } from "@/components/Header";
 import { APP_CONFIG } from "@/config";
 import Providers from "@/providers";
 
+import "../actions/utils/morphoSdkPatch";
 import "./globals.css";
 
 export const metadata: Metadata = {
