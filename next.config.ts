@@ -48,6 +48,8 @@ const cspHeader = `
         https://*.alchemy.com
         https://*.infura.io
         https://*.quiknode.pro
+        https://*.drpc.org
+        https://rpc.api.lisk.com
         https://api.paraswap.io
         https://plausible.paperclip.xyz;
     frame-src 'self' 
