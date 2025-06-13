@@ -73,7 +73,7 @@ export const APP_CONFIG: AppConfig = {
     },
     [unichain.id]: {
       chain: unichain,
-      rpcUrls: [process.env.NEXT_PUBLIC_UNI_RPC_URL_1!, process.env.NEXT_PUBLIC_UNI_RPC_URL_2!],
+      rpcUrls: [process.env.NEXT_PUBLIC_UNICHAIN_RPC_URL_1!, process.env.NEXT_PUBLIC_UNICHAIN_RPC_URL_2!],
     },
     [lisk.id]: {
       chain: lisk,
