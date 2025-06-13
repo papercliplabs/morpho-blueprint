@@ -1,4 +1,4 @@
-import { MarketPositionChange, VaultPositionChange } from "@/actions/utils/positionChange";
+import { MarketPositionChange, VaultPositionChange } from "@/actions";
 import { APP_CONFIG } from "@/config";
 import { MarketNonIdle } from "@/data/whisk/getMarket";
 import { MarketPosition } from "@/data/whisk/getMarketPositions";

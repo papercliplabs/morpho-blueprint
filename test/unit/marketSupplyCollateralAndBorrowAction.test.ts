@@ -5,8 +5,7 @@ import { Address, Hex, Log, maxUint256, parseUnits } from "viem";
 import { readContract } from "viem/actions";
 import { describe, expect } from "vitest";
 
-import { marketSupplyCollateralAndBorrowAction } from "@/actions/market/marketSupplyCollateralAndBorrowAction";
-import { MarketAction } from "@/actions/utils/types";
+import { MarketAction, marketSupplyCollateralAndBorrowAction } from "@/actions";
 
 import { test } from "../config";
 import { expectZeroErc20Balances, getErc20BalanceOf } from "../helpers/erc20";

@@ -10,8 +10,7 @@ import { Hex, getAddress, maxUint256, parseUnits } from "viem";
 import { useAccount, usePublicClient } from "wagmi";
 import { z } from "zod";
 
-import { marketSupplyCollateralAndBorrowAction } from "@/actions/market/marketSupplyCollateralAndBorrowAction";
-import { SuccessfulMarketAction } from "@/actions/utils/types";
+import { SuccessfulMarketAction, marketSupplyCollateralAndBorrowAction } from "@/actions";
 import { MarketNonIdle } from "@/data/whisk/getMarket";
 import { useMarketPosition } from "@/hooks/useMarketPositions";
 import { useWatchNumberInputField } from "@/hooks/useWatchNumberInputField";

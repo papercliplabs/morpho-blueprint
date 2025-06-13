@@ -7,7 +7,7 @@ import { Address } from "viem";
 
 import { APP_CONFIG } from "@/config";
 
-import { Subbundle } from "./types";
+import { Subbundle } from "../types";
 
 export function getSignatureRequirementDescription(
   requirement: Omit<SignatureRequirement, "sign">,

@@ -1,5 +1,4 @@
-import { VaultPositionChange } from "@/actions/utils/positionChange";
-import { VaultAction } from "@/actions/utils/types";
+import type { VaultAction, VaultPositionChange } from "@/actions";
 import { Vault } from "@/data/whisk/getVault";
 
 import { AssetChangeSummary } from "../AssetChangeSummary";

@@ -3,7 +3,7 @@ import { Hex, Log } from "viem";
 import { getTransactionReceipt, sendTransaction } from "viem/actions";
 import { expect } from "vitest";
 
-import { Action } from "@/actions/utils/types";
+import { Action } from "@/actions";
 
 export async function executeAction(client: AnvilTestClient, action: Action): Promise<Log[]> {
   if (action.status == "error") {

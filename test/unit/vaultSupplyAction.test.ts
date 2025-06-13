@@ -5,8 +5,7 @@ import { Address, Log, maxUint256, parseEther, parseUnits, zeroAddress } from "v
 import { readContract } from "viem/actions";
 import { describe, expect } from "vitest";
 
-import { VaultAction } from "@/actions/utils/types";
-import { vaultSupplyAction } from "@/actions/vault/vaultSupplyAction";
+import { VaultAction, vaultSupplyAction } from "@/actions";
 
 import { test } from "../config";
 import { RANDOM_ADDRESS } from "../helpers/constants";

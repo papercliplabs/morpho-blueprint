@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 
-import { SuccessfulVaultAction } from "@/actions/utils/types";
+import { SuccessfulVaultAction } from "@/actions";
 import { VaultActionFlow } from "@/components/ActionFlow/VaultActionFlow";
 import { VaultSupplyForm } from "@/components/forms/VaultSupplyForm";
 import { Vault } from "@/data/whisk/getVault";

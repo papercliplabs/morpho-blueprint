@@ -1,7 +1,6 @@
 import { clsx } from "clsx";
 
-import { MarketPositionChange } from "@/actions/utils/positionChange";
-import { MarketAction } from "@/actions/utils/types";
+import type { MarketAction, MarketPositionChange } from "@/actions";
 import { Market, MarketNonIdle } from "@/data/whisk/getMarket";
 import { formatNumber } from "@/utils/format";
 

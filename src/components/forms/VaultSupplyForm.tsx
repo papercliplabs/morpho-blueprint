@@ -9,8 +9,7 @@ import { getAddress, maxUint256, parseUnits } from "viem";
 import { useAccount, usePublicClient } from "wagmi";
 import { z } from "zod";
 
-import { SuccessfulVaultAction } from "@/actions/utils/types";
-import { vaultSupplyAction } from "@/actions/vault/vaultSupplyAction";
+import { SuccessfulVaultAction, vaultSupplyAction } from "@/actions";
 import { Vault } from "@/data/whisk/getVault";
 import { useVaultPosition } from "@/hooks/useVaultPositions";
 import { useWatchNumberInputField } from "@/hooks/useWatchNumberInputField";

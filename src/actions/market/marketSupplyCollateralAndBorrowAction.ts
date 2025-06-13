@@ -5,9 +5,9 @@ import { Address, maxUint256 } from "viem";
 import { getIsContract } from "@/actions/data/rpc/getIsContract";
 
 import { getMarketSimulationStateAccountingForPublicReallocation } from "../data/rpc/getSimulationState";
+import { MarketAction, PublicClientWithChain } from "../types";
 import { actionFromInputOps } from "../utils/actionFromInputOps";
 import { computeMarketPositionChange } from "../utils/positionChange";
-import { MarketAction, PublicClientWithChain } from "../utils/types";
 
 interface MarketSupplyCollateralAndBorrowActionParameters {
   publicClient: PublicClientWithChain;

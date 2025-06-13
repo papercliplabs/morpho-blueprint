@@ -3,10 +3,9 @@ import { BundlerAction } from "@morpho-org/bundler-sdk-viem";
 import { MaybeDraft, SimulationState } from "@morpho-org/simulation-sdk";
 import { Address, encodeFunctionData, erc20Abi, isAddressEqual, maxUint256, parseEther } from "viem";
 
+import { Subbundle } from "../types";
 import { bigIntMax, bigIntMin } from "../utils/bigint";
 import { computeAmountWithRebasingMargin } from "../utils/math";
-
-import { Subbundle } from "./types";
 
 // If a user requests max action and wrapping of native asset, leave this much native in their wallet for future gas.
 export const MIN_REMAINING_NATIVE_ASSET_BALANCE_AFTER_WRAPPING = parseEther("0.1");

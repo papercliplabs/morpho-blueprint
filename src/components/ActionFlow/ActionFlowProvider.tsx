@@ -6,7 +6,7 @@ import { Hex } from "viem";
 import { estimateGas, sendTransaction, waitForTransactionReceipt } from "viem/actions";
 import { useAccount, useConnectorClient, usePublicClient, useSwitchChain } from "wagmi";
 
-import { SuccessfulAction } from "@/actions/utils/types";
+import type { SuccessfulAction } from "@/actions";
 import { trackEvent } from "@/data/trackEvent";
 import { fetchJsonResponse } from "@/utils/promise";
 

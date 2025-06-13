@@ -1,7 +1,5 @@
-import { SignatureRequirementFunction } from "@morpho-org/bundler-sdk-viem";
+import { BundlerCall, SignatureRequirementFunction } from "@morpho-org/bundler-sdk-viem";
 import { Address, Client, Hex, PublicClient, TransactionRequest as ViemTransactionRequest } from "viem";
-
-import { MarketPositionChange, VaultPositionChange } from "./positionChange";
 
 interface ActionMetadata {
   name: string;
@@ -38,3 +36,25 @@ export type SuccessfulMarketAction = SuccessfulAction & { positionChange: Market
 export type MarketAction = SuccessfulMarketAction | ErrorAction;
 
 export type PublicClientWithChain = Client & { chain: NonNullable<PublicClient["chain"]> };
+
+export interface Subbundle {
+  signatureRequirements: SignatureRequest[];
+  transactionRequirements: TransactionRequest[];
+  bundlerCalls: () => BundlerCall[]; // Encode just in time so we can use signatures
+}
+
+export interface SimulatedValueChange<T> {
+  before: T;
+  after: T;
+}
+
+export type VaultPositionChange = {
+  balance: SimulatedValueChange<number>;
+};
+
+export type MarketPositionChange = {
+  collateral: SimulatedValueChange<number>;
+  loan: SimulatedValueChange<number>;
+  availableToBorrow: SimulatedValueChange<number>;
+  ltv: SimulatedValueChange<number>;
+};
