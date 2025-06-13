@@ -66,6 +66,15 @@
     scrollbar-gutter: stable;
   }
 
+  /* Prevent radix dialog layout shift when hiding scrollbar */
+  html {
+    @supports (scrollbar-gutter: stable) {
+      body {
+        margin: 0 !important;
+      }
+    }
+  }
+
   body {
     @apply bg-background text-foreground body-medium font-sans;
   }
