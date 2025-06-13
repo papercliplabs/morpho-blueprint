@@ -7,9 +7,9 @@ import { getSimulationState } from "@/actions/data/rpc/getSimulationState";
 
 import { inputTransferSubbundle } from "../subbundles/inputTransferSubbundle";
 import { subbundleFromInputOps } from "../subbundles/subbundleFromInputOps";
+import { PublicClientWithChain, VaultAction } from "../types";
 import { actionFromSubbundles } from "../utils/actionFromSubbundles";
 import { computeVaultPositionChange } from "../utils/positionChange";
-import { PublicClientWithChain, VaultAction } from "../utils/types";
 
 interface VaultSupplyActionParameters {
   publicClient: PublicClientWithChain;

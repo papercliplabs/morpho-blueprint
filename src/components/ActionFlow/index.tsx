@@ -4,7 +4,7 @@ import { motion } from "motion/react";
 import { ComponentProps, ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { zeroHash } from "viem";
 
-import { SuccessfulAction } from "@/actions/utils/types";
+import type { SuccessfulAction } from "@/actions";
 import { capitalizeFirstLetter } from "@/utils/format";
 
 import { Button } from "../ui/button";

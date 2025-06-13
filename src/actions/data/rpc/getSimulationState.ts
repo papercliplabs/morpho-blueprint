@@ -22,7 +22,7 @@ import { SimulationState } from "@morpho-org/simulation-sdk";
 import { Address, zeroAddress } from "viem";
 import { getBlock } from "viem/actions";
 
-import { PublicClientWithChain } from "@/actions/utils/types";
+import { PublicClientWithChain } from "@/actions/types";
 import { APP_CONFIG } from "@/config";
 
 type GetSimulationStateMarketTypeParameters = {

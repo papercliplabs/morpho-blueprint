@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 
-import { SuccessfulMarketAction } from "@/actions/utils/types";
+import { SuccessfulMarketAction } from "@/actions";
 import { MarketActionFlow } from "@/components/ActionFlow/MarketActionFlow";
 import { MarketSupplyCollateralAndBorrowForm } from "@/components/forms/MarketSupplyCollateralAndBorrowForm";
 import { MarketNonIdle } from "@/data/whisk/getMarket";

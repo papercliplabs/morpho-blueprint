@@ -1,9 +1,8 @@
 import { ChainId } from "@morpho-org/blue-sdk";
 
-import { Subbundle } from "../subbundles/types";
+import { Subbundle, SuccessfulAction } from "../types";
 
 import { encodeBundlerCalls } from "./encodeBundlerCalls";
-import { SuccessfulAction } from "./types";
 
 // Encode subbundles into an action in the order they are provided
 export function actionFromSubbundles(

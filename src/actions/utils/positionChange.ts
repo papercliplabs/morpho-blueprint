@@ -5,21 +5,7 @@ import { Address, parseUnits } from "viem";
 import { APP_CONFIG } from "@/config";
 import { descaleBigIntToNumber, numberToString } from "@/utils/format";
 
-export interface SimulatedValueChange<T> {
-  before: T;
-  after: T;
-}
-
-export type VaultPositionChange = {
-  balance: SimulatedValueChange<number>;
-};
-
-export type MarketPositionChange = {
-  collateral: SimulatedValueChange<number>;
-  loan: SimulatedValueChange<number>;
-  availableToBorrow: SimulatedValueChange<number>;
-  ltv: SimulatedValueChange<number>;
-};
+import { MarketPositionChange, VaultPositionChange } from "../types";
 
 export function computeVaultPositionChange(
   vaultAddress: Address,

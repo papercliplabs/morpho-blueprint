@@ -4,7 +4,7 @@ import { AnvilTestClient } from "@morpho-org/test";
 import { Address, Log, maxUint256, parseUnits, zeroAddress } from "viem";
 import { describe, expect } from "vitest";
 
-import { vaultWithdrawAction } from "@/actions/vault/vaultWithdrawAction";
+import { vaultWithdrawAction } from "@/actions";
 
 import { test } from "../config";
 import { expectZeroErc20Balances, getErc20BalanceOf } from "../helpers/erc20";

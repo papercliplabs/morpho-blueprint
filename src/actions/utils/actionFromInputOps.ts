@@ -4,9 +4,9 @@ import { SimulationResult, SimulationState } from "@morpho-org/simulation-sdk";
 import { Address } from "viem";
 
 import { subbundleFromInputOps } from "../subbundles/subbundleFromInputOps";
+import { Action } from "../types";
 
 import { actionFromSubbundles } from "./actionFromSubbundles";
-import { Action } from "./types";
 
 export type MorphoAction =
   | (Extract<Action, { status: "success" }> & {
