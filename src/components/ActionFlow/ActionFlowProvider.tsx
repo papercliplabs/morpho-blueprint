@@ -148,7 +148,7 @@ export function ActionFlowProvider({
           setActionState("pending-transaction");
           const receipt = await waitForTransactionReceipt(publicClient, {
             hash,
-            pollingInterval: 4000,
+            pollingInterval: 1000,
             retryCount: 20,
           });
 
@@ -161,6 +161,7 @@ export function ActionFlowProvider({
               stepName: step.name,
               ...trackingPayload,
             });
+            await new Promise((resolve) => setTimeout(resolve, 1000)); // Delay to let rpc data propogate (ex approval on prev tx)
             setActiveStep((step) => step + 1);
           } else {
             void trackEvent("transaction", {
