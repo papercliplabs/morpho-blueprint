@@ -1,6 +1,6 @@
 import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import { getAddress } from "viem";
-import { base, mainnet, plumeMainnet, polygon, unichain, worldchain } from "viem/chains";
+import { base, lisk, mainnet, plumeMainnet, polygon, unichain, worldchain } from "viem/chains";
 
 import { Logo } from "./components/Logo";
 import { AppConfig } from "./types";
@@ -12,6 +12,7 @@ export const SUPPORTED_CHAIN_IDS = [
   worldchain.id,
   plumeMainnet.id,
   unichain.id,
+  lisk.id,
 ] as const;
 
 const ibmPlexSans = IBM_Plex_Sans({
@@ -74,6 +75,10 @@ export const APP_CONFIG: AppConfig = {
       chain: unichain,
       rpcUrls: [process.env.NEXT_PUBLIC_UNI_RPC_URL_1!, process.env.NEXT_PUBLIC_UNI_RPC_URL_2!],
     },
+    [lisk.id]: {
+      chain: lisk,
+      rpcUrls: [process.env.NEXT_PUBLIC_LISK_RPC_URL_1!, process.env.NEXT_PUBLIC_LISK_RPC_URL_2!],
+    },
   },
   whitelistedVaults: {
     [mainnet.id]: [
@@ -117,6 +122,12 @@ export const APP_CONFIG: AppConfig = {
       getAddress("0x6af5E46456A8ac80BB53a02799965DEF99c26e52"), // WETH
       getAddress("0x2c0F7e917257926BA6233B20DE19d7fe3210858C"), // USDT
       getAddress("0xa48f8A10F16bB50A588606553D9fE7338050f8Cd"), // USDC
+    ],
+    [lisk.id]: [
+      getAddress("0x50cb55be8cf05480a844642cb979820c847782ae"), // USDT
+      getAddress("0x7cbaa98bd5e171a658fdf761ed1db33806a0d346"), // WETH
+      getAddress("0x8258f0c79465c95afac325d6ab18797c9ddacf55"), // LSK
+      getAddress("0xd92f564a29992251297980187a6b74faa3d50699"), // USDC
     ],
   },
   actionParameters: {
