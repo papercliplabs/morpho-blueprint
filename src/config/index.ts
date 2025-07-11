@@ -84,4 +84,11 @@ export const APP_CONFIG: AppConfig = {
   fonts: {
     main: inter,
   },
+  banner: {
+    text: "Get your custom Blueprint launched within 24-48 hours",
+    button: {
+      text: "Let's talk",
+      href: "https://paperclip.xyz/contact",
+    },
+  },
 };

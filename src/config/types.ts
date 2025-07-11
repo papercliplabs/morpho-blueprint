@@ -52,4 +52,11 @@ export interface AppConfig {
     main: NextFontWithVariable; // Main font for the app. Variable name of font MUST be "--font-main"
     others?: NextFontWithVariable[]; // (optional) Other fonts for the app. These are not used in core theme, but you be used in css variables directly for specifying typography in ./theme.css.
   };
+  banner?: {
+    text: string;
+    button?: {
+      text: string;
+      href: string;
+    };
+  };
 }
