@@ -16,7 +16,7 @@ interface MarketInfoProps {
 export function MarketInfo({ market }: MarketInfoProps) {
   return (
     <MarketInfoLayout
-      lltv={<NumberFlow value={market.lltv} format={{ style: "percent" }} className="heading-6" />}
+      lltv={<NumberFlow value={Number(market.lltv.formatted)} format={{ style: "percent" }} className="heading-6" />}
       liquidationPenality={
         <NumberFlow value={market.liquidationPenalty} format={{ style: "percent" }} className="heading-6" />
       }
@@ -56,7 +56,7 @@ export function MarketInfo({ market }: MarketInfoProps) {
       }
       oraclePrice={
         <div className="heading-6">
-          {`1 ${market.collateralAsset?.symbol} = ${formatNumber(market.collateralPriceInLoanAsset)} ${market.loanAsset.symbol}`}
+          {`1 ${market.collateralAsset?.symbol} = ${formatNumber(Number(market.collateralPriceInLoanAsset?.formatted ?? 0))} ${market.loanAsset.symbol}`}
         </div>
       }
     />

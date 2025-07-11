@@ -8,10 +8,10 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Drawer, DrawerContent, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import type { SupportedChainId } from "@/config/types";
 import type { MarketNonIdle } from "@/data/whisk/getMarket";
 import { useMarketPosition } from "@/hooks/useMarketPositions";
 import { useResponsiveContext } from "@/providers/ResponsiveProvider";
-
 import MarketRepayAndWithdrawCollateral from "./MarketRepayAndWithdrawCollateral";
 import MarketSupplyCollateralAndBorrow from "./MarketSupplyCollateralAndBorrow";
 
@@ -20,11 +20,11 @@ export interface MarketActionsProps {
 }
 
 export default function MarketActions({ market }: MarketActionsProps) {
-  const { data: userMarketPosition } = useMarketPosition(market.chain.id, market.marketId as Hex);
+  const { data: userMarketPosition } = useMarketPosition(market.chain.id as SupportedChainId, market.marketId as Hex);
   const { isDesktop } = useResponsiveContext();
 
   const hasBorrowPosition = useMemo(() => {
-    return BigInt(userMarketPosition?.borrowAssets ?? 0) > BigInt(0);
+    return BigInt(userMarketPosition?.borrowAmount.raw ?? 0n) > BigInt(0);
   }, [userMarketPosition]);
 
   return (

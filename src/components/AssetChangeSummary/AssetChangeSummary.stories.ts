@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-
+import { TokenCategory } from "@/generated/gql/whisk/graphql";
 import { AssetChangeSummary } from ".";
 
 const meta = {
@@ -15,6 +15,7 @@ const meta = {
       symbol: "CN",
       address: "0x123",
       decimals: 0.01,
+      category: TokenCategory.Stable,
     },
     className: "min-w-[300px]",
     label: "Label",

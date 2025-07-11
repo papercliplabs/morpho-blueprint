@@ -66,8 +66,14 @@ const columns: Column[] = [
     accessorKey: "position.supplyAssetsUsd",
     header: "Total Supply",
     cell: ({ row }) => {
-      const { position, supplyCapUsd } = row.original;
-      return <TotalSupplyTooltip totalSupply={position.supplyAssetsUsd} supplyCap={supplyCapUsd} iconPosition="left" />;
+      const { position, supplyCap } = row.original;
+      return (
+        <TotalSupplyTooltip
+          totalSupply={position.supplyAmount.usd ?? 0}
+          supplyCap={supplyCap.usd}
+          iconPosition="left"
+        />
+      );
     },
     minSize: 160,
   },

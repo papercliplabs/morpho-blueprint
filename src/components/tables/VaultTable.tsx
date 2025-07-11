@@ -5,7 +5,6 @@ import { Table } from "@/components/ui/table";
 import { APP_CONFIG } from "@/config";
 import type { VaultSummary } from "@/data/whisk/getVaultSummaries";
 import { useVaultTableData, type VaultTableDataEntry } from "@/hooks/useVaultTableData";
-import { descaleBigIntToNumber } from "@/utils/format";
 import { sortTableAssetAmount } from "@/utils/sort";
 
 import AvatarGroup from "../AvatarGroup";
@@ -39,79 +38,73 @@ function getColumns(isPositionLoading: boolean): Column[] {
     },
     {
       id: "yourDeposits",
-      accessorFn: (row) => row.position?.supplyAssetsUsd ?? 0,
+      accessorFn: (row) => row.position?.supplyAmount.usd ?? 0,
       header: "Your Deposits",
       cell: ({ row }) => {
         const { vaultSummary, position } = row.original;
         return (
           <TableAssetAmount
             asset={vaultSummary.asset}
-            amount={position?.supplyAssets}
-            amountUsd={position?.supplyAssetsUsd}
+            amount={position?.supplyAmount.raw}
+            amountUsd={position?.supplyAmount.usd}
             isLoading={isPositionLoading}
           />
         );
       },
       sortingFn: (a, b) =>
         sortTableAssetAmount(
-          descaleBigIntToNumber(a.original.position?.supplyAssets ?? "0", a.original.vaultSummary.asset.decimals),
-          a.original.position?.supplyAssetsUsd,
-          descaleBigIntToNumber(b.original.position?.supplyAssets ?? "0", b.original.vaultSummary.asset.decimals),
-          b.original.position?.supplyAssetsUsd,
+          Number(a.original.position?.supplyAmount.formatted ?? "0"),
+          a.original.position?.supplyAmount.usd,
+          Number(b.original.position?.supplyAmount.formatted ?? "0"),
+          b.original.position?.supplyAmount.usd,
         ),
       minSize: 140,
     },
     {
       id: "inWallet",
-      accessorFn: (row) => row.position?.walletUnderlyingAssetHolding?.balanceUsd ?? 0,
+      accessorFn: (row) => row.position?.walletUnderlyingAssetHolding?.balance.usd ?? 0,
       header: "In Wallet",
       cell: ({ row }) => {
         const { vaultSummary, position } = row.original;
         return (
           <TableAssetAmount
             asset={vaultSummary.asset}
-            amount={position?.walletUnderlyingAssetHolding?.balance}
-            amountUsd={position?.walletUnderlyingAssetHolding?.balanceUsd}
+            amount={position?.walletUnderlyingAssetHolding?.balance.raw}
+            amountUsd={position?.walletUnderlyingAssetHolding?.balance.usd}
             isLoading={isPositionLoading}
           />
         );
       },
       sortingFn: (a, b) =>
         sortTableAssetAmount(
-          descaleBigIntToNumber(
-            a.original.position?.walletUnderlyingAssetHolding?.balance ?? "0",
-            a.original.vaultSummary.asset.decimals,
-          ),
-          a.original.position?.walletUnderlyingAssetHolding?.balanceUsd,
-          descaleBigIntToNumber(
-            b.original.position?.walletUnderlyingAssetHolding?.balance ?? "0",
-            b.original.vaultSummary.asset.decimals,
-          ),
-          b.original.position?.walletUnderlyingAssetHolding?.balanceUsd,
+          Number(a.original.position?.walletUnderlyingAssetHolding?.balance.formatted ?? "0"),
+          a.original.position?.walletUnderlyingAssetHolding?.balance.usd,
+          Number(b.original.position?.walletUnderlyingAssetHolding?.balance.formatted ?? "0"),
+          b.original.position?.walletUnderlyingAssetHolding?.balance.usd,
         ),
       minSize: 140,
     },
     {
       id: "totalDeposits",
-      accessorFn: (row) => row.vaultSummary.supplyAssetsUsd,
+      accessorFn: (row) => row.vaultSummary.totalSupplied.usd ?? 0,
       header: "Total Deposits",
       cell: ({ row }) => {
         const { vaultSummary } = row.original;
         return (
           <TableAssetAmount
             asset={vaultSummary.asset}
-            amount={vaultSummary.supplyAssets}
-            amountUsd={vaultSummary.supplyAssetsUsd}
+            amount={vaultSummary.totalSupplied.raw}
+            amountUsd={vaultSummary.totalSupplied.usd}
             isLoading={false}
           />
         );
       },
       sortingFn: (a, b) =>
         sortTableAssetAmount(
-          descaleBigIntToNumber(a.original.vaultSummary.supplyAssets ?? "0", a.original.vaultSummary.asset.decimals),
-          a.original.vaultSummary.supplyAssetsUsd,
-          descaleBigIntToNumber(b.original.vaultSummary.supplyAssets ?? "0", b.original.vaultSummary.asset.decimals),
-          b.original.vaultSummary.supplyAssetsUsd,
+          Number(a.original.vaultSummary.totalSupplied.formatted ?? "0"),
+          a.original.vaultSummary.totalSupplied.usd,
+          Number(b.original.vaultSummary.totalSupplied.formatted ?? "0"),
+          b.original.vaultSummary.totalSupplied.usd,
         ),
       minSize: 140,
     },
@@ -157,7 +150,7 @@ function getColumns(isPositionLoading: boolean): Column[] {
                 (unique, allocation) => {
                   const icon = allocation.market.collateralAsset!.icon;
                   if (!unique.some((item) => item.src === icon)) {
-                    unique.push({ src: icon });
+                    unique.push({ src: icon ?? "" });
                   }
                   return unique;
                 },
@@ -182,7 +175,7 @@ function getColumns(isPositionLoading: boolean): Column[] {
             type="earn"
             nativeApy={vaultSummary.supplyApy.base}
             totalApy={vaultSummary.supplyApy.total}
-            performanceFee={vaultSummary.supplyApy.performanceFee}
+            performanceFee={vaultSummary.supplyApy.fee}
             rewards={vaultSummary.supplyApy.rewards}
             triggerVariant="sm"
           />

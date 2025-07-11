@@ -44,7 +44,7 @@ export const getMarketSummaries = cache(async () => {
     }
 
     // Filter out potential for wrong market with same id on another chain
-    if (!whitelistedMarketIds[market.chain.id as SupportedChainId].has(market.marketId)) {
+    if (!whitelistedMarketIds[market.chain.id as SupportedChainId]?.includes(market.marketId)) {
       return false;
     }
 

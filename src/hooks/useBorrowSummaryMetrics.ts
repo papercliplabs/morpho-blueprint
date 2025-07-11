@@ -24,7 +24,7 @@ export function useBorrowSummaryMetrics({ marketSummaries }: { marketSummaries: 
 
   const borrowSummaryMetrics = useMemo(() => {
     const totalBorrowedUsd = marketTableData.reduce(
-      (acc, entry) => acc + (entry.marketSummary.borrowAssetsUsd ?? 0),
+      (acc, entry) => acc + (entry.marketSummary.totalBorrowed.usd ?? 0),
       0,
     );
 
@@ -32,11 +32,11 @@ export function useBorrowSummaryMetrics({ marketSummaries }: { marketSummaries: 
     let userBorrowApy: number | undefined;
     if (address && !isPositionsLoading) {
       userBorrowsUsd = marketTableData.reduce((acc, entry) => {
-        return acc + (entry.position?.borrowAssetsUsd ?? 0);
+        return acc + (entry.position?.borrowAmount.usd ?? 0);
       }, 0);
 
       const userBorrowAggregator = marketTableData.reduce((acc, entry) => {
-        return acc + (entry.position?.borrowAssetsUsd ?? 0) * (entry.marketSummary.borrowApy.total ?? 0);
+        return acc + (entry.position?.borrowAmount.usd ?? 0) * (entry.marketSummary.borrowApy.total ?? 0);
       }, 0);
 
       userBorrowApy = userBorrowsUsd > 0 ? userBorrowAggregator / userBorrowsUsd : 0;

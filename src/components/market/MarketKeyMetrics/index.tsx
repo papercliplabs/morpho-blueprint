@@ -14,17 +14,17 @@ interface MarketKeyMetricsProps {
 export function MarketKeyMetrics({ market }: MarketKeyMetricsProps) {
   return (
     <MarketKeyMetricsLayout
-      totalSupplyValue={<NumberFlow value={market.supplyAssetsUsd ?? 0} format={{ currency: "USD" }} />}
+      totalSupplyValue={<NumberFlow value={market.totalSupplied.usd ?? 0} format={{ currency: "USD" }} />}
       availableToBorrowValue={
         <NumberFlow
-          value={market.liquidityAssetsUsd + market.publicAllocatorSharedLiquidityAssetsUsd}
+          value={(market.liquidityInMarket.usd ?? 0) + (market.publicAllocatorSharedLiquidity.usd ?? 0)}
           format={{ currency: "USD" }}
         />
       }
       availableToBorrowTooltip={
         <AvailableLiquidityTooltipContent
-          marketLiquidity={market.liquidityAssetsUsd}
-          publicAllocatorLiquidity={market.publicAllocatorSharedLiquidityAssetsUsd}
+          marketLiquidity={market.liquidityInMarket.usd ?? 0}
+          publicAllocatorLiquidity={market.publicAllocatorSharedLiquidity.usd ?? 0}
         />
       }
       borrowApyValue={

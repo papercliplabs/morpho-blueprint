@@ -4,9 +4,9 @@ import { getAddress } from "viem";
 import { useAccount } from "wagmi";
 
 import { FilterKey } from "@/components/filters/types";
+import type { SupportedChainId } from "@/config/types";
 import type { VaultPosition } from "@/data/whisk/getVaultPositions";
 import type { VaultSummary } from "@/data/whisk/getVaultSummaries";
-
 import { useShallowSearchParams } from "./useShallowSearchParams";
 import { useVaultPositions } from "./useVaultPositions";
 
@@ -33,7 +33,7 @@ export function useVaultTableData({ vaultSummaries }: { vaultSummaries: VaultSum
     const dataEntries: VaultTableDataEntry[] = [];
 
     for (const vaultSummary of vaultSummaries) {
-      const position = positions?.[vaultSummary.chain.id]?.[getAddress(vaultSummary.vaultAddress)];
+      const position = positions?.[vaultSummary.chain.id as SupportedChainId]?.[getAddress(vaultSummary.vaultAddress)];
       dataEntries.push({ vaultSummary, position });
     }
 
@@ -43,22 +43,27 @@ export function useVaultTableData({ vaultSummaries }: { vaultSummaries: VaultSum
   const filteredData = useMemo(() => {
     const filteredData = data.filter((dataEntry) => {
       const chainsFilterMatch =
-        chainsFilterValues.length === 0 || chainsFilterValues.includes(dataEntry.vaultSummary.chain.name.toString());
+        chainsFilterValues === undefined ||
+        chainsFilterValues.length === 0 ||
+        chainsFilterValues.includes(dataEntry.vaultSummary.chain.name.toString());
       const assetsFilterMatch =
-        assetsFilterValues.length === 0 || assetsFilterValues.includes(dataEntry.vaultSummary.asset.symbol.toString());
+        assetsFilterValues === undefined ||
+        assetsFilterValues.length === 0 ||
+        assetsFilterValues.includes(dataEntry.vaultSummary.asset.symbol.toString());
       const curatorsFilterMatch =
+        curatorsFilterValues === undefined ||
         curatorsFilterValues.length === 0 ||
         curatorsFilterValues.includes(dataEntry.vaultSummary.metadata?.curators[0]?.name ?? "N/A");
 
       let accountFilterMatch = true;
-      const accountFilterValue = accountFilterValues[0];
+      const accountFilterValue = accountFilterValues?.[0];
       if (dataEntry.position !== undefined && accountFilterValue && isConnected) {
         switch (accountFilterValue) {
           case "positions":
-            accountFilterMatch = BigInt(dataEntry.position.supplyAssets) > 0n;
+            accountFilterMatch = BigInt(dataEntry.position.supplyAmount.raw ?? 0n) > 0n;
             break;
           case "wallet":
-            accountFilterMatch = (dataEntry.position.walletUnderlyingAssetHolding?.balanceUsd ?? 1) > 0;
+            accountFilterMatch = (dataEntry.position.walletUnderlyingAssetHolding?.balance.usd ?? 1) > 0;
             break;
           default:
             // Do nothing

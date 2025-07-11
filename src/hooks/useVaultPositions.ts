@@ -2,7 +2,7 @@
 import { useQuery } from "@tanstack/react-query";
 import type { Address } from "viem";
 import { useAccount } from "wagmi";
-
+import type { SupportedChainId } from "@/config/types";
 import type { VaultPositionMap } from "@/data/whisk/getVaultPositions";
 import { fetchJsonResponse } from "@/utils/fetch";
 
@@ -15,7 +15,7 @@ export function useVaultPositions() {
   });
 }
 
-export function useVaultPosition(chainId: number, vaultAddress: Address) {
+export function useVaultPosition(chainId: SupportedChainId, vaultAddress: Address) {
   const { data: positions, ...rest } = useVaultPositions();
   return { data: positions?.[chainId]?.[vaultAddress], ...rest };
 }

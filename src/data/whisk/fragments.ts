@@ -57,15 +57,27 @@ graphql(`
     }
 
     totalSupplied {
+      raw
+      formatted
       usd
     }
 
     totalLiquidity {
+      raw
+      formatted
       usd
     }
 
     supplyApy {
       ...ApyFragment
+    }
+
+    marketAllocations {
+      market {
+        collateralAsset {
+          ...TokenInfoFragment
+        }
+      }
     }
   }
 
@@ -99,6 +111,20 @@ graphql(`
 
     borrowApy {
       ...ApyFragment
+    }
+
+    vaultAllocations {
+      vault {
+        vaultAddress
+      }
+      position {
+        supplyAmount {
+          usd
+        }
+      }
+      supplyCap {
+        usd
+      }
     }
   }
 `);

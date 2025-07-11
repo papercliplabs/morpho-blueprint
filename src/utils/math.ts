@@ -2,10 +2,7 @@ import type { MarketPositionChange, VaultPositionChange } from "@/actions";
 import { APP_CONFIG } from "@/config";
 import type { MarketNonIdle } from "@/data/whisk/getMarket";
 import type { MarketPosition } from "@/data/whisk/getMarketPositions";
-import type { Vault } from "@/data/whisk/getVault";
 import type { VaultPosition } from "@/data/whisk/getVaultPositions";
-
-import { descaleBigIntToNumber } from "./format";
 
 export function computeAvailableToBorrow(
   market: MarketNonIdle,
@@ -13,14 +10,16 @@ export function computeAvailableToBorrow(
   collateralAmountChange: number,
   borrowAmountChange: number,
 ): number {
-  const currentCollateral = descaleBigIntToNumber(currentPosition.collateralAssets, market.collateralAsset.decimals);
-  const currentLoan = descaleBigIntToNumber(currentPosition.borrowAssets, market.loanAsset.decimals);
+  const currentCollateral = Number(currentPosition.collateralAmount?.formatted ?? 0);
+  const currentLoan = Number(currentPosition.borrowAmount.formatted);
   const newCollateral = Math.max(currentCollateral + collateralAmountChange, 0);
   const newLoan = Math.max(currentLoan + borrowAmountChange, 0);
 
   // Includes margin for borrow origination
   const maxLoan =
-    newCollateral * market.collateralPriceInLoanAsset * (market.lltv - APP_CONFIG.actionParameters.maxBorrowLtvMargin);
+    newCollateral *
+    Number(market.collateralPriceInLoanAsset?.formatted ?? 0) *
+    (Number(market.lltv.formatted) - APP_CONFIG.actionParameters.maxBorrowLtvMargin);
 
   return Math.max(maxLoan - newLoan, 0);
 }
@@ -30,15 +29,17 @@ export function computeMarketMaxWithdrawCollateral(
   currentPosition: MarketPosition,
   loanRepaymentAmount: number,
 ): number {
-  if (market.lltv === 0 || market.collateralPriceInLoanAsset === 0) {
+  if (Number(market.lltv.formatted) === 0 || Number(market.collateralPriceInLoanAsset?.formatted ?? 0) === 0) {
     return 0;
   }
 
-  const collateral = descaleBigIntToNumber(currentPosition.collateralAssets, market.collateralAsset.decimals);
-  const currentLoan = descaleBigIntToNumber(currentPosition.borrowAssets, market.loanAsset.decimals);
+  const collateral = Number(currentPosition.collateralAmount?.formatted ?? 0);
+  const currentLoan = Number(currentPosition.borrowAmount.formatted);
   const newLoan = currentLoan - loanRepaymentAmount;
   const minRequiredCollateral =
-    newLoan / (market.lltv - APP_CONFIG.actionParameters.maxBorrowLtvMargin) / market.collateralPriceInLoanAsset;
+    newLoan /
+    (Number(market.lltv.formatted) - APP_CONFIG.actionParameters.maxBorrowLtvMargin) /
+    Number(market.collateralPriceInLoanAsset?.formatted ?? 0);
   const collateralWithdrawMax = collateral - minRequiredCollateral;
   return Math.max(collateralWithdrawMax, 0);
 }
@@ -75,8 +76,8 @@ export function computeMarketPositonChange({
     };
   }
 
-  const currentCollateral = descaleBigIntToNumber(currentPosition.collateralAssets, market.collateralAsset.decimals);
-  const currentLoan = descaleBigIntToNumber(currentPosition.borrowAssets, market.loanAsset.decimals);
+  const currentCollateral = Number(currentPosition.collateralAmount?.formatted ?? 0);
+  const currentLoan = Number(currentPosition.borrowAmount.formatted);
 
   const newCollateral = Math.max(currentCollateral + collateralAmountChange, 0);
   const newLoan = Math.max(currentLoan + loanAmountChange, 0);
@@ -89,9 +90,9 @@ export function computeMarketPositonChange({
     loanAmountChange,
   );
 
-  const collateralInLoan = newCollateral * market.collateralPriceInLoanAsset;
+  const collateralInLoan = newCollateral * Number(market.collateralPriceInLoanAsset?.formatted ?? 0);
 
-  const currentLtv = currentPosition.ltv;
+  const currentLtv = Number(currentPosition.ltv?.formatted ?? 0);
   const newLtv =
     collateralAmountChange === 0 && loanAmountChange === 0
       ? currentLtv
@@ -120,11 +121,9 @@ export function computeMarketPositonChange({
 }
 
 export function computeVaultPositionChange({
-  vault,
   currentPosition,
   supplyAmountChange,
 }: {
-  vault: Vault;
   currentPosition?: VaultPosition;
   supplyAmountChange: number;
 }): VaultPositionChange {
@@ -137,7 +136,7 @@ export function computeVaultPositionChange({
     };
   }
 
-  const currentSupply = descaleBigIntToNumber(currentPosition.supplyAssets, vault.asset.decimals);
+  const currentSupply = Number(currentPosition.supplyAmount.formatted);
   const newSupply = Math.max(currentSupply + supplyAmountChange, 0);
 
   return {

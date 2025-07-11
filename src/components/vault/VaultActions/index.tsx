@@ -8,10 +8,10 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Drawer, DrawerContent, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import type { SupportedChainId } from "@/config/types";
 import type { Vault } from "@/data/whisk/getVault";
 import { useVaultPosition } from "@/hooks/useVaultPositions";
 import { useResponsiveContext } from "@/providers/ResponsiveProvider";
-
 import VaultSupply from "./VaultSupply";
 import VaultWithdraw from "./VaultWithdraw";
 
@@ -32,10 +32,13 @@ export function ClientOnly({ children }: { children: React.ReactNode }) {
 
 export function VaultActions({ vault }: VaultActionsProps) {
   const { isDesktop } = useResponsiveContext();
-  const { data: userVaultPosition } = useVaultPosition(vault.chain.id, getAddress(vault.vaultAddress));
+  const { data: userVaultPosition } = useVaultPosition(
+    vault.chain.id as SupportedChainId,
+    getAddress(vault.vaultAddress),
+  );
 
   const hasSupplyPosition = useMemo(() => {
-    return BigInt(userVaultPosition?.supplyAssets ?? 0) > BigInt(0);
+    return BigInt(userVaultPosition?.supplyAmount.raw ?? 0n) > BigInt(0);
   }, [userVaultPosition]);
 
   return (

@@ -37,30 +37,34 @@ export function MarketFilters({ chainOptions, collateralAssetOptions, loanAssetO
     <div className="flex gap-4 overflow-x-auto pb-0.5">
       {chainOptions.length > 1 && (
         <MultiSelect
-          emptyValue={chainValues.length === 0 ? "All Chains" : "Chains"}
+          emptyValue={chainValues === undefined || chainValues.length === 0 ? "All Chains" : "Chains"}
           options={chainOptions}
-          value={chainValues}
-          onSelect={(value) => onSelect(FilterKey.Chains, chainValues, value)}
+          value={chainValues ?? []}
+          onSelect={(value) => onSelect(FilterKey.Chains, chainValues ?? [], value)}
           onReset={() => removeShallowSearchParams([FilterKey.Chains])}
         />
       )}
       {collateralAssetOptions.length > 1 && (
         <MultiSelect
-          emptyValue={collateralAssetValues.length === 0 ? "All Collateral Assets" : "Collateral Assets"}
+          emptyValue={
+            collateralAssetValues === undefined || collateralAssetValues.length === 0
+              ? "All Collateral Assets"
+              : "Collateral Assets"
+          }
           placeholder="Search for token"
           options={collateralAssetOptions}
-          value={collateralAssetValues}
-          onSelect={(value) => onSelect(FilterKey.CollateralAssets, collateralAssetValues, value)}
+          value={collateralAssetValues ?? []}
+          onSelect={(value) => onSelect(FilterKey.CollateralAssets, collateralAssetValues ?? [], value)}
           onReset={() => removeShallowSearchParams([FilterKey.CollateralAssets])}
         />
       )}
       {loanAssetOptions.length > 1 && (
         <MultiSelect
-          emptyValue={loanAssetValues.length === 0 ? "All Loan Assets" : "Loan Assets"}
+          emptyValue={loanAssetValues === undefined || loanAssetValues.length === 0 ? "All Loan Assets" : "Loan Assets"}
           placeholder="Search for token"
           options={loanAssetOptions}
-          value={loanAssetValues}
-          onSelect={(value) => onSelect(FilterKey.LoanAssets, loanAssetValues, value)}
+          value={loanAssetValues ?? []}
+          onSelect={(value) => onSelect(FilterKey.LoanAssets, loanAssetValues ?? [], value)}
           onReset={() => removeShallowSearchParams([FilterKey.LoanAssets])}
         />
       )}

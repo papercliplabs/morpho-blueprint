@@ -27,7 +27,7 @@ const query = graphql(`
 `);
 
 // Return mapping chainId -> marketIds
-const getWhitelistedMarketIdsUncached = cache(async (): Promise<Record<SupportedChainId, Set<Hex>>> => {
+const getWhitelistedMarketIdsUncached = cache(async (): Promise<Record<SupportedChainId, Hex[]>> => {
   const chainIds = Object.keys(APP_CONFIG.whitelistedVaults) as unknown as ChainId[];
   const vaultAddresses = Object.values(APP_CONFIG.whitelistedVaults).flat();
 
@@ -55,7 +55,13 @@ const getWhitelistedMarketIdsUncached = cache(async (): Promise<Record<Supported
     }
   }
 
-  return marketWhitelist;
+  // Convert Sets back to arrays
+  const result = {} as Record<SupportedChainId, Hex[]>;
+  for (const [chainId, marketIdsSet] of Object.entries(marketWhitelist)) {
+    result[Number(chainId) as SupportedChainId] = Array.from(marketIdsSet);
+  }
+
+  return result;
 });
 
 export const getWhitelistedMarketIds = unstable_cache(getWhitelistedMarketIdsUncached, ["getWhitelistedMarketIds"], {

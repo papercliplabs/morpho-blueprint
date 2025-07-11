@@ -16,7 +16,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }) as MetadataRoute.Sitemap;
 
   const marketPages = Object.entries(whitelistedMarketIds).flatMap(([chainId, marketIds]) => {
-    return marketIds.map((id) => ({
+    return Array.from(marketIds).map((id) => ({
       url: `${APP_CONFIG.appMetadata.url}/borrow/${chainId}/${id}`,
       lastModified: new Date(),
       changeFrequency: "weekly",

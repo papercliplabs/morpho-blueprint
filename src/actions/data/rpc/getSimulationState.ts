@@ -122,8 +122,8 @@ export async function getSimulationState({
   switch (params.actionType) {
     case "vault":
       tokenAddresses = [
-        vaults[0].asset,
-        vaults[0].address,
+        vaults[0]!.asset,
+        vaults[0]!.address,
         NATIVE_ADDRESS,
         wrappedNativeAddress,
         ...(additionalTokenAddresses ?? []),
@@ -131,8 +131,8 @@ export async function getSimulationState({
       break;
     case "market":
       tokenAddresses = [
-        markets[0].params.loanToken,
-        markets[0].params.collateralToken,
+        markets[0]!.params.loanToken,
+        markets[0]!.params.collateralToken,
         NATIVE_ADDRESS,
         wrappedNativeAddress,
         ...(additionalTokenAddresses ?? []),
@@ -169,7 +169,7 @@ export async function getSimulationState({
         if (!acc[userAddress]) {
           acc[userAddress] = {};
         }
-        acc[userAddress][marketId] = positions[i];
+        acc[userAddress]![marketId] = positions[i]!;
         return acc;
       },
       {} as Record<Address, Record<MarketId, Position>>,
@@ -180,7 +180,7 @@ export async function getSimulationState({
         if (!acc[userAddress]) {
           acc[userAddress] = {};
         }
-        acc[userAddress][tokenAddress] = holdings[i];
+        acc[userAddress]![tokenAddress] = holdings[i]!;
         return acc;
       },
       {} as Record<Address, Record<Address, Holding>>,
@@ -191,7 +191,7 @@ export async function getSimulationState({
         if (!acc[vaultAddress]) {
           acc[vaultAddress] = {};
         }
-        acc[vaultAddress][marketId] = vaultMarketConfigs[i];
+        acc[vaultAddress]![marketId] = vaultMarketConfigs[i]!;
         return acc;
       },
       {} as Record<Address, Record<MarketId, VaultMarketConfig>>,
@@ -202,7 +202,7 @@ export async function getSimulationState({
         if (!acc[vaultAddress]) {
           acc[vaultAddress] = {};
         }
-        acc[vaultAddress][userAddress] = vaultUsers[i];
+        acc[vaultAddress]![userAddress] = vaultUsers[i]!;
         return acc;
       },
       {} as Record<Address, Record<Address, VaultUser>>,

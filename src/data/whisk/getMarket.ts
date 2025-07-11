@@ -1,10 +1,9 @@
 import "server-only";
 import { cache } from "react";
 import type { Hex } from "viem";
-
+import type { SupportedChainId } from "@/config/types";
 import { graphql } from "@/generated/gql/whisk";
 import type { MarketQuery } from "@/generated/gql/whisk/graphql";
-import type { ChainId } from "@/whisk-types";
 import { executeWhiskQuery } from "./execute";
 
 const query = graphql(`
@@ -112,7 +111,7 @@ export function isNonIdleMarket(market: Market | null): market is MarketNonIdle 
   return !!market && market.isIdle === false && !!market.collateralAsset;
 }
 
-export const getMarket = cache(async (chainId: ChainId, marketId: Hex): Promise<Market> => {
+export const getMarket = cache(async (chainId: SupportedChainId, marketId: Hex): Promise<Market> => {
   const data = await executeWhiskQuery(query, {
     chainId,
     marketId,

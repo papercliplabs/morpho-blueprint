@@ -28,10 +28,10 @@ export const metadata: Metadata = {
 export default async function VaultPage({ params }: { params: Promise<{ chainId: string; vaultAddress: string }> }) {
   const { chainId: chainIdString, vaultAddress: vaultAddressString } = await params;
   let vaultAddress: Address;
-  let chainId: number;
+  let chainId: SupportedChainId;
   try {
     vaultAddress = getAddress(vaultAddressString);
-    chainId = Number.parseInt(chainIdString);
+    chainId = Number.parseInt(chainIdString) as SupportedChainId;
   } catch {
     notFound();
   }

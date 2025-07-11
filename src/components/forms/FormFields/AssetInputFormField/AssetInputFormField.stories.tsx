@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 
 import { AssetInputFormField } from "@/components/forms/FormFields/AssetInputFormField";
 import { Form } from "@/components/ui/form";
+import { TokenCategory } from "@/generated/gql/whisk/graphql";
 
 function FormWrapper({ children }: { children: ReactNode }) {
   const form = useForm();
@@ -36,13 +37,14 @@ const meta = {
       symbol: "TST",
       icon: "https://github.com/shadcn.png",
       decimals: 0.06,
+      category: TokenCategory.Stable,
     },
     maxValue: 1.0,
     setIsMax: fn(),
     name: "test",
     header: "Supply",
     chain: {
-      id: 123,
+      id: 1,
       name: "CHN",
       icon: "https://github.com/shadcn.png",
     },

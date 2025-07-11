@@ -2,9 +2,9 @@ import "server-only";
 
 import { cache } from "react";
 import type { Address } from "viem";
+import type { SupportedChainId } from "@/config/types";
 import { graphql } from "@/generated/gql/whisk";
 import type { VaultQuery } from "@/generated/gql/whisk/graphql";
-import type { ChainId } from "@/whisk-types";
 import { executeWhiskQuery } from "./execute";
 
 const query = graphql(`
@@ -15,6 +15,12 @@ const query = graphql(`
 
         asset {
           priceUsd
+        }
+
+        totalSupplied {
+          raw
+          formatted
+          usd
         }
 
         totalLiquidity {
@@ -60,12 +66,14 @@ const query = graphql(`
             supplyAmount {
               raw
               formatted
+              usd
             }
             supplyShares
           }
           supplyCap {
             raw
             formatted
+            usd
           }
           vaultSupplyShare
         }
@@ -76,7 +84,7 @@ const query = graphql(`
 
 export type Vault = NonNullable<VaultQuery["morphoVaults"]["items"][number]>;
 
-export const getVault = cache(async (chainId: ChainId, vaultAddress: Address): Promise<Vault> => {
+export const getVault = cache(async (chainId: SupportedChainId, vaultAddress: Address): Promise<Vault> => {
   const data = await executeWhiskQuery(query, {
     chainId,
     vaultAddress,

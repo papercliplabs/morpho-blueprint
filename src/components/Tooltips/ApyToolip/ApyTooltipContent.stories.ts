@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
 import { ApyTooltipContent } from "@/components/Tooltips/ApyToolip";
+import { TokenCategory } from "@/generated/gql/whisk/graphql";
 
 const meta = {
   title: "Tooltips/ApyToolip/Content",
@@ -37,6 +38,7 @@ export const WithRewards: Story = {
           symbol: "COMP",
           address: "0x123",
           decimals: 1,
+          category: TokenCategory.Stable,
         },
         apr: 0.01,
       },
@@ -46,6 +48,7 @@ export const WithRewards: Story = {
           symbol: "POL",
           address: "0x234",
           decimals: 1,
+          category: TokenCategory.Stable,
         },
         apr: 0.02,
       },

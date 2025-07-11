@@ -11,18 +11,16 @@ import { useAccount, usePublicClient } from "wagmi";
 import { z } from "zod";
 
 import { marketRepayAndWithdrawCollateralAction, type SuccessfulMarketAction } from "@/actions";
+import type { SupportedChainId } from "@/config/types";
 import type { MarketNonIdle } from "@/data/whisk/getMarket";
 import { useMarketPosition } from "@/hooks/useMarketPositions";
 import { useWatchNumberInputField } from "@/hooks/useWatchNumberInputField";
-import { descaleBigIntToNumber } from "@/utils/format";
 import { computeMarketMaxWithdrawCollateral, computeMarketPositonChange } from "@/utils/math";
-
 import { MarketActionSimulationMetrics } from "../ActionFlow/MarketActionFlow";
 import { Button } from "../ui/button";
 import { ErrorMessage } from "../ui/error-message";
 import { Form } from "../ui/form";
 import { Separator } from "../ui/seperator";
-
 import { AssetInputFormField } from "./FormFields/AssetInputFormField";
 
 interface MarketRepayAndWithdrawCollateralFormProps {
@@ -43,10 +41,13 @@ export const MarketRepayAndWithdrawCollateralForm = forwardRef<
   const [simulating, setSimulating] = useState(false);
   const [simulationErrorMsg, setSimulationErrorMsg] = useState<string | null>(null);
 
-  const { data: position, isLoading: isPositionLoading } = useMarketPosition(market.chain.id, market.marketId as Hex);
+  const { data: position, isLoading: isPositionLoading } = useMarketPosition(
+    market.chain.id as SupportedChainId,
+    market.marketId as Hex,
+  );
 
   const { positionBorrowAmount, walletLoanAssetBalance, repayLimiter } = useMemo(() => {
-    if (!position || !position.borrowAssets || !position.walletLoanAssetHolding) {
+    if (!position) {
       return {
         positionBorrowAmount: undefined,
         walletLoanAssetBalance: undefined,
@@ -54,11 +55,8 @@ export const MarketRepayAndWithdrawCollateralForm = forwardRef<
       };
     }
 
-    const positionBorrowAmount = descaleBigIntToNumber(position.borrowAssets, market.loanAsset.decimals);
-    const walletLoanAssetBalance = descaleBigIntToNumber(
-      position.walletLoanAssetHolding.balance,
-      market.loanAsset.decimals,
-    );
+    const positionBorrowAmount = Number(position.borrowAmount.formatted);
+    const walletLoanAssetBalance = Number(position.walletLoanAssetHolding.balance.formatted);
     const repayLimiter =
       positionBorrowAmount > walletLoanAssetBalance ? ("wallet-balance" as RepayLimiter) : "position";
 
@@ -67,7 +65,7 @@ export const MarketRepayAndWithdrawCollateralForm = forwardRef<
       walletLoanAssetBalance,
       repayLimiter,
     };
-  }, [position, market.loanAsset.decimals]);
+  }, [position]);
 
   const formSchema = useMemo(() => {
     return z

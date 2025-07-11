@@ -86,7 +86,10 @@ function ApyTooltipContent({ type, totalApy, nativeApy, rewards, performanceFee 
                 <span className="flex items-center gap-2">
                   {reward.asset.symbol} <Avatar src={reward.asset.icon} size="xs" />
                 </span>
-                {formatNumber(reward.apr, { style: "percent", signDisplay: "exceptZero" })}
+                {formatNumber((type === "borrow" ? -1 : 1) * reward.apr, {
+                  style: "percent",
+                  signDisplay: "exceptZero",
+                })}
               </span>
             );
           })}
@@ -103,7 +106,10 @@ function ApyTooltipContent({ type, totalApy, nativeApy, rewards, performanceFee 
               </Badge>
             </span>
             <span className="body-small-plus">
-              {formatNumber(-performanceFee, { style: "percent", signDisplay: "exceptZero" })}
+              {formatNumber((type === "borrow" ? 1 : -1) * performanceFee, {
+                style: "percent",
+                signDisplay: "exceptZero",
+              })}
             </span>
           </span>
         )}

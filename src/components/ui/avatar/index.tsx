@@ -56,7 +56,7 @@ const avatarVariants = cva("transition-colors", {
 });
 
 type AvatarProps = {
-  src?: string | Blob;
+  src?: string | Blob | null;
   alt?: string;
   sub?: React.ReactNode;
 } & VariantProps<typeof avatarVariants> &
@@ -66,7 +66,7 @@ function Avatar({ className, src, alt, sub, size }: AvatarProps) {
   return (
     <span className="relative flex h-fit w-fit">
       <AvatarRoot className={cn(avatarVariants({ className, size }))}>
-        <AvatarImage src={src} alt={alt} />
+        <AvatarImage src={src ?? undefined} alt={alt} />
         <AvatarFallback className="bg-card">
           <Skeleton className="h-full w-full" />
         </AvatarFallback>

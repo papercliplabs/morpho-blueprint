@@ -28,9 +28,9 @@ export const metadata: Metadata = {
 
 export default async function MarketPage({ params }: { params: Promise<{ chainId: string; marketId: string }> }) {
   const { chainId: chainIdString, marketId } = await params;
-  let chainId: number;
+  let chainId: SupportedChainId;
   try {
-    chainId = Number.parseInt(chainIdString);
+    chainId = Number.parseInt(chainIdString) as SupportedChainId;
   } catch {
     notFound();
   }
@@ -123,7 +123,7 @@ async function WhitelistCheck({ chainId, marketId }: MarketIdentifier) {
     notFound();
   }
 
-  if (whitelistedMarketIds[chainId as SupportedChainId].includes(marketId)) {
+  if (whitelistedMarketIds[chainId as SupportedChainId]?.includes(marketId)) {
     return null;
   }
 
@@ -149,7 +149,7 @@ async function MarketHeader({ chainId, marketId }: MarketIdentifier) {
     <div className="flex flex-col justify-between gap-4 md:flex-row">
       <div className="flex flex-col">
         <div className="flex h-[64px] items-center gap-3">
-          <MarketName variant="default" {...market} />
+          <MarketName variant="default" {...market} lltv={Number.parseFloat(market.lltv.formatted)} />
         </div>
         <div className="text-muted-foreground">
           Chain: <span className="text-foreground">{market.chain.name}</span>

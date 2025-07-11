@@ -23,19 +23,25 @@ export function useEarnSummaryMetrics({ vaultSummaries }: { vaultSummaries: Vaul
   const { address } = useAccount();
 
   const earnSummaryMetrics = useMemo(() => {
-    const totalSuppliedUsd = vaultTableData.reduce((acc, entry) => acc + entry.vaultSummary.supplyAssetsUsd, 0);
-    const totalLiqudityUsd = vaultTableData.reduce((acc, entry) => acc + entry.vaultSummary.liquidityAssetsUsd, 0);
+    const totalSuppliedUsd = vaultTableData.reduce(
+      (acc, entry) => acc + (entry.vaultSummary.totalSupplied.usd ?? 0),
+      0,
+    );
+    const totalLiqudityUsd = vaultTableData.reduce(
+      (acc, entry) => acc + (entry.vaultSummary.totalLiquidity.usd ?? 0),
+      0,
+    );
     const totalBorrowedUsd = totalSuppliedUsd - totalLiqudityUsd;
 
     let userDepositsUsd: number | undefined;
     let userEarnApy: number | undefined;
     if (address && !isPositionsLoading) {
       userDepositsUsd = vaultTableData.reduce((acc, entry) => {
-        return acc + (entry.position?.supplyAssetsUsd ?? 0);
+        return acc + (entry.position?.supplyAmount.usd ?? 0);
       }, 0);
 
       const userEarnAggregator = vaultTableData.reduce((acc, entry) => {
-        return acc + (entry.position?.supplyAssetsUsd ?? 0) * (entry.vaultSummary.supplyApy.total ?? 0);
+        return acc + (entry.position?.supplyAmount.usd ?? 0) * (entry.vaultSummary.supplyApy.total ?? 0);
       }, 0);
 
       userEarnApy = userDepositsUsd > 0 ? userEarnAggregator / userDepositsUsd : 0;

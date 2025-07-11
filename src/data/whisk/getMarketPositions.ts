@@ -83,7 +83,7 @@ export const getMarketPositions = cache(async (accountAddress: Address): Promise
     }
 
     // Filter out potential for wrong market with same id on another chain
-    if (!whitelistedMarketIds[position.market.chain.id as SupportedChainId].has(position.market.marketId)) {
+    if (!whitelistedMarketIds[position.market.chain.id as SupportedChainId]?.includes(position.market.marketId)) {
       continue;
     }
 
