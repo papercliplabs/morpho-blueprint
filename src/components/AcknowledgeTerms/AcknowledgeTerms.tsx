@@ -33,15 +33,15 @@ export function AcknowledgeTerms(props: PropsWithChildren<Props>) {
           />
           <Label htmlFor="acknowledge-terms" className="body-small text-muted-foreground">
             By checking this box, you agree to the{" "}
-            <Link href="/terms" className="text-primary">
+            <Link href="/terms" className="text-primary hover:underline">
               Terms of Use
             </Link>
             ,{" "}
-            <Link href="/privacy" className="text-primary">
+            <Link href="/privacy" className="text-primary hover:underline">
               Privacy Policy
             </Link>
             , and{" "}
-            <Link href="/cookies" className="text-primary">
+            <Link href="/cookies" className="text-primary hover:underline">
               Cookie Policy
             </Link>
             , and confirm that you are not a resident of any prohibited jurisdictions.
