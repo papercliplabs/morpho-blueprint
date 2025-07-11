@@ -43,6 +43,7 @@ export function ActionFlow({
   const [render, setRender] = useState<boolean>(open);
 
   // Falling edge delay so we get the nice close animation
+  // biome-ignore lint/correctness/useExhaustiveDependencies: Need to re-render on action change
   useEffect(() => {
     if (open) {
       setRender(true);
@@ -54,7 +55,7 @@ export function ActionFlow({
     }, 300);
 
     return () => clearTimeout(timeout);
-  }, [open]);
+  }, [open, action]);
 
   // Don't render at all if not open to let react lifecycle reset the flow provider
   return (
@@ -80,6 +81,8 @@ function ActionFlowDialog({ open, onOpenChange, actionName, summary, metrics }: 
   // useMeasure caused issues getting accurate height on initial render of dialog, this works instead
   const measureRef = useRef<HTMLDivElement>(null);
   const [measuredHeight, setMeasuredHeight] = useState<number | undefined>();
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: Need to re-measure on flow state change
   useEffect(() => {
     if (!open) return;
 
@@ -91,7 +94,7 @@ function ActionFlowDialog({ open, onOpenChange, actionName, summary, metrics }: 
     });
 
     return () => cancelAnimationFrame(raf);
-  }, [open]);
+  }, [open, flowState]);
 
   const content = useMemo(() => {
     switch (flowState) {
@@ -135,11 +138,13 @@ function ActionFlowDialog({ open, onOpenChange, actionName, summary, metrics }: 
     }
   }, [startFlow, flowState, error, actionName, metrics, summary, lastTransactionHash, onOpenChange]);
 
+  console.log("DEBUG", { flowState, measuredHeight });
+
   return (
     <DialogDrawer open={open} onOpenChange={onOpenChange} dismissible={!preventClose}>
       <DialogDrawerContent hideCloseButton className="p-0 md:max-w-[420px]">
         <motion.div
-          animate={{ height: measuredHeight ? measuredHeight : undefined }}
+          animate={{ height: measuredHeight }}
           transition={{ duration: 0.4, type: "spring", bounce: 0 }}
           className="min-w-0 overflow-hidden"
         >

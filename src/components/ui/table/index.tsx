@@ -150,6 +150,7 @@ export function Table<TData, TValue>({
   const [sorting, setSorting] = useState<SortingState>(initialSort ?? []);
 
   // Scroll to top of the table on sort change if its above the header
+  // biome-ignore lint/correctness/useExhaustiveDependencies: Need to re-scroll on sort change
   useEffect(() => {
     const tableTop = (tableRef.current?.getBoundingClientRect().top ?? 0) + 18; // Accounts for top padding and small overlap
     const headerHeight = Number.parseInt(
@@ -158,7 +159,7 @@ export function Table<TData, TValue>({
     if (tableTop < headerHeight) {
       window.scrollTo({ top: window.scrollY + (tableTop - headerHeight), behavior: "smooth" });
     }
-  }, []);
+  }, [sorting]);
 
   const table = useReactTable({
     data,
