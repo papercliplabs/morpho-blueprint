@@ -14,7 +14,8 @@ export function Banner(props: BannerProps) {
   const hasButton = button !== undefined;
 
   return (
-    <div className={cn("bg-primary text-primary-foreground w-full flex items-center py-2 px-4 max-w-[1182px] mx-auto", {
+    <div className="bg-primary w-full">
+      <div className={cn("text-primary-foreground flex items-center py-2 px-4 max-w-[1182px] mx-auto", {
       'justify-between gap-4': hasButton,
       'justify-center': !hasButton,
     })}>
@@ -24,6 +25,7 @@ export function Banner(props: BannerProps) {
           <Button variant="secondary">{button.text}</Button>
         </Link>
       )}
+      </div>
     </div>
   );
 }
