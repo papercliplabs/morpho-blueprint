@@ -4,7 +4,7 @@ import type { Address } from "viem";
 import { useAccount } from "wagmi";
 
 import type { VaultPositionMap } from "@/data/whisk/getVaultPositions";
-import { fetchJsonResponse } from "@/utils/promise";
+import { fetchJsonResponse } from "@/utils/fetch";
 
 export function useVaultPositions() {
   const { address } = useAccount();

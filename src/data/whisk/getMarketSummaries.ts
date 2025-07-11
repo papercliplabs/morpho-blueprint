@@ -1,41 +1,55 @@
 import "server-only";
-import { unstable_cache } from "next/cache";
+
 import { cache } from "react";
-
+import type { SupportedChainId } from "@/config/types";
 import { graphql } from "@/generated/gql/whisk";
-
+import type { MarketSummariesQuery } from "@/generated/gql/whisk/graphql";
+import type { ChainId } from "@/whisk-types";
 import { executeWhiskQuery } from "./execute";
 import { getWhitelistedMarketIds } from "./getWhitelistedMarketIds";
 
 const query = graphql(`
-  query getMarketSummaries($chainId: Number!, $marketIds: [String!]!) {
-    morphoMarkets(chainId: $chainId, marketIds: $marketIds) {
-      ...MarketSummaryFragment
+  query MarketSummaries($chainIds: [ChainId!]!, $marketIds: [Hex!]!) {
+    morphoMarkets(where: {chainId_in: $chainIds, marketId_in: $marketIds}, limit: 250) {
+      pageInfo {
+        hasNextPage
+      }
+      items {
+        ...MarketSummaryFragment
+      }
     }
   }
 `);
 
-export const getMarketSummaries = cache(
-  unstable_cache(
-    async () => {
-      const whitelistedMarketIds = await getWhitelistedMarketIds();
-      const queryVariables = Object.entries(whitelistedMarketIds);
+export type MarketSummary = NonNullable<MarketSummariesQuery["morphoMarkets"]["items"][number]>;
 
-      const responses = await Promise.all(
-        queryVariables.map(
-          async ([chainId, marketIds]) =>
-            await executeWhiskQuery(query, {
-              chainId: Number.parseInt(chainId),
-              marketIds,
-            }),
-        ),
-      );
+export const getMarketSummaries = cache(async () => {
+  const whitelistedMarketIds = await getWhitelistedMarketIds();
+  const chainIds = Object.keys(whitelistedMarketIds).map((chainId) => Number.parseInt(chainId) as ChainId);
+  const marketIds = Object.values(whitelistedMarketIds).flatMap((marketIds) => Array.from(marketIds));
 
-      return responses.flatMap((resp) => resp.morphoMarkets);
-    },
-    ["getMarketSummaries"],
-    { revalidate: 10 }, // Light cache, mostly to help in dev
-  ),
-);
+  const response = await executeWhiskQuery(query, {
+    chainIds,
+    marketIds,
+  });
 
-export type MarketSummary = NonNullable<Awaited<ReturnType<typeof getMarketSummaries>>>[number];
+  if (response.morphoMarkets.pageInfo.hasNextPage) {
+    console.warn("More markets available, but not fetched.");
+  }
+
+  const markets = response.morphoMarkets.items.filter((market) => {
+    // Ignore errored vaults (already log at execute layer)
+    if (market === null) {
+      return false;
+    }
+
+    // Filter out potential for wrong market with same id on another chain
+    if (!whitelistedMarketIds[market.chain.id as SupportedChainId].has(market.marketId)) {
+      return false;
+    }
+
+    return true;
+  });
+
+  return markets as MarketSummary[];
+});

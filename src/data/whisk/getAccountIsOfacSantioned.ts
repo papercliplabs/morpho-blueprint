@@ -1,13 +1,13 @@
 import "server-only";
+
 import { cache } from "react";
 import type { Address } from "viem";
 
 import { graphql } from "@/generated/gql/whisk";
-
 import { executeWhiskQuery } from "./execute";
 
 const query = graphql(`
-  query getAccountIsOfacSanctioned($address: String!) {
+  query getAccountIsOfacSanctioned($address: Address!) {
     identity(address: $address) {
       isOfacSanctioned
     }

@@ -11,6 +11,7 @@ graphql(`
     symbol
     decimals
     icon
+    category
   }
 
   fragment ChainInfoFragment on Chain {
@@ -19,13 +20,13 @@ graphql(`
     icon
   }
 
-  fragment CuratorInfoFragment on Curators {
+  fragment CuratorInfoFragment on Curator {
     name
     image
     url
   }
 
-  fragment VaultApyFragment on ApyAndSupplyApy {
+  fragment ApyFragment on Apy {
     base
     rewards {
       asset {
@@ -34,18 +35,7 @@ graphql(`
       apr
     }
     total
-    performanceFee
-  }
-
-  fragment MarketApyFragment on Apy {
-    base
-    rewards {
-      asset {
-        ...TokenInfoFragment
-      }
-      apr
-    }
-    total
+    fee
   }
 
   fragment VaultSummaryFragment on MorphoVault {
@@ -60,29 +50,22 @@ graphql(`
       ...TokenInfoFragment
     }
 
-    curatorAddress
     metadata {
       curators {
         ...CuratorInfoFragment
       }
     }
 
-    supplyAssets
-    supplyAssetsUsd
+    totalSupplied {
+      usd
+    }
 
-    liquidityAssetsUsd
-
-    marketAllocations {
-      market {
-        marketId
-        collateralAsset {
-          ...TokenInfoFragment
-        }
-      }
+    totalLiquidity {
+      usd
     }
 
     supplyApy {
-      ...VaultApyFragment
+      ...ApyFragment
     }
   }
 
@@ -95,7 +78,11 @@ graphql(`
 
     marketId
 
-    borrowAssetsUsd
+    totalBorrowed {
+      raw
+      formatted
+      usd
+    }
 
     collateralAsset {
       ...TokenInfoFragment
@@ -105,9 +92,13 @@ graphql(`
       ...TokenInfoFragment
     }
 
-    lltv
+    lltv {
+      raw 
+      formatted
+    }
+
     borrowApy {
-      ...MarketApyFragment
+      ...ApyFragment
     }
   }
 `);

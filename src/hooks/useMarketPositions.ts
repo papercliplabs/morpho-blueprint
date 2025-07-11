@@ -4,7 +4,7 @@ import type { Hex } from "viem";
 import { useAccount } from "wagmi";
 
 import type { MarketPositionMap } from "@/data/whisk/getMarketPositions";
-import { fetchJsonResponse } from "@/utils/promise";
+import { fetchJsonResponse } from "@/utils/fetch";
 
 export function useMarketPositions() {
   const { address } = useAccount();

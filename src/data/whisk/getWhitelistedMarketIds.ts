@@ -6,50 +6,54 @@ import { APP_CONFIG } from "@/config";
 import type { SupportedChainId } from "@/config/types";
 import { graphql } from "@/generated/gql/whisk";
 import { SECONDS_PER_DAY } from "@/utils/contants";
-
+import type { ChainId } from "@/whisk-types";
 import { executeWhiskQuery } from "./execute";
 
 const query = graphql(`
-  query getWhitelistedMarketIds($chainId: Number!, $addresses: [String!]!) {
-    morphoVaults(chainId: $chainId, addresses: $addresses) {
-      marketAllocations {
-        market {
-          marketId
+  query WhitelistedMarketIds($chainIds: [ChainId!]!, $vaultAddresses: [Address!]!) {
+    morphoVaults(where: {chainId_in: $chainIds, vaultAddress_in: $vaultAddresses}) {
+      items {
+        chain {
+          id
+        }
+        marketAllocations {
+          market {
+            marketId
+          }
         }
       }
     }
   }
 `);
 
-const getWhitelistedMarketIdsUncached = cache(async (): Promise<Record<SupportedChainId, Hex[]>> => {
-  const queryVariables = Object.entries(APP_CONFIG.whitelistedVaults);
+// Return mapping chainId -> marketIds
+const getWhitelistedMarketIdsUncached = cache(async (): Promise<Record<SupportedChainId, Set<Hex>>> => {
+  const chainIds = Object.keys(APP_CONFIG.whitelistedVaults) as unknown as ChainId[];
+  const vaultAddresses = Object.values(APP_CONFIG.whitelistedVaults).flat();
 
-  const responses = await Promise.all(
-    queryVariables.map(
-      async ([chainId, addresses]) =>
-        await executeWhiskQuery(query, {
-          chainId: Number.parseInt(chainId),
-          addresses,
-        }),
-    ),
-  );
+  const responses = await executeWhiskQuery(query, {
+    chainIds,
+    vaultAddresses,
+  });
 
   // chainId -> marketIds
-  const marketWhitelist = responses.reduce(
-    (acc, resp, i) => {
-      const chainId = Number(queryVariables[i][0]) as SupportedChainId;
-      if (!acc[chainId]) {
-        acc[chainId] = [];
-      }
-      acc[chainId].push(
-        ...resp.morphoVaults.flatMap((vault) =>
-          vault.marketAllocations.map((allocation) => allocation.market.marketId as Hex),
-        ),
-      );
-      return acc;
-    },
-    {} as Record<SupportedChainId, Hex[]>,
-  );
+  const marketWhitelist = {} as Record<SupportedChainId, Set<Hex>>;
+  for (const item of responses.morphoVaults.items) {
+    if (item === null) {
+      continue;
+    }
+
+    const chainId = item.chain.id as SupportedChainId;
+    const allocatingMarketIds = item.marketAllocations.map((allocation) => allocation.market.marketId);
+
+    if (!marketWhitelist[chainId]) {
+      marketWhitelist[chainId] = new Set();
+    }
+
+    for (const marketId of allocatingMarketIds) {
+      marketWhitelist[chainId].add(marketId);
+    }
+  }
 
   return marketWhitelist;
 });

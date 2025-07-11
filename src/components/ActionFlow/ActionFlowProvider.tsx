@@ -8,7 +8,7 @@ import { useAccount, useConnectorClient, usePublicClient, useSwitchChain } from 
 
 import type { SuccessfulAction } from "@/actions";
 import { trackEvent } from "@/data/trackEvent";
-import { fetchJsonResponse } from "@/utils/promise";
+import { fetchJsonResponse } from "@/utils/fetch";
 
 export type ActionFlowState = "review" | "active" | "success" | "failed";
 export type ActionState = "pending-wallet" | "pending-transaction";

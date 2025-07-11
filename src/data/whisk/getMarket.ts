@@ -1,95 +1,128 @@
 import "server-only";
-import { unstable_cache } from "next/cache";
 import { cache } from "react";
 import type { Hex } from "viem";
 
 import { graphql } from "@/generated/gql/whisk";
-import type { GetMarketQuery } from "@/generated/gql/whisk/graphql";
-
+import type { MarketQuery } from "@/generated/gql/whisk/graphql";
+import type { ChainId } from "@/whisk-types";
 import { executeWhiskQuery } from "./execute";
 
 const query = graphql(`
-  query getMarket($chainId: Number!, $marketId: String!) {
-    morphoMarket(chainId: $chainId, marketId: $marketId) {
-      ...MarketSummaryFragment
+  query Market($chainId: ChainId!, $marketId: Hex!) {
+    morphoMarkets(where: {chainId_in: [$chainId], marketId_in: [$marketId]}) {
+      items {
 
-      isIdle
+        ...MarketSummaryFragment
 
-      supplyAssets
-      supplyAssetsUsd
+        isIdle
 
-      collateralAsset {
-        priceUsd
-      }
+        totalSupplied {
+          raw
+          formatted
+          usd
+        }
 
-      loanAsset {
-        priceUsd
-      }
+        totalBorrowed {
+          raw
+          formatted
+          usd
+        }
 
-      liquidityAssetsUsd
-      publicAllocatorSharedLiquidityAssetsUsd
-      # Disabled for now, need better implementation in Whisk for chains with many many vaults and markets...
+        liquidityInMarket {
+          raw
+          formatted
+          usd
+        }
 
-      vaultAllocations {
-        vault {
-          vaultAddress
-          name
-          curatorAddress
-          asset {
-            ...TokenInfoFragment
-          }
-          chain {
-            ...ChainInfoFragment
-          }
-          metadata {
-            curators {
-              ...CuratorInfoFragment
+        publicAllocatorSharedLiquidity {
+          raw
+          formatted
+          usd
+        }
+
+        collateralAsset {
+          priceUsd
+        }
+
+        loanAsset {
+          priceUsd
+        }
+
+        vaultAllocations {
+          vault {
+            vaultAddress
+            name
+            curatorAddress
+            asset {
+              ...TokenInfoFragment
+            }
+            chain {
+              ...ChainInfoFragment
+            }
+            metadata {
+              curators {
+                ...CuratorInfoFragment
+              }
             }
           }
-        }
-        enabled
-        position {
-          supplyAssetsUsd
-        }
-        supplyCapUsd
-        marketSupplyShare
-      }
+          enabled
 
-      utilization
-      irm {
-        address
-        targetUtilization
-        curve {
-          utilization
-          supplyApy
-          borrowApy
+          position {
+            supplyAmount {
+              raw
+              formatted
+              usd
+            }
+            supplyShares
+          }
+
+          supplyCap {
+            raw
+            formatted
+            usd
+          }
+          marketSupplyShare
+        }
+
+        utilization
+        irm {
+          address
+          targetUtilization
+          curve {
+            utilization
+            supplyApy
+            borrowApy
+          }
+        }
+
+        liquidationPenalty
+        oracleAddress
+        collateralPriceInLoanAsset {
+          raw
+          formatted
         }
       }
-
-      liquidationPenalty
-      oracleAddress
-      collateralPriceInLoanAsset
     }
   }
 `);
 
-export const getMarket = cache(
-  unstable_cache(
-    async (chainId: number, marketId: Hex): Promise<Market | null> => {
-      const data = await executeWhiskQuery(query, {
-        chainId,
-        marketId,
-      });
-
-      return data.morphoMarket;
-    },
-    ["getMarket"],
-    { revalidate: 10 }, // Light cache, mostly to help in dev
-  ),
-);
-
-export type Market = NonNullable<GetMarketQuery["morphoMarket"]>;
+export type Market = NonNullable<MarketQuery["morphoMarkets"]["items"][number]>;
 export type MarketNonIdle = Market & { isIdle: false; collateralAsset: NonNullable<Market["collateralAsset"]> };
 export function isNonIdleMarket(market: Market | null): market is MarketNonIdle {
   return !!market && market.isIdle === false && !!market.collateralAsset;
 }
+
+export const getMarket = cache(async (chainId: ChainId, marketId: Hex): Promise<Market> => {
+  const data = await executeWhiskQuery(query, {
+    chainId,
+    marketId,
+  });
+
+  const market = data.morphoMarkets.items[0];
+
+  if (!market) {
+    throw new Error(`Market not found: ${chainId}:${marketId}`);
+  }
+
+  return market;
+});
