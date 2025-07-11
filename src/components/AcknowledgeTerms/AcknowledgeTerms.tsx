@@ -1,10 +1,10 @@
 "use client";
 
+import Link from "next/link";
+import { type PropsWithChildren, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DialogDrawer, DialogDrawerContent, DialogDrawerTitle } from "@/components/ui/dialog-drawer";
-import Link from "next/link";
-import { PropsWithChildren, useState } from "react";
 import { Label } from "../ui/label";
 import { useAcknowledgeTermsContext } from "./AcknowledgeTermsProvider";
 
@@ -20,9 +20,9 @@ export function AcknowledgeTerms(props: PropsWithChildren<Props>) {
 
   return (
     <DialogDrawer open={open} onOpenChange={onOpenChange}>
-      <DialogDrawerContent className="bg-card w-full max-w-[640px] gap-6">
+      <DialogDrawerContent className="w-full max-w-[640px] gap-6 bg-card">
         <DialogDrawerTitle>Acknowledge Terms</DialogDrawerTitle>
-        <div className="bg-background body-large mt-2 flex max-h-[280px] flex-col gap-6 overflow-y-auto border p-6 md:max-h-[400px]">
+        <div className="body-large mt-2 flex max-h-[280px] flex-col gap-6 overflow-y-auto border bg-background p-6 md:max-h-[400px]">
           {children}
         </div>
         <div className="flex gap-4">

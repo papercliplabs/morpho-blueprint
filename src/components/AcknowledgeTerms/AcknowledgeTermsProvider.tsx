@@ -1,6 +1,6 @@
 "use client";
 
-import { PropsWithChildren, createContext, useCallback, useContext, useEffect, useState } from "react";
+import { createContext, type PropsWithChildren, useCallback, useContext, useEffect, useState } from "react";
 
 const ACKNOWLEDGEMENT_LOCAL_STORAGE_KEY = "acknowledge-terms";
 
@@ -18,12 +18,12 @@ export function AcknowledgeTermsProvider({ children }: PropsWithChildren) {
   useEffect(() => {
     const storedAcknoledgement = localStorage.getItem(ACKNOWLEDGEMENT_LOCAL_STORAGE_KEY);
     setAcknowledgedTerms(storedAcknoledgement === "true");
-  }, [setAcknowledgedTerms]);
+  }, []);
 
   const setAcknowledgement = useCallback(() => {
     localStorage.setItem(ACKNOWLEDGEMENT_LOCAL_STORAGE_KEY, "true");
     setAcknowledgedTerms(true);
-  }, [setAcknowledgedTerms]);
+  }, []);
 
   return (
     <AcknowledgeTermsContext.Provider value={{ acknowledgedTerms, setAcknowledgement }}>
