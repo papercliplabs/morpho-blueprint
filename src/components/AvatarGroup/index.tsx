@@ -36,10 +36,11 @@ export default function AvatarGroup({
       <div className="flex items-center">
         {avatars.map((avatarProps, index) => (
           <Avatar
+            // biome-ignore lint/suspicious/noArrayIndexKey: No suitable key
             key={index}
             {...avatarProps}
             size={size}
-            className={clsx(index > 0 && spacing[size ?? "md"], "border-background border-1", avatarClassName)}
+            className={clsx(index > 0 && spacing[size ?? "md"], "border-1 border-background", avatarClassName)}
           />
         ))}
       </div>

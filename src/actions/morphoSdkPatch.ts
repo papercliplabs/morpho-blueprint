@@ -9,6 +9,7 @@ declare module "@morpho-org/blue-sdk" {
   }
 }
 
+// biome-ignore lint/suspicious/noExplicitAny: Allow overriding
 (ChainId as any).lisk = 1135;
 
 Object.assign(ChainUtils.CHAIN_METADATA, {

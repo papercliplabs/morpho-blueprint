@@ -1,7 +1,7 @@
 "use client";
 import { Check, X } from "lucide-react";
 import { useMemo } from "react";
-import { Hex } from "viem";
+import type { Hex } from "viem";
 import { usePublicClient } from "wagmi";
 
 import LinkExternal from "../LinkExternal";
@@ -22,8 +22,8 @@ export function ActionFlowCompletion({ status, transactionHash }: ActionFlowComp
       case "success":
         return (
           <>
-            <div className="bg-primary flex size-16 items-center justify-center rounded-full">
-              <Check className="stroke-primary-foreground size-8" />
+            <div className="flex size-16 items-center justify-center rounded-full bg-primary">
+              <Check className="size-8 stroke-primary-foreground" />
             </div>
             <span>Transaction successful! You can now close this dialog or view details on the explorer.</span>
           </>
@@ -31,8 +31,8 @@ export function ActionFlowCompletion({ status, transactionHash }: ActionFlowComp
       case "failed":
         return (
           <>
-            <div className="bg-destructive flex size-16 items-center justify-center rounded-full">
-              <X className="stroke-primary-foreground size-8" />
+            <div className="flex size-16 items-center justify-center rounded-full bg-destructive">
+              <X className="size-8 stroke-primary-foreground" />
             </div>
             <span>Transaction failed.</span>
           </>

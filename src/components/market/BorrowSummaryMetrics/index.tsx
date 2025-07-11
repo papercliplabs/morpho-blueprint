@@ -1,11 +1,11 @@
 "use client";
 import clsx from "clsx";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 
 import { MetricWithTooltip } from "@/components/Metric";
 import { NumberFlowWithLoading } from "@/components/ui/number-flow";
 import { Skeleton } from "@/components/ui/skeleton";
-import { MarketSummary } from "@/data/whisk/getMarketSummaries";
+import type { MarketSummary } from "@/data/whisk/getMarketSummaries";
 import { useBorrowSummaryMetrics } from "@/hooks/useBorrowSummaryMetrics";
 
 interface BorrowSummaryMetricsProps {

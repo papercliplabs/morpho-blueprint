@@ -5,7 +5,7 @@ type CardHeaderProps = React.ComponentProps<"div">;
 
 function Card({ children, className, ...props }: CardProps) {
   return (
-    <article className={cn("bg-card border-border rounded-lg border p-6 shadow-sm", className)} {...props}>
+    <article className={cn("rounded-lg border border-border bg-card p-6 shadow-sm", className)} {...props}>
       {children}
     </article>
   );

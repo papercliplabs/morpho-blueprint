@@ -1,6 +1,6 @@
 import "server-only";
 import { cache } from "react";
-import { Address } from "viem";
+import type { Address } from "viem";
 
 import { graphql } from "@/generated/gql/whisk";
 

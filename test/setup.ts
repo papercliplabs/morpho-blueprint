@@ -1,5 +1,4 @@
-import { beforeEach } from "vitest";
-import { vi } from "vitest";
+import { beforeEach, vi } from "vitest";
 import "./helpers/expect";
 
 // Mock to allow tests to include config file

@@ -2,7 +2,7 @@
 import { useMemo } from "react";
 import { useAccount } from "wagmi";
 
-import { VaultSummary } from "@/data/whisk/getVaultSummaries";
+import type { VaultSummary } from "@/data/whisk/getVaultSummaries";
 
 import { useVaultTableData } from "./useVaultTableData";
 
@@ -27,8 +27,8 @@ export function useEarnSummaryMetrics({ vaultSummaries }: { vaultSummaries: Vaul
     const totalLiqudityUsd = vaultTableData.reduce((acc, entry) => acc + entry.vaultSummary.liquidityAssetsUsd, 0);
     const totalBorrowedUsd = totalSuppliedUsd - totalLiqudityUsd;
 
-    let userDepositsUsd: number | undefined = undefined;
-    let userEarnApy: number | undefined = undefined;
+    let userDepositsUsd: number | undefined;
+    let userEarnApy: number | undefined;
     if (address && !isPositionsLoading) {
       userDepositsUsd = vaultTableData.reduce((acc, entry) => {
         return acc + (entry.position?.supplyAssetsUsd ?? 0);

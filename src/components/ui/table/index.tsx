@@ -2,21 +2,21 @@
 
 import "@tanstack/react-table";
 import {
-  ColumnDef,
-  PaginationState,
-  RowData,
-  SortingState,
+  type ColumnDef,
+  flexRender,
   getCoreRowModel,
   getPaginationRowModel,
   getSortedRowModel,
+  type PaginationState,
+  type RowData,
+  type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import { flexRender } from "@tanstack/react-table";
 import { cva } from "class-variance-authority";
 import clsx from "clsx";
 import { ChevronLeft, ChevronRight, ChevronsUpDown } from "lucide-react";
 import Link from "next/link";
-import { HTMLAttributes, useEffect, useRef, useState } from "react";
+import { type HTMLAttributes, useEffect, useRef, useState } from "react";
 import { ScrollSync, ScrollSyncPane } from "react-scroll-sync";
 
 import { Button } from "@/components/ui/button";
@@ -25,7 +25,7 @@ import { cn } from "@/utils/shadcn";
 
 // Add a tooltip column to meta
 declare module "@tanstack/react-table" {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // biome-ignore lint/correctness/noUnusedVariables: Allow unused type parameters here for extending
   interface ColumnMeta<TData extends RowData, TValue> {
     tooltip?: string;
   }
@@ -69,41 +69,43 @@ export function TableRow({
 }: HTMLAttributes<HTMLDivElement> & { action?: TableRowAction }) {
   const tableRowColors = "bg-[var(--row-color)] [--row-color:var(--card)]";
 
-  if (action?.type == "link") {
+  if (action?.type === "link") {
     return (
       // Annoying hack for the scroll sync to work
-      <div className="border-border w-fit min-w-full not-last:border-b">
+      <div className="w-fit min-w-full border-border not-last:border-b">
         <Link
           href={action.href}
           className={cn(
             "flex w-full min-w-fit items-center transition-colors",
             tableRowColors,
             "hover:[--row-color:var(--accent)]",
-            className
+            className,
           )}
         >
           {children}
         </Link>
       </div>
     );
-  } else {
-    return (
-      // Annoying hack for the scroll sync to work
-      <div className="border-border w-fit min-w-full transition-colors not-last:border-b first:border-b">
-        <div
-          className={cn(
-            "flex w-full min-w-fit items-center transition-colors",
-            tableRowColors,
-            action?.type == "callback" && "hover:cursor-pointer hover:[--row-color:var(--accent)]",
-            className
-          )}
-          onClick={action?.type == "callback" ? action.callback : undefined}
-        >
-          {children}
-        </div>
-      </div>
-    );
   }
+
+  return (
+    // Annoying hack for the scroll sync to work
+    <div className="w-fit min-w-full border-border not-last:border-b transition-colors first:border-b">
+      {/* biome-ignore lint/a11y/noStaticElementInteractions: Allow for now... */}
+      {/* biome-ignore lint/a11y/useKeyWithClickEvents: Allow for now... */}
+      <div
+        className={cn(
+          "flex w-full min-w-fit items-center transition-colors",
+          tableRowColors,
+          action?.type === "callback" && "hover:cursor-pointer hover:[--row-color:var(--accent)]",
+          className,
+        )}
+        onClick={action?.type === "callback" ? action.callback : undefined}
+      >
+        {children}
+      </div>
+    </div>
+  );
 }
 
 export interface TableCellProps extends HTMLAttributes<HTMLDivElement> {
@@ -114,8 +116,8 @@ export function TableCell({ minWidth, className, style, ...props }: TableCellPro
   return (
     <div
       className={cn(
-        "flex h-full w-[0px] flex-1 shrink-0 grow items-center overflow-hidden px-4 text-nowrap text-ellipsis",
-        className
+        "flex h-full w-[0px] flex-1 shrink-0 grow items-center overflow-hidden text-ellipsis text-nowrap px-4",
+        className,
       )}
       style={{
         minWidth,
@@ -150,11 +152,13 @@ export function Table<TData, TValue>({
   // Scroll to top of the table on sort change if its above the header
   useEffect(() => {
     const tableTop = (tableRef.current?.getBoundingClientRect().top ?? 0) + 18; // Accounts for top padding and small overlap
-    const headerHeight = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--header-height"));
+    const headerHeight = Number.parseInt(
+      getComputedStyle(document.documentElement).getPropertyValue("--header-height"),
+    );
     if (tableTop < headerHeight) {
       window.scrollTo({ top: window.scrollY + (tableTop - headerHeight), behavior: "smooth" });
     }
-  }, [sorting]);
+  }, []);
 
   const table = useReactTable({
     data,
@@ -174,28 +178,28 @@ export function Table<TData, TValue>({
   return (
     <>
       <ScrollSync>
-        <div className="border-border relative h-fit min-w-0 grow overflow-hidden rounded-md border" ref={tableRef}>
+        <div className="relative h-fit min-w-0 grow overflow-hidden rounded-md border border-border" ref={tableRef}>
           {/* Gradients on left and right for mobile */}
-          <div className="from-card absolute top-0 bottom-0 left-0 z-[10] w-4 rounded-l-md bg-gradient-to-r to-transparent md:hidden" />
-          <div className="from-card absolute top-0 right-0 bottom-0 z-[10] w-4 rounded-r-md bg-gradient-to-l to-transparent md:hidden" />
+          <div className="absolute top-0 bottom-0 left-0 z-[10] w-4 rounded-l-md bg-gradient-to-r from-card to-transparent md:hidden" />
+          <div className="absolute top-0 right-0 bottom-0 z-[10] w-4 rounded-r-md bg-gradient-to-l from-card to-transparent md:hidden" />
           <div className="sticky top-[calc(var(--header-height)-2px)] z-[5] min-w-full">
             <ScrollSyncPane>
               <div className="scrollbar-none overflow-auto overscroll-x-none">
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow
                     key={headerGroup.id}
-                    className="text-muted-foreground body-small-plus h-12 hover:bg-transparent"
+                    className="body-small-plus h-12 text-muted-foreground hover:bg-transparent"
                   >
                     {headerGroup.headers.map((header) => {
                       const cellContent = (
                         <div
                           className={clsx(
-                            "flex h-12 items-center gap-1 select-none",
-                            header.column.columnDef.enableSorting !== false && "hover:cursor-pointer"
+                            "flex h-12 select-none items-center gap-1",
+                            header.column.columnDef.enableSorting !== false && "hover:cursor-pointer",
                           )}
                         >
                           {flexRender(header.column.columnDef.header, header.getContext())}
-                          {header.column.columnDef.enableSorting == false ? null : (
+                          {header.column.columnDef.enableSorting === false ? null : (
                             <SortIcon state={header.column.getIsSorted()} />
                           )}
                         </div>
@@ -239,7 +243,7 @@ export function Table<TData, TValue>({
                   </TableRow>
                 ))
               ) : (
-                <div className="text-muted-foreground flex h-[100px] flex-col items-center justify-center gap-1">
+                <div className="flex h-[100px] flex-col items-center justify-center gap-1 text-muted-foreground">
                   <span>No items</span>
                 </div>
               )}
@@ -257,7 +261,7 @@ export function Table<TData, TValue>({
           >
             <ChevronLeft className="size-4" />
           </Button>
-          <span className="text-muted-foreground body-medium">
+          <span className="body-medium text-muted-foreground">
             {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
           </span>
           <Button size="sm" variant="outline" disabled={!table.getCanNextPage()} onClick={() => table.nextPage()}>

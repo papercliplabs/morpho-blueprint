@@ -1,7 +1,7 @@
 "use client";
 import { ArrowUpRight } from "lucide-react";
-import { AnchorHTMLAttributes, ComponentProps } from "react";
-import { Address } from "viem";
+import type { AnchorHTMLAttributes, ComponentProps } from "react";
+import type { Address } from "viem";
 import { usePublicClient } from "wagmi";
 
 import { formatAddress } from "@/utils/format";
@@ -28,13 +28,13 @@ export default function LinkExternal({
       target="_blank"
       rel={`noopener ${keepReferrer ? "" : "noreferrer"} ${noFollow ? "nofollow" : ""}`}
       className={cn(
-        "text-primary flex items-center gap-1 underline-offset-2 transition-all hover:underline active:scale-98 active:opacity-50",
-        className
+        "flex items-center gap-1 text-primary underline-offset-2 transition-all hover:underline active:scale-98 active:opacity-50",
+        className,
       )}
       {...props}
     >
       {children}
-      {showArrow && <ArrowUpRight className="stroke-muted-foreground aspect-square w-[1.1em]" />}
+      {showArrow && <ArrowUpRight className="aspect-square w-[1.1em] stroke-muted-foreground" />}
     </a>
   );
 }

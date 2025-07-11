@@ -1,5 +1,5 @@
 import type { VaultAction, VaultPositionChange } from "@/actions";
-import { Vault } from "@/data/whisk/getVault";
+import type { Vault } from "@/data/whisk/getVault";
 
 import { AssetChangeSummary } from "../AssetChangeSummary";
 import { MetricChange } from "../MetricChange";
@@ -7,7 +7,7 @@ import { ApyTooltip } from "../Tooltips/ApyToolip";
 import { NumberFlowWithLoading } from "../ui/number-flow";
 import { Skeleton } from "../ui/skeleton";
 
-import { ActionFlow, ActionFlowProps } from ".";
+import { ActionFlow, type ActionFlowProps } from ".";
 
 export function VaultActionFlow({
   vault,
@@ -85,7 +85,7 @@ export function VaultActionSimulationMetrics({
           />
         }
         finalValue={
-          positionChange.balance.after == positionChange.balance.before ? undefined : (
+          positionChange.balance.after === positionChange.balance.before ? undefined : (
             <NumberFlowWithLoading
               value={positionChange.balance.after}
               isLoading={isLoading}

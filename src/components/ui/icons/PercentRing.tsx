@@ -1,4 +1,4 @@
-import { HTMLAttributes } from "react";
+import type { HTMLAttributes } from "react";
 
 import { cn } from "@/utils/shadcn";
 
@@ -25,6 +25,7 @@ export default function PercentRing({
 
   return (
     <svg width={size} height={size} className={className} {...props}>
+      <title>PercentRing</title>
       {/* Background circle */}
       <circle
         cx={size / 2}

@@ -11,6 +11,7 @@ export function Sparkles({ className, ...props }: React.ComponentProps<"svg">) {
       className={clsx(["fill-current"], className)}
       {...props}
     >
+      <title>Sparkles</title>
       <path
         fillRule="evenodd"
         clipRule="evenodd"

@@ -1,9 +1,9 @@
 "use client";
-import { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table";
 import { useMemo } from "react";
 
 import { Table } from "@/components/ui/table";
-import { Vault } from "@/data/whisk/getVault";
+import type { Vault } from "@/data/whisk/getVault";
 
 import { MarketName } from "../market/MarketName";
 import { ApyTooltip } from "../Tooltips/ApyToolip";

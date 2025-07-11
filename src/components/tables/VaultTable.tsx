@@ -1,10 +1,10 @@
 "use client";
-import { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table";
 
 import { Table } from "@/components/ui/table";
 import { APP_CONFIG } from "@/config";
-import { VaultSummary } from "@/data/whisk/getVaultSummaries";
-import { VaultTableDataEntry, useVaultTableData } from "@/hooks/useVaultTableData";
+import type { VaultSummary } from "@/data/whisk/getVaultSummaries";
+import { useVaultTableData, type VaultTableDataEntry } from "@/hooks/useVaultTableData";
 import { descaleBigIntToNumber } from "@/utils/format";
 import { sortTableAssetAmount } from "@/utils/sort";
 
@@ -57,7 +57,7 @@ function getColumns(isPositionLoading: boolean): Column[] {
           descaleBigIntToNumber(a.original.position?.supplyAssets ?? "0", a.original.vaultSummary.asset.decimals),
           a.original.position?.supplyAssetsUsd,
           descaleBigIntToNumber(b.original.position?.supplyAssets ?? "0", b.original.vaultSummary.asset.decimals),
-          b.original.position?.supplyAssetsUsd
+          b.original.position?.supplyAssetsUsd,
         ),
       minSize: 140,
     },
@@ -80,14 +80,14 @@ function getColumns(isPositionLoading: boolean): Column[] {
         sortTableAssetAmount(
           descaleBigIntToNumber(
             a.original.position?.walletUnderlyingAssetHolding?.balance ?? "0",
-            a.original.vaultSummary.asset.decimals
+            a.original.vaultSummary.asset.decimals,
           ),
           a.original.position?.walletUnderlyingAssetHolding?.balanceUsd,
           descaleBigIntToNumber(
             b.original.position?.walletUnderlyingAssetHolding?.balance ?? "0",
-            b.original.vaultSummary.asset.decimals
+            b.original.vaultSummary.asset.decimals,
           ),
-          b.original.position?.walletUnderlyingAssetHolding?.balanceUsd
+          b.original.position?.walletUnderlyingAssetHolding?.balanceUsd,
         ),
       minSize: 140,
     },
@@ -111,7 +111,7 @@ function getColumns(isPositionLoading: boolean): Column[] {
           descaleBigIntToNumber(a.original.vaultSummary.supplyAssets ?? "0", a.original.vaultSummary.asset.decimals),
           a.original.vaultSummary.supplyAssetsUsd,
           descaleBigIntToNumber(b.original.vaultSummary.supplyAssets ?? "0", b.original.vaultSummary.asset.decimals),
-          b.original.vaultSummary.supplyAssetsUsd
+          b.original.vaultSummary.supplyAssetsUsd,
         ),
       minSize: 140,
     },
@@ -161,7 +161,7 @@ function getColumns(isPositionLoading: boolean): Column[] {
                   }
                   return unique;
                 },
-                [] as { src: string }[]
+                [] as { src: string }[],
               )}
             max={4}
             size="sm"

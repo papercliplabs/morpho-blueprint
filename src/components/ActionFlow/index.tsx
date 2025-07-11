@@ -1,7 +1,7 @@
 "use client";
 import { X } from "lucide-react";
 import { motion } from "motion/react";
-import { ComponentProps, ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { type ComponentProps, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { zeroHash } from "viem";
 
 import type { SuccessfulAction } from "@/actions";
@@ -54,7 +54,7 @@ export function ActionFlow({
     }, 300);
 
     return () => clearTimeout(timeout);
-  }, [open, action]);
+  }, [open]);
 
   // Don't render at all if not open to let react lifecycle reset the flow provider
   return (
@@ -75,7 +75,7 @@ export function ActionFlow({
 
 function ActionFlowDialog({ open, onOpenChange, actionName, summary, metrics }: ActionFlowDialogProps) {
   const { flowState, lastTransactionHash, error, startFlow } = useActionFlowContext();
-  const preventClose = useMemo(() => flowState == "active", [flowState]);
+  const preventClose = useMemo(() => flowState === "active", [flowState]);
 
   // useMeasure caused issues getting accurate height on initial render of dialog, this works instead
   const measureRef = useRef<HTMLDivElement>(null);
@@ -91,7 +91,7 @@ function ActionFlowDialog({ open, onOpenChange, actionName, summary, metrics }: 
     });
 
     return () => cancelAnimationFrame(raf);
-  }, [open, flowState]);
+  }, [open]);
 
   const content = useMemo(() => {
     switch (flowState) {
@@ -158,7 +158,7 @@ function ActionFlowDialog({ open, onOpenChange, actionName, summary, metrics }: 
 
 function ActionFlowDialogCloseButton({ close }: { close: () => void }) {
   const { flowState } = useActionFlowContext();
-  const preventClose = useMemo(() => flowState == "active", [flowState]);
+  const preventClose = useMemo(() => flowState === "active", [flowState]);
   const [popoverOpen, setPopoverOpen] = useState(false);
 
   return (
@@ -188,7 +188,7 @@ function ActionFlowDialogCloseButton({ close }: { close: () => void }) {
       </Popover>
 
       <Button onClick={() => (preventClose ? setPopoverOpen(true) : close())} variant="ghost">
-        <X className="stroke-foreground h-4 w-4 shrink-0" />
+        <X className="h-4 w-4 shrink-0 stroke-foreground" />
       </Button>
     </>
   );

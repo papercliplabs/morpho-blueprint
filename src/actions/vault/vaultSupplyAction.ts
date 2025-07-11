@@ -1,13 +1,13 @@
 import { DEFAULT_SLIPPAGE_TOLERANCE, getChainAddresses } from "@morpho-org/blue-sdk";
 import { produceImmutable } from "@morpho-org/simulation-sdk";
-import { Address, maxUint256 } from "viem";
+import { type Address, maxUint256 } from "viem";
 
 import { getIsContract } from "@/actions/data/rpc/getIsContract";
 import { getSimulationState } from "@/actions/data/rpc/getSimulationState";
 
 import { inputTransferSubbundle } from "../subbundles/inputTransferSubbundle";
 import { subbundleFromInputOps } from "../subbundles/subbundleFromInputOps";
-import { PublicClientWithChain, VaultAction } from "../types";
+import type { PublicClientWithChain, VaultAction } from "../types";
 import { actionFromSubbundles } from "../utils/actionFromSubbundles";
 import { computeVaultPositionChange } from "../utils/positionChange";
 
@@ -96,7 +96,7 @@ export async function vaultSupplyAction({
         vaultAddress,
         accountAddress,
         intitialSimulationState,
-        vaultSupplySubbundle.finalSimulationState
+        vaultSupplySubbundle.finalSimulationState,
       ),
     };
   } catch (e) {

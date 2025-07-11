@@ -7,10 +7,10 @@ import { Button } from "@/components/ui/button";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import NumberFlow from "@/components/ui/number-flow";
-import { ChainInfo, TokenInfo } from "@/data/whisk/fragments";
+import type { ChainInfo, TokenInfo } from "@/data/whisk/fragments";
 import { numberToString } from "@/utils/format";
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+// biome-ignore lint/suspicious/noExplicitAny: Allow any for the FormField component
 interface AssetInputFormFieldProps<TFieldValues extends Record<string, any>>
   extends Omit<React.ComponentProps<typeof FormField<TFieldValues>>, "render"> {
   header: string;
@@ -20,7 +20,7 @@ interface AssetInputFormFieldProps<TFieldValues extends Record<string, any>>
   maxValue?: number;
 }
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+// biome-ignore lint/suspicious/noExplicitAny: Allow any for the FormField component
 function AssetInputFormField<TFieldValues extends Record<string, any>>({
   chain,
   asset,
@@ -33,8 +33,8 @@ function AssetInputFormField<TFieldValues extends Record<string, any>>({
     <FormField
       {...props}
       render={({ field, fieldState }) => (
-        <FormItem className="bg-muted group has-focus:border-primary flex flex-col rounded-md border-2 border-transparent p-4 transition">
-          <div className="text-muted-foreground flex items-center gap-2">
+        <FormItem className="group flex flex-col rounded-md border-2 border-transparent bg-muted p-4 transition has-focus:border-primary">
+          <div className="flex items-center gap-2 text-muted-foreground">
             <FormLabel className="body-small-plus">{header}</FormLabel>
             <FormMessage />
           </div>
@@ -45,7 +45,7 @@ function AssetInputFormField<TFieldValues extends Record<string, any>>({
                   autoComplete="off"
                   className={clsx(
                     "!heading-2 h-12 rounded-none border-none bg-transparent p-0 shadow-none focus:ring-0 focus:ring-offset-0",
-                    fieldState.error && !!field.value && "text-destructive"
+                    fieldState.error && !!field.value && "text-destructive",
                   )}
                   placeholder="0"
                   inputMode="decimal"
@@ -69,14 +69,14 @@ function AssetInputFormField<TFieldValues extends Record<string, any>>({
                 </div>
               )}
             </div>
-            <div className="text-muted-foreground body-small flex h-[24px] items-center justify-between">
+            <div className="body-small flex h-[24px] items-center justify-between text-muted-foreground">
               {asset.priceUsd != null && (
                 <NumberFlow
-                  value={(isNaN(field.value) ? 0 : field.value) * asset.priceUsd}
+                  value={(Number.isNaN(field.value) ? 0 : field.value) * asset.priceUsd}
                   format={{ currency: "USD" }}
                 />
               )}
-              {maxValue != undefined && (
+              {maxValue !== undefined && (
                 <div className="flex h-[24px] items-center gap-1">
                   <span>Available: </span>
                   <div className="relative">

@@ -15,7 +15,7 @@ const FOOTER_ITEMS: { name: string; href: string }[] = [
 
 export function Footer() {
   return (
-    <footer className="text-muted-foreground mb-18 flex w-full items-start justify-between gap-6 py-6 md:items-center lg:mb-0">
+    <footer className="mb-18 flex w-full items-start justify-between gap-6 py-6 text-muted-foreground md:items-center lg:mb-0">
       <div className="flex min-h-9 flex-col gap-6 md:flex-row">
         <LinkExternal href="https://morpho.org/" keepReferrer className="text-current">
           <PoweredByMorpho showTooltip={false} />

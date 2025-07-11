@@ -35,7 +35,7 @@ export function useShallowSearchParams({ keys }: UseShallowSearchParamParams): U
 
       window.history.pushState(null, "", `?${newParams.toString()}`);
     },
-    [searchParams]
+    [searchParams],
   );
 
   const removeShallowSearchParams = useCallback(
@@ -48,7 +48,7 @@ export function useShallowSearchParams({ keys }: UseShallowSearchParamParams): U
 
       window.history.pushState(null, "", `?${params.toString()}`);
     },
-    [searchParams]
+    [searchParams],
   );
 
   return { values, addShallowSearchParams, removeShallowSearchParams };

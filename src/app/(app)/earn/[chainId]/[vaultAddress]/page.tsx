@@ -1,27 +1,25 @@
-import { Metadata } from "next";
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { getAddress } from "viem";
-import { Address } from "viem";
+import { type Address, getAddress } from "viem";
 
 import LinkExternal from "@/components/LinkExternal";
-import { MarketAllocationTable } from "@/components/tables/MarketAllocationTable";
 import { TokenIcon } from "@/components/TokenIcon";
+import { MarketAllocationTable } from "@/components/tables/MarketAllocationTable";
 import { BreakcrumbBack } from "@/components/ui/breakcrumb-back";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { VaultActions } from "@/components/vault/VaultActions";
-import { VaultInfoSkeleton } from "@/components/vault/VaultInfo";
-import { VaultInfo } from "@/components/vault/VaultInfo";
+import { VaultInfo, VaultInfoSkeleton } from "@/components/vault/VaultInfo";
 import { VaultKeyMetrics, VaultKeyMetricsSkeleton } from "@/components/vault/VaultKeyMetrics";
 import { VaultPositionHighlight } from "@/components/vault/VaultPositionHighlight";
 import { APP_CONFIG } from "@/config";
-import { SupportedChainId } from "@/config/types";
+import type { SupportedChainId } from "@/config/types";
 import { getVault } from "@/data/whisk/getVault";
-import { VaultIdentifier } from "@/utils/types";
+import type { VaultIdentifier } from "@/utils/types";
 
 export const metadata: Metadata = {
   title: `${APP_CONFIG.appMetadata.name} | Vault`,
@@ -33,7 +31,7 @@ export default async function VaultPage({ params }: { params: Promise<{ chainId:
   let chainId: number;
   try {
     vaultAddress = getAddress(vaultAddressString);
-    chainId = parseInt(chainIdString);
+    chainId = Number.parseInt(chainIdString);
   } catch {
     notFound();
   }
@@ -133,7 +131,7 @@ async function VaultHeader({ chainId, vaultAddress }: VaultIdentifier) {
           <TokenIcon token={vault.asset} chain={vault.chain} size="md" />
           <h1 className="heading-3">{vault.name}</h1>
         </div>
-        <div className="text-muted-foreground flex items-center gap-2">
+        <div className="flex items-center gap-2 text-muted-foreground">
           <span>
             Chain: <span className="text-foreground">{vault.chain.name}</span>
           </span>
@@ -184,7 +182,7 @@ async function VaultAboutCard({ chainId, vaultAddress }: VaultIdentifier) {
   return (
     <Card>
       <CardHeader>About</CardHeader>
-      <p className="text-muted-foreground body-large">{vault.metadata?.description}</p>
+      <p className="body-large text-muted-foreground">{vault.metadata?.description}</p>
     </Card>
   );
 }

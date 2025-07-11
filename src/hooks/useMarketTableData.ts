@@ -1,11 +1,11 @@
 "use client";
 import { useMemo } from "react";
-import { Hex } from "viem";
+import type { Hex } from "viem";
 import { useAccount } from "wagmi";
 
 import { FilterKey } from "@/components/filters/types";
-import { MarketPosition } from "@/data/whisk/getMarketPositions";
-import { MarketSummary } from "@/data/whisk/getMarketSummaries";
+import type { MarketPosition } from "@/data/whisk/getMarketPositions";
+import type { MarketSummary } from "@/data/whisk/getMarketSummaries";
 
 import { useMarketPositions } from "./useMarketPositions";
 import { useShallowSearchParams } from "./useShallowSearchParams";
@@ -56,7 +56,7 @@ export function useMarketTableData({ marketSummaries }: { marketSummaries: Marke
 
       let accountFilterMatch = true;
       const accountFilterValue = accountFilterValues[0];
-      if (dataEntry.position != undefined && accountFilterValue && isConnected) {
+      if (dataEntry.position !== undefined && accountFilterValue && isConnected) {
         switch (accountFilterValue) {
           case "positions":
             accountFilterMatch = BigInt(dataEntry.position.collateralAssets) > 0n;

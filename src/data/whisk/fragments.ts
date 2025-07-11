@@ -1,5 +1,5 @@
 import { graphql } from "@/generated/gql/whisk";
-import {
+import type {
   ChainInfoFragmentFragment,
   CuratorInfoFragmentFragment,
   TokenInfoFragmentFragment,

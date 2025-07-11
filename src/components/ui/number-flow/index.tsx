@@ -1,7 +1,7 @@
 "use client";
 import NumberFlowReact from "@number-flow/react";
 import { AnimatePresence, motion } from "motion/react";
-import { ComponentProps, ReactNode } from "react";
+import type { ComponentProps, ReactNode } from "react";
 
 import { cn } from "@/utils/shadcn";
 
@@ -12,7 +12,7 @@ type NumberFlowProps = {
 } & Omit<ComponentProps<typeof NumberFlowReact>, "value">;
 
 export default function NumberFlow({ className, format, value, ...props }: NumberFlowProps) {
-  if (value == undefined) {
+  if (value === undefined) {
     return <span className={cn("text-content-secondary", className)}>-</span>;
   }
 
@@ -25,9 +25,9 @@ export default function NumberFlow({ className, format, value, ...props }: Numbe
     ...restOptions
   } = format ?? {};
 
-  const displayValue = format?.style == "percent" ? value * 100 : value;
+  const displayValue = format?.style === "percent" ? value * 100 : value;
   const formatOptions: typeof format = {
-    notation: notation == "compact" && (displayValue > 9999 || displayValue < -9999) ? "compact" : "standard",
+    notation: notation === "compact" && (displayValue > 9999 || displayValue < -9999) ? "compact" : "standard",
     minimumFractionDigits,
     maximumFractionDigits,
     style: currency ? "currency" : format?.style,
@@ -38,14 +38,14 @@ export default function NumberFlow({ className, format, value, ...props }: Numbe
   // Clamp to max USD value
   if (currency === "USD" && value > MAX_USD_VALUE) {
     value = MAX_USD_VALUE;
-    prefix = ">" + prefix;
+    prefix = `>${prefix}`;
   }
 
-  const minValue = Math.pow(10, -maximumFractionDigits);
+  const minValue = 10 ** -maximumFractionDigits;
   if (value !== 0 && Math.abs(displayValue) < minValue) {
     const neg = value < 0;
-    prefix = neg ? ">" : "<" + prefix;
-    value = minValue * Math.pow(10, format?.style === "percent" ? -2 : 0) * (neg ? -1 : 1);
+    prefix = neg ? ">" : `<${prefix}`;
+    value = minValue * 10 ** (format?.style === "percent" ? -2 : 0) * (neg ? -1 : 1);
   }
 
   return (

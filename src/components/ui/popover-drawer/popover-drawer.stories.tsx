@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import {
   PopoverDrawer,
   PopoverDrawerContent,
-  PopoverDrawerProps,
+  type PopoverDrawerProps,
   PopoverDrawerTrigger,
 } from "@/components/ui/popover-drawer";
 import { ResponsiveProvider, useResponsiveContext } from "@/providers/ResponsiveProvider";

@@ -21,5 +21,3 @@ expect.extend({
     };
   },
 });
-
-export {};

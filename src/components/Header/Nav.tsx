@@ -4,13 +4,13 @@ import { usePathname } from "next/navigation";
 
 import { NavItem } from "./NavItem";
 
-type NavItem = {
+type NavItemType = {
   href: string;
   name: string;
   isActive: (pathname: string) => boolean;
 };
 
-const NAV_ITEMS: NavItem[] = [
+const NAV_ITEMS: NavItemType[] = [
   { href: "/earn", name: "Earn", isActive: (pathname) => pathname.startsWith("/earn") },
   { href: "/borrow", name: "Borrow", isActive: (pathname) => pathname.startsWith("/borrow") },
 ];

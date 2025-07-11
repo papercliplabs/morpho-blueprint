@@ -1,5 +1,5 @@
 import { Avatar } from "@/components/ui/avatar";
-import { TokenInfo } from "@/data/whisk/fragments";
+import type { TokenInfo } from "@/data/whisk/fragments";
 import { formatNumber } from "@/utils/format";
 import { cn } from "@/utils/shadcn";
 
@@ -25,7 +25,7 @@ function AssetChangeSummary({
 }: AssetChangeSummaryProps) {
   return (
     <div
-      className={cn("bg-muted flex w-full items-center justify-between gap-3 rounded-sm px-4 py-3", className)}
+      className={cn("flex w-full items-center justify-between gap-3 rounded-sm bg-muted px-4 py-3", className)}
       {...props}
     >
       <Avatar
@@ -41,7 +41,7 @@ function AssetChangeSummary({
       <div className="flex flex-col items-end">
         <span className="body-medium-plus">{formatNumber(Math.abs(amount))}</span>
         {amountUsd && (
-          <span className="text-muted-foreground body-small">
+          <span className="body-small text-muted-foreground">
             {formatNumber(Math.abs(amountUsd), { currency: "USD" })}
           </span>
         )}

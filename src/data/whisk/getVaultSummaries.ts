@@ -24,17 +24,17 @@ export const getVaultSummaries = cache(
         queryVariables.map(
           async ([chainId, addresses]) =>
             await executeWhiskQuery(query, {
-              chainId: parseInt(chainId),
+              chainId: Number.parseInt(chainId),
               addresses,
-            })
-        )
+            }),
+        ),
       );
 
       return responses.flatMap((resp) => resp.morphoVaults);
     },
     ["getVaultSummaries"],
-    { revalidate: 10 } // Light cache, mostly to help in dev
-  )
+    { revalidate: 10 }, // Light cache, mostly to help in dev
+  ),
 );
 
 export type VaultSummary = NonNullable<Awaited<ReturnType<typeof getVaultSummaries>>>[number];

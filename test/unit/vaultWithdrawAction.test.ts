@@ -1,7 +1,7 @@
 import { getChainAddresses } from "@morpho-org/blue-sdk";
 import { fetchVaultConfig } from "@morpho-org/blue-sdk-viem";
-import { AnvilTestClient } from "@morpho-org/test";
-import { Address, Log, maxUint256, parseUnits, zeroAddress } from "viem";
+import type { AnvilTestClient } from "@morpho-org/test";
+import { type Address, type Log, maxUint256, parseUnits, zeroAddress } from "viem";
 import { describe, expect } from "vitest";
 
 import { vaultWithdrawAction } from "@/actions";
@@ -66,7 +66,7 @@ async function runVaultWithdrawTest({
   await beforeExecutionCb?.(client);
 
   let logs: Log[] = [];
-  if (action.status == "success") {
+  if (action.status === "success") {
     // Execute
     logs = await executeAction(client, action);
   }
@@ -74,7 +74,7 @@ async function runVaultWithdrawTest({
   // Assert
   expect(action.status).toEqual(expectSuccess ? "success" : "error");
 
-  if (action.status == "error") {
+  if (action.status === "error") {
     return action;
   }
 
@@ -83,7 +83,7 @@ async function runVaultWithdrawTest({
     logs,
     client.account.address,
     [...(permit2 ? [permit2] : []), generalAdapter1], // Only ever allowed to apporve GA1 or permit2
-    [generalAdapter1] // Only ever allowed to permit GA1
+    [generalAdapter1], // Only ever allowed to permit GA1
   );
 
   const vaultPosition = await getMorphoVaultPosition(client, vaultAddress);
@@ -132,7 +132,7 @@ const successTestCases: ({ name: string } & Omit<VaultWithdrawTestParameters, "c
 describe("vaultWithdrawAction", () => {
   describe("happy path", () => {
     successTestCases.map((testCase) => {
-      test(testCase.name + " - eoa caller", async ({ client }) => {
+      test(`${testCase.name} - eoa caller`, async ({ client }) => {
         await runVaultWithdrawTest({
           client,
           ...testCase,
@@ -142,7 +142,7 @@ describe("vaultWithdrawAction", () => {
     });
 
     successTestCases.map((testCase) => {
-      test(testCase.name + " - contract caller", async ({ client }) => {
+      test(`${testCase.name} - contract caller`, async ({ client }) => {
         await runVaultWithdrawTest({
           client,
           ...testCase,
@@ -162,7 +162,7 @@ describe("vaultWithdrawAction", () => {
           initialState: {
             positionSupplyAmount: parseUnits("100000", 6),
           },
-        })
+        }),
       ).rejects.toThrow();
     });
 
@@ -178,7 +178,7 @@ describe("vaultWithdrawAction", () => {
       });
 
       // Will be error otherwise would have failed in run test - this is defined within morpho SDK
-      if (result.status == "error") {
+      if (result.status === "error") {
         expect(result.message).toContain("Simulation Error: insufficient balance of user");
       }
     });
@@ -195,7 +195,7 @@ describe("vaultWithdrawAction", () => {
       });
 
       // Will be error otherwise would have failed in run test
-      if (result.status == "error") {
+      if (result.status === "error") {
         expect(result.message).toEqual("Withdraw amount must be greater than 0.");
       }
     });

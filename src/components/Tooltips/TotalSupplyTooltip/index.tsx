@@ -27,7 +27,7 @@ type TotalSupplyTooltipContentProps = TotalSupplyTooltipSharedProps;
 
 function TotalSupplyTooltipContent({ supplyCap, totalSupply }: TotalSupplyTooltipContentProps) {
   const usage = supplyCap ? totalSupply / supplyCap : 0;
-  const remainingCapacity = supplyCap ? supplyCap - totalSupply : Infinity;
+  const remainingCapacity = supplyCap ? supplyCap - totalSupply : Number.POSITIVE_INFINITY;
 
   return (
     <div className="body-small flex flex-col gap-4">
@@ -48,7 +48,7 @@ function TotalSupplyTooltipContent({ supplyCap, totalSupply }: TotalSupplyToolti
           <span>{formatNumber(totalSupply, { currency: "USD" })}</span>
         </span>
       </span>
-      <div className="bg-border h-[1px]" />
+      <div className="h-[1px] bg-border" />
       <span className="flex justify-between">
         <span>Remaining Capacity</span>
         <span>{supplyCap == null ? "∞" : formatNumber(remainingCapacity, { currency: "USD" })}</span>

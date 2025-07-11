@@ -1,10 +1,10 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
 import { cache } from "react";
-import { Address } from "viem";
+import type { Address } from "viem";
 
 import { graphql } from "@/generated/gql/whisk";
-import { GetVaultQuery } from "@/generated/gql/whisk/graphql";
+import type { GetVaultQuery } from "@/generated/gql/whisk/graphql";
 
 import { executeWhiskQuery } from "./execute";
 
@@ -71,8 +71,8 @@ export const getVault = cache(
       return data.morphoVault;
     },
     ["getVault"],
-    { revalidate: 10 } // Light cache, mostly to help in dev
-  )
+    { revalidate: 10 }, // Light cache, mostly to help in dev
+  ),
 );
 
 export type Vault = NonNullable<GetVaultQuery["morphoVault"]>;

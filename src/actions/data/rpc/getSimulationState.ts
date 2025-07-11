@@ -1,12 +1,12 @@
 import {
-  Holding,
-  MarketId,
+  getChainAddresses,
+  type Holding,
+  type MarketId,
   MathLib,
   NATIVE_ADDRESS,
-  Position,
-  VaultMarketConfig,
-  VaultUser,
-  getChainAddresses,
+  type Position,
+  type VaultMarketConfig,
+  type VaultUser,
 } from "@morpho-org/blue-sdk";
 import {
   fetchAccrualVault,
@@ -19,10 +19,10 @@ import {
   fetchVaultUser,
 } from "@morpho-org/blue-sdk-viem";
 import { SimulationState } from "@morpho-org/simulation-sdk";
-import { Address, zeroAddress } from "viem";
+import { type Address, zeroAddress } from "viem";
 import { getBlock } from "viem/actions";
 
-import { PublicClientWithChain } from "@/actions/types";
+import type { PublicClientWithChain } from "@/actions/types";
 import { APP_CONFIG } from "@/config";
 
 type GetSimulationStateMarketTypeParameters = {
@@ -85,21 +85,21 @@ export async function getSimulationState({
 
   // Add markets from the vault queues
   marketIds = Array.from(
-    new Set(marketIds.concat(vaults.flatMap((vault) => vault.supplyQueue.concat(vault.withdrawQueue))))
+    new Set(marketIds.concat(vaults.flatMap((vault) => vault.supplyQueue.concat(vault.withdrawQueue)))),
   );
 
   const userAddresses = [accountAddress, generalAdapter1Address, ...vaultAddresses];
 
   const positionParams: { userAddress: Address; marketId: MarketId }[] = Array.from(userAddresses).flatMap(
-    (userAddress) => Array.from(marketIds, (marketId) => ({ userAddress, marketId }))
+    (userAddress) => Array.from(marketIds, (marketId) => ({ userAddress, marketId })),
   );
 
   const vaultMarketConfigParams: { vaultAddress: Address; marketId: MarketId }[] = Array.from(vaultAddresses).flatMap(
-    (vaultAddress) => Array.from(marketIds, (marketId) => ({ vaultAddress, marketId }))
+    (vaultAddress) => Array.from(marketIds, (marketId) => ({ vaultAddress, marketId })),
   );
 
   const vaultUserParams: { vaultAddress: Address; userAddress: Address }[] = Array.from(vaultAddresses).flatMap(
-    (vaultAddress) => Array.from(userAddresses, (userAddress) => ({ vaultAddress, userAddress }))
+    (vaultAddress) => Array.from(userAddresses, (userAddress) => ({ vaultAddress, userAddress })),
   );
 
   const [block, markets, users, positions, vaultMarketConfigs, vaultUsers] = await Promise.all([
@@ -109,11 +109,11 @@ export async function getSimulationState({
     Promise.all(positionParams.map(({ userAddress, marketId }) => fetchPosition(userAddress, marketId, publicClient))),
     Promise.all(
       vaultMarketConfigParams.map(({ vaultAddress, marketId }) =>
-        fetchVaultMarketConfig(vaultAddress, marketId, publicClient)
-      )
+        fetchVaultMarketConfig(vaultAddress, marketId, publicClient),
+      ),
     ),
     Promise.all(
-      vaultUserParams.map(({ vaultAddress, userAddress }) => fetchVaultUser(vaultAddress, userAddress, publicClient))
+      vaultUserParams.map(({ vaultAddress, userAddress }) => fetchVaultUser(vaultAddress, userAddress, publicClient)),
     ),
   ]);
 
@@ -141,13 +141,13 @@ export async function getSimulationState({
   }
 
   const holdingParams: { userAddress: Address; tokenAddress: Address }[] = Array.from(userAddresses).flatMap(
-    (userAddress) => Array.from(tokenAddresses, (tokenAddress) => ({ userAddress, tokenAddress }))
+    (userAddress) => Array.from(tokenAddresses, (tokenAddress) => ({ userAddress, tokenAddress })),
   );
 
   const [tokens, holdings] = await Promise.all([
     Promise.all(tokenAddresses.map((tokenAddress) => fetchToken(tokenAddress, publicClient))),
     Promise.all(
-      holdingParams.map(({ userAddress, tokenAddress }) => fetchHolding(userAddress, tokenAddress, publicClient))
+      holdingParams.map(({ userAddress, tokenAddress }) => fetchHolding(userAddress, tokenAddress, publicClient)),
     ),
   ]);
 
@@ -172,7 +172,7 @@ export async function getSimulationState({
         acc[userAddress][marketId] = positions[i];
         return acc;
       },
-      {} as Record<Address, Record<MarketId, Position>>
+      {} as Record<Address, Record<MarketId, Position>>,
     ),
 
     holdings: holdingParams.reduce(
@@ -183,7 +183,7 @@ export async function getSimulationState({
         acc[userAddress][tokenAddress] = holdings[i];
         return acc;
       },
-      {} as Record<Address, Record<Address, Holding>>
+      {} as Record<Address, Record<Address, Holding>>,
     ),
 
     vaultMarketConfigs: vaultMarketConfigParams.reduce(
@@ -194,7 +194,7 @@ export async function getSimulationState({
         acc[vaultAddress][marketId] = vaultMarketConfigs[i];
         return acc;
       },
-      {} as Record<Address, Record<MarketId, VaultMarketConfig>>
+      {} as Record<Address, Record<MarketId, VaultMarketConfig>>,
     ),
 
     vaultUsers: vaultUserParams.reduce(
@@ -205,7 +205,7 @@ export async function getSimulationState({
         acc[vaultAddress][userAddress] = vaultUsers[i];
         return acc;
       },
-      {} as Record<Address, Record<Address, VaultUser>>
+      {} as Record<Address, Record<Address, VaultUser>>,
     ),
   });
 
@@ -247,15 +247,14 @@ export async function getMarketSimulationStateAccountingForPublicReallocation({
 
   if (!requiresPublicReallocation) {
     return simulationStateWithoutPublicReallocation;
-  } else {
-    return await getSimulationState({
-      actionType: "market",
-      accountAddress,
-      marketId,
-      publicClient,
-      allocatingVaultAddresses,
-      requiresPublicReallocation: true,
-      additionalTokenAddresses,
-    });
   }
+  return await getSimulationState({
+    actionType: "market",
+    accountAddress,
+    marketId,
+    publicClient,
+    allocatingVaultAddresses,
+    requiresPublicReallocation: true,
+    additionalTokenAddresses,
+  });
 }

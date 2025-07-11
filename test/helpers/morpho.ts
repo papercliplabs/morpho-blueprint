@@ -1,7 +1,7 @@
-import { MarketId, getChainAddresses } from "@morpho-org/blue-sdk";
+import { getChainAddresses, type MarketId } from "@morpho-org/blue-sdk";
 import { blueAbi, fetchMarket, fetchVault, fetchVaultConfig, metaMorphoAbi } from "@morpho-org/blue-sdk-viem";
-import { AnvilTestClient } from "@morpho-org/test";
-import { Address, Hex, erc20Abi } from "viem";
+import type { AnvilTestClient } from "@morpho-org/test";
+import { type Address, erc20Abi, type Hex } from "viem";
 import { writeContract } from "viem/actions";
 
 import { getSimulationState } from "@/actions/data/rpc/getSimulationState";
@@ -14,7 +14,7 @@ const { morpho } = getChainAddresses(1);
 export async function getMorphoVaultPosition(
   client: AnvilTestClient,
   vaultAddress: Address,
-  accountAddress: Address = client.account.address
+  accountAddress: Address = client.account.address,
 ) {
   const vault = await fetchVault(vaultAddress, client);
 
@@ -26,7 +26,7 @@ export async function getMorphoVaultPosition(
 export async function getMorphoMarketPosition(
   client: AnvilTestClient,
   marketId: Hex,
-  accountAddress: Address = client.account.address
+  accountAddress: Address = client.account.address,
 ) {
   const simulationState = await getSimulationState({
     publicClient: client,
@@ -44,7 +44,7 @@ export async function createVaultPosition(
   client: AnvilTestClient,
   vaultAddress: Address,
   supplyAmount: bigint,
-  account: Address = client.account.address
+  account: Address = client.account.address,
 ) {
   const vaultConfig = await fetchVaultConfig(vaultAddress, client);
   await client.deal({
@@ -75,7 +75,7 @@ export async function seedMarketLiquidity(
   client: AnvilTestClient,
   marketId: Hex,
   supplyAmount: bigint,
-  onBehalf: Address = RANDOM_ADDRESS
+  onBehalf: Address = RANDOM_ADDRESS,
 ) {
   const supplyAmountInternal = supplyAmount + 1n; // Extra to make 0 supply work
   const market = await fetchMarket(marketId as MarketId, client);
@@ -118,7 +118,7 @@ export async function createMarketPosition(
   marketId: Hex,
   supplyCollateralAmount: bigint,
   borrowAmount: bigint,
-  account: Address = client.account.address
+  account: Address = client.account.address,
 ) {
   const market = await fetchMarket(marketId as MarketId, client);
   const { collateralToken: collateralAssetAddress } = market.params;

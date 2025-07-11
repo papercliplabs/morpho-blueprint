@@ -58,7 +58,7 @@ export default async function RootLayout({
         className={clsx(
           APP_CONFIG.fonts.main.variable,
           APP_CONFIG.fonts.others?.map((f) => f.variable),
-          "antialiased"
+          "antialiased",
         )}
       >
         <Providers>

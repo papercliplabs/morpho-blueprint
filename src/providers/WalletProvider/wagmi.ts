@@ -1,5 +1,5 @@
 import { getDefaultConfig } from "connectkit";
-import { Chain, FallbackTransport, fallback, http } from "viem";
+import { type Chain, type FallbackTransport, fallback, http } from "viem";
 import { createConfig } from "wagmi";
 
 import { APP_CONFIG } from "@/config";
@@ -13,7 +13,7 @@ export const wagmiConfig = createConfig(
         acc[chain.id] = fallback(rpcUrls.map((url) => http(url)));
         return acc;
       },
-      {} as Record<number, FallbackTransport>
+      {} as Record<number, FallbackTransport>,
     ),
 
     walletConnectProjectId: APP_CONFIG.reownProjectId,
@@ -25,5 +25,5 @@ export const wagmiConfig = createConfig(
     appIcon: APP_CONFIG.appMetadata.images.icons.svg,
 
     ssr: true,
-  })
+  }),
 );

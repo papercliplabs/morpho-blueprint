@@ -1,8 +1,8 @@
-import { NextFontWithVariable } from "next/dist/compiled/@next/font";
-import { ReactNode } from "react";
-import { Address, Chain } from "viem";
+import type { NextFontWithVariable } from "next/dist/compiled/@next/font";
+import type { ReactNode } from "react";
+import type { Address, Chain } from "viem";
 
-import { SUPPORTED_CHAIN_IDS } from "@/config";
+import type { SUPPORTED_CHAIN_IDS } from "@/config";
 
 // You shouldn't modify this file unless deploying a full custom fork (otherwise the app will likely break)
 

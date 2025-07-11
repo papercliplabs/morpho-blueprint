@@ -1,6 +1,6 @@
-import { ChainId } from "@morpho-org/blue-sdk";
+import type { ChainId } from "@morpho-org/blue-sdk";
 
-import { Subbundle, SuccessfulAction } from "../types";
+import type { Subbundle, SuccessfulAction } from "../types";
 
 import { encodeBundlerCalls } from "./encodeBundlerCalls";
 
@@ -8,7 +8,7 @@ import { encodeBundlerCalls } from "./encodeBundlerCalls";
 export function actionFromSubbundles(
   chainId: ChainId,
   subbundles: Subbundle[],
-  executeBundleName: string
+  executeBundleName: string,
 ): SuccessfulAction {
   return {
     status: "success",
@@ -19,7 +19,7 @@ export function actionFromSubbundles(
         tx: () => {
           // Just in time so we can use signatures
           const bundlerCalls = subbundles.flatMap((subbundle) =>
-            typeof subbundle.bundlerCalls === "function" ? subbundle.bundlerCalls() : subbundle.bundlerCalls
+            typeof subbundle.bundlerCalls === "function" ? subbundle.bundlerCalls() : subbundle.bundlerCalls,
           );
           return encodeBundlerCalls(chainId, bundlerCalls);
         },

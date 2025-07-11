@@ -1,10 +1,10 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
 import { cache } from "react";
-import { Hex } from "viem";
+import type { Hex } from "viem";
 
 import { graphql } from "@/generated/gql/whisk";
-import { GetMarketQuery } from "@/generated/gql/whisk/graphql";
+import type { GetMarketQuery } from "@/generated/gql/whisk/graphql";
 
 import { executeWhiskQuery } from "./execute";
 
@@ -84,8 +84,8 @@ export const getMarket = cache(
       return data.morphoMarket;
     },
     ["getMarket"],
-    { revalidate: 10 } // Light cache, mostly to help in dev
-  )
+    { revalidate: 10 }, // Light cache, mostly to help in dev
+  ),
 );
 
 export type Market = NonNullable<GetMarketQuery["morphoMarket"]>;

@@ -1,10 +1,10 @@
 import "server-only";
 import { cache } from "react";
-import { Address, getAddress } from "viem";
+import { type Address, getAddress } from "viem";
 
 import { APP_CONFIG } from "@/config";
 import { graphql } from "@/generated/gql/whisk";
-import { GetVaultPositionsQuery } from "@/generated/gql/whisk/graphql";
+import type { GetVaultPositionsQuery } from "@/generated/gql/whisk/graphql";
 
 import { executeWhiskQuery } from "./execute";
 
@@ -35,11 +35,11 @@ export const getVaultPositions = cache(async (accountAddress: Address): Promise<
     partialQueryVariables.map(
       async ([chainId, vaultAddresses]) =>
         await executeWhiskQuery(query, {
-          chainId: parseInt(chainId),
+          chainId: Number.parseInt(chainId),
           vaultAddresses,
           accountAddress,
-        })
-    )
+        }),
+    ),
   );
 
   const data: VaultPositionMap = {};

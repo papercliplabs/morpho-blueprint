@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 
 import { TooltipPopover, TooltipPopoverContent, TooltipPopoverTrigger } from "@/components/ui/tooltip-popover";
 import { cn } from "@/utils/shadcn";
@@ -29,8 +29,8 @@ export function MetricWithTooltip({ label, children, tooltip, className, ...prop
 
 export function Metric({ label, children, className, ...props }: MetricProps) {
   return (
-    <div className={cn("text-foreground flex w-fit flex-col gap-1 text-left", className)} {...props}>
-      <p className="body-small-plus text-muted-foreground w-fit whitespace-nowrap underline decoration-dashed underline-offset-3">
+    <div className={cn("flex w-fit flex-col gap-1 text-left text-foreground", className)} {...props}>
+      <p className="body-small-plus w-fit whitespace-nowrap text-muted-foreground underline decoration-dashed underline-offset-3">
         {label}
       </p>
       {children}

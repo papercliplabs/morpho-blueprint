@@ -1,11 +1,11 @@
-import { DEFAULT_SLIPPAGE_TOLERANCE, MarketId, MathLib, getChainAddresses } from "@morpho-org/blue-sdk";
+import { DEFAULT_SLIPPAGE_TOLERANCE, getChainAddresses, type MarketId, MathLib } from "@morpho-org/blue-sdk";
 import { blueAbi, fetchMarket } from "@morpho-org/blue-sdk-viem";
-import { AnvilTestClient } from "@morpho-org/test";
-import { Hex, Log, maxUint256, parseUnits } from "viem";
+import type { AnvilTestClient } from "@morpho-org/test";
+import { type Hex, type Log, maxUint256, parseUnits } from "viem";
 import { readContract } from "viem/actions";
 import { describe, expect } from "vitest";
 
-import { MarketAction, marketRepayAndWithdrawCollateralAction } from "@/actions";
+import { type MarketAction, marketRepayAndWithdrawCollateralAction } from "@/actions";
 
 import { test } from "../config";
 import { expectZeroErc20Balances, getErc20BalanceOf } from "../helpers/erc20";
@@ -60,7 +60,7 @@ async function runMarketRepayAndWithdrawCollateralTest({
       client,
       marketId,
       initialState.positionCollateralBalance,
-      initialState.positionLoanBalance
+      initialState.positionLoanBalance,
     );
     // Overrides the loan amount recieved from initial loan
     await client.deal({ erc20: loanAssetAddress, amount: 0n });
@@ -86,7 +86,7 @@ async function runMarketRepayAndWithdrawCollateralTest({
   await beforeExecutionCb?.(client);
 
   let logs: Log[] = [];
-  if (action.status == "success") {
+  if (action.status === "success") {
     // Execute
     logs = await executeAction(client, action);
   }
@@ -95,7 +95,7 @@ async function runMarketRepayAndWithdrawCollateralTest({
   expect(action.status).toEqual(expectSuccess ? "success" : "error");
 
   // Would already fail if it was not expected to
-  if (action.status == "error") {
+  if (action.status === "error") {
     return action;
   }
 
@@ -104,7 +104,7 @@ async function runMarketRepayAndWithdrawCollateralTest({
     logs,
     client.account.address,
     [...(permit2 ? [permit2] : []), generalAdapter1], // Only ever allowed to apporve GA1 or permit2
-    [generalAdapter1] // Only ever allowed to permit GA1
+    [generalAdapter1], // Only ever allowed to permit GA1
   );
 
   const marketPosition = await getMorphoMarketPosition(client, marketId);
@@ -112,28 +112,28 @@ async function runMarketRepayAndWithdrawCollateralTest({
   const userWalletCollateralAssetBalance = await getErc20BalanceOf(
     client,
     collateralAssetAddress,
-    client.account.address
+    client.account.address,
   );
 
-  if (repayAmount == maxUint256) {
+  if (repayAmount === maxUint256) {
     expect(marketPosition.loanBalance).toEqual(0n);
     expect(userWalletLoanAssetBalance).toBeWithinRange(
       MathLib.mulDivUp(
         initialState.walletLoanAssetBalance - initialState.positionLoanBalance,
         DEFAULT_SLIPPAGE_TOLERANCE,
-        MathLib.WAD
+        MathLib.WAD,
       ),
-      initialState.walletLoanAssetBalance - initialState.positionLoanBalance
+      initialState.walletLoanAssetBalance - initialState.positionLoanBalance,
     );
   } else {
     expect(marketPosition.loanBalance).toBeWithinRange(
       initialState.positionLoanBalance - repayAmount,
-      initialState.positionLoanBalance - repayAmount + 1n
+      initialState.positionLoanBalance - repayAmount + 1n,
     );
     expect(userWalletLoanAssetBalance).toEqual(initialState.walletLoanAssetBalance - repayAmount);
   }
 
-  if (withdrawCollateralAmount == maxUint256) {
+  if (withdrawCollateralAmount === maxUint256) {
     expect(marketPosition.collateralBalance).toEqual(0n);
     expect(userWalletCollateralAssetBalance).toEqual(initialState.positionCollateralBalance);
   } else {
@@ -254,7 +254,7 @@ describe("marketRepayAndWithdrawCollateralAction", () => {
       });
 
       // It will, otherwise will fail in run test
-      if (result.status == "error") {
+      if (result.status === "error") {
         expect(result.message).toEqual("Repay and withdraw collateral amounts cannot both be 0.");
       }
     });
@@ -273,7 +273,7 @@ describe("marketRepayAndWithdrawCollateralAction", () => {
       });
 
       // It will, otherwise will fail in run test
-      if (result.status == "error") {
+      if (result.status === "error") {
         expect(result.message).toContain("Simulation Error: insufficient balance of user");
       }
     });
@@ -291,7 +291,7 @@ describe("marketRepayAndWithdrawCollateralAction", () => {
         expectSuccess: false,
       });
 
-      if (result.status == "error") {
+      if (result.status === "error") {
         expect(result.message).toContain("Simulation Error: insufficient position for user");
       }
     });
@@ -309,7 +309,7 @@ describe("marketRepayAndWithdrawCollateralAction", () => {
         expectSuccess: false,
       });
 
-      if (result.status == "error") {
+      if (result.status === "error") {
         expect(result.message).toContain("Simulation Error: insufficient position for user");
       }
     });
@@ -327,7 +327,7 @@ describe("marketRepayAndWithdrawCollateralAction", () => {
         expectSuccess: false,
       });
 
-      if (result.status == "error") {
+      if (result.status === "error") {
         expect(result.message).toContain("Simulation Error: insufficient collateral for user");
       }
     });
@@ -370,7 +370,7 @@ describe("marketRepayAndWithdrawCollateralAction", () => {
               value: newSlotVal as Hex,
             });
           },
-        })
+        }),
       ).rejects.toThrow("action-tx-reverted");
     });
   });

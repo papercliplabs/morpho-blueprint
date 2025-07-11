@@ -4,7 +4,7 @@ import { useCallback } from "react";
 import { APP_CONFIG } from "@/config";
 import { useShallowSearchParams } from "@/hooks/useShallowSearchParams";
 
-import { MultiSelect, MultiSelectOption } from "../MultiSelect";
+import { MultiSelect, type MultiSelectOption } from "../MultiSelect";
 
 import { ResetFiltersButton } from "./ResetFiltersButton";
 import { FilterKey } from "./types";
@@ -31,7 +31,7 @@ export function VaultFilters({ chainOptions, assetOptions, curatorOptions }: Vau
         { key, value: deselecting ? currentValues.filter((v) => v !== value) : [...currentValues, value] },
       ]);
     },
-    [addShallowSearchParams]
+    [addShallowSearchParams],
   );
 
   return (

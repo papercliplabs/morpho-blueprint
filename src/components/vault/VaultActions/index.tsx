@@ -7,9 +7,8 @@ import { PoweredByMorpho } from "@/components/PoweredByMorpho";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Drawer, DrawerContent, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
-import { Tabs } from "@/components/ui/tabs";
-import { TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Vault } from "@/data/whisk/getVault";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import type { Vault } from "@/data/whisk/getVault";
 import { useVaultPosition } from "@/hooks/useVaultPositions";
 import { useResponsiveContext } from "@/providers/ResponsiveProvider";
 
@@ -70,11 +69,11 @@ function VaultActionsDesktop({ vault, hasSupplyPosition }: { hasSupplyPosition: 
         </div>
         <TabsContent value="supply" className="flex flex-col gap-6">
           <VaultSupply vault={vault} />
-          <PoweredByMorpho className="text-muted-foreground mx-auto" />
+          <PoweredByMorpho className="mx-auto text-muted-foreground" />
         </TabsContent>
         <TabsContent value="withdraw" className="flex flex-col gap-6">
           <VaultWithdraw vault={vault} />
-          <PoweredByMorpho className="text-muted-foreground mx-auto" />
+          <PoweredByMorpho className="mx-auto text-muted-foreground" />
         </TabsContent>
       </Tabs>
     </Card>
@@ -86,7 +85,7 @@ function VaultActionsMobile({ vault, hasSupplyPosition }: { hasSupplyPosition: b
   const [withdrawOpen, setWithdrawOpen] = useState(false);
 
   return (
-    <div className="bg-background fixed right-0 bottom-0 left-0 z-[20] flex items-center gap-[10px] border-t px-6 py-4">
+    <div className="fixed right-0 bottom-0 left-0 z-[20] flex items-center gap-[10px] border-t bg-background px-6 py-4">
       <Drawer open={supplyOpen} onOpenChange={setSupplyOpen}>
         <DrawerTrigger asChild>
           <Button className="flex-1" size="lg">
@@ -104,7 +103,7 @@ function VaultActionsMobile({ vault, hasSupplyPosition }: { hasSupplyPosition: b
               }
             }}
           />
-          <PoweredByMorpho className="text-muted-foreground mx-auto" />
+          <PoweredByMorpho className="mx-auto text-muted-foreground" />
         </DrawerContent>
       </Drawer>
 
@@ -125,7 +124,7 @@ function VaultActionsMobile({ vault, hasSupplyPosition }: { hasSupplyPosition: b
               }
             }}
           />
-          <PoweredByMorpho className="text-muted-foreground mx-auto" />
+          <PoweredByMorpho className="mx-auto text-muted-foreground" />
         </DrawerContent>
       </Drawer>
     </div>

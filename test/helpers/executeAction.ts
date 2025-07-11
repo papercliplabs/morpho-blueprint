@@ -1,12 +1,12 @@
-import { AnvilTestClient } from "@morpho-org/test";
-import { Hex, Log } from "viem";
+import type { AnvilTestClient } from "@morpho-org/test";
+import type { Hex, Log } from "viem";
 import { getTransactionReceipt, sendTransaction } from "viem/actions";
 import { expect } from "vitest";
 
-import { Action } from "@/actions";
+import type { Action } from "@/actions";
 
 export async function executeAction(client: AnvilTestClient, action: Action): Promise<Log[]> {
-  if (action.status == "error") {
+  if (action.status === "error") {
     console.log("DEBUG", action);
   }
   expect(action.status).toBe("success");
@@ -33,7 +33,7 @@ export async function executeAction(client: AnvilTestClient, action: Action): Pr
         throw Error("action-tx-reverted");
       }
       const receipt = await getTransactionReceipt(client, { hash });
-      if (receipt.status == "reverted") {
+      if (receipt.status === "reverted") {
         throw Error("action-tx-reverted");
       }
 

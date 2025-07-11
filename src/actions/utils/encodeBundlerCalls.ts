@@ -1,5 +1,5 @@
-import { ChainId, getChainAddresses } from "@morpho-org/blue-sdk";
-import { BundlerCall, bundler3Abi } from "@morpho-org/bundler-sdk-viem";
+import { type ChainId, getChainAddresses } from "@morpho-org/blue-sdk";
+import { type BundlerCall, bundler3Abi } from "@morpho-org/bundler-sdk-viem";
 import { encodeFunctionData } from "viem";
 
 export function encodeBundlerCalls(chainId: ChainId, calls: BundlerCall[]) {

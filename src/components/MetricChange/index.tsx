@@ -3,7 +3,7 @@
 import clsx from "clsx";
 import { ArrowRight } from "lucide-react";
 import { AnimatePresence, MotionConfig, motion } from "motion/react";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 
 import { cn } from "@/utils/shadcn";
 
@@ -15,7 +15,7 @@ interface MetricChangeProps extends React.ComponentProps<"div"> {
 
 export function MetricChange({ name, initialValue, finalValue, className, ...props }: MetricChangeProps) {
   return (
-    <div className={cn("text-muted flex items-center justify-between overflow-hidden", className)} {...props}>
+    <div className={cn("flex items-center justify-between overflow-hidden text-muted", className)} {...props}>
       <span className="body-medium text-muted-foreground">{name}</span>
       <MetricChangeValues initialValue={initialValue} finalValue={finalValue} />
     </div>
@@ -27,7 +27,7 @@ export function MetricChangeValues({ initialValue, finalValue }: { initialValue:
     <MotionConfig transition={{ duration: 0.3, type: "spring", bounce: 0 }}>
       <motion.div
         layout
-        className="body-medium-plus text-card-foreground relative flex items-center gap-1 overflow-hidden"
+        className="body-medium-plus relative flex items-center gap-1 overflow-hidden text-card-foreground"
       >
         <AnimatePresence initial={false} mode="popLayout">
           <motion.span
@@ -49,7 +49,7 @@ export function MetricChangeValues({ initialValue, finalValue }: { initialValue:
               <motion.span layout className="text-foreground" key="arrow">
                 <ArrowRight className="size-[14px] shrink-0" />
               </motion.span>
-              <motion.div layout className="text-foreground flex items-center gap-1">
+              <motion.div layout className="flex items-center gap-1 text-foreground">
                 {finalValue}
               </motion.div>
             </motion.div>

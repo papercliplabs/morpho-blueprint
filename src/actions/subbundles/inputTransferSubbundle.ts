@@ -1,9 +1,9 @@
-import { ChainId, NATIVE_ADDRESS, getChainAddresses } from "@morpho-org/blue-sdk";
+import { type ChainId, getChainAddresses, NATIVE_ADDRESS } from "@morpho-org/blue-sdk";
 import { BundlerAction } from "@morpho-org/bundler-sdk-viem";
-import { MaybeDraft, SimulationState } from "@morpho-org/simulation-sdk";
-import { Address, encodeFunctionData, erc20Abi, isAddressEqual, maxUint256, parseEther } from "viem";
+import type { MaybeDraft, SimulationState } from "@morpho-org/simulation-sdk";
+import { type Address, encodeFunctionData, erc20Abi, isAddressEqual, maxUint256, parseEther } from "viem";
 
-import { Subbundle } from "../types";
+import type { Subbundle } from "../types";
 import { bigIntMax, bigIntMin } from "../utils/bigint";
 import { computeAmountWithRebasingMargin } from "../utils/math";
 
@@ -45,7 +45,7 @@ export function inputTransferSubbundle({
     throw new Error("Wrapped native address not found");
   }
 
-  const isMaxTransfer = amount == maxUint256;
+  const isMaxTransfer = amount === maxUint256;
   const isWrappedNative = isAddressEqual(tokenAddress, wrappedNativeAddress);
 
   const accountErc20Holding = simulationState.getHolding(accountAddress, tokenAddress);
@@ -83,7 +83,7 @@ export function inputTransferSubbundle({
     chainId,
     accountAddress,
     tokenAddress,
-    amount: erc20Amount == 0n ? 0n : isMaxTransfer ? maxUint256 : erc20Amount, // Use maxUint256 for rebasing tokens
+    amount: erc20Amount === 0n ? 0n : isMaxTransfer ? maxUint256 : erc20Amount, // Use maxUint256 for rebasing tokens
     recipientAddress,
     requiredApprovalAmount,
     simulationState,
@@ -129,7 +129,7 @@ function prepareInputErc20TransferSubbundleWithoutSignatures({
   simulationState,
 }: PrepareInputErc20TransferSubbundleParameters): Subbundle {
   // Nothing to do
-  if (amount == 0n) {
+  if (amount === 0n) {
     return {
       signatureRequirements: [],
       transactionRequirements: [],
@@ -185,7 +185,7 @@ export function prepareSendAndWrapNativeSubbundle({
   recipientAddress,
 }: PrepareSendAndWrapNativeSubbundleParameters): Subbundle {
   // Nothing to do
-  if (amount == 0n) {
+  if (amount === 0n) {
     return {
       signatureRequirements: [],
       transactionRequirements: [],

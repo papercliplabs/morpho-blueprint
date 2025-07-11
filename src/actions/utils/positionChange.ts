@@ -1,17 +1,17 @@
-import { MarketId } from "@morpho-org/blue-sdk";
-import { MaybeDraft, SimulationState } from "@morpho-org/simulation-sdk";
-import { Address, parseUnits } from "viem";
+import type { MarketId } from "@morpho-org/blue-sdk";
+import type { MaybeDraft, SimulationState } from "@morpho-org/simulation-sdk";
+import { type Address, parseUnits } from "viem";
 
 import { APP_CONFIG } from "@/config";
 import { descaleBigIntToNumber, numberToString } from "@/utils/format";
 
-import { MarketPositionChange, VaultPositionChange } from "../types";
+import type { MarketPositionChange, VaultPositionChange } from "../types";
 
 export function computeVaultPositionChange(
   vaultAddress: Address,
   accountAddress: Address,
   initialSimulationState: SimulationState | MaybeDraft<SimulationState>,
-  finalSimulationState: SimulationState | MaybeDraft<SimulationState>
+  finalSimulationState: SimulationState | MaybeDraft<SimulationState>,
 ): VaultPositionChange {
   const vault = initialSimulationState.getVault(vaultAddress);
   const token = initialSimulationState.getToken(vault.asset);
@@ -38,10 +38,10 @@ export function computeMarketPositionChange(
   marketId: MarketId,
   accountAddress: Address,
   initialSimulationState: SimulationState | MaybeDraft<SimulationState>,
-  finalSimulationState: SimulationState | MaybeDraft<SimulationState>
+  finalSimulationState: SimulationState | MaybeDraft<SimulationState>,
 ): MarketPositionChange {
   const collateralAsset = initialSimulationState.getToken(
-    initialSimulationState.getMarket(marketId).params.collateralToken
+    initialSimulationState.getMarket(marketId).params.collateralToken,
   );
   const loanAsset = initialSimulationState.getToken(initialSimulationState.getMarket(marketId).params.loanToken);
 

@@ -1,10 +1,10 @@
 import { DEFAULT_SLIPPAGE_TOLERANCE } from "@morpho-org/blue-sdk";
-import { Address, maxUint256 } from "viem";
+import { type Address, maxUint256 } from "viem";
 
 import { getIsContract } from "@/actions/data/rpc/getIsContract";
 import { getSimulationState } from "@/actions/data/rpc/getSimulationState";
 
-import { PublicClientWithChain, VaultAction } from "../types";
+import type { PublicClientWithChain, VaultAction } from "../types";
 import { actionFromInputOps } from "../utils/actionFromInputOps";
 import { computeVaultPositionChange } from "../utils/positionChange";
 
@@ -39,7 +39,7 @@ export async function vaultWithdrawAction({
   ]);
 
   const userShareBalance = initialSimulationState.getHolding(accountAddress, vaultAddress).balance;
-  const isMaxWithdraw = withdrawAmount == maxUint256;
+  const isMaxWithdraw = withdrawAmount === maxUint256;
 
   const preparedAction = actionFromInputOps(
     publicClient.chain.id,
@@ -60,20 +60,19 @@ export async function vaultWithdrawAction({
     accountAddress,
     isContract,
     initialSimulationState,
-    "Confirm Withdraw"
+    "Confirm Withdraw",
   );
 
-  if (preparedAction.status == "success") {
+  if (preparedAction.status === "success") {
     return {
       ...preparedAction,
       positionChange: computeVaultPositionChange(
         vaultAddress,
         accountAddress,
         initialSimulationState,
-        preparedAction.finalSimulationState
+        preparedAction.finalSimulationState,
       ),
     };
-  } else {
-    return preparedAction;
   }
+  return preparedAction;
 }

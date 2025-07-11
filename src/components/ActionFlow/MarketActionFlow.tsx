@@ -1,16 +1,15 @@
 import { clsx } from "clsx";
 
 import type { MarketAction, MarketPositionChange } from "@/actions";
-import { Market, MarketNonIdle } from "@/data/whisk/getMarket";
+import type { Market, MarketNonIdle } from "@/data/whisk/getMarket";
 import { formatNumber } from "@/utils/format";
 
 import { AssetChangeSummary } from "../AssetChangeSummary";
-import { MetricChange } from "../MetricChange";
-import { MetricChangeValues } from "../MetricChange";
+import { MetricChange, MetricChangeValues } from "../MetricChange";
 import { NumberFlowWithLoading } from "../ui/number-flow";
 import { Skeleton } from "../ui/skeleton";
 
-import { ActionFlow, ActionFlowProps } from ".";
+import { ActionFlow, type ActionFlowProps } from ".";
 
 export function MarketActionFlow({
   market,
@@ -71,7 +70,7 @@ export function MarketActionSummary({
 
   return (
     <div className={clsx("flex gap-1", loanDeltaAmount > 0 ? "flex-col" : "flex-col-reverse")}>
-      {collateralDeltaAmount != 0 && (
+      {collateralDeltaAmount !== 0 && (
         <AssetChangeSummary
           amount={collateralDeltaAmount}
           amountUsd={collateralDeltaAmountUsd}
@@ -79,7 +78,7 @@ export function MarketActionSummary({
           label={`${collateralAction} ${market.collateralAsset.symbol}`}
         />
       )}
-      {loanDeltaAmount != 0 && (
+      {loanDeltaAmount !== 0 && (
         <AssetChangeSummary
           amount={loanDeltaAmount}
           amountUsd={loanDeltaAmountUsd}
@@ -113,7 +112,7 @@ export function MarketActionSimulationMetrics({
             />
           }
           finalValue={
-            positionChange.collateral.after == positionChange.collateral.before ? undefined : (
+            positionChange.collateral.after === positionChange.collateral.before ? undefined : (
               <NumberFlowWithLoading
                 value={positionChange.collateral.after}
                 isLoading={isLoading}
@@ -133,7 +132,7 @@ export function MarketActionSimulationMetrics({
           />
         }
         finalValue={
-          positionChange.loan.after == positionChange.loan.before ? undefined : (
+          positionChange.loan.after === positionChange.loan.before ? undefined : (
             <NumberFlowWithLoading
               value={positionChange.loan.after}
               isLoading={isLoading}
@@ -152,7 +151,7 @@ export function MarketActionSimulationMetrics({
           />
         }
         finalValue={
-          positionChange.availableToBorrow.after == positionChange.availableToBorrow.before ? undefined : (
+          positionChange.availableToBorrow.after === positionChange.availableToBorrow.before ? undefined : (
             <NumberFlowWithLoading
               value={positionChange.availableToBorrow.after}
               isLoading={isLoading}
@@ -163,11 +162,11 @@ export function MarketActionSimulationMetrics({
       />
       <div className="flex items-center justify-between overflow-hidden">
         <span className="body-medium text-muted-foreground">LTV / LLTV</span>
-        <div className="body-medium-plus text-card-foreground inline-flex whitespace-pre-wrap">
+        <div className="body-medium-plus inline-flex whitespace-pre-wrap text-card-foreground">
           <MetricChangeValues
             initialValue={
               <div className="inline-flex">
-                {positionChange.ltv.after != positionChange.ltv.before && "("}
+                {positionChange.ltv.after !== positionChange.ltv.before && "("}
                 <NumberFlowWithLoading
                   value={positionChange.ltv.before}
                   isLoading={isLoading}
@@ -177,7 +176,7 @@ export function MarketActionSimulationMetrics({
               </div>
             }
             finalValue={
-              positionChange.ltv.after == positionChange.ltv.before ? undefined : (
+              positionChange.ltv.after === positionChange.ltv.before ? undefined : (
                 <div className="inline-flex">
                   <NumberFlowWithLoading
                     value={positionChange.ltv.after}
@@ -201,10 +200,10 @@ function marketPositionChangeToActionName(positonChange: MarketPositionChange) {
   const collateralDelta = positonChange.collateral.after - positonChange.collateral.before;
   const loanDelta = positonChange.loan.after - positonChange.loan.before;
   const collateralActionName =
-    collateralDelta == 0 ? "" : collateralDelta > 0 ? "Supply Collateral" : "Withdraw Collateral";
-  const loanActionName = loanDelta == 0 ? "" : loanDelta > 0 ? "Borrow" : "Repay";
+    collateralDelta === 0 ? "" : collateralDelta > 0 ? "Supply Collateral" : "Withdraw Collateral";
+  const loanActionName = loanDelta === 0 ? "" : loanDelta > 0 ? "Borrow" : "Repay";
 
-  const middleCopy = collateralActionName != "" && loanActionName != "" ? " and " : "";
+  const middleCopy = collateralActionName !== "" && loanActionName !== "" ? " and " : "";
   const actionName =
     loanDelta > 0
       ? collateralActionName + middleCopy + loanActionName

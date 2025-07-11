@@ -2,10 +2,10 @@
 
 import { useRef, useState } from "react";
 
-import { SuccessfulVaultAction } from "@/actions";
+import type { SuccessfulVaultAction } from "@/actions";
 import { VaultActionFlow } from "@/components/ActionFlow/VaultActionFlow";
 import { VaultSupplyForm } from "@/components/forms/VaultSupplyForm";
-import { Vault } from "@/data/whisk/getVault";
+import type { Vault } from "@/data/whisk/getVault";
 
 export default function VaultSupply({
   vault,

@@ -39,4 +39,4 @@ function PopoverDrawerContent(props: React.ComponentProps<typeof PopoverContent>
 }
 
 export { PopoverDrawer, PopoverDrawerTrigger, PopoverDrawerContent };
-export { type PopoverDrawerProps };
+export type { PopoverDrawerProps };

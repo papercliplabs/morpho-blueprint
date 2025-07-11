@@ -1,10 +1,10 @@
-import { ChainId } from "@morpho-org/blue-sdk";
-import { InputBundlerOperation } from "@morpho-org/bundler-sdk-viem";
-import { SimulationResult, SimulationState } from "@morpho-org/simulation-sdk";
-import { Address } from "viem";
+import type { ChainId } from "@morpho-org/blue-sdk";
+import type { InputBundlerOperation } from "@morpho-org/bundler-sdk-viem";
+import type { SimulationResult, SimulationState } from "@morpho-org/simulation-sdk";
+import type { Address } from "viem";
 
 import { subbundleFromInputOps } from "../subbundles/subbundleFromInputOps";
-import { Action } from "../types";
+import type { Action } from "../types";
 
 import { actionFromSubbundles } from "./actionFromSubbundles";
 
@@ -21,7 +21,7 @@ export function actionFromInputOps(
   accountAddress: Address,
   isContract: boolean,
   simulationState: SimulationState,
-  executeBundleName: string
+  executeBundleName: string,
 ): MorphoAction {
   try {
     const subbundle = subbundleFromInputOps({

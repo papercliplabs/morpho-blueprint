@@ -1,11 +1,11 @@
-import { Metadata } from "next";
+import type { Metadata } from "next";
 import Image from "next/image";
 import { Suspense } from "react";
 
 import { AccountFilters } from "@/components/filters/AccountFilters";
 import { MarketFilters } from "@/components/filters/MarketFilters";
+import type { MultiSelectOption } from "@/components/MultiSelect";
 import { BorrowSummaryMetrics, BorrowSummaryMetricsSkeleton } from "@/components/market/BorrowSummaryMetrics";
-import { MultiSelectOption } from "@/components/MultiSelect";
 import { MarketTable } from "@/components/tables/MarketTable";
 import { Avatar } from "@/components/ui/avatar";
 import { Card, CardHeader } from "@/components/ui/card";

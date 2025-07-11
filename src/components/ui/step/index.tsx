@@ -1,7 +1,7 @@
 import { cva } from "class-variance-authority";
 import clsx from "clsx";
 import { Check, LoaderCircle } from "lucide-react";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 
 type StepStatus = "active" | "pending" | "complete" | "upcoming";
 
@@ -26,7 +26,7 @@ const iconVariants = cva(
     defaultVariants: {
       status: "upcoming",
     },
-  }
+  },
 );
 
 function StepIcon({ children, status }: Pick<StepProps, "children" | "status">) {
@@ -35,7 +35,7 @@ function StepIcon({ children, status }: Pick<StepProps, "children" | "status">) 
     case "upcoming":
       return children;
     case "pending":
-      return <LoaderCircle className="text-primary animate-spin" />;
+      return <LoaderCircle className="animate-spin text-primary" />;
     case "complete":
       return <Check className="size-4" />;
   }
@@ -45,12 +45,12 @@ function Step({ number, status, label, icon }: StepProps) {
   return (
     <div className="flex items-center gap-4">
       <div className={iconVariants({ status })}>
-        <StepIcon status={status}>{!!icon ? icon : number}</StepIcon>
+        <StepIcon status={status}>{icon ? icon : number}</StepIcon>
       </div>
       <span
         className={clsx(
           "body-medium-plus transition-colors",
-          status === "active" ? "text-foreground" : "text-muted-foreground"
+          status === "active" ? "text-foreground" : "text-muted-foreground",
         )}
       >
         {label}
