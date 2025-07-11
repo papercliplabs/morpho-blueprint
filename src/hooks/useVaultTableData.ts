@@ -4,8 +4,8 @@ import { getAddress } from "viem";
 import { useAccount } from "wagmi";
 
 import { FilterKey } from "@/components/filters/types";
-import { VaultPosition } from "@/data/whisk/getVaultPositions";
-import { VaultSummary } from "@/data/whisk/getVaultSummaries";
+import type { VaultPosition } from "@/data/whisk/getVaultPositions";
+import type { VaultSummary } from "@/data/whisk/getVaultSummaries";
 
 import { useShallowSearchParams } from "./useShallowSearchParams";
 import { useVaultPositions } from "./useVaultPositions";
@@ -52,7 +52,7 @@ export function useVaultTableData({ vaultSummaries }: { vaultSummaries: VaultSum
 
       let accountFilterMatch = true;
       const accountFilterValue = accountFilterValues[0];
-      if (dataEntry.position != undefined && accountFilterValue && isConnected) {
+      if (dataEntry.position !== undefined && accountFilterValue && isConnected) {
         switch (accountFilterValue) {
           case "positions":
             accountFilterMatch = BigInt(dataEntry.position.supplyAssets) > 0n;

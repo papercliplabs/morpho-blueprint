@@ -1,6 +1,6 @@
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { ComponentProps } from "react";
+import type { ComponentProps } from "react";
 
 import { cn } from "@/utils/shadcn";
 
@@ -12,8 +12,8 @@ export function BreakcrumbBack({ label, className, ...props }: BreakcrumbBackPro
   return (
     <Link
       className={cn(
-        "text-muted-foreground body-medium-plus hover:text-foreground flex w-fit items-center gap-1 transition-all active:scale-95",
-        className
+        "body-medium-plus flex w-fit items-center gap-1 text-muted-foreground transition-all hover:text-foreground active:scale-95",
+        className,
       )}
       {...props}
     >

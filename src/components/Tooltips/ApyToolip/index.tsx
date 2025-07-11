@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Sparkles } from "@/components/ui/icons/Sparkles";
 import NumberFlow from "@/components/ui/number-flow";
 import { TooltipPopover, TooltipPopoverContent, TooltipPopoverTrigger } from "@/components/ui/tooltip-popover";
-import { TokenInfo } from "@/data/whisk/fragments";
+import type { TokenInfo } from "@/data/whisk/fragments";
 import { formatNumber } from "@/utils/format";
 
 type ApyTooltipType = "borrow" | "earn";
@@ -39,17 +39,17 @@ function ApyTooltipTrigger({
   totalApy,
   variant = "default",
 }: ApyTooltipTriggerProps) {
-  return variant == "sm" ? (
+  return variant === "sm" ? (
     <span className="body-medium-plus flex items-center gap-1">
-      {showSparkle && sparkleSide === "left" && <Sparkles className="fill-primary size-4" />}
+      {showSparkle && sparkleSide === "left" && <Sparkles className="size-4 fill-primary" />}
       {formatNumber(totalApy, { style: "percent" })}
-      {showSparkle && sparkleSide === "right" && <Sparkles className="fill-primary size-4" />}
+      {showSparkle && sparkleSide === "right" && <Sparkles className="size-4 fill-primary" />}
     </span>
   ) : (
     <div className="flex items-center gap-1">
-      {showSparkle && sparkleSide === "left" && <Sparkles className="fill-primary size-6" />}
+      {showSparkle && sparkleSide === "left" && <Sparkles className="size-6 fill-primary" />}
       <NumberFlow className="heading-4" value={totalApy} format={{ style: "percent" }} />
-      {showSparkle && sparkleSide === "right" && <Sparkles className="fill-primary size-6" />}
+      {showSparkle && sparkleSide === "right" && <Sparkles className="size-6 fill-primary" />}
     </div>
   );
 }
@@ -90,12 +90,12 @@ function ApyTooltipContent({ type, totalApy, nativeApy, rewards, performanceFee 
               </span>
             );
           })}
-        {performanceFee != undefined && (
+        {performanceFee !== undefined && (
           <span className="flex justify-between">
             <span className="flex items-center gap-2">
               <span>Performance Fee</span>
               <Badge variant="small">
-                {formatNumber(nativeApy != 0 ? performanceFee / nativeApy : 0, {
+                {formatNumber(nativeApy !== 0 ? performanceFee / nativeApy : 0, {
                   style: "percent",
                   minimumFractionDigits: 0,
                   maximumFractionDigits: 1,
@@ -108,7 +108,7 @@ function ApyTooltipContent({ type, totalApy, nativeApy, rewards, performanceFee 
           </span>
         )}
       </div>
-      <div className="bg-border h-[1px]" />
+      <div className="h-[1px] bg-border" />
       <div className="flex justify-between">
         <span>Total APY</span>
         <span>= {formatNumber(totalApy, { style: "percent", signDisplay: "exceptZero" })}</span>

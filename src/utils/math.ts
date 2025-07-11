@@ -1,9 +1,9 @@
-import { MarketPositionChange, VaultPositionChange } from "@/actions";
+import type { MarketPositionChange, VaultPositionChange } from "@/actions";
 import { APP_CONFIG } from "@/config";
-import { MarketNonIdle } from "@/data/whisk/getMarket";
-import { MarketPosition } from "@/data/whisk/getMarketPositions";
-import { Vault } from "@/data/whisk/getVault";
-import { VaultPosition } from "@/data/whisk/getVaultPositions";
+import type { MarketNonIdle } from "@/data/whisk/getMarket";
+import type { MarketPosition } from "@/data/whisk/getMarketPositions";
+import type { Vault } from "@/data/whisk/getVault";
+import type { VaultPosition } from "@/data/whisk/getVaultPositions";
 
 import { descaleBigIntToNumber } from "./format";
 
@@ -11,7 +11,7 @@ export function computeAvailableToBorrow(
   market: MarketNonIdle,
   currentPosition: MarketPosition,
   collateralAmountChange: number,
-  borrowAmountChange: number
+  borrowAmountChange: number,
 ): number {
   const currentCollateral = descaleBigIntToNumber(currentPosition.collateralAssets, market.collateralAsset.decimals);
   const currentLoan = descaleBigIntToNumber(currentPosition.borrowAssets, market.loanAsset.decimals);
@@ -28,9 +28,9 @@ export function computeAvailableToBorrow(
 export function computeMarketMaxWithdrawCollateral(
   market: MarketNonIdle,
   currentPosition: MarketPosition,
-  loanRepaymentAmount: number
+  loanRepaymentAmount: number,
 ): number {
-  if (market.lltv == 0 || market.collateralPriceInLoanAsset == 0) {
+  if (market.lltv === 0 || market.collateralPriceInLoanAsset === 0) {
     return 0;
   }
 
@@ -86,14 +86,14 @@ export function computeMarketPositonChange({
     market,
     currentPosition,
     collateralAmountChange,
-    loanAmountChange
+    loanAmountChange,
   );
 
   const collateralInLoan = newCollateral * market.collateralPriceInLoanAsset;
 
   const currentLtv = currentPosition.ltv;
   const newLtv =
-    collateralAmountChange == 0 && loanAmountChange == 0
+    collateralAmountChange === 0 && loanAmountChange === 0
       ? currentLtv
       : collateralInLoan > 0
         ? newLoan / collateralInLoan

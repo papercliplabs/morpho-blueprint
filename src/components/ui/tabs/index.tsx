@@ -62,7 +62,7 @@ const tabsTriggerVariants = cva(
     defaultVariants: {
       variant: "default",
     },
-  }
+  },
 );
 
 function TabsTrigger({ className, ...props }: React.ComponentProps<typeof TabsPrimitive.Trigger>) {

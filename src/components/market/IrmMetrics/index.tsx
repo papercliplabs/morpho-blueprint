@@ -1,11 +1,11 @@
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 import { getAddress } from "viem";
 
 import { LinkExternalBlockExplorer } from "@/components/LinkExternal";
 import { MetricWithTooltip } from "@/components/Metric";
 import NumberFlow from "@/components/ui/number-flow";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Market } from "@/data/whisk/getMarket";
+import type { Market } from "@/data/whisk/getMarket";
 
 interface IrmMetricsProps {
   market: Market;

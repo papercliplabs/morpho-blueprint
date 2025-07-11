@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 import { useForm } from "react-hook-form";
 
 import { SliderInputFormField } from "@/components/forms/FormFields/SliderInputFormField";

@@ -19,7 +19,7 @@ export async function executeWhiskQuery<TResult, TVariables>(
         query,
         variables,
       }),
-    }
+    },
     // Uses retry params
   );
 

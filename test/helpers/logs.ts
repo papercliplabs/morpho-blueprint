@@ -1,7 +1,7 @@
-import { MathLib, getChainAddresses } from "@morpho-org/blue-sdk";
+import { getChainAddresses, MathLib } from "@morpho-org/blue-sdk";
 import { permit2Abi } from "@morpho-org/blue-sdk-viem";
-import { AnvilTestClient } from "@morpho-org/test";
-import { Address, Log, erc20Abi, parseEventLogs } from "viem";
+import type { AnvilTestClient } from "@morpho-org/test";
+import { type Address, erc20Abi, type Log, parseEventLogs } from "viem";
 import { readContract } from "viem/actions";
 import { expect } from "vitest";
 
@@ -14,7 +14,7 @@ export async function expectOnlyAllowedApprovals(
   logs: Log[],
   accountAddress: Address,
   allowedApprovalAddresses: Address[],
-  allowedPermitAddresses: Address[]
+  allowedPermitAddresses: Address[],
 ) {
   const erc20Events = await parseEventLogs({
     logs: logs,
@@ -29,7 +29,7 @@ export async function expectOnlyAllowedApprovals(
   const erc20Approvals = erc20Events
     .filter(
       (event): event is typeof event & { eventName: "Approval" } =>
-        event.eventName === "Approval" && event.args.owner === accountAddress
+        event.eventName === "Approval" && event.args.owner === accountAddress,
     )
     .map((event) => ({
       asset: event.address,
@@ -40,7 +40,7 @@ export async function expectOnlyAllowedApprovals(
   const permits = permit2Events
     .filter(
       (event): event is typeof event & { eventName: "Permit" } =>
-        event.eventName === "Permit" && event.args.owner === accountAddress
+        event.eventName === "Permit" && event.args.owner === accountAddress,
     )
     .map((event) => ({
       asset: event.args.token,
@@ -67,7 +67,7 @@ export async function expectOnlyAllowedApprovals(
       args: [accountAddress, erc20Approval.spender],
     });
     expect(erc20Allowance).toBeLessThanOrEqual(
-      MathLib.mulDivUp(erc20Approval.amount, REBASEING_MARGIN, REBASEING_MARGIN_SCALE)
+      MathLib.mulDivUp(erc20Approval.amount, REBASEING_MARGIN, REBASEING_MARGIN_SCALE),
     );
   }
 
@@ -86,7 +86,7 @@ export async function expectOnlyAllowedApprovals(
       args: [accountAddress, permit.asset, permit.spender],
     });
     expect(permitAllowance[0]).toBeLessThanOrEqual(
-      MathLib.mulDivUp(permit.amount, REBASEING_MARGIN, REBASEING_MARGIN_SCALE)
+      MathLib.mulDivUp(permit.amount, REBASEING_MARGIN, REBASEING_MARGIN_SCALE),
     );
   }
 }

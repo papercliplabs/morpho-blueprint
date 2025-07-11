@@ -3,10 +3,11 @@ import { useCallback } from "react";
 
 import { useShallowSearchParams } from "@/hooks/useShallowSearchParams";
 
-import { MultiSelect, MultiSelectOption } from "../MultiSelect";
+import { MultiSelect, type MultiSelectOption } from "../MultiSelect";
 
 import { ResetFiltersButton } from "./ResetFiltersButton";
 import { FilterKey } from "./types";
+
 interface MarketFiltersProps {
   chainOptions: MultiSelectOption[];
   collateralAssetOptions: MultiSelectOption[];
@@ -29,7 +30,7 @@ export function MarketFilters({ chainOptions, collateralAssetOptions, loanAssetO
         { key, value: deselecting ? currentValues.filter((v) => v !== value) : [...currentValues, value] },
       ]);
     },
-    [addShallowSearchParams]
+    [addShallowSearchParams],
   );
 
   return (

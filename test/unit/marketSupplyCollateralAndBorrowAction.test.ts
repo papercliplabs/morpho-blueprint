@@ -1,11 +1,11 @@
-import { MarketId, getChainAddresses } from "@morpho-org/blue-sdk";
+import { getChainAddresses, type MarketId } from "@morpho-org/blue-sdk";
 import { blueAbi, fetchMarket } from "@morpho-org/blue-sdk-viem";
-import { AnvilTestClient } from "@morpho-org/test";
-import { Address, Hex, Log, maxUint256, parseUnits } from "viem";
+import type { AnvilTestClient } from "@morpho-org/test";
+import { type Address, type Hex, type Log, maxUint256, parseUnits } from "viem";
 import { readContract } from "viem/actions";
 import { describe, expect } from "vitest";
 
-import { MarketAction, marketSupplyCollateralAndBorrowAction } from "@/actions";
+import { type MarketAction, marketSupplyCollateralAndBorrowAction } from "@/actions";
 
 import { test } from "../config";
 import { expectZeroErc20Balances, getErc20BalanceOf } from "../helpers/erc20";
@@ -85,7 +85,7 @@ async function runMarketSupplyCollateralAndBorrowTest({
   await beforeExecutionCb?.(client);
 
   let logs: Log[] = [];
-  if (action.status == "success") {
+  if (action.status === "success") {
     // Execute
     logs = await executeAction(client, action);
   }
@@ -93,7 +93,7 @@ async function runMarketSupplyCollateralAndBorrowTest({
   // Assert
   expect(action.status).toEqual(expectSuccess ? "success" : "error");
 
-  if (action.status == "error") {
+  if (action.status === "error") {
     return action;
   }
 
@@ -102,7 +102,7 @@ async function runMarketSupplyCollateralAndBorrowTest({
     logs,
     client.account.address,
     [...(permit2 ? [permit2] : []), generalAdapter1], // Only ever allowed to apporve GA1 or permit2
-    [generalAdapter1] // Only ever allowed to permit GA1
+    [generalAdapter1], // Only ever allowed to permit GA1
   );
 
   const marketPosition = await getMorphoMarketPosition(client, marketId);
@@ -110,12 +110,12 @@ async function runMarketSupplyCollateralAndBorrowTest({
   const userWalletCollateralAssetBalance = await getErc20BalanceOf(
     client,
     collateralAssetAddress,
-    client.account.address
+    client.account.address,
   );
 
-  if (collateralAmount == maxUint256) {
+  if (collateralAmount === maxUint256) {
     expect(marketPosition.collateralBalance).toEqual(
-      intitialState.positionCollateralAmount + intitialState.walletCollateralAmount
+      intitialState.positionCollateralAmount + intitialState.walletCollateralAmount,
     );
     expect(userWalletCollateralAssetBalance).toEqual(0n);
   } else {
@@ -240,7 +240,7 @@ describe("marketSupplyCollateralAndBorrowAction", () => {
       });
 
       // It will, otherwise will fail in run test
-      if (result.status == "error") {
+      if (result.status === "error") {
         expect(result.message).toContain("Simulation Error: insufficient balance of user");
       }
     });
@@ -259,7 +259,7 @@ describe("marketSupplyCollateralAndBorrowAction", () => {
       });
 
       // It will, otherwise will fail in run test
-      if (result.status == "error") {
+      if (result.status === "error") {
         expect(result.message).toEqual("Collateral and borrow amounts cannot both be 0.");
       }
     });
@@ -277,7 +277,7 @@ describe("marketSupplyCollateralAndBorrowAction", () => {
         expectSuccess: false,
       });
 
-      if (result.status == "error") {
+      if (result.status === "error") {
         expect(result.message).toContain("Simulation Error: insufficient collateral for user");
       }
     });
@@ -321,7 +321,7 @@ describe("marketSupplyCollateralAndBorrowAction", () => {
               value: newSlotVal as Hex,
             });
           },
-        })
+        }),
       ).rejects.toThrow("action-tx-reverted");
     });
   });

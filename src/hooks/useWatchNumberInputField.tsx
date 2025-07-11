@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Control, FieldPath, FieldValues, useWatch } from "react-hook-form";
+import { type Control, type FieldPath, type FieldValues, useWatch } from "react-hook-form";
 
 export function useWatchNumberInputField<
   TFieldValues extends FieldValues = FieldValues,
@@ -14,7 +14,7 @@ export function useWatchNumberInputField<
     }
 
     const num = Number(rawValue);
-    if (isNaN(num)) {
+    if (Number.isNaN(num)) {
       throw new Error("Invalid number");
     }
 

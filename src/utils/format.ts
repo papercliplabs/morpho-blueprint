@@ -6,7 +6,7 @@ export function formatNumber(
   value: number,
   options: Intl.NumberFormatOptions & {
     currency?: "USD" | "ETH";
-  } = {}
+  } = {},
 ) {
   const currency = options.currency;
   const isPercent = options.style === "percent";
@@ -18,9 +18,9 @@ export function formatNumber(
     ...restOptions
   } = options;
 
-  const displayValue = style == "percent" ? value * 100 : value;
+  const displayValue = style === "percent" ? value * 100 : value;
   const formatOptions: Intl.NumberFormatOptions = {
-    notation: notation == "compact" && (displayValue > 9999 || displayValue < -9999) ? "compact" : "standard",
+    notation: notation === "compact" && (displayValue > 9999 || displayValue < -9999) ? "compact" : "standard",
     minimumFractionDigits,
     maximumFractionDigits,
     style,
@@ -32,14 +32,14 @@ export function formatNumber(
   // Clamp to max USD value
   if (currency === "USD" && value > MAX_USD_VALUE) {
     value = MAX_USD_VALUE;
-    prefix = ">" + prefix;
+    prefix = `>${prefix}`;
   }
 
-  const minValue = Math.pow(10, -maximumFractionDigits);
+  const minValue = 10 ** -maximumFractionDigits;
   if (value !== 0 && Math.abs(displayValue) < minValue) {
     const neg = value < 0;
-    prefix = neg ? ">" : "<" + prefix;
-    value = minValue * Math.pow(10, style === "percent" ? -2 : 0) * (neg ? -1 : 1);
+    prefix = neg ? ">" : `<${prefix}`;
+    value = minValue * 10 ** (style === "percent" ? -2 : 0) * (neg ? -1 : 1);
   }
 
   const formatted = new Intl.NumberFormat("en-US", formatOptions).format(value);
@@ -66,5 +66,5 @@ export function descaleBigIntToNumber(value: bigint | string, decimals: number):
 }
 
 export function formatAddress(address: string) {
-  return address.slice(0, 4) + "..." + address.slice(-4);
+  return `${address.slice(0, 4)}...${address.slice(-4)}`;
 }

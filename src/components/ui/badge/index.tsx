@@ -1,4 +1,4 @@
-import { VariantProps, cva } from "class-variance-authority";
+import { cva, type VariantProps } from "class-variance-authority";
 
 const badgeVariants = cva("bg-muted border-border text-muted-foreground rounded-sm border px-1", {
   variants: {

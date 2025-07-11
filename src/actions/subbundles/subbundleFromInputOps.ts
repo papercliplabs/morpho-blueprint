@@ -1,17 +1,23 @@
-import { ChainId } from "@morpho-org/blue-sdk";
-import { BundlerAction, SignatureRequirement, TransactionRequirement } from "@morpho-org/bundler-sdk-viem";
-import { encodeBundle, finalizeBundle, populateBundle } from "@morpho-org/bundler-sdk-viem";
-import { InputBundlerOperation } from "@morpho-org/bundler-sdk-viem";
-import { MaybeDraft, SimulationState } from "@morpho-org/simulation-sdk";
-import { Address } from "viem";
+import type { ChainId } from "@morpho-org/blue-sdk";
+import {
+  BundlerAction,
+  encodeBundle,
+  finalizeBundle,
+  type InputBundlerOperation,
+  populateBundle,
+  type SignatureRequirement,
+  type TransactionRequirement,
+} from "@morpho-org/bundler-sdk-viem";
+import type { MaybeDraft, SimulationState } from "@morpho-org/simulation-sdk";
+import type { Address } from "viem";
 
 import { APP_CONFIG } from "@/config";
 
-import { Subbundle } from "../types";
+import type { Subbundle } from "../types";
 
 export function getSignatureRequirementDescription(
   requirement: Omit<SignatureRequirement, "sign">,
-  simulationState: SimulationState
+  simulationState: SimulationState,
 ): string {
   const action = requirement.action;
   switch (action.type) {
@@ -34,13 +40,14 @@ export function getSignatureRequirementDescription(
 
 export function getTransactionRequirementDescription(
   requirement: Omit<TransactionRequirement, "tx">,
-  simulationState: SimulationState
+  simulationState: SimulationState,
 ): string {
   switch (requirement.type) {
-    case "erc20Approve":
+    case "erc20Approve": {
       const tokenAddress = requirement.args[0];
       const tokenSymbol = simulationState.tokens[tokenAddress]?.symbol ?? "";
       return `Approve ${tokenSymbol}`;
+    }
     case "morphoSetAuthorization":
       return "Authorize Bundler";
   }
@@ -95,7 +102,7 @@ export function subbundleFromInputOps({
 
   function getBundlerCalls() {
     // Allow for encoding after, so encoded uses signatures from signature requirements
-    return bundle.actions.map((action) => BundlerAction.encode(chainId, action)).flat();
+    return bundle.actions.flatMap((action) => BundlerAction.encode(chainId, action));
   }
 
   return {

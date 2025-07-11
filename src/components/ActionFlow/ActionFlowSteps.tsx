@@ -19,15 +19,15 @@ export function ActionFlowSteps() {
     <div className="flex flex-col gap-4">
       {metadatas.map((metadata, i) => {
         const status =
-          i == activeStep
-            ? actionState == "pending-wallet"
+          i === activeStep
+            ? actionState === "pending-wallet"
               ? "active"
               : "pending"
             : i < activeStep
               ? "complete"
               : "upcoming";
-        const labelPostfix = status == "active" ? " In wallet" : status == "pending" ? " Pending..." : "";
-        return <Step number={i + 1} status={status} label={metadata.name + labelPostfix} key={i} />;
+        const labelPostfix = status === "active" ? " In wallet" : status === "pending" ? " Pending..." : "";
+        return <Step number={i + 1} status={status} label={metadata.name + labelPostfix} key={metadata.name} />;
       })}
     </div>
   );

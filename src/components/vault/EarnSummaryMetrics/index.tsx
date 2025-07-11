@@ -1,11 +1,11 @@
 "use client";
 import clsx from "clsx";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 
 import { MetricWithTooltip } from "@/components/Metric";
 import NumberFlow, { NumberFlowWithLoading } from "@/components/ui/number-flow";
 import { Skeleton } from "@/components/ui/skeleton";
-import { VaultSummary } from "@/data/whisk/getVaultSummaries";
+import type { VaultSummary } from "@/data/whisk/getVaultSummaries";
 import { useEarnSummaryMetrics } from "@/hooks/useEarnSummaryMetrics";
 
 interface EarnSummaryMetricsProps {

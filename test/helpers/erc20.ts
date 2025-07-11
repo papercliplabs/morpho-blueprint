@@ -1,5 +1,5 @@
-import { AnvilTestClient } from "@morpho-org/test";
-import { Address, Client, erc20Abi } from "viem";
+import type { AnvilTestClient } from "@morpho-org/test";
+import { type Address, type Client, erc20Abi } from "viem";
 import { multicall } from "viem/actions";
 import { expect } from "vitest";
 

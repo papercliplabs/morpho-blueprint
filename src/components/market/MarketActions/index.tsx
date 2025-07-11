@@ -1,15 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Hex } from "viem";
+import type { Hex } from "viem";
 
 import { PoweredByMorpho } from "@/components/PoweredByMorpho";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Drawer, DrawerContent, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
-import { Tabs } from "@/components/ui/tabs";
-import { TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MarketNonIdle } from "@/data/whisk/getMarket";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import type { MarketNonIdle } from "@/data/whisk/getMarket";
 import { useMarketPosition } from "@/hooks/useMarketPositions";
 import { useResponsiveContext } from "@/providers/ResponsiveProvider";
 
@@ -59,11 +58,11 @@ function MarketActionsDesktop({ market, hasBorrowPosition }: { hasBorrowPosition
         </div>
         <TabsContent value="borrow" className="flex flex-col gap-6">
           <MarketSupplyCollateralAndBorrow market={market} />
-          <PoweredByMorpho className="text-muted-foreground mx-auto" />
+          <PoweredByMorpho className="mx-auto text-muted-foreground" />
         </TabsContent>
         <TabsContent value="repay" className="flex flex-col gap-6">
           <MarketRepayAndWithdrawCollateral market={market} />
-          <PoweredByMorpho className="text-muted-foreground mx-auto" />
+          <PoweredByMorpho className="mx-auto text-muted-foreground" />
         </TabsContent>
       </Tabs>
     </Card>
@@ -75,7 +74,7 @@ function MarketActionsMobile({ market, hasBorrowPosition }: { hasBorrowPosition:
   const [repayAndWithdrawCollateralOpen, setRepayAndWithdrawCollateralOpen] = useState(false);
 
   return (
-    <div className="bg-background fixed right-0 bottom-0 left-0 z-[20] flex items-center gap-[10px] border-t px-6 py-4">
+    <div className="fixed right-0 bottom-0 left-0 z-[20] flex items-center gap-[10px] border-t bg-background px-6 py-4">
       <Drawer open={supplyCollateralAndBorrowOpen} onOpenChange={setSupplyCollateralAndBorrowOpen}>
         <DrawerTrigger asChild>
           <Button className="flex-1" size="lg">

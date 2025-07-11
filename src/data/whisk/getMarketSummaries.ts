@@ -25,17 +25,17 @@ export const getMarketSummaries = cache(
         queryVariables.map(
           async ([chainId, marketIds]) =>
             await executeWhiskQuery(query, {
-              chainId: parseInt(chainId),
+              chainId: Number.parseInt(chainId),
               marketIds,
-            })
-        )
+            }),
+        ),
       );
 
       return responses.flatMap((resp) => resp.morphoMarkets);
     },
     ["getMarketSummaries"],
-    { revalidate: 10 } // Light cache, mostly to help in dev
-  )
+    { revalidate: 10 }, // Light cache, mostly to help in dev
+  ),
 );
 
 export type MarketSummary = NonNullable<Awaited<ReturnType<typeof getMarketSummaries>>>[number];

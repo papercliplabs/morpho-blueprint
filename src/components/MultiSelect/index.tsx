@@ -40,12 +40,7 @@ export function MultiSelect({
   return (
     <PopoverDrawer open={open} onOpenChange={setOpen}>
       <PopoverDrawerTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className="!body-medium max-w-[200px] flex-1 shadow-sm"
-        >
+        <Button variant="outline" aria-expanded={open} className="!body-medium max-w-[200px] flex-1 shadow-sm">
           <span className="flex flex-1 gap-1">
             {emptyValue}
             {value.length > 0 && <span>({value.length})</span>}

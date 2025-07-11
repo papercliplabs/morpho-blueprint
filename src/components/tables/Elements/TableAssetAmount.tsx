@@ -1,6 +1,6 @@
 import NumberFlow from "@/components/ui/number-flow";
 import { Skeleton } from "@/components/ui/skeleton";
-import { TokenInfo } from "@/data/whisk/fragments";
+import type { TokenInfo } from "@/data/whisk/fragments";
 import { descaleBigIntToNumber } from "@/utils/format";
 
 interface TableAssetAmountProps {
@@ -19,14 +19,14 @@ export function TableAssetAmount({ asset, amount, amountUsd, isLoading }: TableA
     );
   }
 
-  if (amount == undefined) {
+  if (amount === undefined) {
     // Render "-" only if we have no amount, no USD price is ok
-    return <div className="text-muted-foreground body-medium-plus">-</div>;
+    return <div className="body-medium-plus text-muted-foreground">-</div>;
   }
 
   const amountBigInt = BigInt(amount);
-  if (amountBigInt == 0n) {
-    return <div className="text-muted-foreground body-medium-plus">0</div>;
+  if (amountBigInt === 0n) {
+    return <div className="body-medium-plus text-muted-foreground">0</div>;
   }
 
   return (

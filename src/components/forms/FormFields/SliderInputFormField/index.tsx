@@ -1,13 +1,13 @@
 "use client";
 
-import { ComponentProps, ReactNode, useMemo } from "react";
+import { type ComponentProps, type ReactNode, useMemo } from "react";
 
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { formatNumber } from "@/utils/format";
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+// biome-ignore lint/suspicious/noExplicitAny: Allow any for the FormField component
 interface SliderInputFormFieldProps<TFieldValues extends Record<string, any>>
   extends Omit<ComponentProps<typeof FormField<TFieldValues>>, "render"> {
   includeInput?: boolean;
@@ -19,7 +19,7 @@ interface SliderInputFormFieldProps<TFieldValues extends Record<string, any>>
   unit: string;
 }
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+// biome-ignore lint/suspicious/noExplicitAny: Allow any for the FormField component
 function SliderInputFormField<TFieldValues extends Record<string, any>>({
   labelContent,
   includeInput = true,
@@ -38,7 +38,7 @@ function SliderInputFormField<TFieldValues extends Record<string, any>>({
       .fill(0)
       .map(
         (_, stepNumber) =>
-          `${formatNumber(step + step * stepNumber, { minimumFractionDigits: 0, maximumFractionDigits: 1 })}${unit}`
+          `${formatNumber(step + step * stepNumber, { minimumFractionDigits: 0, maximumFractionDigits: 1 })}${unit}`,
       )
       .concat(["Max"]);
   }, [sliderMin, sliderMax, unit]);
@@ -47,7 +47,7 @@ function SliderInputFormField<TFieldValues extends Record<string, any>>({
     <FormField
       {...props}
       render={({ field: { value, onChange } }) => (
-        <FormItem className="bg-muted flex w-full flex-col gap-4 rounded-md p-4">
+        <FormItem className="flex w-full flex-col gap-4 rounded-md bg-muted p-4">
           <div className="flex w-full items-center justify-between gap-2">
             <FormLabel>{labelContent}</FormLabel>
             {includeInput && (
@@ -69,7 +69,7 @@ function SliderInputFormField<TFieldValues extends Record<string, any>>({
                     {...props}
                   />
                   {unit && (
-                    <div className="body-medium text-muted-foreground absolute top-0 right-0 flex size-8 items-center justify-center">
+                    <div className="body-medium absolute top-0 right-0 flex size-8 items-center justify-center text-muted-foreground">
                       {unit}
                     </div>
                   )}
@@ -83,9 +83,9 @@ function SliderInputFormField<TFieldValues extends Record<string, any>>({
           </FormControl>
 
           {showTicks && (
-            <div className="text-content-secondary label-sm flex items-center justify-between">
-              {ticks.map((tick, i) => (
-                <span key={i}>{tick}</span>
+            <div className="label-sm flex items-center justify-between text-content-secondary">
+              {ticks.map((tick) => (
+                <span key={tick}>{tick}</span>
               ))}
             </div>
           )}

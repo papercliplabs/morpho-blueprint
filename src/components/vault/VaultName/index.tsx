@@ -1,5 +1,5 @@
 import { TokenIcon } from "@/components/TokenIcon";
-import { ChainInfo, TokenInfo } from "@/data/whisk/fragments";
+import type { ChainInfo, TokenInfo } from "@/data/whisk/fragments";
 
 interface VaultNameProps {
   chain: ChainInfo;

@@ -9,8 +9,8 @@ import { getAddress, maxUint256, parseUnits } from "viem";
 import { useAccount, usePublicClient } from "wagmi";
 import { z } from "zod";
 
-import { SuccessfulVaultAction, vaultWithdrawAction } from "@/actions";
-import { Vault } from "@/data/whisk/getVault";
+import { type SuccessfulVaultAction, vaultWithdrawAction } from "@/actions";
+import type { Vault } from "@/data/whisk/getVault";
 import { useVaultPosition } from "@/hooks/useVaultPositions";
 import { useWatchNumberInputField } from "@/hooks/useWatchNumberInputField";
 import { descaleBigIntToNumber } from "@/utils/format";
@@ -39,7 +39,7 @@ export const VaultWithdrawForm = forwardRef<{ reset: () => void }, VaultWithdraw
 
     const { data: position, isLoading: isPositionLoading } = useVaultPosition(
       vault.chain.id,
-      getAddress(vault.vaultAddress)
+      getAddress(vault.vaultAddress),
     );
 
     const positionBalance = useMemo(() => {
@@ -58,7 +58,7 @@ export const VaultWithdrawForm = forwardRef<{ reset: () => void }, VaultWithdraw
         })
         .superRefine((data, ctx) => {
           const withdrawAmount = Number(data.withdrawAmount);
-          if (isNaN(withdrawAmount) || withdrawAmount <= 0) {
+          if (Number.isNaN(withdrawAmount) || withdrawAmount <= 0) {
             ctx.addIssue({
               path: ["withdrawAmount"],
               code: z.ZodIssueCode.custom,
@@ -66,7 +66,7 @@ export const VaultWithdrawForm = forwardRef<{ reset: () => void }, VaultWithdraw
             });
           }
 
-          const maxWithdrawAmount = positionBalance ?? Infinity;
+          const maxWithdrawAmount = positionBalance ?? Number.POSITIVE_INFINITY;
           if (withdrawAmount > maxWithdrawAmount) {
             ctx.addIssue({
               path: ["withdrawAmount"],
@@ -96,7 +96,7 @@ export const VaultWithdrawForm = forwardRef<{ reset: () => void }, VaultWithdraw
     const withdrawAmount = useWatchNumberInputField(form.control, "withdrawAmount");
 
     const missingAmountInput = useMemo(() => {
-      return withdrawAmount == 0;
+      return withdrawAmount === 0;
     }, [withdrawAmount]);
 
     const [debouncedWithdrawAmount] = useDebounce(withdrawAmount, 300);
@@ -135,7 +135,7 @@ export const VaultWithdrawForm = forwardRef<{ reset: () => void }, VaultWithdraw
           withdrawAmount: rawWithdrawAmount,
         });
 
-        if (action.status == "success") {
+        if (action.status === "success") {
           onSuccessfulActionSimulation(action);
         } else {
           setSimulationErrorMsg(action.message);
@@ -143,15 +143,7 @@ export const VaultWithdrawForm = forwardRef<{ reset: () => void }, VaultWithdraw
 
         setSimulating(false);
       },
-      [
-        address,
-        setConnectKitOpen,
-        publicClient,
-        setSimulationErrorMsg,
-        setSimulating,
-        onSuccessfulActionSimulation,
-        vault,
-      ]
+      [address, setConnectKitOpen, publicClient, onSuccessfulActionSimulation, vault],
     );
     return (
       <Form {...form}>
@@ -170,7 +162,7 @@ export const VaultWithdrawForm = forwardRef<{ reset: () => void }, VaultWithdraw
                 }}
               />
 
-              <div className="bg-border h-[1px]" />
+              <div className="h-[1px] bg-border" />
 
               {simulationMetrics}
 
@@ -191,6 +183,6 @@ export const VaultWithdrawForm = forwardRef<{ reset: () => void }, VaultWithdraw
         </form>
       </Form>
     );
-  }
+  },
 );
 VaultWithdrawForm.displayName = "VaultWithdrawForm";

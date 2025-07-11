@@ -1,10 +1,10 @@
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 
 import { MetricWithTooltip } from "@/components/Metric";
 import { ApyTooltipContent, ApyTooltipTrigger } from "@/components/Tooltips/ApyToolip";
 import NumberFlow from "@/components/ui/number-flow";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Vault } from "@/data/whisk/getVault";
+import type { Vault } from "@/data/whisk/getVault";
 
 interface VaultKeyMetricsProps {
   vault: Vault;

@@ -1,17 +1,17 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { MarketId } from "@morpho-org/blue-sdk";
+import type { MarketId } from "@morpho-org/blue-sdk";
 import { useModal } from "connectkit";
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDebounce } from "use-debounce";
-import { Hex, maxUint256, parseUnits } from "viem";
+import { type Hex, maxUint256, parseUnits } from "viem";
 import { useAccount, usePublicClient } from "wagmi";
 import { z } from "zod";
 
-import { SuccessfulMarketAction, marketRepayAndWithdrawCollateralAction } from "@/actions";
-import { MarketNonIdle } from "@/data/whisk/getMarket";
+import { marketRepayAndWithdrawCollateralAction, type SuccessfulMarketAction } from "@/actions";
+import type { MarketNonIdle } from "@/data/whisk/getMarket";
 import { useMarketPosition } from "@/hooks/useMarketPositions";
 import { useWatchNumberInputField } from "@/hooks/useWatchNumberInputField";
 import { descaleBigIntToNumber } from "@/utils/format";
@@ -57,7 +57,7 @@ export const MarketRepayAndWithdrawCollateralForm = forwardRef<
     const positionBorrowAmount = descaleBigIntToNumber(position.borrowAssets, market.loanAsset.decimals);
     const walletLoanAssetBalance = descaleBigIntToNumber(
       position.walletLoanAssetHolding.balance,
-      market.loanAsset.decimals
+      market.loanAsset.decimals,
     );
     const repayLimiter =
       positionBorrowAmount > walletLoanAssetBalance ? ("wallet-balance" as RepayLimiter) : "position";
@@ -78,8 +78,8 @@ export const MarketRepayAndWithdrawCollateralForm = forwardRef<
         isMaxWithdrawCollateral: z.boolean(),
       })
       .superRefine((data, ctx) => {
-        const repayAmount = isNaN(Number(data.repayAmount)) ? 0 : Number(data.repayAmount);
-        const withdrawCollateralAmount = isNaN(Number(data.withdrawCollateralAmount))
+        const repayAmount = Number.isNaN(Number(data.repayAmount)) ? 0 : Number(data.repayAmount);
+        const withdrawCollateralAmount = Number.isNaN(Number(data.withdrawCollateralAmount))
           ? 0
           : Number(data.withdrawCollateralAmount);
 
@@ -97,12 +97,14 @@ export const MarketRepayAndWithdrawCollateralForm = forwardRef<
         }
 
         const maxRepayAmount =
-          repayLimiter == "position" ? (positionBorrowAmount ?? Infinity) : (walletLoanAssetBalance ?? Infinity);
+          repayLimiter === "position"
+            ? (positionBorrowAmount ?? Number.POSITIVE_INFINITY)
+            : (walletLoanAssetBalance ?? Number.POSITIVE_INFINITY);
         if (repayAmount > maxRepayAmount) {
           ctx.addIssue({
             path: ["repayAmount"],
             code: z.ZodIssueCode.custom,
-            message: repayLimiter == "position" ? "Exceeds position." : "Exceeds wallet balance.",
+            message: repayLimiter === "position" ? "Exceeds position." : "Exceeds wallet balance.",
           });
         }
 
@@ -150,7 +152,7 @@ export const MarketRepayAndWithdrawCollateralForm = forwardRef<
   }, [position, market, repayAmount]);
 
   const missingAmountInputs = useMemo(() => {
-    return repayAmount == 0 && withdrawCollateralAmount == 0;
+    return repayAmount === 0 && withdrawCollateralAmount === 0;
   }, [repayAmount, withdrawCollateralAmount]);
 
   const simulationMetrics = useMemo(() => {
@@ -196,19 +198,19 @@ export const MarketRepayAndWithdrawCollateralForm = forwardRef<
       setSimulationErrorMsg(null);
       setSimulating(true);
 
-      let rawRepayAmount = parseUnits(repayAmount == "" ? "0" : repayAmount, market.loanAsset.decimals);
-      if (rawRepayAmount > 0n && isMaxRepay && repayLimiter == "position") {
+      let rawRepayAmount = parseUnits(repayAmount === "" ? "0" : repayAmount, market.loanAsset.decimals);
+      if (rawRepayAmount > 0n && isMaxRepay && repayLimiter === "position") {
         rawRepayAmount = maxUint256;
       }
 
       let rawWithdrawCollateralAmount = parseUnits(
-        withdrawCollateralAmount == "" ? "0" : withdrawCollateralAmount,
-        market.collateralAsset.decimals
+        withdrawCollateralAmount === "" ? "0" : withdrawCollateralAmount,
+        market.collateralAsset.decimals,
       );
       if (
         rawWithdrawCollateralAmount > 0n &&
         isMaxWithdrawCollateral &&
-        (positionBorrowAmount == 0 || rawRepayAmount == maxUint256)
+        (positionBorrowAmount === 0 || rawRepayAmount === maxUint256)
       ) {
         // Only full withdraw if there is no loan or full repay
         rawWithdrawCollateralAmount = maxUint256;
@@ -222,7 +224,7 @@ export const MarketRepayAndWithdrawCollateralForm = forwardRef<
         withdrawCollateralAmount: rawWithdrawCollateralAmount,
       });
 
-      if (action.status == "success") {
+      if (action.status === "success") {
         onSuccessfulActionSimulation(action);
       } else {
         setSimulationErrorMsg(action.message);
@@ -234,13 +236,11 @@ export const MarketRepayAndWithdrawCollateralForm = forwardRef<
       address,
       setConnectKitOpen,
       publicClient,
-      setSimulationErrorMsg,
-      setSimulating,
       repayLimiter,
       positionBorrowAmount,
       market,
       onSuccessfulActionSimulation,
-    ]
+    ],
   );
 
   return (
@@ -257,7 +257,7 @@ export const MarketRepayAndWithdrawCollateralForm = forwardRef<
                 asset={market.loanAsset}
                 maxValue={Math.min(
                   positionBorrowAmount ?? Number.MAX_VALUE,
-                  walletLoanAssetBalance ?? Number.MAX_VALUE
+                  walletLoanAssetBalance ?? Number.MAX_VALUE,
                 )}
                 setIsMax={(isMax) => {
                   form.setValue("isMaxRepay", isMax);

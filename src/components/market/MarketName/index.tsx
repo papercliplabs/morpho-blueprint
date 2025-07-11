@@ -3,7 +3,7 @@ import clsx from "clsx";
 import { TokenIcon } from "@/components/TokenIcon";
 import { Badge } from "@/components/ui/badge";
 import NumberFlow from "@/components/ui/number-flow";
-import { ChainInfo, TokenInfo } from "@/data/whisk/fragments";
+import type { ChainInfo, TokenInfo } from "@/data/whisk/fragments";
 
 interface MarketIdentifierProps {
   chain: ChainInfo;
@@ -37,14 +37,14 @@ export function MarketName({
             chain={chain}
             size="md"
             showChain={false}
-            className={clsx("border-background border-1", collateralAssetClassName)}
+            className={clsx("border-1 border-background", collateralAssetClassName)}
           />
         )}
         <TokenIcon
           token={loanAsset}
           chain={chain}
           size="md"
-          className={clsx("border-background border-1", collateralAsset && "-ml-3", loanAssetClassName)}
+          className={clsx("border-1 border-background", collateralAsset && "-ml-3", loanAssetClassName)}
           chainClassName={loanAssetChainClassName}
         />
         {!collateralAsset && <div className="w-[20px]" />}
@@ -52,7 +52,7 @@ export function MarketName({
       <div
         className={clsx(
           "overflow-hidden text-ellipsis whitespace-nowrap",
-          variant === "sm" ? "body-medium-plus" : "heading-3"
+          variant === "sm" ? "body-medium-plus" : "heading-3",
         )}
       >
         {name}

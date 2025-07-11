@@ -9,8 +9,8 @@ import { getAddress, maxUint256, parseUnits } from "viem";
 import { useAccount, usePublicClient } from "wagmi";
 import { z } from "zod";
 
-import { SuccessfulVaultAction, vaultSupplyAction } from "@/actions";
-import { Vault } from "@/data/whisk/getVault";
+import { type SuccessfulVaultAction, vaultSupplyAction } from "@/actions";
+import type { Vault } from "@/data/whisk/getVault";
 import { useVaultPosition } from "@/hooks/useVaultPositions";
 import { useWatchNumberInputField } from "@/hooks/useWatchNumberInputField";
 import { descaleBigIntToNumber } from "@/utils/format";
@@ -39,7 +39,7 @@ export const VaultSupplyForm = forwardRef<{ reset: () => void }, VaultSupplyForm
 
     const { data: position, isLoading: isPositionLoading } = useVaultPosition(
       vault.chain.id,
-      getAddress(vault.vaultAddress)
+      getAddress(vault.vaultAddress),
     );
 
     const walletUnderlyingAssetBalance = useMemo(() => {
@@ -58,7 +58,7 @@ export const VaultSupplyForm = forwardRef<{ reset: () => void }, VaultSupplyForm
         })
         .superRefine((data, ctx) => {
           const supplyAmount = Number(data.supplyAmount);
-          if (isNaN(supplyAmount) || supplyAmount <= 0) {
+          if (Number.isNaN(supplyAmount) || supplyAmount <= 0) {
             ctx.addIssue({
               path: ["supplyAmount"],
               code: z.ZodIssueCode.custom,
@@ -66,7 +66,7 @@ export const VaultSupplyForm = forwardRef<{ reset: () => void }, VaultSupplyForm
             });
           }
 
-          const maxSupplyAmount = walletUnderlyingAssetBalance ?? Infinity;
+          const maxSupplyAmount = walletUnderlyingAssetBalance ?? Number.POSITIVE_INFINITY;
           if (supplyAmount > maxSupplyAmount) {
             ctx.addIssue({
               path: ["supplyAmount"],
@@ -96,7 +96,7 @@ export const VaultSupplyForm = forwardRef<{ reset: () => void }, VaultSupplyForm
     const supplyAmount = useWatchNumberInputField(form.control, "supplyAmount");
 
     const missingAmountInput = useMemo(() => {
-      return supplyAmount == 0;
+      return supplyAmount === 0;
     }, [supplyAmount]);
 
     const [debouncedSupplyAmount] = useDebounce(supplyAmount, 300);
@@ -136,7 +136,7 @@ export const VaultSupplyForm = forwardRef<{ reset: () => void }, VaultSupplyForm
           allowWrappingNativeAssets: false, // TODO: revisit
         });
 
-        if (action.status == "success") {
+        if (action.status === "success") {
           onSuccessfulActionSimulation(action);
         } else {
           setSimulationErrorMsg(action.message);
@@ -144,15 +144,7 @@ export const VaultSupplyForm = forwardRef<{ reset: () => void }, VaultSupplyForm
 
         setSimulating(false);
       },
-      [
-        address,
-        setConnectKitOpen,
-        publicClient,
-        setSimulationErrorMsg,
-        setSimulating,
-        vault,
-        onSuccessfulActionSimulation,
-      ]
+      [address, setConnectKitOpen, publicClient, vault, onSuccessfulActionSimulation],
     );
 
     return (
@@ -172,7 +164,7 @@ export const VaultSupplyForm = forwardRef<{ reset: () => void }, VaultSupplyForm
                 }}
               />
 
-              <div className="bg-border h-[1px]" />
+              <div className="h-[1px] bg-border" />
 
               {simulationMetrics}
 
@@ -193,6 +185,6 @@ export const VaultSupplyForm = forwardRef<{ reset: () => void }, VaultSupplyForm
         </form>
       </Form>
     );
-  }
+  },
 );
 VaultSupplyForm.displayName = "VaultSupplyForm";

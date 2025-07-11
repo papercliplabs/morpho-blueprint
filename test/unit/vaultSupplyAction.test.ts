@@ -1,11 +1,11 @@
-import { MathLib, getChainAddresses } from "@morpho-org/blue-sdk";
+import { getChainAddresses, MathLib } from "@morpho-org/blue-sdk";
 import { fetchVaultConfig, metaMorphoAbi } from "@morpho-org/blue-sdk-viem";
-import { AnvilTestClient } from "@morpho-org/test";
-import { Address, Log, maxUint256, parseEther, parseUnits, zeroAddress } from "viem";
+import type { AnvilTestClient } from "@morpho-org/test";
+import { type Address, type Log, maxUint256, parseEther, parseUnits, zeroAddress } from "viem";
 import { readContract } from "viem/actions";
 import { describe, expect } from "vitest";
 
-import { VaultAction, vaultSupplyAction } from "@/actions";
+import { type VaultAction, vaultSupplyAction } from "@/actions";
 
 import { test } from "../config";
 import { RANDOM_ADDRESS } from "../helpers/constants";
@@ -75,7 +75,7 @@ async function runVaultSupplyTest({
   await beforeExecutionCb?.(client);
 
   let logs: Log[] = [];
-  if (action.status == "success") {
+  if (action.status === "success") {
     // Execute
     logs = await executeAction(client, action);
   }
@@ -83,7 +83,7 @@ async function runVaultSupplyTest({
   // Assert
   expect(action.status).toEqual(expectSuccess ? "success" : "error");
 
-  if (action.status == "error") {
+  if (action.status === "error") {
     return action;
   }
 
@@ -92,17 +92,17 @@ async function runVaultSupplyTest({
     logs,
     client.account.address,
     [...(permit2 ? [permit2] : []), generalAdapter1], // Only ever allowed to apporve GA1 or permit2
-    [generalAdapter1] // Only ever allowed to permit GA1
+    [generalAdapter1], // Only ever allowed to permit GA1
   );
 
   const vaultPosition = await getMorphoVaultPosition(client, vaultAddress);
   const userWalletBalance = await getErc20BalanceOf(client, assetAddress, client.account.address);
 
-  if (supplyAmount == maxUint256) {
+  if (supplyAmount === maxUint256) {
     // Max supply
     expect(vaultPosition).toBeWithinRange(
       intitialState.walletUnderlyingAssetBalance - BigInt(1),
-      intitialState.walletUnderlyingAssetBalance
+      intitialState.walletUnderlyingAssetBalance,
     );
     expect(userWalletBalance).toEqual(BigInt(0));
   } else {
@@ -168,7 +168,7 @@ describe("vaultSupplyAction", () => {
           },
           supplyAmount: parseUnits("1000", 6),
           expectSuccess: false,
-        })
+        }),
       ).rejects.toThrow();
     });
     test("insufficient balance", async ({ client }) => {
@@ -183,7 +183,7 @@ describe("vaultSupplyAction", () => {
       });
 
       // Will be error otherwise would have failed in run test
-      if (result.status == "error") {
+      if (result.status === "error") {
         expect(result.message).toEqual("Simulation Error: Insufficient wallet balance.");
       }
     });
@@ -199,7 +199,7 @@ describe("vaultSupplyAction", () => {
       });
 
       // Will be error otherwise would have failed in run test
-      if (result.status == "error") {
+      if (result.status === "error") {
         expect(result.message).toEqual("Supply amount must be greater than 0.");
       }
     });
@@ -232,10 +232,10 @@ describe("vaultSupplyAction", () => {
               client,
               "0x64d65c9a2d91c36d56fbc42d69e979335320169b3df63bf92789e2c8883fcc64",
               donationAmount,
-              vaultAddress
+              vaultAddress,
             );
           },
-        })
+        }),
       ).rejects.toThrow("action-tx-reverted");
     });
   });

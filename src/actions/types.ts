@@ -1,5 +1,5 @@
-import { BundlerCall, SignatureRequirementFunction } from "@morpho-org/bundler-sdk-viem";
-import { Address, Client, Hex, PublicClient, TransactionRequest as ViemTransactionRequest } from "viem";
+import type { BundlerCall, SignatureRequirementFunction } from "@morpho-org/bundler-sdk-viem";
+import type { Address, Client, Hex, PublicClient, TransactionRequest as ViemTransactionRequest } from "viem";
 
 interface ActionMetadata {
   name: string;

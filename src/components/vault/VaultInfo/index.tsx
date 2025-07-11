@@ -1,11 +1,11 @@
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 import { getAddress } from "viem";
 
 import { LinkExternalBlockExplorer } from "@/components/LinkExternal";
 import { MetricWithTooltip } from "@/components/Metric";
 import NumberFlow from "@/components/ui/number-flow";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Vault } from "@/data/whisk/getVault";
+import type { Vault } from "@/data/whisk/getVault";
 
 interface VaultInfoProps {
   vault: Vault;

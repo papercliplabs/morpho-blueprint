@@ -1,7 +1,7 @@
 "use client";
 import { X } from "lucide-react";
 import { motion } from "motion/react";
-import { ComponentProps, ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { type ComponentProps, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { zeroHash } from "viem";
 
 import type { SuccessfulAction } from "@/actions";
@@ -43,6 +43,7 @@ export function ActionFlow({
   const [render, setRender] = useState<boolean>(open);
 
   // Falling edge delay so we get the nice close animation
+  // biome-ignore lint/correctness/useExhaustiveDependencies: Need to re-render on action change
   useEffect(() => {
     if (open) {
       setRender(true);
@@ -75,11 +76,13 @@ export function ActionFlow({
 
 function ActionFlowDialog({ open, onOpenChange, actionName, summary, metrics }: ActionFlowDialogProps) {
   const { flowState, lastTransactionHash, error, startFlow } = useActionFlowContext();
-  const preventClose = useMemo(() => flowState == "active", [flowState]);
+  const preventClose = useMemo(() => flowState === "active", [flowState]);
 
   // useMeasure caused issues getting accurate height on initial render of dialog, this works instead
   const measureRef = useRef<HTMLDivElement>(null);
   const [measuredHeight, setMeasuredHeight] = useState<number | undefined>();
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: Need to re-measure on flow state change
   useEffect(() => {
     if (!open) return;
 
@@ -135,11 +138,13 @@ function ActionFlowDialog({ open, onOpenChange, actionName, summary, metrics }: 
     }
   }, [startFlow, flowState, error, actionName, metrics, summary, lastTransactionHash, onOpenChange]);
 
+  console.log("DEBUG", { flowState, measuredHeight });
+
   return (
     <DialogDrawer open={open} onOpenChange={onOpenChange} dismissible={!preventClose}>
       <DialogDrawerContent hideCloseButton className="p-0 md:max-w-[420px]">
         <motion.div
-          animate={{ height: measuredHeight ? measuredHeight : undefined }}
+          animate={{ height: measuredHeight }}
           transition={{ duration: 0.4, type: "spring", bounce: 0 }}
           className="min-w-0 overflow-hidden"
         >
@@ -158,7 +163,7 @@ function ActionFlowDialog({ open, onOpenChange, actionName, summary, metrics }: 
 
 function ActionFlowDialogCloseButton({ close }: { close: () => void }) {
   const { flowState } = useActionFlowContext();
-  const preventClose = useMemo(() => flowState == "active", [flowState]);
+  const preventClose = useMemo(() => flowState === "active", [flowState]);
   const [popoverOpen, setPopoverOpen] = useState(false);
 
   return (
@@ -188,7 +193,7 @@ function ActionFlowDialogCloseButton({ close }: { close: () => void }) {
       </Popover>
 
       <Button onClick={() => (preventClose ? setPopoverOpen(true) : close())} variant="ghost">
-        <X className="stroke-foreground h-4 w-4 shrink-0" />
+        <X className="h-4 w-4 shrink-0 stroke-foreground" />
       </Button>
     </>
   );

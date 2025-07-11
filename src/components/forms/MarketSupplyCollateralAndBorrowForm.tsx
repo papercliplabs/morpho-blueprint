@@ -1,17 +1,17 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { MarketId } from "@morpho-org/blue-sdk";
+import type { MarketId } from "@morpho-org/blue-sdk";
 import { useModal } from "connectkit";
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDebounce } from "use-debounce";
-import { Hex, getAddress, maxUint256, parseUnits } from "viem";
+import { getAddress, type Hex, maxUint256, parseUnits } from "viem";
 import { useAccount, usePublicClient } from "wagmi";
 import { z } from "zod";
 
-import { SuccessfulMarketAction, marketSupplyCollateralAndBorrowAction } from "@/actions";
-import { MarketNonIdle } from "@/data/whisk/getMarket";
+import { marketSupplyCollateralAndBorrowAction, type SuccessfulMarketAction } from "@/actions";
+import type { MarketNonIdle } from "@/data/whisk/getMarket";
 import { useMarketPosition } from "@/hooks/useMarketPositions";
 import { useWatchNumberInputField } from "@/hooks/useWatchNumberInputField";
 import { descaleBigIntToNumber } from "@/utils/format";
@@ -51,7 +51,7 @@ export const MarketSupplyCollateralAndBorrowForm = forwardRef<
     return {
       walletCollateralAssetBalance: descaleBigIntToNumber(
         position.walletCollateralAssetHolding.balance,
-        market.collateralAsset.decimals
+        market.collateralAsset.decimals,
       ),
       positionBorrowBalance: descaleBigIntToNumber(position.borrowAssets, market.loanAsset.decimals),
     };
@@ -65,10 +65,10 @@ export const MarketSupplyCollateralAndBorrowForm = forwardRef<
         borrowAmount: z.string(),
       })
       .superRefine((data, ctx) => {
-        const supplyCollateralAmount = isNaN(Number(data.supplyCollateralAmount))
+        const supplyCollateralAmount = Number.isNaN(Number(data.supplyCollateralAmount))
           ? 0
           : Number(data.supplyCollateralAmount);
-        const borrowAmount = isNaN(Number(data.borrowAmount)) ? 0 : Number(data.borrowAmount);
+        const borrowAmount = Number.isNaN(Number(data.borrowAmount)) ? 0 : Number(data.borrowAmount);
 
         if (supplyCollateralAmount <= 0 && borrowAmount <= 0) {
           ctx.addIssue({
@@ -83,7 +83,7 @@ export const MarketSupplyCollateralAndBorrowForm = forwardRef<
           });
         }
 
-        const maxSupplyCollateralAmount = walletCollateralAssetBalance ?? Infinity;
+        const maxSupplyCollateralAmount = walletCollateralAssetBalance ?? Number.POSITIVE_INFINITY;
         if (supplyCollateralAmount > maxSupplyCollateralAmount) {
           ctx.addIssue({
             path: ["supplyCollateralAmount"],
@@ -135,7 +135,7 @@ export const MarketSupplyCollateralAndBorrowForm = forwardRef<
   }, [position, market, debouncedSupplyCollateralAmount]);
 
   const missingAmountInputs = useMemo(() => {
-    return supplyCollateralAmount == 0 && borrowAmount == 0;
+    return supplyCollateralAmount === 0 && borrowAmount === 0;
   }, [supplyCollateralAmount, borrowAmount]);
 
   const simulationMetrics = useMemo(() => {
@@ -177,14 +177,14 @@ export const MarketSupplyCollateralAndBorrowForm = forwardRef<
       setSimulating(true);
 
       let rawSupplyCollateralAmount = parseUnits(
-        supplyCollateralAmount == "" ? "0" : supplyCollateralAmount,
-        market.collateralAsset.decimals
+        supplyCollateralAmount === "" ? "0" : supplyCollateralAmount,
+        market.collateralAsset.decimals,
       );
       if (rawSupplyCollateralAmount > 0n && isMaxSupplyCollateral) {
         rawSupplyCollateralAmount = maxUint256;
       }
 
-      const rawBorrowAmount = parseUnits(borrowAmount == "" ? "0" : borrowAmount, market.loanAsset.decimals);
+      const rawBorrowAmount = parseUnits(borrowAmount === "" ? "0" : borrowAmount, market.loanAsset.decimals);
 
       const action = await marketSupplyCollateralAndBorrowAction({
         publicClient,
@@ -195,7 +195,7 @@ export const MarketSupplyCollateralAndBorrowForm = forwardRef<
         allocatingVaultAddresses: market.vaultAllocations.map((v) => getAddress(v.vault.vaultAddress)),
       });
 
-      if (action.status == "success") {
+      if (action.status === "success") {
         onSuccessfulActionSimulation(action);
       } else {
         setSimulationErrorMsg(action.message);
@@ -203,15 +203,7 @@ export const MarketSupplyCollateralAndBorrowForm = forwardRef<
 
       setSimulating(false);
     },
-    [
-      address,
-      setConnectKitOpen,
-      publicClient,
-      setSimulationErrorMsg,
-      setSimulating,
-      market,
-      onSuccessfulActionSimulation,
-    ]
+    [address, setConnectKitOpen, publicClient, market, onSuccessfulActionSimulation],
   );
 
   return (

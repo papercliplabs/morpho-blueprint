@@ -1,10 +1,10 @@
 import Image from "next/image";
-import { ComponentProps } from "react";
+import type { ComponentProps } from "react";
 
-import { ChainInfo, TokenInfo } from "@/data/whisk/fragments";
+import type { ChainInfo, TokenInfo } from "@/data/whisk/fragments";
 import { cn } from "@/utils/shadcn";
 
-import { Avatar, AvatarProps } from "../ui/avatar";
+import { Avatar, type AvatarProps } from "../ui/avatar";
 
 interface TokenIconProps extends Omit<ComponentProps<typeof Avatar>, "src" | "alt" | "fallback" | "size" | "sub"> {
   token: TokenInfo;
@@ -42,7 +42,7 @@ export function TokenIcon({ chainClassName, token, chain, size, showChain = true
             alt={chain.name}
             width={16}
             height={16}
-            className={cn("border-background rounded-[6px] border-1 transition-colors", chainClassName)}
+            className={cn("rounded-[6px] border-1 border-background transition-colors", chainClassName)}
           />
         ) : null
       }

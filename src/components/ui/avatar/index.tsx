@@ -1,7 +1,7 @@
 "use client";
 
 import * as AvatarPrimitive from "@radix-ui/react-avatar";
-import { VariantProps, cva } from "class-variance-authority";
+import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";
 
 import { Skeleton } from "@/components/ui/skeleton";
@@ -33,7 +33,7 @@ const AvatarFallback = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <AvatarPrimitive.Fallback
     ref={ref}
-    className={cn("text-background flex h-full w-full items-center justify-center rounded-full", className)}
+    className={cn("flex h-full w-full items-center justify-center rounded-full text-background", className)}
     {...props}
   />
 ));

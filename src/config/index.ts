@@ -3,7 +3,7 @@ import { getAddress } from "viem";
 import { base, mainnet, polygon, worldchain } from "viem/chains";
 
 import { Logo } from "./components/Logo";
-import { AppConfig } from "./types";
+import type { AppConfig } from "./types";
 
 export const SUPPORTED_CHAIN_IDS = [mainnet.id, polygon.id, base.id, worldchain.id] as const;
 

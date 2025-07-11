@@ -1,10 +1,8 @@
 "use client";
 
-import { ComponentProps } from "react";
-import { CartesianGrid, DotProps, Line, LineChart, ReferenceLine, Tooltip, XAxis } from "recharts";
-
-import { ChartConfig, ChartContainer } from "@/components/ui/chart";
-import { ChartTooltip } from "@/components/ui/chart";
+import type { ComponentProps } from "react";
+import { CartesianGrid, type DotProps, Line, LineChart, ReferenceLine, type Tooltip, XAxis } from "recharts";
+import { type ChartConfig, ChartContainer, ChartTooltip } from "@/components/ui/chart";
 import { formatNumber } from "@/utils/format";
 
 interface IrmChartDataEntry {
@@ -80,6 +78,7 @@ function CustomActiveDot({ cx, cy, color }: DotProps) {
   const r = 6;
   return (
     <svg x={cx! - r} y={cy! - r} width={r * 2} height={r * 2} viewBox={`0 0 ${r * 2} ${r * 2}`} className="z-[100]">
+      <title>Active Dot</title>
       <circle cx={r} cy={r} r={r} fill={color} />
       <circle cx={r} cy={r} r={r - 3} fill={color} />
     </svg>
@@ -89,21 +88,21 @@ function CustomActiveDot({ cx, cy, color }: DotProps) {
 function CustomTooltip({ active, payload }: ComponentProps<typeof Tooltip>) {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-popover body-small flex flex-col gap-4 rounded-lg border px-5 py-4 shadow-md">
+      <div className="body-small flex flex-col gap-4 rounded-lg border bg-popover px-5 py-4 shadow-md">
         <div className="flex items-center justify-between gap-6">
           <span>Utilization:</span>
           {formatNumber(payload[0]?.payload?.utilization ?? 0, { style: "percent" })}
         </div>
         <div className="flex items-center justify-between gap-6">
-          <div className="text-muted-foreground flex items-center gap-2">
-            <div className="bg-chart-2 h-4 w-4 rounded-sm" />
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <div className="h-4 w-4 rounded-sm bg-chart-2" />
             Supply APY
           </div>
           {formatNumber(payload[0]?.payload?.supplyApy ?? 0, { style: "percent" })}
         </div>
         <div className="flex items-center justify-between gap-6">
-          <div className="text-muted-foreground flex items-center gap-2">
-            <div className="bg-chart-1 h-4 w-4 rounded-sm" />
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <div className="h-4 w-4 rounded-sm bg-chart-1" />
             Borrow APY
           </div>
           {formatNumber(payload[0]?.payload?.borrowApy ?? 0, { style: "percent" })}

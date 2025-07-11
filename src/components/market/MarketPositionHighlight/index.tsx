@@ -1,12 +1,12 @@
 "use client";
 import Image from "next/image";
-import { Hex } from "viem";
+import type { Hex } from "viem";
 import { useAccount } from "wagmi";
 
 import { MetricWithTooltip } from "@/components/Metric";
 import { NumberFlowWithLoading } from "@/components/ui/number-flow";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Market } from "@/data/whisk/getMarket";
+import type { Market } from "@/data/whisk/getMarket";
 import { useMarketPosition } from "@/hooks/useMarketPositions";
 import { descaleBigIntToNumber } from "@/utils/format";
 
@@ -39,7 +39,7 @@ export function MarketPositionHighlight({ market }: MarketPositionHighlightProps
             alt={market.loanAsset.symbol}
             width={12}
             height={12}
-            className="border-border size-3 shrink-0 rounded-full border"
+            className="size-3 shrink-0 rounded-full border border-border"
           />
           <NumberFlowWithLoading
             value={data?.borrowAssets ? descaleBigIntToNumber(data.borrowAssets, market.loanAsset.decimals) : undefined}

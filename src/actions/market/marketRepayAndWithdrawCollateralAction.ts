@@ -1,11 +1,11 @@
-import { DEFAULT_SLIPPAGE_TOLERANCE, MarketId, getChainAddresses } from "@morpho-org/blue-sdk";
-import { InputBundlerOperation } from "@morpho-org/bundler-sdk-viem";
-import { Address, maxUint256 } from "viem";
+import { DEFAULT_SLIPPAGE_TOLERANCE, getChainAddresses, type MarketId } from "@morpho-org/blue-sdk";
+import type { InputBundlerOperation } from "@morpho-org/bundler-sdk-viem";
+import { type Address, maxUint256 } from "viem";
 
 import { getIsContract } from "@/actions/data/rpc/getIsContract";
 import { getSimulationState } from "@/actions/data/rpc/getSimulationState";
 
-import { MarketAction, PublicClientWithChain } from "../types";
+import type { MarketAction, PublicClientWithChain } from "../types";
 import { actionFromInputOps } from "../utils/actionFromInputOps";
 import { computeMarketPositionChange } from "../utils/positionChange";
 
@@ -32,7 +32,7 @@ export async function marketRepayAndWithdrawCollateralAction({
       message: "Repay and withdraw collateral amounts cannot be negative.",
     };
   }
-  if (repayAmount == 0n && withdrawCollateralAmount == 0n) {
+  if (repayAmount === 0n && withdrawCollateralAmount === 0n) {
     return {
       status: "error",
       message: "Repay and withdraw collateral amounts cannot both be 0.",
@@ -50,8 +50,8 @@ export async function marketRepayAndWithdrawCollateralAction({
     getIsContract(publicClient, accountAddress),
   ]);
 
-  const isMaxRepay = repayAmount == maxUint256;
-  const isMaxWithdrawCollateral = withdrawCollateralAmount == maxUint256;
+  const isMaxRepay = repayAmount === maxUint256;
+  const isMaxWithdrawCollateral = withdrawCollateralAmount === maxUint256;
 
   const userPosition = initialSimulationState.getPosition(accountAddress, marketId);
 
@@ -96,20 +96,19 @@ export async function marketRepayAndWithdrawCollateralAction({
     accountAddress,
     isContract,
     initialSimulationState,
-    `Confirm ${isRepay ? "Repay" : ""}${isRepay && isWithdraw ? " & " : ""}${isWithdraw ? "Withdraw" : ""}`
+    `Confirm ${isRepay ? "Repay" : ""}${isRepay && isWithdraw ? " & " : ""}${isWithdraw ? "Withdraw" : ""}`,
   );
 
-  if (action.status == "success") {
+  if (action.status === "success") {
     return {
       ...action,
       positionChange: computeMarketPositionChange(
         marketId,
         accountAddress,
         initialSimulationState,
-        action.finalSimulationState
+        action.finalSimulationState,
       ),
     };
-  } else {
-    return action;
   }
+  return action;
 }

@@ -1,4 +1,4 @@
-import { Metadata } from "next";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -17,10 +17,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { APP_CONFIG } from "@/config";
-import { SupportedChainId } from "@/config/types";
+import type { SupportedChainId } from "@/config/types";
 import { getMarket, isNonIdleMarket } from "@/data/whisk/getMarket";
 import { getWhitelistedMarketIds } from "@/data/whisk/getWhitelistedMarketIds";
-import { MarketIdentifier } from "@/utils/types";
+import type { MarketIdentifier } from "@/utils/types";
 
 export const metadata: Metadata = {
   title: `${APP_CONFIG.appMetadata.name} | Market`,
@@ -30,7 +30,7 @@ export default async function MarketPage({ params }: { params: Promise<{ chainId
   const { chainId: chainIdString, marketId } = await params;
   let chainId: number;
   try {
-    chainId = parseInt(chainIdString);
+    chainId = Number.parseInt(chainIdString);
   } catch {
     notFound();
   }
@@ -128,7 +128,7 @@ async function WhitelistCheck({ chainId, marketId }: MarketIdentifier) {
   }
 
   return (
-    <div className="bg-background absolute -inset-1 z-10 flex grow flex-col items-center justify-center gap-6 text-center">
+    <div className="-inset-1 absolute z-10 flex grow flex-col items-center justify-center gap-6 bg-background text-center">
       <h1>Unsupported Market</h1>
       <p className="text-content-secondary">This market is not currently supported on this interface.</p>
       <Link href="/earn">

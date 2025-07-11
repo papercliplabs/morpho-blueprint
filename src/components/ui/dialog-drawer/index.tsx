@@ -1,7 +1,14 @@
 "use client";
 
-import { ComponentProps, HTMLAttributes, ReactNode, useMemo, useState } from "react";
-import { createContext, useContext } from "react";
+import {
+  type ComponentProps,
+  createContext,
+  type HTMLAttributes,
+  type ReactNode,
+  useContext,
+  useMemo,
+  useState,
+} from "react";
 
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
@@ -33,7 +40,7 @@ export function DialogDrawer({ open, onOpenChange, dismissible, children }: Dial
       openInternal: open ?? openUncontrolled,
       setOpenInternal: onOpenChange ?? setOpenUncontrolled,
     };
-  }, [open, onOpenChange, openUncontrolled, setOpenUncontrolled]);
+  }, [open, onOpenChange, openUncontrolled]);
 
   const { isDesktop } = useResponsiveContext();
   return (

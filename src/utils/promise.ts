@@ -25,7 +25,7 @@ export async function fetchJsonResponse<T>(
   } = {
     enabled: true,
     options: defaultPromiseRetryOptions,
-  }
+  },
 ): Promise<T> {
   async function fetchInternal() {
     const response = await fetch(url, options);
@@ -38,9 +38,8 @@ export async function fetchJsonResponse<T>(
   try {
     if (retry.enabled) {
       return await pRetry(fetchInternal, retry.options);
-    } else {
-      return await fetchInternal();
     }
+    return await fetchInternal();
   } catch (e) {
     trackEvent("fetch-json-response-failed", {
       url: url.toString(),

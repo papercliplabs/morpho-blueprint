@@ -1,9 +1,9 @@
 "use client";
 import { useQuery } from "@tanstack/react-query";
-import { Hex } from "viem";
+import type { Hex } from "viem";
 import { useAccount } from "wagmi";
 
-import { MarketPositionMap } from "@/data/whisk/getMarketPositions";
+import type { MarketPositionMap } from "@/data/whisk/getMarketPositions";
 import { fetchJsonResponse } from "@/utils/promise";
 
 export function useMarketPositions() {

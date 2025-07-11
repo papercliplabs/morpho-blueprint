@@ -1,10 +1,10 @@
-import { Metadata } from "next";
+import type { Metadata } from "next";
 import Image from "next/image";
 import { Suspense } from "react";
 
 import { AccountFilters } from "@/components/filters/AccountFilters";
 import { VaultFilters } from "@/components/filters/VaultFilters";
-import { MultiSelectOption } from "@/components/MultiSelect";
+import type { MultiSelectOption } from "@/components/MultiSelect";
 import { VaultTable } from "@/components/tables/VaultTable";
 import { Avatar } from "@/components/ui/avatar";
 import { Card, CardHeader } from "@/components/ui/card";

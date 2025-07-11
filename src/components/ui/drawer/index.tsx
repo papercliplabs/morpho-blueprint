@@ -36,8 +36,8 @@ const DrawerContent = React.forwardRef<
     <DrawerPrimitive.Content
       ref={ref}
       className={cn(
-        "bg-background fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto flex-col rounded-t-[10px] border p-6",
-        className
+        "fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto flex-col rounded-t-[10px] border bg-background p-6",
+        className,
       )}
       aria-describedby={undefined}
       {...props}
@@ -46,7 +46,7 @@ const DrawerContent = React.forwardRef<
       {!hideCloseButton && (
         <DrawerPrimitive.Close className="absolute top-2 right-2" asChild>
           <Button variant="ghost">
-            <X className="stroke-foreground h-4 w-4 shrink-0" />
+            <X className="h-4 w-4 shrink-0 stroke-foreground" />
             <span className="sr-only">Close</span>
           </Button>
         </DrawerPrimitive.Close>
@@ -72,7 +72,7 @@ const DrawerTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DrawerPrimitive.Title
     ref={ref}
-    className={cn("text-lg leading-none font-semibold tracking-tight", className)}
+    className={cn("font-semibold text-lg leading-none tracking-tight", className)}
     {...props}
   />
 ));

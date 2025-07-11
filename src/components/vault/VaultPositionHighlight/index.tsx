@@ -6,7 +6,7 @@ import { useAccount } from "wagmi";
 import { MetricWithTooltip } from "@/components/Metric";
 import { NumberFlowWithLoading } from "@/components/ui/number-flow";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Vault } from "@/data/whisk/getVault";
+import type { Vault } from "@/data/whisk/getVault";
 import { useVaultPosition } from "@/hooks/useVaultPositions";
 import { descaleBigIntToNumber } from "@/utils/format";
 
@@ -39,7 +39,7 @@ export function VaultPositionHighlight({ vault }: VaultPositionHighlightProps) {
             alt={vault.asset.symbol}
             width={12}
             height={12}
-            className="border-border size-3 shrink-0 rounded-full border"
+            className="size-3 shrink-0 rounded-full border border-border"
           />
           <NumberFlowWithLoading
             value={data?.supplyAssets ? descaleBigIntToNumber(data.supplyAssets, vault.asset.decimals) : undefined}

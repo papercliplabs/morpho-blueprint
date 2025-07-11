@@ -1,11 +1,11 @@
-import { DEFAULT_SLIPPAGE_TOLERANCE, MarketId, getChainAddresses } from "@morpho-org/blue-sdk";
-import { InputBundlerOperation } from "@morpho-org/bundler-sdk-viem";
-import { Address, maxUint256 } from "viem";
+import { DEFAULT_SLIPPAGE_TOLERANCE, getChainAddresses, type MarketId } from "@morpho-org/blue-sdk";
+import type { InputBundlerOperation } from "@morpho-org/bundler-sdk-viem";
+import { type Address, maxUint256 } from "viem";
 
 import { getIsContract } from "@/actions/data/rpc/getIsContract";
 
 import { getMarketSimulationStateAccountingForPublicReallocation } from "../data/rpc/getSimulationState";
-import { MarketAction, PublicClientWithChain } from "../types";
+import type { MarketAction, PublicClientWithChain } from "../types";
 import { actionFromInputOps } from "../utils/actionFromInputOps";
 import { computeMarketPositionChange } from "../utils/positionChange";
 
@@ -35,7 +35,7 @@ export async function marketSupplyCollateralAndBorrowAction({
       message: "Collateral and borrow amounts cannot be negative.",
     };
   }
-  if (collateralAmount == 0n && borrowAmount == 0n) {
+  if (collateralAmount === 0n && borrowAmount === 0n) {
     return {
       status: "error",
       message: "Collateral and borrow amounts cannot both be 0.",
@@ -56,10 +56,10 @@ export async function marketSupplyCollateralAndBorrowAction({
   const market = initialSimulationState.getMarket(marketId);
   const userCollateralBalance = initialSimulationState.getHolding(
     accountAddress,
-    market.params.collateralToken
+    market.params.collateralToken,
   ).balance;
 
-  const isMaxSupplyCollateral = collateralAmount == maxUint256;
+  const isMaxSupplyCollateral = collateralAmount === maxUint256;
 
   const isSupply = collateralAmount > 0n;
   const isBorrow = borrowAmount > 0n;
@@ -101,20 +101,19 @@ export async function marketSupplyCollateralAndBorrowAction({
     accountAddress,
     isContract,
     initialSimulationState,
-    `Confirm ${isSupply ? "Supply" : ""}${isSupply && isBorrow ? " & " : ""}${isBorrow ? "Borrow" : ""}`
+    `Confirm ${isSupply ? "Supply" : ""}${isSupply && isBorrow ? " & " : ""}${isBorrow ? "Borrow" : ""}`,
   );
 
-  if (action.status == "success") {
+  if (action.status === "success") {
     return {
       ...action,
       positionChange: computeMarketPositionChange(
         marketId,
         accountAddress,
         initialSimulationState,
-        action.finalSimulationState
+        action.finalSimulationState,
       ),
     };
-  } else {
-    return action;
   }
+  return action;
 }

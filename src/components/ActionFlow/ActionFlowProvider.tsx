@@ -1,8 +1,8 @@
 "use client";
 import { useQueryClient } from "@tanstack/react-query";
 import { useModal } from "connectkit";
-import { ReactNode, createContext, useCallback, useContext, useState } from "react";
-import { Hex } from "viem";
+import { createContext, type ReactNode, useCallback, useContext, useState } from "react";
+import type { Hex } from "viem";
 import { estimateGas, sendTransaction, waitForTransactionReceipt } from "viem/actions";
 import { useAccount, useConnectorClient, usePublicClient, useSwitchChain } from "wagmi";
 
@@ -75,14 +75,14 @@ export function ActionFlowProvider({
     }
 
     // Must be on the correct chain
-    if (accountChainId != chainId) {
+    if (accountChainId !== chainId) {
       const { id } = await switchChainAsync({ chainId });
-      if (id != chainId) {
+      if (id !== chainId) {
         throw new Error("Unable to automaitcally switch chains.");
       }
     }
 
-    if (flowState == "review") {
+    if (flowState === "review") {
       // For tracking purposes to determine if we are seeing issues with a specific connector
       const connectorName = connector?.name ?? "unknown";
       const accountAddress = client.account.address;
@@ -152,7 +152,7 @@ export function ActionFlowProvider({
             retryCount: 20,
           });
 
-          if (receipt.status == "success") {
+          if (receipt.status === "success") {
             void trackEvent("transaction", {
               accountAddress,
               hash,
@@ -200,11 +200,6 @@ export function ActionFlowProvider({
     }
   }, [
     flowState,
-    setFlowState,
-    setActionState,
-    setActiveStep,
-    setLastTransactionHash,
-    setError,
     client,
     publicClient,
     chainId,

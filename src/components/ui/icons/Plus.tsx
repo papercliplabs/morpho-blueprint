@@ -11,6 +11,7 @@ export default function Plus({ className, ...props }: React.ComponentProps<"svg"
       className={clsx(["fill-primary", "stroke-primary-foreground"], className)}
       {...props}
     >
+      <title>Plus</title>
       <rect x="1" y="1" width="14" height="14" rx="7" strokeWidth="2" />
       <path d="M8 5.66675V10.3334" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
       <path d="M5.66663 8H10.3333" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />

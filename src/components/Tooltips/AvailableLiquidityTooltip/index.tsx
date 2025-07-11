@@ -30,7 +30,7 @@ function AvailableLiquidityTooltipContent({
           <span className="body-small-plus">{formatNumber(publicAllocatorLiquidity, { currency: "USD" })}</span>
         </span>
       </div>
-      <div className="bg-border h-[1px]" />
+      <div className="h-[1px] bg-border" />
       <span className="flex justify-between">
         <span>Total Available Liquidity</span>
         <span className="body-small-plus">

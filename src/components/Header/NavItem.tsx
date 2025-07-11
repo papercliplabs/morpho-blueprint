@@ -1,4 +1,4 @@
-import { VariantProps, cva } from "class-variance-authority";
+import { cva, type VariantProps } from "class-variance-authority";
 import Link from "next/link";
 
 const navItemVariants = cva(
@@ -13,7 +13,7 @@ const navItemVariants = cva(
     defaultVariants: {
       active: false,
     },
-  }
+  },
 );
 
 type LinkProps = {

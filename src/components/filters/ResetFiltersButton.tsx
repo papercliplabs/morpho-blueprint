@@ -1,5 +1,5 @@
 "use client";
-import { ComponentProps, useMemo } from "react";
+import { type ComponentProps, useMemo } from "react";
 
 import { useShallowSearchParams } from "@/hooks/useShallowSearchParams";
 

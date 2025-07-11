@@ -1,9 +1,9 @@
 import { unstable_cache } from "next/cache";
 import { cache } from "react";
-import { Hex } from "viem";
+import type { Hex } from "viem";
 
 import { APP_CONFIG } from "@/config";
-import { SupportedChainId } from "@/config/types";
+import type { SupportedChainId } from "@/config/types";
 import { graphql } from "@/generated/gql/whisk";
 import { SECONDS_PER_DAY } from "@/utils/contants";
 
@@ -28,10 +28,10 @@ const getWhitelistedMarketIdsUncached = cache(async (): Promise<Record<Supported
     queryVariables.map(
       async ([chainId, addresses]) =>
         await executeWhiskQuery(query, {
-          chainId: parseInt(chainId),
+          chainId: Number.parseInt(chainId),
           addresses,
-        })
-    )
+        }),
+    ),
   );
 
   // chainId -> marketIds
@@ -43,12 +43,12 @@ const getWhitelistedMarketIdsUncached = cache(async (): Promise<Record<Supported
       }
       acc[chainId].push(
         ...resp.morphoVaults.flatMap((vault) =>
-          vault.marketAllocations.map((allocation) => allocation.market.marketId as Hex)
-        )
+          vault.marketAllocations.map((allocation) => allocation.market.marketId as Hex),
+        ),
       );
       return acc;
     },
-    {} as Record<SupportedChainId, Hex[]>
+    {} as Record<SupportedChainId, Hex[]>,
   );
 
   return marketWhitelist;

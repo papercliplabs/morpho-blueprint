@@ -2,7 +2,7 @@
 import { useMemo } from "react";
 import { useAccount } from "wagmi";
 
-import { MarketSummary } from "@/data/whisk/getMarketSummaries";
+import type { MarketSummary } from "@/data/whisk/getMarketSummaries";
 
 import { useMarketTableData } from "./useMarketTableData";
 
@@ -25,11 +25,11 @@ export function useBorrowSummaryMetrics({ marketSummaries }: { marketSummaries: 
   const borrowSummaryMetrics = useMemo(() => {
     const totalBorrowedUsd = marketTableData.reduce(
       (acc, entry) => acc + (entry.marketSummary.borrowAssetsUsd ?? 0),
-      0
+      0,
     );
 
-    let userBorrowsUsd: number | undefined = undefined;
-    let userBorrowApy: number | undefined = undefined;
+    let userBorrowsUsd: number | undefined;
+    let userBorrowApy: number | undefined;
     if (address && !isPositionsLoading) {
       userBorrowsUsd = marketTableData.reduce((acc, entry) => {
         return acc + (entry.position?.borrowAssetsUsd ?? 0);
