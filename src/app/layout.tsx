@@ -2,6 +2,7 @@ import clsx from "clsx";
 import type { Metadata } from "next";
 
 import Analytics from "@/components/Analytics";
+import { Banner } from "@/components/Banner/Banner";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { APP_CONFIG } from "@/config";
@@ -63,6 +64,7 @@ export default async function RootLayout({
       >
         <Providers>
           <div className="flex min-h-[100dvh] w-full flex-col items-center">
+            {APP_CONFIG.banner && <Banner banner={APP_CONFIG.banner} />}
             <Header />
             <div className="mx-auto flex w-full max-w-[1182px] grow flex-col justify-between px-4">
               <main className="flex w-full min-w-0 grow pt-8 md:pb-8">{children}</main>
