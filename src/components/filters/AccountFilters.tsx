@@ -20,7 +20,7 @@ export function AccountFilters() {
   const { setOpen: setConnectKitOpen } = useModal();
 
   const value = useMemo(() => {
-    if (accountFilterValues.length === 0) {
+    if (accountFilterValues === undefined || accountFilterValues.length === 0) {
       return "all";
     }
     return accountFilterValues[0];

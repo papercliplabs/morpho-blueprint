@@ -28,6 +28,7 @@ const columns: ColumnDef<Vault["marketAllocations"][number]>[] = [
           collateralAssetClassName="border-[var(--row-color)]"
           loanAssetClassName="border-[var(--row-color)]"
           loanAssetChainClassName="border-[var(--row-color)]"
+          lltv={Number(market.lltv?.formatted ?? "0")}
         />
       );
     },
@@ -48,8 +49,14 @@ const columns: ColumnDef<Vault["marketAllocations"][number]>[] = [
     accessorKey: "position.supplyAssetsUsd",
     header: "Total Supply",
     cell: ({ row }) => {
-      const { position, supplyCapUsd } = row.original;
-      return <TotalSupplyTooltip totalSupply={position.supplyAssetsUsd} supplyCap={supplyCapUsd} iconPosition="left" />;
+      const { position, supplyCap } = row.original;
+      return (
+        <TotalSupplyTooltip
+          totalSupply={position.supplyAmount.usd ?? 0}
+          supplyCap={supplyCap.usd ?? 0}
+          iconPosition="left"
+        />
+      );
     },
     minSize: 160,
   },

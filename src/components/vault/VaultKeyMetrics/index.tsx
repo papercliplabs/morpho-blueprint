@@ -13,8 +13,8 @@ interface VaultKeyMetricsProps {
 export function VaultKeyMetrics({ vault }: VaultKeyMetricsProps) {
   return (
     <VaultKeyMetricsLayout
-      totalDepositsValue={<NumberFlow value={vault.supplyAssetsUsd} format={{ currency: "USD" }} />}
-      availableLiquidityValue={<NumberFlow value={vault.liquidityAssetsUsd} format={{ currency: "USD" }} />}
+      totalDepositsValue={<NumberFlow value={vault.totalSupplied.usd ?? 0} format={{ currency: "USD" }} />}
+      availableLiquidityValue={<NumberFlow value={vault.totalLiquidity.usd ?? 0} format={{ currency: "USD" }} />}
       supplyApyValue={
         <ApyTooltipTrigger totalApy={vault.supplyApy.total} showSparkle={vault.supplyApy.rewards.length > 0} />
       }
@@ -23,7 +23,7 @@ export function VaultKeyMetrics({ vault }: VaultKeyMetricsProps) {
           type="earn"
           nativeApy={vault.supplyApy.base}
           totalApy={vault.supplyApy.total}
-          performanceFee={vault.supplyApy.performanceFee}
+          performanceFee={vault.supplyApy.fee}
           rewards={vault.supplyApy.rewards}
         />
       }

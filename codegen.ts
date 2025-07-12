@@ -10,10 +10,13 @@ const config: CodegenConfig = {
     "./src/generated/gql/whisk/": {
       preset: "client",
       config: {
-        documentMode: "string",
         avoidOptionals: true,
         scalars: {
-          Number: "number",
+          Address: "@/whisk-types#Address", // string underlying
+          ChainId: "@/whisk-types#ChainId", // number underlying
+          BigInt: { input: "string", output: "@/whisk-types#BigIntish" }, // string underlying
+          Hex: "@/whisk-types#Hex", // string underlying
+          URL: "string",
         },
       },
       presetConfig: {

@@ -1,40 +1,54 @@
 import "server-only";
-import { unstable_cache } from "next/cache";
+
 import { cache } from "react";
-
 import { APP_CONFIG } from "@/config";
+import type { SupportedChainId } from "@/config/types";
 import { graphql } from "@/generated/gql/whisk";
-
+import type { VaultSummariesQuery } from "@/generated/gql/whisk/graphql";
+import type { ChainId } from "@/whisk-types";
 import { executeWhiskQuery } from "./execute";
 
 const query = graphql(`
-  query getVaultSummaries($chainId: Number!, $addresses: [String!]!) {
-    morphoVaults(chainId: $chainId, addresses: $addresses) {
-      ...VaultSummaryFragment
+  query VaultSummaries($chainIds: [ChainId!]!, $vaultAddresses: [Address!]!) {
+    morphoVaults(where: {chainId_in: $chainIds, vaultAddress_in: $vaultAddresses}, limit: 250) {
+      pageInfo {
+        hasNextPage
+      }
+      items {
+        ...VaultSummaryFragment
+      }
     }
   }
 `);
 
-export const getVaultSummaries = cache(
-  unstable_cache(
-    async () => {
-      const queryVariables = Object.entries(APP_CONFIG.whitelistedVaults);
+export type VaultSummary = NonNullable<VaultSummariesQuery["morphoVaults"]["items"][number]>;
 
-      const responses = await Promise.all(
-        queryVariables.map(
-          async ([chainId, addresses]) =>
-            await executeWhiskQuery(query, {
-              chainId: Number.parseInt(chainId),
-              addresses,
-            }),
-        ),
-      );
+export const getVaultSummaries = cache(async () => {
+  const chainIds = Object.keys(APP_CONFIG.whitelistedVaults).map((chainId) => Number.parseInt(chainId) as ChainId);
+  const vaultAddresses = Object.values(APP_CONFIG.whitelistedVaults).flat();
 
-      return responses.flatMap((resp) => resp.morphoVaults);
-    },
-    ["getVaultSummaries"],
-    { revalidate: 10 }, // Light cache, mostly to help in dev
-  ),
-);
+  const response = await executeWhiskQuery(query, {
+    chainIds,
+    vaultAddresses,
+  });
 
-export type VaultSummary = NonNullable<Awaited<ReturnType<typeof getVaultSummaries>>>[number];
+  if (response.morphoVaults.pageInfo.hasNextPage) {
+    console.warn("More vaults available, but not fetched.");
+  }
+
+  const vaults = response.morphoVaults.items.filter((vault) => {
+    // Ignore errored vaults (already log at execute layer)
+    if (vault === null) {
+      return false;
+    }
+
+    // Filter out potential for wrong vault with same address on another chain
+    if (!APP_CONFIG.whitelistedVaults[vault.chain.id as SupportedChainId].includes(vault.vaultAddress)) {
+      return false;
+    }
+
+    return true;
+  });
+
+  return vaults as VaultSummary[];
+});

@@ -10,17 +10,15 @@ import { useAccount, usePublicClient } from "wagmi";
 import { z } from "zod";
 
 import { type SuccessfulVaultAction, vaultWithdrawAction } from "@/actions";
+import type { SupportedChainId } from "@/config/types";
 import type { Vault } from "@/data/whisk/getVault";
 import { useVaultPosition } from "@/hooks/useVaultPositions";
 import { useWatchNumberInputField } from "@/hooks/useWatchNumberInputField";
-import { descaleBigIntToNumber } from "@/utils/format";
 import { computeVaultPositionChange } from "@/utils/math";
-
 import { VaultActionSimulationMetrics } from "../ActionFlow/VaultActionFlow";
 import { Button } from "../ui/button";
 import { ErrorMessage } from "../ui/error-message";
 import { Form } from "../ui/form";
-
 import { AssetInputFormField } from "./FormFields/AssetInputFormField";
 
 interface VaultWithdrawFormProps {
@@ -38,17 +36,17 @@ export const VaultWithdrawForm = forwardRef<{ reset: () => void }, VaultWithdraw
     const [simulationErrorMsg, setSimulationErrorMsg] = useState<string | null>(null);
 
     const { data: position, isLoading: isPositionLoading } = useVaultPosition(
-      vault.chain.id,
+      vault.chain.id as SupportedChainId,
       getAddress(vault.vaultAddress),
     );
 
     const positionBalance = useMemo(() => {
-      if (!position?.supplyAssets) {
+      if (!position?.supplyAmount) {
         return undefined;
       }
 
-      return descaleBigIntToNumber(position.supplyAssets, vault.asset.decimals);
-    }, [position, vault.asset.decimals]);
+      return Number(position.supplyAmount.formatted);
+    }, [position]);
 
     const formSchema = useMemo(() => {
       return z
@@ -102,7 +100,6 @@ export const VaultWithdrawForm = forwardRef<{ reset: () => void }, VaultWithdraw
     const [debouncedWithdrawAmount] = useDebounce(withdrawAmount, 300);
     const simulationMetrics = useMemo(() => {
       const positionChange = computeVaultPositionChange({
-        vault,
         currentPosition: position,
         supplyAmountChange: -debouncedWithdrawAmount,
       });

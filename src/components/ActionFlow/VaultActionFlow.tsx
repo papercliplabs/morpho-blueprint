@@ -101,7 +101,7 @@ export function VaultActionSimulationMetrics({
             type="earn"
             nativeApy={vault.supplyApy.base}
             totalApy={vault.supplyApy.total}
-            performanceFee={vault.supplyApy.performanceFee}
+            performanceFee={vault.supplyApy.fee}
             rewards={vault.supplyApy.rewards}
             triggerVariant="sm"
             sparkleSide="left"

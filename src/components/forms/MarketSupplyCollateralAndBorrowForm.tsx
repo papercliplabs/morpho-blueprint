@@ -11,18 +11,16 @@ import { useAccount, usePublicClient } from "wagmi";
 import { z } from "zod";
 
 import { marketSupplyCollateralAndBorrowAction, type SuccessfulMarketAction } from "@/actions";
+import type { SupportedChainId } from "@/config/types";
 import type { MarketNonIdle } from "@/data/whisk/getMarket";
 import { useMarketPosition } from "@/hooks/useMarketPositions";
 import { useWatchNumberInputField } from "@/hooks/useWatchNumberInputField";
-import { descaleBigIntToNumber } from "@/utils/format";
 import { computeAvailableToBorrow, computeMarketPositonChange } from "@/utils/math";
-
 import { MarketActionSimulationMetrics } from "../ActionFlow/MarketActionFlow";
 import { Button } from "../ui/button";
 import { ErrorMessage } from "../ui/error-message";
 import { Form } from "../ui/form";
 import { Separator } from "../ui/seperator";
-
 import { AssetInputFormField } from "./FormFields/AssetInputFormField";
 
 interface MarketSupplyCollateralAndBorrowFormProps {
@@ -41,7 +39,10 @@ export const MarketSupplyCollateralAndBorrowForm = forwardRef<
   const [simulating, setSimulating] = useState(false);
   const [simulationErrorMsg, setSimulationErrorMsg] = useState<string | null>(null);
 
-  const { data: position, isLoading: isPositionLoading } = useMarketPosition(market.chain.id, market.marketId as Hex);
+  const { data: position, isLoading: isPositionLoading } = useMarketPosition(
+    market.chain.id as SupportedChainId,
+    market.marketId as Hex,
+  );
 
   const { walletCollateralAssetBalance } = useMemo(() => {
     if (!position || !position.walletCollateralAssetHolding) {
@@ -49,13 +50,10 @@ export const MarketSupplyCollateralAndBorrowForm = forwardRef<
     }
 
     return {
-      walletCollateralAssetBalance: descaleBigIntToNumber(
-        position.walletCollateralAssetHolding.balance,
-        market.collateralAsset.decimals,
-      ),
-      positionBorrowBalance: descaleBigIntToNumber(position.borrowAssets, market.loanAsset.decimals),
+      walletCollateralAssetBalance: Number(position.walletCollateralAssetHolding.balance.formatted),
+      positionBorrowBalance: Number(position.borrowAmount.formatted),
     };
-  }, [position, market.collateralAsset.decimals, market.loanAsset.decimals]);
+  }, [position]);
 
   const formSchema = useMemo(() => {
     return z

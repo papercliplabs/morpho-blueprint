@@ -10,17 +10,15 @@ import { useAccount, usePublicClient } from "wagmi";
 import { z } from "zod";
 
 import { type SuccessfulVaultAction, vaultSupplyAction } from "@/actions";
+import type { SupportedChainId } from "@/config/types";
 import type { Vault } from "@/data/whisk/getVault";
 import { useVaultPosition } from "@/hooks/useVaultPositions";
 import { useWatchNumberInputField } from "@/hooks/useWatchNumberInputField";
-import { descaleBigIntToNumber } from "@/utils/format";
 import { computeVaultPositionChange } from "@/utils/math";
-
 import { VaultActionSimulationMetrics } from "../ActionFlow/VaultActionFlow";
 import { Button } from "../ui/button";
 import { ErrorMessage } from "../ui/error-message";
 import { Form } from "../ui/form";
-
 import { AssetInputFormField } from "./FormFields/AssetInputFormField";
 
 interface VaultSupplyFormProps {
@@ -38,7 +36,7 @@ export const VaultSupplyForm = forwardRef<{ reset: () => void }, VaultSupplyForm
     const [simulationErrorMsg, setSimulationErrorMsg] = useState<string | null>(null);
 
     const { data: position, isLoading: isPositionLoading } = useVaultPosition(
-      vault.chain.id,
+      vault.chain.id as SupportedChainId,
       getAddress(vault.vaultAddress),
     );
 
@@ -47,8 +45,8 @@ export const VaultSupplyForm = forwardRef<{ reset: () => void }, VaultSupplyForm
         return undefined;
       }
 
-      return descaleBigIntToNumber(position.walletUnderlyingAssetHolding.balance, vault.asset.decimals);
-    }, [position, vault.asset.decimals]);
+      return Number(position.walletUnderlyingAssetHolding.balance.formatted);
+    }, [position]);
 
     const formSchema = useMemo(() => {
       return z
@@ -102,7 +100,6 @@ export const VaultSupplyForm = forwardRef<{ reset: () => void }, VaultSupplyForm
     const [debouncedSupplyAmount] = useDebounce(supplyAmount, 300);
     const simulationMetrics = useMemo(() => {
       const positionChange = computeVaultPositionChange({
-        vault,
         currentPosition: position,
         supplyAmountChange: debouncedSupplyAmount,
       });

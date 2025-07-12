@@ -48,7 +48,7 @@ export function MultiSelect({
           <ChevronDown className="ml-2 h-4 w-4 shrink-0" />
         </Button>
       </PopoverDrawerTrigger>
-      <PopoverDrawerContent className="w-full p-0 md:w-[200px]" align="start">
+      <PopoverDrawerContent className="w-full p-0 lg:w-[200px]" align="start">
         <Command>
           <CommandInput placeholder={placeholder} className="body-large" />
           <CommandList>

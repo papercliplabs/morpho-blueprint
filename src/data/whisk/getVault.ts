@@ -1,78 +1,100 @@
 import "server-only";
-import { unstable_cache } from "next/cache";
+
 import { cache } from "react";
 import type { Address } from "viem";
-
+import type { SupportedChainId } from "@/config/types";
 import { graphql } from "@/generated/gql/whisk";
-import type { GetVaultQuery } from "@/generated/gql/whisk/graphql";
-
+import type { VaultQuery } from "@/generated/gql/whisk/graphql";
 import { executeWhiskQuery } from "./execute";
 
 const query = graphql(`
-  query getVault($chainId: Number!, $vaultAddress: String!) {
-    morphoVault(chainId: $chainId, address: $vaultAddress) {
-      ...VaultSummaryFragment
+  query Vault($chainId: ChainId!, $vaultAddress: Address!) {
+    morphoVaults(where: {chainId_in: [$chainId], vaultAddress_in: [$vaultAddress]}) {
+      items {
+        ...VaultSummaryFragment
 
-      asset {
-        priceUsd
-      }
-
-      liquidityAssets
-      liquidityAssetsUsd
-
-      metadata {
-        description
-      }
-
-      performanceFee
-      feeRecipientAddress
-      ownerAddress
-      curatorAddress
-      guardianAddress
-
-      marketAllocations {
-        market {
-          marketId
-          chain {
-            ...ChainInfoFragment
-          }
-          isIdle
-          name
-          lltv
-          collateralAsset {
-            ...TokenInfoFragment
-          }
-          loanAsset {
-            ...TokenInfoFragment
-          }
-          supplyApy {
-            ...MarketApyFragment
-          }
+        asset {
+          priceUsd
         }
-        enabled
-        position {
-          supplyAssetsUsd
+
+        totalSupplied {
+          raw
+          formatted
+          usd
         }
-        supplyCapUsd
-        vaultSupplyShare
+
+        totalLiquidity {
+          raw
+          formatted
+          usd
+        }
+
+        metadata {
+          description
+        }
+
+        performanceFee
+        feeRecipientAddress
+        ownerAddress
+        curatorAddress
+        guardianAddress
+
+        marketAllocations {
+          market {
+            marketId
+            chain {
+              ...ChainInfoFragment
+            }
+            isIdle
+            name
+            lltv {
+              raw
+              formatted
+            }
+            collateralAsset {
+              ...TokenInfoFragment
+            }
+            loanAsset {
+              ...TokenInfoFragment
+            }
+            supplyApy {
+              ...ApyFragment
+            }
+          }
+          enabled
+          position {
+            supplyAmount {
+              raw
+              formatted
+              usd
+            }
+            supplyShares
+          }
+          supplyCap {
+            raw
+            formatted
+            usd
+          }
+          vaultSupplyShare
+        }
       }
     }
   }
 `);
 
-export const getVault = cache(
-  unstable_cache(
-    async (chainId: number, vaultAddress: Address): Promise<Vault | null> => {
-      const data = await executeWhiskQuery(query, {
-        chainId,
-        vaultAddress,
-      });
+export type Vault = NonNullable<VaultQuery["morphoVaults"]["items"][number]>;
 
-      return data.morphoVault;
-    },
-    ["getVault"],
-    { revalidate: 10 }, // Light cache, mostly to help in dev
-  ),
-);
+export const getVault = cache(async (chainId: SupportedChainId, vaultAddress: Address): Promise<Vault> => {
+  const data = await executeWhiskQuery(query, {
+    chainId,
+    vaultAddress,
+  });
 
-export type Vault = NonNullable<GetVaultQuery["morphoVault"]>;
+  const vault = data.morphoVaults.items[0];
+
+  if (!vault) {
+    throw new Error(`Vault not found: ${chainId}:${vaultAddress}`);
+  }
+
+  return vault;
+});

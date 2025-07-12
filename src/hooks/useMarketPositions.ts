@@ -2,9 +2,9 @@
 import { useQuery } from "@tanstack/react-query";
 import type { Hex } from "viem";
 import { useAccount } from "wagmi";
-
+import type { SupportedChainId } from "@/config/types";
 import type { MarketPositionMap } from "@/data/whisk/getMarketPositions";
-import { fetchJsonResponse } from "@/utils/promise";
+import { fetchJsonResponse } from "@/utils/fetch";
 
 export function useMarketPositions() {
   const { address } = useAccount();
@@ -15,7 +15,7 @@ export function useMarketPositions() {
   });
 }
 
-export function useMarketPosition(chainId: number, marketId: Hex) {
+export function useMarketPosition(chainId: SupportedChainId, marketId: Hex) {
   const { data: positions, ...rest } = useMarketPositions();
   return { data: positions?.[chainId]?.[marketId], ...rest };
 }

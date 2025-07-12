@@ -38,29 +38,29 @@ export function VaultFilters({ chainOptions, assetOptions, curatorOptions }: Vau
     <div className="flex gap-4 overflow-x-auto pb-0.5">
       {chainOptions.length > 1 && (
         <MultiSelect
-          emptyValue={chainValues.length === 0 ? "All Chains" : "Chains"}
+          emptyValue={chainValues === undefined || chainValues.length === 0 ? "All Chains" : "Chains"}
           options={chainOptions}
-          value={chainValues}
-          onSelect={(value) => onSelect(FilterKey.Chains, chainValues, value)}
+          value={chainValues ?? []}
+          onSelect={(value) => onSelect(FilterKey.Chains, chainValues ?? [], value)}
           onReset={() => removeShallowSearchParams([FilterKey.Chains])}
         />
       )}
       {assetOptions.length > 1 && (
         <MultiSelect
-          emptyValue={assetValues.length === 0 ? "All Assets" : "Assets"}
+          emptyValue={assetValues === undefined || assetValues.length === 0 ? "All Assets" : "Assets"}
           placeholder="Search for token"
           options={assetOptions}
-          value={assetValues}
-          onSelect={(value) => onSelect(FilterKey.SupplyAssets, assetValues, value)}
+          value={assetValues ?? []}
+          onSelect={(value) => onSelect(FilterKey.SupplyAssets, assetValues ?? [], value)}
           onReset={() => removeShallowSearchParams([FilterKey.SupplyAssets])}
         />
       )}
       {APP_CONFIG.featureFlags.curatorColumn && curatorOptions.length > 1 && (
         <MultiSelect
-          emptyValue={curatorValues.length === 0 ? "All Curators" : "Curators"}
+          emptyValue={curatorValues === undefined || curatorValues.length === 0 ? "All Curators" : "Curators"}
           options={curatorOptions}
-          value={curatorValues}
-          onSelect={(value) => onSelect(FilterKey.Curators, curatorValues, value)}
+          value={curatorValues ?? []}
+          onSelect={(value) => onSelect(FilterKey.Curators, curatorValues ?? [], value)}
           onReset={() => removeShallowSearchParams([FilterKey.Curators])}
         />
       )}

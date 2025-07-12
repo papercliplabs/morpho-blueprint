@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
 import { ApyTooltip } from "@/components/Tooltips/ApyToolip";
+import { TokenCategory } from "@/generated/gql/whisk/graphql";
 import { ResponsiveProvider } from "@/providers/ResponsiveProvider";
 
 const meta = {
@@ -31,6 +32,7 @@ const meta = {
           symbol: "COMP",
           address: "0x123",
           decimals: 1,
+          category: TokenCategory.Stable,
         },
         apr: 0.01,
       },
@@ -40,6 +42,7 @@ const meta = {
           symbol: "POL",
           address: "0x234",
           decimals: 1,
+          category: TokenCategory.Stable,
         },
         apr: 0.02,
       },

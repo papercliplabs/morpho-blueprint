@@ -4,7 +4,6 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Table } from "@/components/ui/table";
 import type { MarketSummary } from "@/data/whisk/getMarketSummaries";
 import { type MarketTableDataEntry, useMarketTableData } from "@/hooks/useMarketTableData";
-import { descaleBigIntToNumber } from "@/utils/format";
 import { sortTableAssetAmount } from "@/utils/sort";
 
 import { TokenIcon } from "../TokenIcon";
@@ -64,39 +63,39 @@ function getColumns(isPositionLoading: boolean): ColumnDef<MarketTableDataEntry>
     },
     {
       id: "yourBorrows",
-      accessorFn: (row) => row.position?.borrowAssetsUsd ?? 0,
+      accessorFn: (row) => row.position?.borrowAmount.usd ?? 0,
       header: "Your Borrows",
       cell: ({ row }) => {
         const { marketSummary, position } = row.original;
         return (
           <TableAssetAmount
             asset={marketSummary.loanAsset}
-            amount={position?.borrowAssets}
-            amountUsd={position?.borrowAssetsUsd}
+            amount={position?.borrowAmount.raw}
+            amountUsd={position?.borrowAmount.usd}
             isLoading={isPositionLoading}
           />
         );
       },
       sortingFn: (a, b) =>
         sortTableAssetAmount(
-          descaleBigIntToNumber(a.original.position?.borrowAssets ?? "0", a.original.marketSummary.loanAsset.decimals),
-          a.original.position?.borrowAssetsUsd,
-          descaleBigIntToNumber(b.original.position?.borrowAssets ?? "0", b.original.marketSummary.loanAsset.decimals),
-          b.original.position?.borrowAssetsUsd,
+          Number(a.original.position?.borrowAmount.formatted ?? "0"),
+          a.original.position?.borrowAmount.usd,
+          Number(b.original.position?.borrowAmount.formatted ?? "0"),
+          b.original.position?.borrowAmount.usd,
         ),
       minSize: 160,
     },
     {
       id: "inWallet",
-      accessorFn: (row) => row.position?.walletCollateralAssetHolding?.balanceUsd ?? 0,
+      accessorFn: (row) => row.position?.walletCollateralAssetHolding?.balance.usd ?? 0,
       header: "Collateral In Wallet",
       cell: ({ row }) => {
         const { marketSummary, position } = row.original;
         return marketSummary.collateralAsset ? (
           <TableAssetAmount
             asset={marketSummary.collateralAsset}
-            amount={position?.walletCollateralAssetHolding?.balance}
-            amountUsd={position?.walletCollateralAssetHolding?.balanceUsd}
+            amount={position?.walletCollateralAssetHolding?.balance.raw}
+            amountUsd={position?.walletCollateralAssetHolding?.balance.usd}
             isLoading={isPositionLoading}
           />
         ) : (
@@ -105,16 +104,10 @@ function getColumns(isPositionLoading: boolean): ColumnDef<MarketTableDataEntry>
       },
       sortingFn: (a, b) =>
         sortTableAssetAmount(
-          descaleBigIntToNumber(
-            a.original.position?.walletCollateralAssetHolding?.balance ?? "0",
-            a.original.marketSummary.loanAsset.decimals,
-          ),
-          a.original.position?.walletCollateralAssetHolding?.balanceUsd,
-          descaleBigIntToNumber(
-            b.original.position?.walletCollateralAssetHolding?.balance ?? "0",
-            b.original.marketSummary.loanAsset.decimals,
-          ),
-          b.original.position?.walletCollateralAssetHolding?.balanceUsd,
+          Number(a.original.position?.walletCollateralAssetHolding?.balance.formatted ?? "0"),
+          a.original.position?.walletCollateralAssetHolding?.balance.usd,
+          Number(b.original.position?.walletCollateralAssetHolding?.balance.formatted ?? "0"),
+          b.original.position?.walletCollateralAssetHolding?.balance.usd,
         ),
       minSize: 160,
     },
@@ -127,14 +120,14 @@ function getColumns(isPositionLoading: boolean): ColumnDef<MarketTableDataEntry>
         return (
           <div className="inline-flex gap-1">
             <NumberFlowWithLoading
-              value={position?.ltv}
+              value={Number(position?.ltv?.formatted ?? "0")}
               isLoading={isPositionLoading}
               loadingContent={<Skeleton className="h-full w-[40px]" />}
               format={{ style: "percent", minimumFractionDigits: 1, maximumFractionDigits: 1 }}
             />
             <span>/</span>
             <NumberFlow
-              value={marketSummary.lltv}
+              value={Number(marketSummary.lltv?.formatted ?? "0")}
               format={{ style: "percent", minimumFractionDigits: 1, maximumFractionDigits: 1 }}
             />
           </div>

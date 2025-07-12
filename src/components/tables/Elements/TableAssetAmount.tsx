@@ -2,10 +2,11 @@ import NumberFlow from "@/components/ui/number-flow";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { TokenInfo } from "@/data/whisk/fragments";
 import { descaleBigIntToNumber } from "@/utils/format";
+import type { BigIntish } from "@/whisk-types";
 
 interface TableAssetAmountProps {
   asset: TokenInfo;
-  amount?: string; // BigIntString
+  amount?: BigIntish;
   amountUsd?: number | null;
   isLoading: boolean;
 }

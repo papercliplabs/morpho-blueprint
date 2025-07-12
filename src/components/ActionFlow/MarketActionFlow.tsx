@@ -189,7 +189,7 @@ export function MarketActionSimulationMetrics({
               )
             }
           />{" "}
-          / {formatNumber(market.lltv, { style: "percent" })}
+          / {formatNumber(Number(market.lltv.formatted), { style: "percent" })}
         </div>
       </div>
     </div>
