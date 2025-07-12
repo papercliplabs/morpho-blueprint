@@ -2,7 +2,7 @@
 
 ![Morpho Blueprint](/public/opengraph-image.png)
 
-Morpho Blueprint is an open source [Next.js](https://nextjs.org/) whitelabeled frontend for the [Morpho protocol](https://morpho.xyz/) allowing anyone to spin up their own custom Morpho interface in hours instead of weeks/months.
+Morpho Blueprint is an open-source [Next.js](https://nextjs.org/) white-label frontend template for the [Morpho protocol](https://morpho.xyz/) built and maintained by [Paperclip Labs](https://paperclip.xyz/). It enables anyone to deploy their own custom Morpho interface in hours instead of weeks or months.
 
 ## Configuration
 
@@ -15,12 +15,14 @@ All configuration happens via files in the [config folder](src/config/), which s
     -   App metadata
     -   Feature flags
     -   ...
-    -   Checkout [`AppConfig` type definition](src/config/types.ts) for full parameters documentation
--   [theme.css](src/config/theme.css): Customize all colors and typography to match your brand. This closely follows the standard [shadcn themeing](https://ui.shadcn.com/themes). The best way to pick your theme is via the Morpho Blueprint Figma file (coming soon) which is a 1:1 match with the apps theme.
+    -   Check out the [`AppConfig` type definition](src/config/types.ts) for full parameter documentation
+-   [theme.css](src/config/theme.css): Customize all colors and typography to match your brand. This closely follows the standard [shadcn theming](https://ui.shadcn.com/themes). The best way to pick your theme is via the Morpho Blueprint Figma file (coming soon) which is a 1:1 match with the app's theme.
 
-All read-only data in Morpho Blueprint is powered by [Whisk](https://www.whisk.so/), and enters the app via the [data layer](src/data/whisk). Using Whisk is fastest way to get to production, but you are welcome to shim this layer out with your own data source.
+All read-only data in Morpho Blueprint is powered by [Whisk](https://www.whisk.so/) and enters the app via the [data layer](src/data/whisk). Using Whisk is the fastest way to get to production, but you are welcome to replace this layer with your own data source.
 
-[Reach out](https://paperclip.xyz/contact) if you want to use Whisk, or you're interested in a full white glove solution including design, deployment, and hosting. We can generally get your app to production within 48 hours.
+[Reach out](https://paperclip.xyz/contact) if you want to use Whisk, or you're interested in a full white-glove solution including design and development. We can generally get your app to production within 48 hours.
+
+> If the provided customization parameters are insufficient for your use case, you can modify code outside the `/config` folder, but this will be harder to pick up additional future features and patches from this canonical template repo.
 
 ## Local Development
 
@@ -61,4 +63,4 @@ Special thanks to [Re7 Labs](https://www.re7labs.xyz/) for supporting this open 
 
 ## Licensing
 
-The code is under the GNU AFFERO GENERAL PUBLIC LICENSE v3.0, see [`LICENSE`](./LICENSE).
+The code is under the MIT License, see [`LICENSE`](./LICENSE).

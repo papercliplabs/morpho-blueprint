@@ -1,29 +1,34 @@
 "use client";
 
 import Link from "next/link";
-import { type PropsWithChildren, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DialogDrawer, DialogDrawerContent, DialogDrawerTitle } from "@/components/ui/dialog-drawer";
+import { APP_CONFIG } from "@/config";
+import { useAcknowledgeTermsContext } from "../../providers/AcknowledgeTermsProvider";
 import { Label } from "../ui/label";
-import { useAcknowledgeTermsContext } from "./AcknowledgeTermsProvider";
 
-interface Props {
+interface AcknowledgeTermsProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-export function AcknowledgeTerms(props: PropsWithChildren<Props>) {
-  const { open, onOpenChange, children } = props;
+export function AcknowledgeTerms(props: AcknowledgeTermsProps) {
+  const { open, onOpenChange } = props;
   const { setAcknowledgement } = useAcknowledgeTermsContext();
   const [checked, setChecked] = useState(false);
+
+  if (!APP_CONFIG.legal.termsOfUse) {
+    return null;
+  }
 
   return (
     <DialogDrawer open={open} onOpenChange={onOpenChange}>
       <DialogDrawerContent className="w-full max-w-[640px] gap-6 bg-card">
         <DialogDrawerTitle>Acknowledge Terms</DialogDrawerTitle>
         <div className="body-large mt-2 flex max-h-[280px] flex-col gap-6 overflow-y-auto border bg-background p-6 md:max-h-[400px]">
-          {children}
+          {APP_CONFIG.legal.termsOfUse}
         </div>
         <div className="flex gap-4">
           <Checkbox
@@ -36,14 +41,14 @@ export function AcknowledgeTerms(props: PropsWithChildren<Props>) {
             <Link href="/terms" className="text-primary hover:underline">
               Terms of Use
             </Link>
-            ,{" "}
-            <Link href="/privacy" className="text-primary hover:underline">
-              Privacy Policy
-            </Link>
-            , and{" "}
-            <Link href="/cookies" className="text-primary hover:underline">
-              Cookie Policy
-            </Link>
+            {APP_CONFIG.legal.privacyPolicy && (
+              <>
+                , and{" "}
+                <Link href="/privacy" className="text-primary hover:underline">
+                  Privacy Policy
+                </Link>
+              </>
+            )}
             , and confirm that you are not a resident of any prohibited jurisdictions.
           </Label>
         </div>

@@ -26,12 +26,16 @@ export interface AppConfig {
         svg: string; // 64x64px viewbox svg for modern browers
       };
     };
-    logoComponent: ReactNode; // App logo displayed in the left corner of the header
-    links: {
-      termsOfService?: string; // (optional) Terms of service link in the footer and in wallet connection modal
-      privacyPolicy?: string; // (optional) Privacy policy link in the footer and in wallet connection modal
-      support?: string; // (optional) Support link in the footer
-    };
+    logoComponent: ReactNode; // App logo displayed in the left corner of the header. Ideally this is responsive for mobile, desktop and dark mode.
+  };
+  // Links to be shown in the footer, note that if the legal components are used their links will automatically be included in the footer after these
+  footerLinks?: {
+    text: string;
+    href: string;
+  }[];
+  legal: {
+    termsOfUse?: ReactNode; // (optional) Terms of use content, will be displayed on the /terms page, and in the acceptance modal if featureFlags.termsOfServiceAcceptance is true
+    privacyPolicy?: ReactNode; // (optional) Privacy policy content, will be displayed on the /privacy page
   };
   reownProjectId: string; // Reown/wallet connect project ID. Get this from https://cloud.reown.com
   chainConfig: Record<SupportedChainId, { chain: Chain; rpcUrls: [string, ...string[]] }>; // Chain configuration for all chains your app supports
@@ -47,11 +51,13 @@ export interface AppConfig {
     curatorColumn: boolean; // Controls if the curator column should be shown on the earn pages table
     darkModeToggle: boolean; // Controls if the dark mode toggle should be shown in the footer
     showUnsupportedVaults: boolean; // Controls if unsupported vaults are shown in the market pages vault allocation table
+    requireTermsOfServiceAcceptance: boolean; // Controls if the terms of service acceptance is required before a user sends their first transaction. Must also provide legal.termsOfService otherwise this is ignored.
   };
   fonts: {
     main: NextFontWithVariable; // Main font for the app. Variable name of font MUST be "--font-main"
     others?: NextFontWithVariable[]; // (optional) Other fonts for the app. These are not used in core theme, but you be used in css variables directly for specifying typography in ./theme.css.
   };
+  // Banner displayed at the top of the app above the nav bar
   banner?: {
     text: string;
     button?: {

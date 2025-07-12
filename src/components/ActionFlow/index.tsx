@@ -5,14 +5,15 @@ import { type ComponentProps, type ReactNode, useEffect, useMemo, useRef, useSta
 import { zeroHash } from "viem";
 
 import type { SuccessfulAction } from "@/actions";
+import { APP_CONFIG } from "@/config";
+import { useAcknowledgeTermsContext } from "@/providers/AcknowledgeTermsProvider";
 import { capitalizeFirstLetter } from "@/utils/format";
-
+import { AcknowledgeTerms } from "../AcknowledgeTerms";
 import { Button } from "../ui/button";
 import { DialogDrawer, DialogDrawerContent, DialogDrawerTitle } from "../ui/dialog-drawer";
 import { ErrorMessage } from "../ui/error-message";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Separator } from "../ui/seperator";
-
 import { ActionFlowCompletion } from "./ActionFlowCompletion";
 import { ActionFlowProvider, useActionFlowContext } from "./ActionFlowProvider";
 import { ActionFlowSteps } from "./ActionFlowSteps";
@@ -77,6 +78,7 @@ export function ActionFlow({
 function ActionFlowDialog({ open, onOpenChange, actionName, summary, metrics }: ActionFlowDialogProps) {
   const { flowState, lastTransactionHash, error, startFlow } = useActionFlowContext();
   const preventClose = useMemo(() => flowState === "active", [flowState]);
+  const { acknowledgedTerms } = useAcknowledgeTermsContext();
 
   // useMeasure caused issues getting accurate height on initial render of dialog, this works instead
   const measureRef = useRef<HTMLDivElement>(null);
@@ -138,7 +140,9 @@ function ActionFlowDialog({ open, onOpenChange, actionName, summary, metrics }: 
     }
   }, [startFlow, flowState, error, actionName, metrics, summary, lastTransactionHash, onOpenChange]);
 
-  console.log("DEBUG", { flowState, measuredHeight });
+  if (!acknowledgedTerms && APP_CONFIG.featureFlags.requireTermsOfServiceAcceptance && APP_CONFIG.legal.termsOfUse) {
+    return <AcknowledgeTerms open={open} onOpenChange={onOpenChange} />;
+  }
 
   return (
     <DialogDrawer open={open} onOpenChange={onOpenChange} dismissible={!preventClose}>
