@@ -14,7 +14,7 @@ import { APP_CONFIG } from "@/config";
 import { getMarketSummaries } from "@/data/whisk/getMarketSummaries";
 
 export const metadata: Metadata = {
-  title: `${APP_CONFIG.appMetadata.name} | Borrow`,
+  title: `${APP_CONFIG.metadata.name} | Borrow`,
 };
 
 export default function BorrowPage() {

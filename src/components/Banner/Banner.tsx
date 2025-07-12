@@ -1,16 +1,14 @@
-import Link from "next/link";
-
 import { Button } from "@/components/ui/button";
-import type { AppConfig } from "@/config/types";
+import { APP_CONFIG } from "@/config";
 import { cn } from "@/utils/shadcn";
+import { LinkExternalUnstyled } from "../LinkExternal";
 
-interface BannerProps {
-  banner: NonNullable<AppConfig["banner"]>;
-}
+export function Banner() {
+  if (!APP_CONFIG.ui.banner) {
+    return null;
+  }
 
-export function Banner(props: BannerProps) {
-  const { text, button } = props.banner;
-
+  const { text, button } = APP_CONFIG.ui.banner;
   const hasButton = button !== undefined;
 
   return (
@@ -21,11 +19,13 @@ export function Banner(props: BannerProps) {
           "justify-center": !hasButton,
         })}
       >
-        <p className="body-medium line-clamp-1">{text}</p>
+        <p className="body-medium line-clamp-2">{text}</p>
         {hasButton && (
-          <Link href={button.href}>
-            <Button variant="secondary">{button.text}</Button>
-          </Link>
+          <LinkExternalUnstyled href={button.href} className="no-underline">
+            <Button variant="secondary" size="sm">
+              {button.text}
+            </Button>
+          </LinkExternalUnstyled>
         )}
       </div>
     </div>

@@ -48,8 +48,8 @@ export type VaultPosition = NonNullable<VaultPositionsQuery["morphoVaultPosition
 export type VaultPositionMap = Record<SupportedChainId, Record<Hex, VaultPosition>>; // ChainId -> VaultAddress -> VaultPosition
 
 export const getVaultPositions = cache(async (accountAddress: Address): Promise<VaultPositionMap> => {
-  const chainIds = Object.keys(APP_CONFIG.whitelistedVaults).map((chainId) => Number.parseInt(chainId) as ChainId);
-  const vaultAddresses = Object.values(APP_CONFIG.whitelistedVaults).flat();
+  const chainIds = Object.keys(APP_CONFIG.supportedVaults).map((chainId) => Number.parseInt(chainId) as ChainId);
+  const vaultAddresses = Object.values(APP_CONFIG.supportedVaults).flat();
 
   const response = await executeWhiskQuery(query, {
     chainIds,
@@ -66,7 +66,7 @@ export const getVaultPositions = cache(async (accountAddress: Address): Promise<
 
     // Filter out potential for wrong vault with same address on another chain
     if (
-      !APP_CONFIG.whitelistedVaults[position.vault.chain.id as SupportedChainId].includes(position.vault.vaultAddress)
+      !APP_CONFIG.supportedVaults[position.vault.chain.id as SupportedChainId].includes(position.vault.vaultAddress)
     ) {
       continue;
     }

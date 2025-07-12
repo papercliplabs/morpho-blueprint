@@ -23,7 +23,7 @@ import { getWhitelistedMarketIds } from "@/data/whisk/getWhitelistedMarketIds";
 import type { MarketIdentifier } from "@/utils/types";
 
 export const metadata: Metadata = {
-  title: `${APP_CONFIG.appMetadata.name} | Market`,
+  title: `${APP_CONFIG.metadata.name} | Market`,
 };
 
 export default async function MarketPage({ params }: { params: Promise<{ chainId: string; marketId: string }> }) {

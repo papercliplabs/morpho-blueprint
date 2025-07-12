@@ -14,7 +14,7 @@ import { APP_CONFIG } from "@/config";
 import { getVaultSummaries } from "@/data/whisk/getVaultSummaries";
 
 export const metadata: Metadata = {
-  title: `${APP_CONFIG.appMetadata.name} | Earn`,
+  title: `${APP_CONFIG.metadata.name} | Earn`,
 };
 
 export default function EarnPage() {

@@ -18,11 +18,11 @@ export const wagmiConfig = createConfig(
 
     walletConnectProjectId: APP_CONFIG.reownProjectId,
 
-    appName: APP_CONFIG.appMetadata.name,
+    appName: APP_CONFIG.metadata.name,
 
-    appDescription: APP_CONFIG.appMetadata.description,
-    appUrl: APP_CONFIG.appMetadata.url,
-    appIcon: APP_CONFIG.appMetadata.images.icons.svg,
+    appDescription: APP_CONFIG.metadata.description,
+    appUrl: APP_CONFIG.metadata.url,
+    appIcon: APP_CONFIG.metadata.images.icons.svg,
 
     ssr: true,
   }),

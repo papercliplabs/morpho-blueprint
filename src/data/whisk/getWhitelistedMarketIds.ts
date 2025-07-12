@@ -28,8 +28,8 @@ const query = graphql(`
 
 // Return mapping chainId -> marketIds
 const getWhitelistedMarketIdsUncached = cache(async (): Promise<Record<SupportedChainId, Hex[]>> => {
-  const chainIds = Object.keys(APP_CONFIG.whitelistedVaults) as unknown as ChainId[];
-  const vaultAddresses = Object.values(APP_CONFIG.whitelistedVaults).flat();
+  const chainIds = Object.keys(APP_CONFIG.supportedVaults) as unknown as ChainId[];
+  const vaultAddresses = Object.values(APP_CONFIG.supportedVaults).flat();
 
   const responses = await executeWhiskQuery(query, {
     chainIds,

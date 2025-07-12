@@ -13,13 +13,12 @@ interface LinkExternalProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
   showArrow?: boolean;
 }
 
-export default function LinkExternal({
+export function LinkExternalUnstyled({
   href,
+  children,
   keepReferrer,
   noFollow,
   className,
-  children,
-  showArrow = false,
   ...props
 }: LinkExternalProps) {
   return (
@@ -27,6 +26,17 @@ export default function LinkExternal({
       href={href}
       target="_blank"
       rel={`noopener ${keepReferrer ? "" : "noreferrer"} ${noFollow ? "nofollow" : ""}`}
+      className={cn("text-inherit no-underline", className)}
+      {...props}
+    >
+      {children}
+    </a>
+  );
+}
+
+export default function LinkExternal({ className, children, showArrow = false, ...props }: LinkExternalProps) {
+  return (
+    <LinkExternalUnstyled
       className={cn(
         "flex items-center gap-1 text-primary underline-offset-2 transition-all hover:underline active:scale-98 active:opacity-50",
         className,
@@ -35,7 +45,7 @@ export default function LinkExternal({
     >
       {children}
       {showArrow && <ArrowUpRight className="aspect-square w-[1.1em] stroke-muted-foreground" />}
-    </a>
+    </LinkExternalUnstyled>
   );
 }
 

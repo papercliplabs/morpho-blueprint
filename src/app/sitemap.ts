@@ -6,9 +6,9 @@ import { getWhitelistedMarketIds } from "@/data/whisk/getWhitelistedMarketIds";
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const whitelistedMarketIds = await getWhitelistedMarketIds();
 
-  const vaultPages = Object.entries(APP_CONFIG.whitelistedVaults).flatMap(([chainId, addresses]) => {
+  const vaultPages = Object.entries(APP_CONFIG.supportedVaults).flatMap(([chainId, addresses]) => {
     return addresses.map((address) => ({
-      url: `${APP_CONFIG.appMetadata.url}/earn/${chainId}/${address}`,
+      url: `${APP_CONFIG.metadata.url}/earn/${chainId}/${address}`,
       lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 0.8,
@@ -17,7 +17,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const marketPages = Object.entries(whitelistedMarketIds).flatMap(([chainId, marketIds]) => {
     return Array.from(marketIds).map((id) => ({
-      url: `${APP_CONFIG.appMetadata.url}/borrow/${chainId}/${id}`,
+      url: `${APP_CONFIG.metadata.url}/borrow/${chainId}/${id}`,
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 0.6,
@@ -26,13 +26,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [
     {
-      url: `${APP_CONFIG.appMetadata.url}/earn`,
+      url: `${APP_CONFIG.metadata.url}/earn`,
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 1,
     },
     {
-      url: `${APP_CONFIG.appMetadata.url}/borrow`,
+      url: `${APP_CONFIG.metadata.url}/borrow`,
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 1,
