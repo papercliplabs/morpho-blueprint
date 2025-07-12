@@ -12,7 +12,8 @@ vi.mock("next/font/google", () => ({
 
 // Mock to allow tests to include config file
 vi.mock("@/config/components/Logo", () => ({
-  Logo: () => null,
+  LogoMobile: () => null,
+  LogoDesktop: () => null,
 }));
 vi.mock("@/config/components/TermsOfUse", () => ({
   TermsOfUse: () => null,
