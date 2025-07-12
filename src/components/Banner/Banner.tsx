@@ -19,9 +19,9 @@ export function Banner() {
           "justify-center": !hasButton,
         })}
       >
-        <p className="body-medium line-clamp-2">{text}</p>
+        <p className="body-medium line-clamp-3">{text}</p>
         {hasButton && (
-          <LinkExternalUnstyled href={button.href} className="no-underline">
+          <LinkExternalUnstyled href={button.href}>
             <Button variant="secondary" size="sm">
               {button.text}
             </Button>

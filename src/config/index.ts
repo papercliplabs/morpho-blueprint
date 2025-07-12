@@ -41,7 +41,7 @@ export const APP_CONFIG: AppConfig = {
       main: inter,
     },
     banner: {
-      text: "This is a demo of Morpho Blueprint, which allows you to build a custom Morpho interface in hours instead of weeks.",
+      text: "Morpho Blueprint Demo. Build custom interfaces in hours, not weeks.",
       button: {
         text: "Get my own!",
         href: "https://paperclip.xyz/contact",
