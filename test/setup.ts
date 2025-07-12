@@ -14,6 +14,12 @@ vi.mock("next/font/google", () => ({
 vi.mock("@/config/components/Logo", () => ({
   Logo: () => null,
 }));
+vi.mock("@/config/components/TermsOfUse", () => ({
+  TermsOfUse: () => null,
+}));
+vi.mock("@/config/components/PrivacyPolicy", () => ({
+  PrivacyPolicy: () => null,
+}));
 
 beforeEach(() => {
   vi.resetAllMocks(); // Clear return values, call history, etc.
