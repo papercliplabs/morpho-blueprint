@@ -2,7 +2,7 @@ import { Inter } from "next/font/google";
 import { getAddress } from "viem";
 import { base, mainnet, polygon, worldchain } from "viem/chains";
 
-import { Logo } from "./components/Logo";
+import { LogoDesktop, LogoMobile } from "./components/Logo";
 import { PrivacyPolicy } from "./components/PrivacyPolicy";
 import { TermsOfUse } from "./components/TermsOfUse";
 import type { AppConfig } from "./types";
@@ -16,10 +16,10 @@ const inter = Inter({
 });
 
 export const APP_CONFIG: AppConfig = {
-  appMetadata: {
+  metadata: {
     url: process.env.NEXT_PUBLIC_URL!,
     name: "Morpho Blueprint",
-    description: "An open source fully customizable whitelabeled frontend for Morpho apps.",
+    description: "An open source fully customizable whitelabeled frontend template for Morpho apps.",
     images: {
       opengraph: "/opengraph-image.png",
       icons: {
@@ -30,18 +30,40 @@ export const APP_CONFIG: AppConfig = {
         svg: "/icon.svg",
       },
     },
-    logoComponent: Logo(),
   },
-  footerLinks: [
-    {
-      text: "Support",
-      href: "https://paperclip.xyz/contact",
+
+  ui: {
+    logo: {
+      mobile: LogoMobile(),
+      desktop: LogoDesktop(),
     },
-  ],
+    fonts: {
+      main: inter,
+    },
+    banner: {
+      text: "Morpho Blueprint Demo. Build custom interfaces in hours, not weeks.",
+      button: {
+        text: "Get my own!",
+        href: "https://paperclip.xyz/contact",
+      },
+    },
+    footerLinks: [
+      {
+        text: "Github",
+        href: "https://github.com/papercliplabs/morpho-blueprint",
+      },
+      {
+        text: "Contact",
+        href: "https://paperclip.xyz/contact",
+      },
+    ],
+  },
+
   legal: {
     termsOfUse: TermsOfUse(),
     privacyPolicy: PrivacyPolicy(),
   },
+
   reownProjectId: process.env.NEXT_PUBLIC_REOWN_PROJECT_ID!,
   chainConfig: {
     [mainnet.id]: {
@@ -61,7 +83,7 @@ export const APP_CONFIG: AppConfig = {
       rpcUrls: [process.env.NEXT_PUBLIC_POLYGON_RPC_URL_1!, process.env.NEXT_PUBLIC_POLYGON_RPC_URL_2!],
     },
   },
-  whitelistedVaults: {
+  supportedVaults: {
     [mainnet.id]: [
       getAddress("0x95EeF579155cd2C5510F312c8fA39208c3Be01a8"), // USDT
       getAddress("0xBE40491F3261Fd42724F1AEb465796eb11c06ddF"), // FRAX
@@ -79,24 +101,16 @@ export const APP_CONFIG: AppConfig = {
       getAddress("0xF91D80E43272DBC610551E8c872E0438d62C1c69"), // WPOL
     ],
   },
+
   actionParameters: {
     maxBorrowLtvMargin: 0.05,
     publicAllocatorSupplyTargetUtilizationWad: BigInt(90_0000000000000000),
   },
+
   featureFlags: {
     curatorColumn: true,
     darkModeToggle: true,
     showUnsupportedVaults: true,
     requireTermsOfServiceAcceptance: true,
-  },
-  fonts: {
-    main: inter,
-  },
-  banner: {
-    text: "Get your custom Blueprint launched within 24-48 hours",
-    button: {
-      text: "Let's talk",
-      href: "https://paperclip.xyz/contact",
-    },
   },
 };

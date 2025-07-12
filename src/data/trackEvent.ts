@@ -20,12 +20,12 @@ export async function trackEvent(name: string, payload: Record<string, string | 
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Origin: APP_CONFIG.appMetadata.url,
+          Origin: APP_CONFIG.metadata.url,
         },
         body: JSON.stringify({
           domain: process.env.NEXT_PUBLIC_PLAUSIBLE_DATA_DOMAIN,
           name,
-          url: APP_CONFIG.appMetadata.url,
+          url: APP_CONFIG.metadata.url,
           props: fullPayload,
         }),
       });

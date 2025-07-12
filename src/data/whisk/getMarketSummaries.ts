@@ -6,7 +6,7 @@ import { graphql } from "@/generated/gql/whisk";
 import type { MarketSummariesQuery } from "@/generated/gql/whisk/graphql";
 import type { ChainId } from "@/whisk-types";
 import { executeWhiskQuery } from "./execute";
-import { getWhitelistedMarketIds } from "./getWhitelistedMarketIds";
+import { getSupportedMarketIds } from "./getSupportedMarketIds";
 
 const query = graphql(`
   query MarketSummaries($chainIds: [ChainId!]!, $marketIds: [Hex!]!) {
@@ -24,9 +24,9 @@ const query = graphql(`
 export type MarketSummary = NonNullable<MarketSummariesQuery["morphoMarkets"]["items"][number]>;
 
 export const getMarketSummaries = cache(async () => {
-  const whitelistedMarketIds = await getWhitelistedMarketIds();
-  const chainIds = Object.keys(whitelistedMarketIds).map((chainId) => Number.parseInt(chainId) as ChainId);
-  const marketIds = Object.values(whitelistedMarketIds).flatMap((marketIds) => Array.from(marketIds));
+  const supportedMarketIds = await getSupportedMarketIds();
+  const chainIds = Object.keys(supportedMarketIds).map((chainId) => Number.parseInt(chainId) as ChainId);
+  const marketIds = Object.values(supportedMarketIds).flatMap((marketIds) => Array.from(marketIds));
 
   const response = await executeWhiskQuery(query, {
     chainIds,
@@ -44,7 +44,7 @@ export const getMarketSummaries = cache(async () => {
     }
 
     // Filter out potential for wrong market with same id on another chain
-    if (!whitelistedMarketIds[market.chain.id as SupportedChainId]?.includes(market.marketId)) {
+    if (!supportedMarketIds[market.chain.id as SupportedChainId]?.includes(market.marketId)) {
       return false;
     }
 

@@ -22,7 +22,7 @@ import { getVault } from "@/data/whisk/getVault";
 import type { VaultIdentifier } from "@/utils/types";
 
 export const metadata: Metadata = {
-  title: `${APP_CONFIG.appMetadata.name} | Vault`,
+  title: `${APP_CONFIG.metadata.name} | Vault`,
 };
 
 export default async function VaultPage({ params }: { params: Promise<{ chainId: string; vaultAddress: string }> }) {
@@ -36,7 +36,7 @@ export default async function VaultPage({ params }: { params: Promise<{ chainId:
     notFound();
   }
 
-  if (!APP_CONFIG.whitelistedVaults[chainId as SupportedChainId]?.includes(vaultAddress)) {
+  if (!APP_CONFIG.supportedVaults[chainId as SupportedChainId]?.includes(vaultAddress)) {
     return <UnsupportedVault />;
   }
 
