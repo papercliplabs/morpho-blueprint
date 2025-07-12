@@ -10,7 +10,7 @@ import type { ChainId } from "@/whisk-types";
 import { executeWhiskQuery } from "./execute";
 
 const query = graphql(`
-  query WhitelistedMarketIds($chainIds: [ChainId!]!, $vaultAddresses: [Address!]!) {
+  query SupportedMarketIds($chainIds: [ChainId!]!, $vaultAddresses: [Address!]!) {
     morphoVaults(where: {chainId_in: $chainIds, vaultAddress_in: $vaultAddresses}) {
       items {
         chain {
@@ -27,7 +27,7 @@ const query = graphql(`
 `);
 
 // Return mapping chainId -> marketIds
-const getWhitelistedMarketIdsUncached = cache(async (): Promise<Record<SupportedChainId, Hex[]>> => {
+const getSupportedMarketIdsUncached = cache(async (): Promise<Record<SupportedChainId, Hex[]>> => {
   const chainIds = Object.keys(APP_CONFIG.supportedVaults) as unknown as ChainId[];
   const vaultAddresses = Object.values(APP_CONFIG.supportedVaults).flat();
 
@@ -64,6 +64,6 @@ const getWhitelistedMarketIdsUncached = cache(async (): Promise<Record<Supported
   return result;
 });
 
-export const getWhitelistedMarketIds = unstable_cache(getWhitelistedMarketIdsUncached, ["getWhitelistedMarketIds"], {
+export const getSupportedMarketIds = unstable_cache(getSupportedMarketIdsUncached, ["getSupportedMarketIds"], {
   revalidate: SECONDS_PER_DAY,
 });

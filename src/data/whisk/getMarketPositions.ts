@@ -7,7 +7,7 @@ import { graphql } from "@/generated/gql/whisk";
 import type { MarketPositionsQuery } from "@/generated/gql/whisk/graphql";
 import type { ChainId } from "@/whisk-types";
 import { executeWhiskQuery } from "./execute";
-import { getWhitelistedMarketIds } from "./getWhitelistedMarketIds";
+import { getSupportedMarketIds } from "./getSupportedMarketIds";
 
 const query = graphql(`
   query MarketPositions($chainIds: [ChainId!]!, $marketIds: [Hex!]!, $accountAddress: Address!) {
@@ -65,9 +65,9 @@ export type MarketPosition = NonNullable<MarketPositionsQuery["morphoMarketPosit
 export type MarketPositionMap = Record<SupportedChainId, Record<Hex, MarketPosition>>; // ChainId -> MarketId -> MarketPosition
 
 export const getMarketPositions = cache(async (accountAddress: Address): Promise<MarketPositionMap> => {
-  const whitelistedMarketIds = await getWhitelistedMarketIds();
-  const chainIds = Object.keys(whitelistedMarketIds).map((chainId) => Number.parseInt(chainId) as ChainId);
-  const marketIds = Object.values(whitelistedMarketIds).flatMap((marketIds) => Array.from(marketIds));
+  const supportedMarketIds = await getSupportedMarketIds();
+  const chainIds = Object.keys(supportedMarketIds).map((chainId) => Number.parseInt(chainId) as ChainId);
+  const marketIds = Object.values(supportedMarketIds).flatMap((marketIds) => Array.from(marketIds));
 
   const response = await executeWhiskQuery(query, {
     chainIds,
@@ -83,7 +83,7 @@ export const getMarketPositions = cache(async (accountAddress: Address): Promise
     }
 
     // Filter out potential for wrong market with same id on another chain
-    if (!whitelistedMarketIds[position.market.chain.id as SupportedChainId]?.includes(position.market.marketId)) {
+    if (!supportedMarketIds[position.market.chain.id as SupportedChainId]?.includes(position.market.marketId)) {
       continue;
     }
 

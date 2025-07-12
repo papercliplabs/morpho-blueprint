@@ -1,10 +1,10 @@
 import type { MetadataRoute } from "next";
 
 import { APP_CONFIG } from "@/config";
-import { getWhitelistedMarketIds } from "@/data/whisk/getWhitelistedMarketIds";
+import { getSupportedMarketIds } from "@/data/whisk/getSupportedMarketIds";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const whitelistedMarketIds = await getWhitelistedMarketIds();
+  const supportedMarketIds = await getSupportedMarketIds();
 
   const vaultPages = Object.entries(APP_CONFIG.supportedVaults).flatMap(([chainId, addresses]) => {
     return addresses.map((address) => ({
@@ -15,7 +15,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }));
   }) as MetadataRoute.Sitemap;
 
-  const marketPages = Object.entries(whitelistedMarketIds).flatMap(([chainId, marketIds]) => {
+  const marketPages = Object.entries(supportedMarketIds).flatMap(([chainId, marketIds]) => {
     return Array.from(marketIds).map((id) => ({
       url: `${APP_CONFIG.metadata.url}/borrow/${chainId}/${id}`,
       lastModified: new Date(),

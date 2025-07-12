@@ -19,7 +19,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { APP_CONFIG } from "@/config";
 import type { SupportedChainId } from "@/config/types";
 import { getMarket, isNonIdleMarket } from "@/data/whisk/getMarket";
-import { getWhitelistedMarketIds } from "@/data/whisk/getWhitelistedMarketIds";
+import { getSupportedMarketIds } from "@/data/whisk/getSupportedMarketIds";
 import type { MarketIdentifier } from "@/utils/types";
 
 export const metadata: Metadata = {
@@ -117,13 +117,13 @@ export default async function MarketPage({ params }: { params: Promise<{ chainId
 
 async function WhitelistCheck({ chainId, marketId }: MarketIdentifier) {
   const market = await getMarket(chainId, marketId);
-  const whitelistedMarketIds = await getWhitelistedMarketIds();
+  const supportedMarketIds = await getSupportedMarketIds();
 
   if (!market) {
     notFound();
   }
 
-  if (whitelistedMarketIds[chainId as SupportedChainId]?.includes(marketId)) {
+  if (supportedMarketIds[chainId as SupportedChainId]?.includes(marketId)) {
     return null;
   }
 
