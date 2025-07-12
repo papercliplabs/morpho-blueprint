@@ -7,9 +7,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **Development:**
 - `pnpm dev` - Start development server with Next.js and GraphQL codegen watch mode
 - `pnpm build` - Build for production (runs codegen first)
-- `pnpm lint` - Lint src and test directories
+- `pnpm lint` - Lint codebase with Biome
+- `pnpm lint:fix` - Lint and auto-fix with Biome
+- `pnpm check:types` - TypeScript type checking without emit
 - `pnpm test` - Run Vitest tests
 - `pnpm codegen` - Generate GraphQL types from schema
+- `pnpm storybook` - Start Storybook development server
+- `pnpm build-storybook` - Build Storybook for production
 
 **Testing:**
 - Tests use Vitest with jsdom environment
@@ -20,6 +24,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **Package Manager:**
 - Uses pnpm (required version 10.11.0)
 - Dependencies include Morpho SDKs, Next.js 15, React 19, Radix UI, Tailwind CSS
+- Uses Biome for linting and formatting
+- Includes Storybook for component development
 
 ## Architecture
 
@@ -63,3 +69,4 @@ Configurable features in `APP_CONFIG.featureFlags`:
 - `curatorColumn` - Show curator info in tables
 - `darkModeToggle` - Enable dark mode switching
 - `showUnsupportedVaults` - Display unsupported vaults in allocation tablets
+- `requireTermsOfServiceAcceptance` - Show terms of service acceptance modal

@@ -28,14 +28,14 @@ export interface AppConfig {
     };
     logoComponent: ReactNode; // App logo displayed in the left corner of the header. Ideally this is responsive for mobile, desktop and dark mode.
   };
-  // Links to display in the footer, note that if the legal components are used their restive link will automatically be included after these
+  // Links to be shown in the footer, note that if the legal components are used their links will automatically be included in the footer after these
   footerLinks?: {
     text: string;
     href: string;
   }[];
   legal: {
-    termsOfUse?: ReactNode; // (optional) Terms of service content, will be displayed on a ToS page, and in the acceptance modal if featureFlags.termsOfServiceAcceptance is true
-    privacyPolicy?: ReactNode; // (optional) Privacy policy content, will be displayed on a privacy policy page
+    termsOfUse?: ReactNode; // (optional) Terms of use content, will be displayed on the /terms page, and in the acceptance modal if featureFlags.termsOfServiceAcceptance is true
+    privacyPolicy?: ReactNode; // (optional) Privacy policy content, will be displayed on the /privacy page
   };
   reownProjectId: string; // Reown/wallet connect project ID. Get this from https://cloud.reown.com
   chainConfig: Record<SupportedChainId, { chain: Chain; rpcUrls: [string, ...string[]] }>; // Chain configuration for all chains your app supports
