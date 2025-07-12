@@ -2,7 +2,7 @@
 
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ResponsiveProvider } from "@/providers/ResponsiveProvider";
-
+import { AcknowledgeTermsProvider } from "./AcknowledgeTermsProvider";
 import { TanstackQueryProvider } from "./TanstackQueryProvider";
 import { ThemeProvider } from "./ThemeProvider";
 import { WalletProvider } from "./WalletProvider";
@@ -12,9 +12,11 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     <ThemeProvider>
       <TanstackQueryProvider>
         <WalletProvider>
-          <ResponsiveProvider>
-            <TooltipProvider>{children}</TooltipProvider>
-          </ResponsiveProvider>
+          <AcknowledgeTermsProvider>
+            <ResponsiveProvider>
+              <TooltipProvider>{children}</TooltipProvider>
+            </ResponsiveProvider>
+          </AcknowledgeTermsProvider>
         </WalletProvider>
       </TanstackQueryProvider>
     </ThemeProvider>

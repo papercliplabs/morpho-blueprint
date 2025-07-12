@@ -3,6 +3,8 @@ import { getAddress } from "viem";
 import { base, mainnet, polygon, worldchain } from "viem/chains";
 
 import { Logo } from "./components/Logo";
+import { PrivacyPolicy } from "./components/PrivacyPolicy";
+import { TermsOfUse } from "./components/TermsOfUse";
 import type { AppConfig } from "./types";
 
 export const SUPPORTED_CHAIN_IDS = [mainnet.id, polygon.id, base.id, worldchain.id] as const;
@@ -29,11 +31,16 @@ export const APP_CONFIG: AppConfig = {
       },
     },
     logoComponent: Logo(),
-    links: {
-      termsOfService: undefined,
-      privacyPolicy: undefined,
-      support: undefined,
+  },
+  footerLinks: [
+    {
+      text: "Support",
+      href: "https://paperclip.xyz/contact",
     },
+  ],
+  legal: {
+    termsOfUse: TermsOfUse(),
+    privacyPolicy: PrivacyPolicy(),
   },
   reownProjectId: process.env.NEXT_PUBLIC_REOWN_PROJECT_ID!,
   chainConfig: {
@@ -80,6 +87,7 @@ export const APP_CONFIG: AppConfig = {
     curatorColumn: true,
     darkModeToggle: true,
     showUnsupportedVaults: true,
+    requireTermsOfServiceAcceptance: true,
   },
   fonts: {
     main: inter,
