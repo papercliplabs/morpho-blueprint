@@ -1,7 +1,6 @@
 import clsx from "clsx";
 import type { Metadata } from "next";
 
-import Analytics from "@/components/Analytics";
 import { Banner } from "@/components/Banner/Banner";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
@@ -71,7 +70,7 @@ export default async function RootLayout({
               <Footer />
             </div>
           </div>
-          <Analytics />
+          {APP_CONFIG.analytics.component}
         </Providers>
       </body>
     </html>

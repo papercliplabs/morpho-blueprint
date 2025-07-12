@@ -1,7 +1,8 @@
 import { Inter } from "next/font/google";
 import { getAddress } from "viem";
 import { base, mainnet, polygon, worldchain } from "viem/chains";
-
+import { eventCb } from "./callbacks";
+import Analytics from "./components/Analytics";
 import { LogoDesktop, LogoMobile } from "./components/Logo";
 import { PrivacyPolicy } from "./components/PrivacyPolicy";
 import { TermsOfUse } from "./components/TermsOfUse";
@@ -112,5 +113,10 @@ export const APP_CONFIG: AppConfig = {
     darkModeToggle: true,
     showUnsupportedVaults: true,
     requireTermsOfServiceAcceptance: true,
+  },
+
+  analytics: {
+    component: Analytics(),
+    eventCb,
   },
 };
