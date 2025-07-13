@@ -9,8 +9,13 @@ vi.mock("next/font/google", () => ({
     weight: ["400", "500", "600", "700"],
   }),
 }));
-
-// Mock to allow tests to include config file
+vi.mock("next/font/local", () => ({
+  default: () => ({
+    variable: "--font-main",
+    subsets: ["latin"],
+    weight: ["400", "500", "600", "700"],
+  }),
+}));
 vi.mock("@/config/components/Logo", () => ({
   LogoMobile: () => null,
   LogoDesktop: () => null,

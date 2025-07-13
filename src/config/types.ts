@@ -74,10 +74,10 @@ export interface AppConfig {
     publicAllocatorSupplyTargetUtilizationWad: bigint; // Scaled by WAD
   };
 
+  // Note the default value is false to preserve backwards compatibility when upgrading versions (new features are opt-in, i.e upgrading won't add any new features)
   featureFlags: {
-    curatorColumn: boolean; // Controls if the curator column should be shown on the earn pages table
-    darkModeToggle: boolean; // Controls if the dark mode toggle should be shown in the footer
-    showUnsupportedVaults: boolean; // Controls if unsupported vaults are shown in the market pages vault allocation table
+    enableDarkModeToggle?: boolean; // Controls if the dark mode toggle is shown in the footer. If so .dark should be defined in theme.css
+    hideCurator?: boolean; // Controls if the curator should be hidden throughout the app which can be useful when there is only a single curator
   };
 
   analytics: {

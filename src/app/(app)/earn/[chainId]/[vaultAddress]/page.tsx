@@ -135,7 +135,7 @@ async function VaultHeader({ chainId, vaultAddress }: VaultIdentifier) {
           <span>
             Chain: <span className="text-foreground">{vault.chain.name}</span>
           </span>
-          {curator && (
+          {curator && !APP_CONFIG.featureFlags.hideCurator && (
             <>
               <span>&bull;</span>
               <div className="flex items-center gap-1">

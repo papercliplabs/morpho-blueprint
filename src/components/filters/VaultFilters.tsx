@@ -55,7 +55,7 @@ export function VaultFilters({ chainOptions, assetOptions, curatorOptions }: Vau
           onReset={() => removeShallowSearchParams([FilterKey.SupplyAssets])}
         />
       )}
-      {APP_CONFIG.featureFlags.curatorColumn && curatorOptions.length > 1 && (
+      {!APP_CONFIG.featureFlags.hideCurator && curatorOptions.length > 1 && (
         <MultiSelect
           emptyValue={curatorValues === undefined || curatorValues.length === 0 ? "All Curators" : "Curators"}
           options={curatorOptions}

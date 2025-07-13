@@ -51,7 +51,13 @@ export default function NumberFlow({ className, format, value, ...props }: Numbe
   return (
     <span className={cn("inline-flex items-center", className)}>
       {prefix}
-      <NumberFlowReact value={value} format={formatOptions} {...props} className="inline-flex items-center" />
+      <NumberFlowReact
+        value={value}
+        format={formatOptions}
+        locales="en-US"
+        {...props}
+        className="inline-flex items-center"
+      />
     </span>
   );
 }
