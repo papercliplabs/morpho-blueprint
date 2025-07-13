@@ -24,7 +24,7 @@ export interface AppConfig {
         "png-64x64": string; // 64x64px png modern favicon
         "png-192x192": string; // 192x192px png PWA manifest and apple touch icon
         "png-512x512": string; // 512x512px png PWA manifest
-        svg: string; // 64x64px viewbox svg url for modern browers
+        svg: string; // 64x64px viewbox svg url for modern browsers
       };
     };
   };
@@ -37,7 +37,7 @@ export interface AppConfig {
     };
     fonts: {
       main: NextFontWithVariable; // Main font for the app. Variable name of font MUST be "--font-main"
-      others?: NextFontWithVariable[]; // (optional) Other fonts for the app. These are not used in core theme, but you be used in css variables directly for specifying typography in ./theme.css.
+      others?: NextFontWithVariable[]; // (optional) Other fonts for the app. These are not used in core theme, but can be used in css variables directly for specifying typography in ./theme.css.
     };
     // Banner displayed at the top of the app above the nav bar.
     infoBanner?: {
@@ -47,7 +47,7 @@ export interface AppConfig {
         href: string;
       };
     };
-    // Links to be shown in the footer, note that if the legal components are used their links will automatically be included in the footer after these
+    // Links to be shown in the footer, note that if the compliance.termsOfUse or compliance.privacyPolicy are used their links will automatically be included in the footer after these
     footerLinks?: {
       text: string;
       href: string;
@@ -55,10 +55,10 @@ export interface AppConfig {
   };
 
   compliance: {
-    termsOfUse?: ReactNode; // (optional) Terms of use content, will be displayed on the /terms page, and in the acceptance modal if featureFlags.termsOfServiceAcceptance is true
+    termsOfUse?: ReactNode; // (optional) Terms of use content, will be displayed on the /terms page, and in the acceptance modal if compliance.requireTermsOfUseAcceptance is true
     privacyPolicy?: ReactNode; // (optional) Privacy policy content, will be displayed on the /privacy page
 
-    requireTermsOfUseAcceptance?: boolean; // (optional) Controls if the terms of service acceptance is required before a user sends their first transaction. Must also provide legal.termsOfService otherwise this is ignored. Defaults to false.
+    requireTermsOfUseAcceptance?: boolean; // (optional) Controls if the terms of use acceptance is required before a user sends their first transaction. Must also provide compliance.termsOfUse otherwise this is ignored. Defaults to false.
     countrySpecificDisclaimer?: Partial<Record<string, { title: string; text: string }>>; // (optional) Map of ISO 3166-2 country code to the country's disclaimer info. This will be shown as a banner at the top of the app above the nav bar (below the infoBanner) with a button that opens a modal with the full text content.
   };
 
@@ -76,12 +76,12 @@ export interface AppConfig {
 
   // Note the default value is false to preserve backwards compatibility when upgrading versions (new features are opt-in, i.e upgrading won't add any new features)
   featureFlags: {
-    enableDarkModeToggle?: boolean; // Controls if the dark mode toggle is shown in the footer. If so .dark should be defined in theme.css
-    hideCurator?: boolean; // Controls if the curator should be hidden throughout the app which can be useful when there is only a single curator
+    enableDarkModeToggle?: boolean; // (optional) Controls if the dark mode toggle is shown in the footer. If so .dark should be defined in theme.css
+    hideCurator?: boolean; // (optional) Controls if the curator should be hidden throughout the app which can be useful when there is only a single curator
   };
 
   analytics: {
-    component?: ReactNode; // (Optional) Component to be rendered in the root layout which can be used to inject analytics scripts.
-    eventCb?: (name: EventName, payload: Record<string, string | number>) => void; // (Optional) Callback when app event is received. This call routes through a server action to prevent client-side blocking.
+    component?: ReactNode; // (optional) Component to be rendered in the root layout which can be used to inject analytics scripts.
+    eventCb?: (name: EventName, payload: Record<string, string | number>) => void; // (optional) Callback when app event is received. This call routes through a server action to prevent client-side blocking.
   };
 }
