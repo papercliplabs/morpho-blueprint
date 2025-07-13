@@ -41,9 +41,9 @@ export const APP_CONFIG: AppConfig = {
     fonts: {
       main: inter,
     },
-    banner: {
+    infoBanner: {
       text: "Morpho Blueprint Demo. Build custom interfaces in hours, not weeks.",
-      button: {
+      link: {
         text: "Get my own!",
         href: "https://paperclip.xyz/contact",
       },
@@ -60,9 +60,11 @@ export const APP_CONFIG: AppConfig = {
     ],
   },
 
-  legal: {
+  compliance: {
     termsOfUse: TermsOfUse(),
     privacyPolicy: PrivacyPolicy(),
+
+    requireTermsOfUseAcceptance: false,
   },
 
   reownProjectId: process.env.NEXT_PUBLIC_REOWN_PROJECT_ID!,
@@ -112,7 +114,6 @@ export const APP_CONFIG: AppConfig = {
     curatorColumn: true,
     darkModeToggle: true,
     showUnsupportedVaults: true,
-    requireTermsOfServiceAcceptance: true,
   },
 
   analytics: {

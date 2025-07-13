@@ -10,8 +10,8 @@ import {
   useState,
 } from "react";
 
-import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Drawer, DrawerContent, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
+import { Dialog, DialogClose, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Drawer, DrawerClose, DrawerContent, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 import { useResponsiveContext } from "@/providers/ResponsiveProvider";
 
 const DialogDrawerContext = createContext<{ dismissible?: boolean }>({});
@@ -58,7 +58,7 @@ export function DialogDrawer({ open, onOpenChange, dismissible, children }: Dial
   );
 }
 
-export function DialogDrawerTrigger(props: HTMLAttributes<HTMLButtonElement>) {
+export function DialogDrawerTrigger(props: HTMLAttributes<HTMLButtonElement> | { asChild?: boolean }) {
   const { isDesktop } = useResponsiveContext();
   return isDesktop ? <DialogTrigger {...props} /> : <DrawerTrigger {...props} />;
 }
@@ -78,4 +78,9 @@ export function DialogDrawerContent({
 export function DialogDrawerTitle(props: HTMLAttributes<HTMLHeadingElement>) {
   const { isDesktop } = useResponsiveContext();
   return isDesktop ? <DialogTitle {...props} /> : <DrawerTitle {...props} />;
+}
+
+export function DialogDrawerClose(props: HTMLAttributes<HTMLButtonElement> | { asChild?: boolean }) {
+  const { isDesktop } = useResponsiveContext();
+  return isDesktop ? <DialogClose {...props} /> : <DrawerClose {...props} />;
 }

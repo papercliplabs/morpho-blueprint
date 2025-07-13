@@ -140,7 +140,7 @@ function ActionFlowDialog({ open, onOpenChange, actionName, summary, metrics }: 
     }
   }, [startFlow, flowState, error, actionName, metrics, summary, lastTransactionHash, onOpenChange]);
 
-  if (!acknowledgedTerms && APP_CONFIG.featureFlags.requireTermsOfServiceAcceptance && APP_CONFIG.legal.termsOfUse) {
+  if (!acknowledgedTerms && APP_CONFIG.compliance.requireTermsOfUseAcceptance && APP_CONFIG.compliance.termsOfUse) {
     return <AcknowledgeTerms open={open} onOpenChange={onOpenChange} />;
   }
 
