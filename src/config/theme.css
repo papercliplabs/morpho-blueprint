@@ -29,7 +29,7 @@
   --chart-5: oklch(0.7686 0.1647 70.08);
 }
 
-/* Dark mode colors - not required if the deployment has set featureFlags.darkModeToggle to false */
+/* Dark mode colors - not required if the deployment has set featureFlags.enableDarkModeToggle to false */
 .dark {
   --background: oklch(0.1408 0.0044 285.82);
   --foreground: oklch(1 0 0);

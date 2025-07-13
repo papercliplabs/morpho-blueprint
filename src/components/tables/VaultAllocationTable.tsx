@@ -28,29 +28,33 @@ const columns: Column[] = [
     },
     minSize: 260,
   },
-  {
-    id: "curator",
-    accessorFn: (row) => row.vault.metadata?.curators[0]?.name ?? "",
-    header: "Curator",
-    cell: ({ row }) => {
-      const { vault } = row.original;
-      const curators = vault.metadata?.curators ?? [];
-      return curators.length > 0 ? (
-        <AvatarGroup
-          avatars={curators.map((curator) => ({
-            src: curator.image,
-          }))}
-          max={2}
-          size="sm"
-          className="rounded-full"
-          avatarClassName="border-[var(--row-color)]"
-        />
-      ) : (
-        "None"
-      );
-    },
-    minSize: 130,
-  },
+  ...(!APP_CONFIG.featureFlags.hideCurator
+    ? [
+        {
+          id: "curator",
+          accessorFn: (row) => row.vault.metadata?.curators[0]?.name ?? "",
+          header: "Curator",
+          cell: ({ row }) => {
+            const { vault } = row.original;
+            const curators = vault.metadata?.curators ?? [];
+            return curators.length > 0 ? (
+              <AvatarGroup
+                avatars={curators.map((curator) => ({
+                  src: curator.image,
+                }))}
+                max={2}
+                size="sm"
+                className="rounded-full"
+                avatarClassName="border-[var(--row-color)]"
+              />
+            ) : (
+              "None"
+            );
+          },
+          minSize: 130,
+        } as Column,
+      ]
+    : []),
   {
     id: "supplyShare",
     accessorKey: "marketSupplyShare",
@@ -86,8 +90,8 @@ export function VaultAllocationTable({ market }: VaultAllocationTableProps) {
     );
     return market.vaultAllocations.filter((allocation) => {
       const identifier = `${allocation.vault.chain.id}:${allocation.vault.vaultAddress}`;
-      const isWhitelisted = supportedVaultIdentifiers.some((identifiers) => identifiers.includes(identifier));
-      return allocation.enabled && (APP_CONFIG.featureFlags.showUnsupportedVaults || isWhitelisted);
+      const isSupported = supportedVaultIdentifiers.some((identifiers) => identifiers.includes(identifier));
+      return allocation.enabled && isSupported;
     });
   }, [market]);
 

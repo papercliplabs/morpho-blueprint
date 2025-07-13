@@ -66,6 +66,5 @@ Blockchain interactions use a standardized action pattern:
 
 **Feature Flags:**
 Configurable features in `APP_CONFIG.featureFlags`:
-- `curatorColumn` - Show curator info in tables
-- `darkModeToggle` - Enable dark mode switching
-- `showUnsupportedVaults` - Display unsupported vaults in allocation tablets
+- `enableDarkModeToggle` - Enable dark mode switching in the footer
+- `hideCurator` - Hide the vault curators throughout the app

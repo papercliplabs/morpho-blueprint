@@ -108,7 +108,7 @@ function getColumns(isPositionLoading: boolean): Column[] {
         ),
       minSize: 140,
     },
-    ...(APP_CONFIG.featureFlags.curatorColumn
+    ...(!APP_CONFIG.featureFlags.hideCurator
       ? [
           {
             id: "curator",

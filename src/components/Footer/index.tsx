@@ -30,7 +30,7 @@ export function Footer() {
         })}
       </div>
 
-      {APP_CONFIG.featureFlags.darkModeToggle && <ThemeToggle />}
+      {APP_CONFIG.featureFlags.enableDarkModeToggle && <ThemeToggle />}
     </footer>
   );
 }
