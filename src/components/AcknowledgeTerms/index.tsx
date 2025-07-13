@@ -19,16 +19,16 @@ export function AcknowledgeTerms(props: AcknowledgeTermsProps) {
   const { setAcknowledgement } = useAcknowledgeTermsContext();
   const [checked, setChecked] = useState(false);
 
-  if (!APP_CONFIG.legal.termsOfUse) {
+  if (!APP_CONFIG.compliance.termsOfUse) {
     return null;
   }
 
   return (
     <DialogDrawer open={open} onOpenChange={onOpenChange}>
-      <DialogDrawerContent className="w-full max-w-[640px] gap-6 bg-card">
+      <DialogDrawerContent className="w-full gap-6 bg-card lg:max-w-[640px]">
         <DialogDrawerTitle>Acknowledge Terms</DialogDrawerTitle>
-        <div className="body-large mt-2 flex max-h-[280px] flex-col gap-6 overflow-y-auto border bg-background p-6 md:max-h-[400px]">
-          {APP_CONFIG.legal.termsOfUse}
+        <div className="body-large mt-2 flex max-h-[280px] flex-col gap-6 overflow-y-auto border bg-background p-6 lg:max-h-[400px]">
+          {APP_CONFIG.compliance.termsOfUse}
         </div>
         <div className="flex gap-4">
           <Checkbox
@@ -41,7 +41,7 @@ export function AcknowledgeTerms(props: AcknowledgeTermsProps) {
             <Link href="/terms" className="text-primary hover:underline">
               Terms of Use
             </Link>
-            {APP_CONFIG.legal.privacyPolicy && (
+            {APP_CONFIG.compliance.privacyPolicy && (
               <>
                 , and{" "}
                 <Link href="/privacy" className="text-primary hover:underline">

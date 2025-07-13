@@ -3,10 +3,11 @@ import type { ReactNode } from "react";
 import type { Address, Chain } from "viem";
 
 import type { SUPPORTED_CHAIN_IDS } from "@/config";
+import type { EventName } from "@/data/trackEvent";
 
-// You shouldn't modify this file unless deploying a full custom fork (otherwise the app will likely break)
+// You shouldn't modify this file unless deploying a fully custom fork (otherwise the app will likely break)
 
-// Used for type safety. SUPPORTED_CHAIN_IDS comes from the config file, and should contain all chain IDs your app supports
+// Used for type safety. SUPPORTED_CHAIN_IDS comes from ./index.ts and should contain all chain IDs your app supports
 export type SupportedChainId = (typeof SUPPORTED_CHAIN_IDS)[number];
 
 export interface AppConfig {
@@ -38,10 +39,10 @@ export interface AppConfig {
       main: NextFontWithVariable; // Main font for the app. Variable name of font MUST be "--font-main"
       others?: NextFontWithVariable[]; // (optional) Other fonts for the app. These are not used in core theme, but you be used in css variables directly for specifying typography in ./theme.css.
     };
-    // Banner displayed at the top of the app above the nav bar
-    banner?: {
+    // Banner displayed at the top of the app above the nav bar.
+    infoBanner?: {
       text: string;
-      button?: {
+      link?: {
         text: string;
         href: string;
       };
@@ -53,9 +54,12 @@ export interface AppConfig {
     }[];
   };
 
-  legal: {
+  compliance: {
     termsOfUse?: ReactNode; // (optional) Terms of use content, will be displayed on the /terms page, and in the acceptance modal if featureFlags.termsOfServiceAcceptance is true
     privacyPolicy?: ReactNode; // (optional) Privacy policy content, will be displayed on the /privacy page
+
+    requireTermsOfUseAcceptance?: boolean; // (optional) Controls if the terms of service acceptance is required before a user sends their first transaction. Must also provide legal.termsOfService otherwise this is ignored. Defaults to false.
+    countrySpecificDisclaimer?: Partial<Record<string, { title: string; text: string }>>; // (optional) Map of ISO 3166-2 country code to the country's disclaimer info. This will be shown as a banner at the top of the app above the nav bar (below the infoBanner) with a button that opens a modal with the full text content.
   };
 
   reownProjectId: string; // Reown/wallet connect project ID. Get this from https://cloud.reown.com
@@ -74,6 +78,10 @@ export interface AppConfig {
     curatorColumn: boolean; // Controls if the curator column should be shown on the earn pages table
     darkModeToggle: boolean; // Controls if the dark mode toggle should be shown in the footer
     showUnsupportedVaults: boolean; // Controls if unsupported vaults are shown in the market pages vault allocation table
-    requireTermsOfServiceAcceptance: boolean; // Controls if the terms of service acceptance is required before a user sends their first transaction. Must also provide legal.termsOfService otherwise this is ignored.
+  };
+
+  analytics: {
+    component?: ReactNode; // (Optional) Component to be rendered in the root layout which can be used to inject analytics scripts.
+    eventCb?: (name: EventName, payload: Record<string, string | number>) => void; // (Optional) Callback when app event is received. This call routes through a server action to prevent client-side blocking.
   };
 }

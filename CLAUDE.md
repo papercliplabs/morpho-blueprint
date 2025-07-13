@@ -69,4 +69,3 @@ Configurable features in `APP_CONFIG.featureFlags`:
 - `curatorColumn` - Show curator info in tables
 - `darkModeToggle` - Enable dark mode switching
 - `showUnsupportedVaults` - Display unsupported vaults in allocation tablets
-- `requireTermsOfServiceAcceptance` - Show terms of service acceptance modal

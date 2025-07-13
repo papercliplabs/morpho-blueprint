@@ -51,7 +51,7 @@ export async function fetchJsonResponse<T>(url: string | URL, options?: FetchJso
       : await promiseWithRetry(fetchJsonResponse, options?.retryOptionOverrides);
   } catch (e) {
     console.error(`Fetch failed for ${url} - ${e}`);
-    trackEvent("fetch-json-response-failed", {
+    trackEvent("data-fetch-error", {
       url: url.toString(),
       error: `${e}`,
     });

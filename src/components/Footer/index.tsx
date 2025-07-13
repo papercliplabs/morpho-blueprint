@@ -5,7 +5,7 @@ import LinkExternal, { LinkExternalUnstyled } from "../LinkExternal";
 import { ThemeToggle } from "./ThemeToggle";
 
 const { footerLinks } = APP_CONFIG.ui;
-const { termsOfUse, privacyPolicy } = APP_CONFIG.legal;
+const { termsOfUse, privacyPolicy } = APP_CONFIG.compliance;
 
 const FOOTER_ITEMS: { text: string; href: string; internal?: boolean }[] = [
   ...(footerLinks ?? []),

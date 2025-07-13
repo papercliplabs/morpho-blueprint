@@ -1,7 +1,8 @@
 import { Inter } from "next/font/google";
 import { getAddress } from "viem";
 import { base, mainnet, polygon, worldchain } from "viem/chains";
-
+import { eventCb } from "./callbacks";
+import { Analytics } from "./components/Analytics";
 import { LogoDesktop, LogoMobile } from "./components/Logo";
 import { PrivacyPolicy } from "./components/PrivacyPolicy";
 import { TermsOfUse } from "./components/TermsOfUse";
@@ -40,9 +41,9 @@ export const APP_CONFIG: AppConfig = {
     fonts: {
       main: inter,
     },
-    banner: {
+    infoBanner: {
       text: "Morpho Blueprint Demo. Build custom interfaces in hours, not weeks.",
-      button: {
+      link: {
         text: "Get my own!",
         href: "https://paperclip.xyz/contact",
       },
@@ -59,9 +60,11 @@ export const APP_CONFIG: AppConfig = {
     ],
   },
 
-  legal: {
+  compliance: {
     termsOfUse: TermsOfUse(),
     privacyPolicy: PrivacyPolicy(),
+
+    requireTermsOfUseAcceptance: false,
   },
 
   reownProjectId: process.env.NEXT_PUBLIC_REOWN_PROJECT_ID!,
@@ -111,6 +114,10 @@ export const APP_CONFIG: AppConfig = {
     curatorColumn: true,
     darkModeToggle: true,
     showUnsupportedVaults: true,
-    requireTermsOfServiceAcceptance: true,
+  },
+
+  analytics: {
+    component: Analytics(),
+    eventCb,
   },
 };

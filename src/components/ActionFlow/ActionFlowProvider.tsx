@@ -112,29 +112,13 @@ export function ActionFlowProvider({
 
           const txReq = step.tx();
 
-          let gasEstimateWithBuffer: bigint;
-          try {
-            // Uses public client instead so estimate happens throught our reliable RPC provider
-            const gasEstimate = await estimateGas(publicClient, { ...txReq, account: client.account });
-            gasEstimateWithBuffer = (gasEstimate * BigInt((1 + GAS_BUFFER) * 1000)) / BigInt(1000);
-          } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : String(error);
-            void trackEvent("tx-gas-estimate-failed", {
-              accountAddress,
-              connector: connectorName,
-              error: errorMessage,
-              stepName: step.name,
-              ...trackingPayload,
-            });
-
-            setError("Error: Unable to estimate gas. Please try again.");
-            setFlowState("review");
-            return;
-          }
+          // Uses public client instead so estimate happens throught our reliable RPC provider
+          const gasEstimate = await estimateGas(publicClient, { ...txReq, account: client.account });
+          const gasEstimateWithBuffer = (gasEstimate * BigInt((1 + GAS_BUFFER) * 1000)) / BigInt(1000);
 
           const hash = await sendTransaction(client, { ...txReq, gas: gasEstimateWithBuffer });
           setLastTransactionHash(hash);
-          void trackEvent("transaction", {
+          void trackEvent("tx-pending", {
             accountAddress,
             hash,
             status: "pending",
@@ -153,7 +137,7 @@ export function ActionFlowProvider({
           });
 
           if (receipt.status === "success") {
-            void trackEvent("transaction", {
+            void trackEvent("tx-success", {
               accountAddress,
               hash,
               status: "success",
@@ -164,7 +148,7 @@ export function ActionFlowProvider({
             await new Promise((resolve) => setTimeout(resolve, 1000)); // Delay to let rpc data propogate (ex approval on prev tx)
             setActiveStep((step) => step + 1);
           } else {
-            void trackEvent("transaction", {
+            void trackEvent("tx-revert", {
               accountAddress,
               hash,
               status: "failed",
@@ -181,7 +165,7 @@ export function ActionFlowProvider({
         const errorMessage = error instanceof Error ? error.message : String(error);
         setError(errorMessage);
         setFlowState("review");
-        void trackEvent("transaction-flow-error", {
+        void trackEvent("tx-flow-error", {
           accountAddress,
           connector: connectorName,
           error: errorMessage,

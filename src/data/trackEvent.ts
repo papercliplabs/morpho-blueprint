@@ -2,38 +2,26 @@
 
 import { APP_CONFIG } from "@/config";
 
-// Track event from server action so client can't block
-export async function trackEvent(name: string, payload: Record<string, string | number>) {
-  const timestamp = Math.floor(Date.now() / 1000);
-  const fullPayload = {
-    ...payload,
-    timestamp,
-  };
+export type EventName =
+  | "app-error" // A client side app error occured and was caught by the error boundry
+  | "csp-violation" // A content security policy (CSP) violation has occurred
+  | "data-fetch-error" // An error occured while trying to fetch data
+  | "tx-pending" // A transaction has been successfully sent and is pending block inclusion
+  | "tx-success" // A transaction was included in a block and was successfully executed
+  | "tx-revert" // A transaction was included in a block but reverted
+  | "tx-flow-error"; // An error occured within the transaction flow (might be during simulation, sending, or waiting for tx receipt)
 
-  // Server logging for now in case the payload exceeds event max event size
-  console.log("event-from-server: ", name, fullPayload);
+// Track event from server action to prevent client-side blocking
+// This should be called with a fire and forget approach
+export async function trackEvent(name: EventName, payload: Record<string, string | number>) {
+  // Server logging in case eventÇb is not provided or fails
+  console.log("event-from-server: ", name, payload);
 
-  // Plausible
-  if (process.env.NEXT_PUBLIC_PLAUSIBLE_DATA_DOMAIN && process.env.NEXT_PUBLIC_PLAUSIBLE_BASE_URL) {
+  if (APP_CONFIG.analytics.eventCb) {
     try {
-      const resp = await fetch(`${process.env.NEXT_PUBLIC_PLAUSIBLE_BASE_URL}/api/event`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Origin: APP_CONFIG.metadata.url,
-        },
-        body: JSON.stringify({
-          domain: process.env.NEXT_PUBLIC_PLAUSIBLE_DATA_DOMAIN,
-          name,
-          url: APP_CONFIG.metadata.url,
-          props: fullPayload,
-        }),
-      });
-      if (!resp.ok) {
-        console.error("Plausible event tracking failed", resp.status, await resp.text(), { name, payload });
-      }
+      await APP_CONFIG.analytics.eventCb(name, payload);
     } catch (e) {
-      console.error("Plausible event tracking failed", e, { name, payload });
+      console.warn("Failed to track event via eventCb", e);
     }
   }
 }

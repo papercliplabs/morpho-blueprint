@@ -21,6 +21,9 @@ vi.mock("@/config/components/TermsOfUse", () => ({
 vi.mock("@/config/components/PrivacyPolicy", () => ({
   PrivacyPolicy: () => null,
 }));
+vi.mock("@/config/components/Analytics", () => ({
+  Analytics: () => null,
+}));
 
 beforeEach(() => {
   vi.resetAllMocks(); // Clear return values, call history, etc.
