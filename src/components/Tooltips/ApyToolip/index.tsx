@@ -86,10 +86,12 @@ function ApyTooltipContent({ type, totalApy, nativeApy, rewards, performanceFee 
                 <span className="flex items-center gap-2">
                   {reward.asset.symbol} <Avatar src={reward.asset.icon} size="xs" />
                 </span>
-                {formatNumber((type === "borrow" ? -1 : 1) * reward.apr, {
-                  style: "percent",
-                  signDisplay: "exceptZero",
-                })}
+                <span className="body-small-plus">
+                  {formatNumber((type === "borrow" ? -1 : 1) * reward.apr, {
+                    style: "percent",
+                    signDisplay: "exceptZero",
+                  })}
+                </span>
               </span>
             );
           })}
@@ -117,7 +119,9 @@ function ApyTooltipContent({ type, totalApy, nativeApy, rewards, performanceFee 
       <div className="h-[1px] bg-border" />
       <div className="flex justify-between">
         <span>Total APY</span>
-        <span>= {formatNumber(totalApy, { style: "percent", signDisplay: "exceptZero" })}</span>
+        <span className="font-semibold">
+          = {formatNumber(totalApy, { style: "percent", signDisplay: "exceptZero" })}
+        </span>
       </div>
     </div>
   );

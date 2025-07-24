@@ -41,17 +41,19 @@ function TotalSupplyTooltipContent({ supplyCap, totalSupply }: TotalSupplyToolti
       <span className="flex flex-col gap-2">
         <span className="flex justify-between">
           <span>Supply Cap</span>
-          <span>{supplyCap ? formatNumber(supplyCap, { currency: "USD" }) : "None"}</span>
+          <span className="font-semibold">{supplyCap ? formatNumber(supplyCap, { currency: "USD" }) : "None"}</span>
         </span>
         <span className="flex justify-between">
           <span>Total Supplied</span>
-          <span>{formatNumber(totalSupply, { currency: "USD" })}</span>
+          <span className="font-semibold">{formatNumber(totalSupply, { currency: "USD" })}</span>
         </span>
       </span>
       <div className="h-[1px] bg-border" />
       <span className="flex justify-between">
         <span>Remaining Capacity</span>
-        <span>{supplyCap == null ? "∞" : formatNumber(remainingCapacity, { currency: "USD" })}</span>
+        <span className="font-semibold">
+          {supplyCap == null ? "∞" : formatNumber(remainingCapacity, { currency: "USD" })}
+        </span>
       </span>
     </div>
   );
