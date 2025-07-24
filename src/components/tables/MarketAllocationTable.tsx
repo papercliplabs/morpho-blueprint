@@ -63,7 +63,7 @@ const columns: ColumnDef<Vault["marketAllocations"][number]>[] = [
   {
     id: "supplyApy",
     accessorKey: "market.supplyApy.total",
-    header: "Total Supply",
+    header: "Supply APY",
     cell: ({ row }) => {
       const { market } = row.original;
       return (
