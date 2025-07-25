@@ -54,7 +54,7 @@ const tabsTriggerVariants = cva(
         default:
           "data-[state=active]:bg-card data-[state=active]:body-medium-plus body-medium text-foreground bg-transparent rounded-sm data-[state=active]:shadow px-4",
         underline:
-          "bg-transparent border-b-2 border-transparent hover:border-muted-foreground hover:bg-accent px-3 data-[state=active]:border-primary data-[state=active]:text-primary",
+          "bg-transparent border-b-2 border-transparent hover:border-muted-foreground hover:bg-accent px-3 data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:body-medium-plus",
         filled:
           "bg-background rounded-sm hover:bg-accent px-4 body-medium data-[state=active]:body-medium-plus data-[state=active]:bg-accent",
       },
