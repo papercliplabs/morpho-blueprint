@@ -4,7 +4,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { type Address, getAddress } from "viem";
-
+import { sampleData } from "@/components/charts/sample-data";
+import { VaultChart } from "@/components/charts/VaultChart";
 import LinkExternal from "@/components/LinkExternal";
 import { TokenIcon } from "@/components/TokenIcon";
 import { MarketAllocationTable } from "@/components/tables/MarketAllocationTable";
@@ -71,6 +72,14 @@ export default async function VaultPage({ params }: { params: Promise<{ chainId:
           {/* Hide until loaded in as this is conditionally rendered */}
           <Suspense fallback={null}>
             <VaultAboutCard chainId={chainId} vaultAddress={vaultAddress} />
+          </Suspense>
+
+          <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
+            <VaultChart data={sampleData} title="Deposits" type="totalSupplied" currencies={["ABC", "USD"]} />
+          </Suspense>
+
+          <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
+            <VaultChart data={sampleData} title="APY" type="supplyApy" />
           </Suspense>
 
           <Card>
