@@ -1,8 +1,6 @@
-import type { ComponentProps } from "react";
+import type { Apy, TokenAmount } from "@/generated/gql/whisk/graphql";
+import type { DataEntry, HistoricalData } from "./types";
 
-import type { DepositsChart } from "./DepositsChart";
-
-type Data = ComponentProps<typeof DepositsChart>["data"];
 
 // Helper function to generate realistic TokenAmount
 function createTokenAmount(baseValue: number, variance = 0.1): {
@@ -106,8 +104,23 @@ const weeklyData = Array.from({ length: 200 }, (_, i) => {
   };
 });
 
-export const sampleData: Data = {
+type SampleDepositData = DataEntry & {
+  totalSupplied: TokenAmount;
+  totalBorrowed: TokenAmount;
+}
+
+type SampleApyData = DataEntry & {
+  supplyApy: Pick<Apy, "base" | "total">;
+}
+
+export const sampleDespositsData: HistoricalData<SampleDepositData> = {
   hourly: hourlyData,
   daily: dailyData,
   weekly: weeklyData,
-};
+} as const;
+
+export const sampleApyData: HistoricalData<SampleApyData> = {
+  hourly: hourlyData,
+  daily: dailyData,
+  weekly: weeklyData,
+} as const;

@@ -4,8 +4,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { type Address, getAddress } from "viem";
-import { sampleData } from "@/components/charts/sample-data";
-import { VaultChart } from "@/components/charts/VaultChart";
+import { DataChart } from "@/components/DataChart/DataChart";
+import { sampleApyData, sampleDespositsData } from "@/components/DataChart/sample-data";
 import LinkExternal from "@/components/LinkExternal";
 import { TokenIcon } from "@/components/TokenIcon";
 import { MarketAllocationTable } from "@/components/tables/MarketAllocationTable";
@@ -75,11 +75,30 @@ export default async function VaultPage({ params }: { params: Promise<{ chainId:
           </Suspense>
 
           <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
-            <VaultChart data={sampleData} title="Deposits" type="totalSupplied" currencies={["ABC", "USD"]} />
+            <DataChart
+              data={sampleDespositsData}
+              title="Deposits"
+              defaultTab="totalSupplied"
+              tabOptions={[
+                {
+                  type: "tokenAmount",
+                  key: "totalSupplied",
+                  title: "Total Supplied",
+                  usdValue: 823,
+                  underylingAssetSymbol: "USDC",
+                  underlyingAssetValue: 812,
+                },
+              ]}
+            />
           </Suspense>
 
           <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
-            <VaultChart data={sampleData} title="APY" type="supplyApy" />
+            <DataChart
+              data={sampleApyData}
+              title="APY"
+              defaultTab="supplyApy"
+              tabOptions={[{ type: "apy", key: "supplyApy", title: "Supply APY", baseApy: 0.11, totalApy: 0.14 }]}
+            />
           </Suspense>
 
           <Card>
@@ -88,6 +107,32 @@ export default async function VaultPage({ params }: { params: Promise<{ chainId:
               <MarketAllocationTableWrapper chainId={chainId} vaultAddress={vaultAddress} />
             </Suspense>
           </Card>
+
+          <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
+            <DataChart
+              data={sampleDespositsData}
+              title="Historical Rate"
+              defaultTab="totalBorrowed"
+              tabOptions={[
+                {
+                  type: "tokenAmount",
+                  key: "totalBorrowed",
+                  title: "Borrow",
+                  usdValue: 823,
+                  underylingAssetSymbol: "USDC",
+                  underlyingAssetValue: 129,
+                },
+                {
+                  type: "tokenAmount",
+                  key: "totalSupplied",
+                  title: "Supply",
+                  usdValue: 567,
+                  underylingAssetSymbol: "USDC",
+                  underlyingAssetValue: 520,
+                },
+              ]}
+            />
+          </Suspense>
 
           <Card>
             <CardHeader>Vault Info</CardHeader>
