@@ -102,6 +102,7 @@ export const APP_CONFIG: AppConfig = {
     ],
     [polygon.id]: [
       getAddress("0xF91D80E43272DBC610551E8c872E0438d62C1c69"), // WPOL
+      getAddress("0xF5C81d25ee174d83f1FD202cA94AE6070d073cCF"), // WETH
     ],
   },
 

@@ -4,10 +4,10 @@ import { useId, useMemo, useState } from "react";
 import { CartesianGrid, ComposedChart, Line, ReferenceLine, XAxis, YAxis } from "recharts";
 import { Card } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { Sparkles } from "@/components/ui/icons/Sparkles";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { formatNumber } from "@/utils/format";
+import { Sparkles } from "../ui/icons/Sparkles";
+import { Label } from "../ui/label";
+import { Switch } from "../ui/switch";
 import { ChartHeader } from "./ChartHeader";
 import { CurrencySelector } from "./CurrencySelector";
 import { type DataRange, DateSelector, periods } from "./DateSelector";
@@ -15,6 +15,8 @@ import { prepareChartDataWithDomain } from "./data-domain";
 import { type TabOptions, TabSelector } from "./TabSelector";
 import type { DataEntry, HistoricalData } from "./types";
 import { useIntervalX } from "./useIntervalX";
+
+const NO_DATA_POINT_THRESHOLD = 10; // Need at least this many data points to show a nice chart
 
 interface Props<D extends DataEntry> {
   title: string;
@@ -49,7 +51,7 @@ export function DataChart<D extends DataEntry>(props: Props<D>) {
   }, [tab, withRewards, isTokenAmount, isApy, isUsd]);
 
   const data = prepareChartDataWithDomain(allData[periods[range]], range, field);
-  const hasData = data.length > 0;
+  const hasData = data.length > NO_DATA_POINT_THRESHOLD;
 
   function formatValue(value: number, options: Intl.NumberFormatOptions = {}) {
     return formatNumber(value, {
@@ -86,7 +88,8 @@ export function DataChart<D extends DataEntry>(props: Props<D>) {
             setCurrency={setCurrency}
           />
         )}
-        {hasRewardsData && (
+        {/* Note: Disabled rewards toggle for now as our historical APY data does not currently include rewards */}
+        {hasRewardsData && false && (
           <div className="flex items-center space-x-2">
             <Switch id={rewardsId} checked={withRewards} onCheckedChange={setWithRewards} />
             <Label htmlFor={rewardsId} className="flex items-center gap-1">
@@ -149,10 +152,16 @@ export function DataChart<D extends DataEntry>(props: Props<D>) {
                 />
 
                 <Line
-                  dataKey={`${tab.toString()}.${field.toString()}`}
+                  // Make sure always numeric data here (tokenAmount.formatted is a string)
+                  dataKey={(entry: DataEntry) => {
+                    // biome-ignore lint/suspicious/noExplicitAny: Allow cast
+                    const value = (entry as any)[tab][field];
+                    return typeof value === "string" ? Number(value) : value;
+                  }}
                   stroke="var(--chart-1)"
                   strokeWidth={2}
                   dot={false}
+                  connectNulls={true}
                 />
                 {isApy && (
                   <ReferenceLine
@@ -179,7 +188,9 @@ export function DataChart<D extends DataEntry>(props: Props<D>) {
           )}
           {!hasData && (
             <div className="flex h-full items-center justify-center">
-              <p className="body-small-plus text-muted-foreground">No data available for selected timeframe</p>
+              <p className="body-small-plus text-center text-muted-foreground">
+                Insufficient data available for selected timeframe.
+              </p>
             </div>
           )}
         </div>
