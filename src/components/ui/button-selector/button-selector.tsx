@@ -17,7 +17,7 @@ export function ButtonSelector<T = string>(props: ButtonSelectorProps<T>) {
   const id = useId();
 
   return (
-    <div className={cn("flex", className)}>
+    <div className={cn("flex gap-px", className)}>
       {options.map((option) => (
         <button
           key={String(option)}
@@ -35,7 +35,7 @@ export function ButtonSelector<T = string>(props: ButtonSelectorProps<T>) {
           {selected === option && (
             <motion.span
               layoutId={id}
-              className="absolute inset-0 rounded bg-accent"
+              className="absolute inset-0 rounded-full bg-accent"
               transition={{ type: "spring", bounce: 0.15, duration: 0.55 }}
             />
           )}
