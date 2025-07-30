@@ -40,7 +40,7 @@ export function TabSelector<T extends DataEntry>(props: Props<T>) {
       value={selected.toString()}
       variant="default"
       onValueChange={(v) => setSelected(v as Exclude<keyof T, "bucketTimestamp">)}
-      className={cn("w-fit", className)}
+      className={cn("md:w-fit", className)}
     >
       <TabsList>
         {tabs.map((tab) => (
