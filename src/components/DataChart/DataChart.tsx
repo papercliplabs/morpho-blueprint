@@ -7,8 +7,10 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/
 import { formatNumber } from "@/utils/format";
 import { Card } from "../ui/card";
 import { type DataRange, DateSelector, periods } from "./DateSelector";
+import { prepareChartDataWithDomain } from "./data-domain";
 import { type TabOptions, TabSelector } from "./TabSelector";
 import type { DataEntry, HistoricalData } from "./types";
+import { useIntervalX } from "./useIntervalX";
 
 interface Props<D extends DataEntry> {
   title: string;
@@ -16,11 +18,10 @@ interface Props<D extends DataEntry> {
   defaultTab: Exclude<keyof D, "bucketTimestamp">;
   tabOptions?: Array<TabOptions<D>>;
 }
+
 export function DataChart<D extends DataEntry>(props: Props<D>) {
   const { data: allData, title, defaultTab, tabOptions } = props;
-  const [range, setRange] = useState<DataRange>("1W");
-
-  const data = allData[periods[range]];
+  const [range, setRange] = useState<DataRange>("1M");
 
   const [currency, setCurrency] = useState<string | undefined>("USD");
   const [tab, setTab] = useState<Exclude<keyof D, "bucketTimestamp">>(defaultTab);
@@ -41,6 +42,9 @@ export function DataChart<D extends DataEntry>(props: Props<D>) {
     throw new Error(`Invalid data ${tab.toString()}`);
   }, [tab, withRewards, isTokenAmount, isApy, isUsd]);
 
+  const data = prepareChartDataWithDomain(allData[periods[range]], range, field);
+  const hasData = data.length > 0;
+
   function formatValue(value: number, options: Intl.NumberFormatOptions = {}) {
     return formatNumber(value, {
       ...options,
@@ -48,6 +52,8 @@ export function DataChart<D extends DataEntry>(props: Props<D>) {
       currency: isUsd ? "USD" : undefined,
     });
   }
+
+  const { intervalX } = useIntervalX(data.length);
 
   const label = tabOption?.title;
   const lastItem = data[data.length - 1];
@@ -58,7 +64,7 @@ export function DataChart<D extends DataEntry>(props: Props<D>) {
 
   return (
     <Card>
-      <header className="flex items-center justify-between">
+      <header className="flex min-h-8 items-center justify-between">
         <h6>{title}</h6>
         {isTokenAmount && (
           <div className="flex justify-end">
@@ -83,52 +89,60 @@ export function DataChart<D extends DataEntry>(props: Props<D>) {
           <dd className="heading-4 mt-1">{formatValue(value || (lastItem?.[tab][field] as number))}</dd>
         </dl>
 
-        <ChartContainer
-          config={{ [`${tab.toString()}.${field.toString()}`]: { label } }}
-          className="mt-4 h-[160px] w-full"
-        >
-          <LineChart accessibilityLayer data={data} margin={{ left: 25 }}>
-            <CartesianGrid vertical={false} />
-            <XAxis
-              dataKey={(e) => (e as DataEntry).bucketTimestamp.toString()}
-              tickLine={false}
-              axisLine={false}
-              tickFormatter={(value) => formatXAxis(value, range)}
-              interval={Math.ceil(data.length / 6.5)}
-              tickMargin={10}
-            />
-            <YAxis
-              tickLine={false}
-              axisLine={false}
-              tickCount={3}
-              orientation="right"
-              tick={{ textAnchor: "end", fontSize: 12, dx: 48 }}
-              tickFormatter={(value) => formatValue(value, { maximumFractionDigits: 0, minimumFractionDigits: 0 })}
-            />
-            <ChartTooltip
-              content={
-                <ChartTooltipContent
-                  labelFormatter={(value) =>
-                    new Date(value * 1000).toLocaleDateString("en-US", {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
-                    })
+        <div className="mt-4 h-[160px] w-full">
+          {hasData && (
+            <ChartContainer config={{ [`${tab.toString()}.${field.toString()}`]: { label } }} className="size-full">
+              <LineChart accessibilityLayer data={data} margin={{ left: 25 }}>
+                <CartesianGrid vertical={false} />
+                <XAxis
+                  dataKey={(e) => (e as DataEntry).bucketTimestamp.toString()}
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={(value) => formatXAxis(value, range)}
+                  interval={intervalX}
+                  tickMargin={10}
+                />
+                <YAxis
+                  tickLine={false}
+                  axisLine={false}
+                  tickCount={3}
+                  orientation="right"
+                  tick={{ textAnchor: "end", fontSize: 12, dx: 48 }}
+                  tickFormatter={(value) =>
+                    formatValue(Number(value), { maximumFractionDigits: 0, minimumFractionDigits: 0 })
                   }
                 />
-              }
-            />
+                <ChartTooltip
+                  content={
+                    <ChartTooltipContent
+                      labelFormatter={(value) =>
+                        new Date(value * 1000).toLocaleDateString("en-US", {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        })
+                      }
+                    />
+                  }
+                />
 
-            <Line
-              dataKey={`${tab.toString()}.${field.toString()}`}
-              stroke="var(--chart-1)"
-              strokeWidth={2}
-              dot={false}
-            />
-          </LineChart>
-        </ChartContainer>
+                <Line
+                  dataKey={`${tab.toString()}.${field.toString()}`}
+                  stroke="var(--chart-1)"
+                  strokeWidth={2}
+                  dot={false}
+                />
+              </LineChart>
+            </ChartContainer>
+          )}
+          {!hasData && (
+            <div className="flex h-full items-center justify-center">
+              <p className="body-small-plus text-muted-foreground">No data available for selected timeframe</p>
+            </div>
+          )}
+        </div>
         <div className="mt-8 flex justify-end">
-          <DateSelector range={range} setRange={setRange} />
+          <DateSelector range={range} setRange={setRange} fullDomain={getFullDomain(allData.weekly)} />
         </div>
       </div>
     </Card>
@@ -141,4 +155,9 @@ function formatXAxis(timestamp: number, range: DataRange) {
     month: "short",
     year: range === "All" ? "numeric" : undefined,
   }).format(new Date(timestamp * 1000));
+}
+
+function getFullDomain(data: DataEntry[]) {
+  if (data.length === 0) return 0;
+  return data[data.length - 1]!.bucketTimestamp - data[0]!.bucketTimestamp;
 }
