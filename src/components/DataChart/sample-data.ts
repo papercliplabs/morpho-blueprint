@@ -124,3 +124,77 @@ export const sampleApyData: HistoricalData<SampleApyData> = {
   daily: dailyData,
   weekly: weeklyData,
 } as const;
+
+// Sample data with limited history (for testing new vaults)
+const limitedHourlyData = Array.from({ length: 24 }, (_, i) => {
+  const timestamp = Date.now() - (23 - i) * 60 * 60 * 1000; // Only last 24 hours
+  const progress = i / 23;
+  
+  const randomWalk = Math.random() * 0.1 - 0.05;
+  const growthFactor = 1 + progress * 0.2 + randomWalk;
+  const baseSupplied = (50000 + Math.random() * 25000) * growthFactor;
+  const baseBorrowed = (20000 + Math.random() * 15000) * growthFactor * (0.5 + Math.random() * 0.3);
+  
+  return {
+    bucketTimestamp: Math.floor(timestamp / 1000),
+    totalSupplied: createTokenAmount(baseSupplied, 0.1),
+    totalBorrowed: createTokenAmount(baseBorrowed, 0.15),
+    supplyApy: {
+      base: Math.min(0.15, Math.max(0.02, 0.06 + Math.random() * 0.04)), 
+      total: Math.min(0.15, Math.max(0.02, 0.08 + Math.random() * 0.05))
+    }
+  };
+});
+
+const limitedDailyData = Array.from({ length: 5 }, (_, i) => {
+  const timestamp = Date.now() - (4 - i) * 24 * 60 * 60 * 1000; // Only last 5 days
+  const progress = i / 4;
+  
+  const trendNoise = (Math.random() - 0.5) * 0.2;
+  const growthMultiplier = 1 + progress * 0.4 + trendNoise;
+  const baseSupplied = (75000 + Math.random() * 50000) * growthMultiplier;
+  const baseBorrowed = (30000 + Math.random() * 25000) * growthMultiplier * (0.4 + Math.random() * 0.4);
+  
+  return {
+    bucketTimestamp: Math.floor(timestamp / 1000),
+    totalSupplied: createTokenAmount(baseSupplied, 0.2),
+    totalBorrowed: createTokenAmount(baseBorrowed, 0.25),
+    supplyApy: {
+      base: Math.min(0.2, Math.max(0.01, 0.05 + Math.random() * 0.06)),
+      total: Math.min(0.2, Math.max(0.01, 0.07 + Math.random() * 0.08))
+    }
+  };
+});
+
+const limitedWeeklyData = Array.from({ length: 3 }, (_, i) => {
+  const timestamp = Date.now() - (2 - i) * 7 * 24 * 60 * 60 * 1000; // Only last 3 weeks
+  const progress = i / 2;
+  
+  const randomShock = Math.random() < 0.1 ? (Math.random() - 0.5) * 0.3 : 0;
+  const totalMultiplier = 1 + progress * 0.6 + randomShock;
+  const baseSupplied = (100000 + Math.random() * 75000) * Math.max(0.3, totalMultiplier);
+  const baseBorrowed = (40000 + Math.random() * 35000) * Math.max(0.2, totalMultiplier) * (0.3 + Math.random() * 0.5);
+  
+  return {
+    bucketTimestamp: Math.floor(timestamp / 1000),
+    totalSupplied: createTokenAmount(baseSupplied, 0.3),
+    totalBorrowed: createTokenAmount(baseBorrowed, 0.35),
+    supplyApy: {
+      base: Math.min(0.2, Math.max(0.02, 0.07 + Math.random() * 0.05)),
+      total: Math.min(0.2, Math.max(0.02, 0.09 + Math.random() * 0.06))
+    }
+  };
+});
+
+// Limited sample data for testing new vaults with minimal history
+export const limitedDepositData: HistoricalData<SampleDepositData> = {
+  hourly: limitedHourlyData,
+  daily: limitedDailyData,
+  weekly: limitedWeeklyData,
+} as const;
+
+export const limitedApyData: HistoricalData<SampleApyData> = {
+  hourly: limitedHourlyData,
+  daily: limitedDailyData, 
+  weekly: limitedWeeklyData,
+} as const;

@@ -5,7 +5,12 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { type Address, getAddress } from "viem";
 import { DataChart } from "@/components/DataChart/DataChart";
-import { sampleApyData, sampleDespositsData } from "@/components/DataChart/sample-data";
+import {
+  limitedApyData,
+  limitedDepositData,
+  sampleApyData,
+  sampleDespositsData,
+} from "@/components/DataChart/sample-data";
 import LinkExternal from "@/components/LinkExternal";
 import { TokenIcon } from "@/components/TokenIcon";
 import { MarketAllocationTable } from "@/components/tables/MarketAllocationTable";
@@ -94,8 +99,35 @@ export default async function VaultPage({ params }: { params: Promise<{ chainId:
 
           <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
             <DataChart
+              data={limitedDepositData}
+              title="Limited Deposits"
+              defaultTab="totalSupplied"
+              tabOptions={[
+                {
+                  type: "tokenAmount",
+                  key: "totalSupplied",
+                  title: "Total Supplied",
+                  usdValue: 823,
+                  underylingAssetSymbol: "USDC",
+                  underlyingAssetValue: 812,
+                },
+              ]}
+            />
+          </Suspense>
+
+          <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
+            <DataChart
               data={sampleApyData}
               title="APY"
+              defaultTab="supplyApy"
+              tabOptions={[{ type: "apy", key: "supplyApy", title: "Supply APY", baseApy: 0.11, totalApy: 0.14 }]}
+            />
+          </Suspense>
+
+          <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
+            <DataChart
+              data={limitedApyData}
+              title="Limited APY"
               defaultTab="supplyApy"
               tabOptions={[{ type: "apy", key: "supplyApy", title: "Supply APY", baseApy: 0.11, totalApy: 0.14 }]}
             />
