@@ -1,10 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import { CartesianGrid, ComposedChart, Line, ReferenceLine, XAxis, YAxis } from "recharts";
+import { Card } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { Sparkles } from "@/components/ui/icons/Sparkles";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { formatNumber } from "@/utils/format";
-import { Card } from "../ui/card";
 import { ChartHeader } from "./ChartHeader";
 import { CurrencySelector } from "./CurrencySelector";
 import { type DataRange, DateSelector, periods } from "./DateSelector";
@@ -24,7 +27,7 @@ export function DataChart<D extends DataEntry>(props: Props<D>) {
   const { data: allData, title, defaultTab, tabOptions } = props;
   const [range, setRange] = useState<DataRange>("1M");
   const [tab, setTab] = useState<Exclude<keyof D, "bucketTimestamp">>(defaultTab);
-  const [withRewards] = useState(false); // ToDo: Rewards Toggle
+  const [withRewards, setWithRewards] = useState(false);
 
   const tabOption = tabOptions?.find((t) => t.key === tab);
   const isTokenAmount = tabOption?.type === "tokenAmount";
@@ -65,20 +68,31 @@ export function DataChart<D extends DataEntry>(props: Props<D>) {
     ? tabOption?.[isUsd ? "usdValue" : "underlyingAssetValue"]
     : tabOption?.[withRewards ? "totalApy" : "baseApy"];
 
-  const hasUsdValues = isTokenAmount && data.some((d) => (d[tab] as { usd: number | null }).usd !== null);
+  const hasUsdData = isTokenAmount && data.some((d) => (d[tab] as { usd: number | null }).usd !== null);
+  const hasRewardsData = isApy && data.some((d) => (d[tab] as { totalApy: number | null }).totalApy !== null);
 
   const average = calculateAverage(allData[periods[range]].map((d) => Number(d[tab][field])));
+
+  const rewardsId = useId();
 
   return (
     <Card>
       <header className="flex min-h-8 items-center justify-between">
         <h6>{title}</h6>
-        {hasUsdValues && (
+        {hasUsdData && (
           <CurrencySelector
             underlyingAssetSymbol={tabOption.underlyingAssetSymbol}
             currency={currency!}
             setCurrency={setCurrency}
           />
+        )}
+        {hasRewardsData && (
+          <div className="flex items-center space-x-2">
+            <Switch id={rewardsId} checked={withRewards} onCheckedChange={setWithRewards} />
+            <Label htmlFor={rewardsId} className="flex items-center gap-1">
+              With Rewards <Sparkles className="size-4 text-accent-foreground" />
+            </Label>
+          </div>
         )}
       </header>
 
