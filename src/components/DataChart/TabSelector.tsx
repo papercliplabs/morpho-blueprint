@@ -10,7 +10,7 @@ type TokenAmountOption<T> = {
   title: string;
   description?: string;
   usdValue: number;
-  underylingAssetSymbol: string;
+  underlyingAssetSymbol: string;
   underlyingAssetValue: number;
 };
 

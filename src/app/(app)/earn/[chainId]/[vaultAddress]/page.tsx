@@ -91,7 +91,7 @@ export default async function VaultPage({ params }: { params: Promise<{ chainId:
                   title: "Total Supplied",
                   description: "The total amount of assets currently deposited in the vault.",
                   usdValue: 823,
-                  underylingAssetSymbol: "USDC",
+                  underlyingAssetSymbol: "USDC",
                   underlyingAssetValue: 812,
                 },
               ]}
@@ -109,7 +109,7 @@ export default async function VaultPage({ params }: { params: Promise<{ chainId:
                   key: "totalSupplied",
                   title: "Total Supplied",
                   usdValue: 823,
-                  underylingAssetSymbol: "USDC",
+                  underlyingAssetSymbol: "USDC",
                   underlyingAssetValue: 812,
                 },
               ]}
@@ -152,7 +152,7 @@ export default async function VaultPage({ params }: { params: Promise<{ chainId:
                   key: "totalBorrowed",
                   title: "Borrow",
                   usdValue: 823,
-                  underylingAssetSymbol: "USDC",
+                  underlyingAssetSymbol: "USDC",
                   underlyingAssetValue: 129,
                 },
                 {
@@ -160,7 +160,7 @@ export default async function VaultPage({ params }: { params: Promise<{ chainId:
                   key: "totalSupplied",
                   title: "Supply",
                   usdValue: 567,
-                  underylingAssetSymbol: "USDC",
+                  underlyingAssetSymbol: "USDC",
                   underlyingAssetValue: 520,
                 },
               ]}
