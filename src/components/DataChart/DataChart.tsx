@@ -6,6 +6,7 @@ import { ButtonSelector } from "@/components/ui/button-selector/button-selector"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { formatNumber } from "@/utils/format";
 import { Card } from "../ui/card";
+import { ChartHeader } from "./ChartHeader";
 import { type DataRange, DateSelector, periods } from "./DateSelector";
 import { prepareChartDataWithDomain } from "./data-domain";
 import { type TabOptions, TabSelector } from "./TabSelector";
@@ -82,12 +83,14 @@ export function DataChart<D extends DataEntry>(props: Props<D>) {
       )}
 
       <div className="mt-4 rounded-lg border p-4">
-        <dl>
-          <dt className="body-small-plus text-muted-foreground">
-            {label} {isTokenAmount ? `(${currency})` : ""}
-          </dt>
-          <dd className="heading-4 mt-1">{formatValue(value || (lastItem?.[tab][field] as number))}</dd>
-        </dl>
+        {label && (
+          <ChartHeader
+            label={label}
+            currency={isTokenAmount ? currency : undefined}
+            description={tabOption?.description}
+            value={formatValue(value || (lastItem?.[tab][field] as number))}
+          />
+        )}
 
         <div className="mt-4 h-[160px] w-full">
           {hasData && (

@@ -89,6 +89,7 @@ export default async function VaultPage({ params }: { params: Promise<{ chainId:
                   type: "tokenAmount",
                   key: "totalSupplied",
                   title: "Total Supplied",
+                  description: "The total amount of assets currently deposited in the vault.",
                   usdValue: 823,
                   underylingAssetSymbol: "USDC",
                   underlyingAssetValue: 812,

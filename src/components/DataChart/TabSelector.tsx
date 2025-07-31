@@ -8,6 +8,7 @@ type TokenAmountOption<T> = {
   type: "tokenAmount";
   key: Exclude<keyof T, "bucketTimestamp">;
   title: string;
+  description?: string;
   usdValue: number;
   underylingAssetSymbol: string;
   underlyingAssetValue: number;
@@ -17,6 +18,7 @@ type ApyOption<T> = {
   type: "apy";
   key: Exclude<keyof T, "bucketTimestamp">;
   title: string;
+  description?: string;
   baseApy: number;
   totalApy: number;
 };
