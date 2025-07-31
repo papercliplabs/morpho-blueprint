@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useEffect, useState } from "react";
 import { useResponsiveContext } from "@/providers/ResponsiveProvider";
@@ -10,7 +10,6 @@ export function useIntervalX(dataLength: number) {
   useEffect(() => {
     setInterval(Math.ceil(dataLength / (isDesktop ? 6.5 : 3)));
   }, [dataLength, isDesktop]);
-
 
   return { intervalX: interval };
 }
