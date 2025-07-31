@@ -4,6 +4,7 @@ import * as React from "react";
 import * as RechartsPrimitive from "recharts";
 
 import { cn } from "@/utils/shadcn";
+import { Separator } from "./seperator";
 
 // Format: { THEME_NAME: CSS_SELECTOR }
 const THEMES = { light: "", dark: ".dark" } as const;
@@ -107,6 +108,7 @@ function ChartTooltipContent({
   color,
   nameKey,
   labelKey,
+  valueFormatter,
 }: React.ComponentProps<typeof RechartsPrimitive.Tooltip> &
   React.ComponentProps<"div"> & {
     hideLabel?: boolean;
@@ -114,6 +116,7 @@ function ChartTooltipContent({
     indicator?: "line" | "dot" | "dashed";
     nameKey?: string;
     labelKey?: string;
+    valueFormatter?: (value: number | string) => string;
   }) {
   const { config } = useChart();
 
@@ -129,14 +132,18 @@ function ChartTooltipContent({
       !labelKey && typeof label === "string" ? config[label as keyof typeof config]?.label || label : itemConfig?.label;
 
     if (labelFormatter) {
-      return <div className={cn("font-medium", labelClassName)}>{labelFormatter(value, payload)}</div>;
+      return (
+        <div className={cn("body-medium-plus text-popover-foreground", labelClassName)}>
+          {labelFormatter(value, payload)}
+        </div>
+      );
     }
 
     if (!value) {
       return null;
     }
 
-    return <div className={cn("font-medium", labelClassName)}>{value}</div>;
+    return <div className={cn("body-medium-plus text-popover-foreground", labelClassName)}>{value}</div>;
   }, [label, labelFormatter, payload, hideLabel, labelClassName, config, labelKey]);
 
   if (!active || !payload?.length) {
@@ -148,11 +155,12 @@ function ChartTooltipContent({
   return (
     <div
       className={cn(
-        "grid min-w-[8rem] items-start gap-1.5 rounded-lg border border-border/50 bg-background px-2.5 py-1.5 text-xs shadow-xl",
+        "grid min-w-[240px] items-start gap-3 rounded-md border border-border bg-background p-4 text-xs shadow-md",
         className,
       )}
     >
       {!nestLabel ? tooltipLabel : null}
+      <Separator />
       <div className="grid gap-1.5">
         {payload.map((item, index) => {
           const key = `${nameKey || item.name || item.dataKey || "value"}`;
@@ -177,7 +185,7 @@ function ChartTooltipContent({
                     !hideIndicator && (
                       <div
                         className={cn("shrink-0 rounded-[2px] border-(--color-border) bg-(--color-bg)", {
-                          "h-2.5 w-2.5": indicator === "dot",
+                          "size-6 rounded-sm border border-border": indicator === "dot",
                           "w-1": indicator === "line",
                           "w-0 border-[1.5px] border-dashed bg-transparent": indicator === "dashed",
                           "my-0.5": nestLabel && indicator === "dashed",
@@ -196,11 +204,11 @@ function ChartTooltipContent({
                   >
                     <div className="grid gap-1.5">
                       {nestLabel ? tooltipLabel : null}
-                      <span className="text-muted-foreground">{itemConfig?.label || item.name}</span>
+                      <span className="body-small text-popover-foreground">{itemConfig?.label || item.name}</span>
                     </div>
                     {item.value && (
-                      <span className="ml-2 font-medium font-mono text-foreground tabular-nums">
-                        {item.value.toLocaleString()}
+                      <span className="body-small-plus ml-2.5 text-popover-foreground tabular-nums">
+                        {valueFormatter ? valueFormatter(item.value as string | number) : item.value.toLocaleString()}
                       </span>
                     )}
                   </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
+import { CartesianGrid, ComposedChart, Line, ReferenceLine, XAxis, YAxis } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { formatNumber } from "@/utils/format";
 import { Card } from "../ui/card";
@@ -65,7 +65,9 @@ export function DataChart<D extends DataEntry>(props: Props<D>) {
     ? tabOption?.[isUsd ? "usdValue" : "underlyingAssetValue"]
     : tabOption?.[withRewards ? "totalApy" : "baseApy"];
 
-  const hasUsdValues = isTokenAmount && data.some((d) => (d as D & { usd: number | null }).usd !== null);
+  const hasUsdValues = isTokenAmount && data.some((d) => (d[tab] as { usd: number | null }).usd !== null);
+
+  const average = calculateAverage(allData[periods[range]].map((d) => Number(d[tab][field])));
 
   return (
     <Card>
@@ -97,7 +99,7 @@ export function DataChart<D extends DataEntry>(props: Props<D>) {
         <div className="mt-4 h-[160px] w-full">
           {hasData && (
             <ChartContainer config={{ [`${tab.toString()}.${field.toString()}`]: { label } }} className="size-full">
-              <LineChart accessibilityLayer data={data} margin={{ left: 25 }}>
+              <ComposedChart data={data} accessibilityLayer margin={{ left: 25 }}>
                 <CartesianGrid vertical={false} />
                 <XAxis
                   dataKey={(e) => (e as DataEntry).bucketTimestamp.toString()}
@@ -127,6 +129,7 @@ export function DataChart<D extends DataEntry>(props: Props<D>) {
                           year: "numeric",
                         })
                       }
+                      valueFormatter={(value) => formatValue(Number(value))}
                     />
                   }
                 />
@@ -137,7 +140,27 @@ export function DataChart<D extends DataEntry>(props: Props<D>) {
                   strokeWidth={2}
                   dot={false}
                 />
-              </LineChart>
+                {isApy && (
+                  <ReferenceLine
+                    y={average}
+                    stroke="var(--input)"
+                    strokeDasharray="4 4"
+                    strokeWidth={1}
+                    label={(props) => {
+                      const { viewBox } = props;
+                      if (!viewBox) return <g />;
+
+                      return (
+                        <foreignObject x={25} y={viewBox.y - 12} width={120} height={24} className="overflow-visible">
+                          <div className="body-medium-plus flex h-full w-fit items-center justify-center whitespace-nowrap rounded-sm border bg-muted px-1 text-muted-foreground">
+                            Avg {formatValue(average)}
+                          </div>
+                        </foreignObject>
+                      );
+                    }}
+                  />
+                )}
+              </ComposedChart>
             </ChartContainer>
           )}
           {!hasData && (
@@ -165,4 +188,9 @@ function formatXAxis(timestamp: number, range: DataRange) {
 function getFullDomain(data: DataEntry[]) {
   if (data.length === 0) return 0;
   return data[data.length - 1]!.bucketTimestamp - data[0]!.bucketTimestamp;
+}
+
+function calculateAverage(data: number[]): number {
+  if (data.length === 0) return 0;
+  return data.reduce((acc, d) => acc + Number(d), 0) / data.length;
 }
