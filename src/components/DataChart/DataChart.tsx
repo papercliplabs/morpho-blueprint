@@ -2,11 +2,11 @@
 
 import { useMemo, useState } from "react";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
-import { ButtonSelector } from "@/components/ui/button-selector/button-selector";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { formatNumber } from "@/utils/format";
 import { Card } from "../ui/card";
 import { ChartHeader } from "./ChartHeader";
+import { CurrencySelector } from "./CurrencySelector";
 import { type DataRange, DateSelector, periods } from "./DateSelector";
 import { prepareChartDataWithDomain } from "./data-domain";
 import { type TabOptions, TabSelector } from "./TabSelector";
@@ -23,14 +23,16 @@ interface Props<D extends DataEntry> {
 export function DataChart<D extends DataEntry>(props: Props<D>) {
   const { data: allData, title, defaultTab, tabOptions } = props;
   const [range, setRange] = useState<DataRange>("1M");
-
-  const [currency, setCurrency] = useState<string | undefined>("USD");
   const [tab, setTab] = useState<Exclude<keyof D, "bucketTimestamp">>(defaultTab);
   const [withRewards] = useState(false); // ToDo: Rewards Toggle
 
   const tabOption = tabOptions?.find((t) => t.key === tab);
   const isTokenAmount = tabOption?.type === "tokenAmount";
   const isApy = tabOption?.type === "apy";
+
+  const [currency, setCurrency] = useState<string | undefined>(
+    isTokenAmount ? tabOption.underlyingAssetSymbol : undefined,
+  );
   const isUsd = isTokenAmount && currency?.toLowerCase() === "usd";
 
   const field: keyof D[Exclude<keyof D, "bucketTimestamp">] = useMemo(() => {
@@ -63,18 +65,18 @@ export function DataChart<D extends DataEntry>(props: Props<D>) {
     ? tabOption?.[isUsd ? "usdValue" : "underlyingAssetValue"]
     : tabOption?.[withRewards ? "totalApy" : "baseApy"];
 
+  const hasUsdValues = isTokenAmount && data.some((d) => (d as D & { usd: number | null }).usd !== null);
+
   return (
     <Card>
       <header className="flex min-h-8 items-center justify-between">
         <h6>{title}</h6>
-        {isTokenAmount && (
-          <div className="flex justify-end">
-            <ButtonSelector
-              options={[tabOption.underylingAssetSymbol, "USD"]}
-              selected={currency}
-              setSelected={setCurrency}
-            />
-          </div>
+        {hasUsdValues && (
+          <CurrencySelector
+            underlyingAssetSymbol={tabOption.underlyingAssetSymbol}
+            currency={currency!}
+            setCurrency={setCurrency}
+          />
         )}
       </header>
 
