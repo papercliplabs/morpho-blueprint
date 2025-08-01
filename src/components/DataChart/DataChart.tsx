@@ -11,7 +11,7 @@ import { Switch } from "../ui/switch";
 import { ChartHeader } from "./ChartHeader";
 import { CurrencySelector } from "./CurrencySelector";
 import { type DataRange, DateSelector, periods } from "./DateSelector";
-import { prepareChartDataWithDomain } from "./data-domain";
+import { getMinX, prepareChartDataWithDomain } from "./data-domain";
 import { type TabOptions, TabSelector } from "./TabSelector";
 import type { DataEntry, HistoricalData } from "./types";
 import { useIntervalX } from "./useIntervalX";
@@ -73,7 +73,10 @@ export function DataChart<D extends DataEntry>(props: Props<D>) {
   const hasUsdData = isTokenAmount && data.some((d) => (d[tab] as { usd: number | null }).usd !== null);
   const hasRewardsData = isApy && data.some((d) => (d[tab] as { totalApy: number | null }).totalApy !== null);
 
-  const average = calculateAverage(allData[periods[range]].map((d) => Number(d[tab][field])));
+  const minX = getMinX(allData[periods[range]], range);
+  const average = calculateAverage(
+    allData[periods[range]].filter((d) => d.bucketTimestamp >= minX).map((d) => Number(d[tab][field])),
+  );
 
   const rewardsId = useId();
 
@@ -147,6 +150,7 @@ export function DataChart<D extends DataEntry>(props: Props<D>) {
                         })
                       }
                       valueFormatter={(value) => formatValue(Number(value))}
+                      nameKey={`${tab.toString()}.${field.toString()}`}
                     />
                   }
                 />

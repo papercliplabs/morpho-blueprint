@@ -17,12 +17,10 @@ export function prepareChartDataWithDomain<D extends DataEntry>(
   range: DataRange,
   field: keyof D[Exclude<keyof D, "bucketTimestamp">],
 ): D[] {
-  const now = Math.floor(Date.now() / 1000);
-
   if (!data.length || !data[0]) return [];
   if (range === "All") return data;
 
-  const minX = now - RANGE_DURATION[range];
+  const minX = getMinX(data, range);
   const maxX = data[data.length - 1]!.bucketTimestamp;
 
   if (maxX < minX) return [];
@@ -81,4 +79,14 @@ function createEmptyPoint<D extends DataEntry>(
   }
 
   return point;
+}
+
+export function getMinX<D extends DataEntry>(data: D[], range: DataRange) {
+  if (!data.length || !data[0]) return 0;
+
+  if (range === "All") return data[0].bucketTimestamp;
+
+  const now = Math.floor(Date.now() / 1000);
+  const minX = now - RANGE_DURATION[range];
+  return minX;
 }
