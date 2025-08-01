@@ -5,12 +5,6 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { type Address, getAddress } from "viem";
 import { DataChart } from "@/components/DataChart/DataChart";
-import {
-  limitedApyData,
-  limitedDepositData,
-  sampleApyData,
-  sampleDespositsData,
-} from "@/components/DataChart/sample-data";
 import LinkExternal from "@/components/LinkExternal";
 import { TokenIcon } from "@/components/TokenIcon";
 import { MarketAllocationTable } from "@/components/tables/MarketAllocationTable";
@@ -80,58 +74,11 @@ export default async function VaultPage({ params }: { params: Promise<{ chainId:
           </Suspense>
 
           <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
-            <DataChart
-              data={sampleDespositsData}
-              title="Deposits"
-              defaultTab="totalSupplied"
-              tabOptions={[
-                {
-                  type: "tokenAmount",
-                  key: "totalSupplied",
-                  title: "Total Supplied",
-                  description: "The total amount of assets currently deposited in the vault.",
-                  usdValue: 823,
-                  underlyingAssetSymbol: "USDC",
-                  underlyingAssetValue: 812,
-                },
-              ]}
-            />
+            <VaultHistoricalDepositsChartWrapper chainId={chainId} vaultAddress={vaultAddress} />
           </Suspense>
 
           <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
-            <DataChart
-              data={limitedDepositData}
-              title="Limited Deposits"
-              defaultTab="totalSupplied"
-              tabOptions={[
-                {
-                  type: "tokenAmount",
-                  key: "totalSupplied",
-                  title: "Total Supplied",
-                  usdValue: 823,
-                  underlyingAssetSymbol: "USDC",
-                  underlyingAssetValue: 812,
-                },
-              ]}
-            />
-          </Suspense>
-
-          <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
-            <DataChart
-              data={sampleApyData}
-              title="APY"
-              defaultTab="supplyApy"
-              tabOptions={[{ type: "apy", key: "supplyApy", title: "Supply APY", baseApy: 0.11, totalApy: 0.14 }]}
-            />
-          </Suspense>
-
-          <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
-            <DataChart
-              data={limitedApyData}
-              title="Limited APY"
-              defaultTab="supplyApy"
-              tabOptions={[{ type: "apy", key: "supplyApy", title: "Supply APY", baseApy: 0.11, totalApy: 0.14 }]}
-            />
+            <VaultHistoricalApyChartWrapper chainId={chainId} vaultAddress={vaultAddress} />
           </Suspense>
 
           <Card>
@@ -140,32 +87,6 @@ export default async function VaultPage({ params }: { params: Promise<{ chainId:
               <MarketAllocationTableWrapper chainId={chainId} vaultAddress={vaultAddress} />
             </Suspense>
           </Card>
-
-          <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
-            <DataChart
-              data={sampleDespositsData}
-              title="Historical Rate"
-              defaultTab="totalBorrowed"
-              tabOptions={[
-                {
-                  type: "tokenAmount",
-                  key: "totalBorrowed",
-                  title: "Borrow",
-                  usdValue: 823,
-                  underlyingAssetSymbol: "USDC",
-                  underlyingAssetValue: 129,
-                },
-                {
-                  type: "tokenAmount",
-                  key: "totalSupplied",
-                  title: "Supply",
-                  usdValue: 567,
-                  underlyingAssetSymbol: "USDC",
-                  underlyingAssetValue: 520,
-                },
-              ]}
-            />
-          </Suspense>
 
           <Card>
             <CardHeader>Vault Info</CardHeader>
@@ -207,8 +128,6 @@ async function VaultHeader({ chainId, vaultAddress }: VaultIdentifier) {
   if (!vault) {
     return null;
   }
-
-  // Only show first one for now
   const curator = vault.metadata?.curators?.[0];
 
   return (
@@ -260,7 +179,6 @@ async function KeyMetricsWrapper({ chainId, vaultAddress }: VaultIdentifier) {
 
 async function VaultAboutCard({ chainId, vaultAddress }: VaultIdentifier) {
   const vault = await getVault(chainId, vaultAddress);
-
   // Hide unless there is about content
   if (!vault || !vault.metadata?.description) {
     return null;
@@ -271,6 +189,77 @@ async function VaultAboutCard({ chainId, vaultAddress }: VaultIdentifier) {
       <CardHeader>About</CardHeader>
       <p className="body-large text-muted-foreground">{vault.metadata?.description}</p>
     </Card>
+  );
+}
+
+async function VaultHistoricalDepositsChartWrapper({ chainId, vaultAddress }: VaultIdentifier) {
+  const vault = await getVault(chainId, vaultAddress);
+
+  // Null if the chain doesn't support historical data
+  if (!vault || !vault.historical) {
+    return null;
+  }
+
+  return (
+    <DataChart
+      data={vault.historical}
+      title="Deposits"
+      defaultTab="totalSupplied"
+      tabOptions={[
+        {
+          type: "tokenAmount",
+          key: "totalSupplied",
+          title: "Total Deposits",
+          description: "Total amount of assets deposited into the vault",
+          underlyingAssetSymbol: vault.asset.symbol,
+          underlyingAssetValue: Number(vault.totalSupplied.formatted),
+          usdValue: vault.totalSupplied.usd ?? 0,
+        },
+      ]}
+    />
+  );
+}
+
+async function VaultHistoricalApyChartWrapper({ chainId, vaultAddress }: VaultIdentifier) {
+  const vault = await getVault(chainId, vaultAddress);
+
+  // Null if the chain doesn't support historical data
+  if (!vault || !vault.historical) {
+    return null;
+  }
+
+  return (
+    <DataChart
+      data={vault.historical}
+      title="APY"
+      defaultTab="supplyApy1d"
+      tabOptions={[
+        {
+          type: "apy",
+          key: "supplyApy1d",
+          description: "Native supply APY using a 1 day rolling average",
+          title: "APY (1D)",
+          baseApy: vault.historical.daily[vault.historical.daily.length - 1]?.supplyApy1d?.base ?? 0,
+          totalApy: vault.historical.daily[vault.historical.daily.length - 1]?.supplyApy1d?.total ?? 0,
+        },
+        {
+          type: "apy",
+          key: "supplyApy7d",
+          description: "Native supply APY using a 7 day rolling average",
+          title: "APY (7D)",
+          baseApy: vault.historical.daily[vault.historical.daily.length - 1]?.supplyApy7d?.base ?? 0,
+          totalApy: vault.historical.daily[vault.historical.daily.length - 1]?.supplyApy7d?.total ?? 0,
+        },
+        {
+          type: "apy",
+          key: "supplyApy30d",
+          description: "Native supply APY using a 30 day rolling average",
+          title: "APY (30D)",
+          baseApy: vault.historical.daily[vault.historical.daily.length - 1]?.supplyApy30d?.base ?? 0,
+          totalApy: vault.historical.daily[vault.historical.daily.length - 1]?.supplyApy30d?.total ?? 0,
+        },
+      ]}
+    />
   );
 }
 

@@ -77,6 +77,18 @@ const query = graphql(`
           }
           vaultSupplyShare
         }
+
+        historical {
+            hourly {
+              ...VaultHistoricalEntryFragment
+            }
+            daily {
+              ...VaultHistoricalEntryFragment
+            }
+            weekly {
+              ...VaultHistoricalEntryFragment
+            }
+          }
       }
     }
   }
