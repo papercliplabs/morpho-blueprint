@@ -81,6 +81,26 @@ graphql(`
     }
   }
 
+  fragment VaultHistoricalEntryFragment on MorphoVaultHistoricalEntry {
+    bucketTimestamp
+    totalSupplied {
+      formatted
+      usd
+    }
+    supplyApy1d{
+      base
+      total
+    }
+    supplyApy7d{
+      base
+      total
+    }
+    supplyApy30d{
+      base
+      total
+    }
+  }
+
   fragment MarketSummaryFragment on MorphoMarket {
     chain {
       ...ChainInfoFragment

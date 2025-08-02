@@ -4,7 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { type Address, getAddress } from "viem";
-
+import { DataChart } from "@/components/DataChart/DataChart";
 import LinkExternal from "@/components/LinkExternal";
 import { TokenIcon } from "@/components/TokenIcon";
 import { MarketAllocationTable } from "@/components/tables/MarketAllocationTable";
@@ -73,6 +73,14 @@ export default async function VaultPage({ params }: { params: Promise<{ chainId:
             <VaultAboutCard chainId={chainId} vaultAddress={vaultAddress} />
           </Suspense>
 
+          <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
+            <VaultHistoricalDepositsChartWrapper chainId={chainId} vaultAddress={vaultAddress} />
+          </Suspense>
+
+          <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
+            <VaultHistoricalApyChartWrapper chainId={chainId} vaultAddress={vaultAddress} />
+          </Suspense>
+
           <Card>
             <CardHeader>Market Allocation</CardHeader>
             <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
@@ -120,8 +128,6 @@ async function VaultHeader({ chainId, vaultAddress }: VaultIdentifier) {
   if (!vault) {
     return null;
   }
-
-  // Only show first one for now
   const curator = vault.metadata?.curators?.[0];
 
   return (
@@ -173,7 +179,6 @@ async function KeyMetricsWrapper({ chainId, vaultAddress }: VaultIdentifier) {
 
 async function VaultAboutCard({ chainId, vaultAddress }: VaultIdentifier) {
   const vault = await getVault(chainId, vaultAddress);
-
   // Hide unless there is about content
   if (!vault || !vault.metadata?.description) {
     return null;
@@ -184,6 +189,77 @@ async function VaultAboutCard({ chainId, vaultAddress }: VaultIdentifier) {
       <CardHeader>About</CardHeader>
       <p className="body-large text-muted-foreground">{vault.metadata?.description}</p>
     </Card>
+  );
+}
+
+async function VaultHistoricalDepositsChartWrapper({ chainId, vaultAddress }: VaultIdentifier) {
+  const vault = await getVault(chainId, vaultAddress);
+
+  // Null if the chain doesn't support historical data
+  if (!vault || !vault.historical) {
+    return null;
+  }
+
+  return (
+    <DataChart
+      data={vault.historical}
+      title="Deposits"
+      defaultTab="totalSupplied"
+      tabOptions={[
+        {
+          type: "tokenAmount",
+          key: "totalSupplied",
+          title: "Total Deposits",
+          description: "Total amount of assets deposited into the vault",
+          underlyingAssetSymbol: vault.asset.symbol,
+          underlyingAssetValue: Number(vault.totalSupplied.formatted),
+          usdValue: vault.totalSupplied.usd ?? 0,
+        },
+      ]}
+    />
+  );
+}
+
+async function VaultHistoricalApyChartWrapper({ chainId, vaultAddress }: VaultIdentifier) {
+  const vault = await getVault(chainId, vaultAddress);
+
+  // Null if the chain doesn't support historical data
+  if (!vault || !vault.historical) {
+    return null;
+  }
+
+  return (
+    <DataChart
+      data={vault.historical}
+      title="APY"
+      defaultTab="supplyApy1d"
+      tabOptions={[
+        {
+          type: "apy",
+          key: "supplyApy1d",
+          description: "Native supply APY using a 1 day rolling average",
+          title: "APY (1D)",
+          baseApy: vault.historical.daily[vault.historical.daily.length - 1]?.supplyApy1d?.base ?? 0,
+          totalApy: vault.historical.daily[vault.historical.daily.length - 1]?.supplyApy1d?.total ?? 0,
+        },
+        {
+          type: "apy",
+          key: "supplyApy7d",
+          description: "Native supply APY using a 7 day rolling average",
+          title: "APY (7D)",
+          baseApy: vault.historical.daily[vault.historical.daily.length - 1]?.supplyApy7d?.base ?? 0,
+          totalApy: vault.historical.daily[vault.historical.daily.length - 1]?.supplyApy7d?.total ?? 0,
+        },
+        {
+          type: "apy",
+          key: "supplyApy30d",
+          description: "Native supply APY using a 30 day rolling average",
+          title: "APY (30D)",
+          baseApy: vault.historical.daily[vault.historical.daily.length - 1]?.supplyApy30d?.base ?? 0,
+          totalApy: vault.historical.daily[vault.historical.daily.length - 1]?.supplyApy30d?.total ?? 0,
+        },
+      ]}
+    />
   );
 }
 
