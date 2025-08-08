@@ -66,15 +66,11 @@ export function descaleBigIntToNumber(value: bigint | string, decimals: number):
   return Math.floor(Number(formattedUnits) * 1e8) / 1e8; // Round down to 8 decimal places for precision
 }
 
-export function formatAddress(address: string) {
-  try {
-    const checksummed = getAddress(address as Address);
-    const known = APP_CONFIG.knownAddresses.get(checksummed as Address);
-    if (known?.name) return known.name;
-  } catch {
-    // fall through to short format if not a valid address
-  }
-  return `${address.slice(0, 4)}...${address.slice(-4)}`;
+export function formatAddress(address: Address) {
+  const meta = getKnownAddressMeta(address);
+  if (meta?.name) return meta.name;
+  const checksummed = getAddress(address);
+  return `${checksummed.slice(0, 4)}...${checksummed.slice(-4)}`;
 }
 
 export function getKnownAddressMeta(address: Address) {
