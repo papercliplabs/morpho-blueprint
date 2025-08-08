@@ -84,4 +84,9 @@ export interface AppConfig {
     component?: ReactNode; // (optional) Component to be rendered in the root layout which can be used to inject analytics scripts.
     eventCb?: (name: EventName, payload: Record<string, string | number>) => void; // (optional) Callback when app event is received. This call routes through a server action to prevent client-side blocking.
   };
+
+  // Map of known addresses to friendly display metadata. If an address is present here,
+  // the app will render the friendly name (and optional icon) instead of the raw address
+  // wherever addresses are displayed.
+  knownAddresses: Record<Address, { name: string; iconUrl?: string }>;
 }

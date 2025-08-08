@@ -1,10 +1,10 @@
 "use client";
 import { ArrowUpRight } from "lucide-react";
+import Image from "next/image";
 import type { AnchorHTMLAttributes, ComponentProps } from "react";
 import type { Address } from "viem";
 import { usePublicClient } from "wagmi";
-
-import { formatAddress } from "@/utils/format";
+import { formatAddress, getKnownAddressMeta } from "@/utils/format";
 import { cn } from "@/utils/shadcn";
 
 interface LinkExternalProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
@@ -68,14 +68,18 @@ export function LinkExternalBlockExplorer({ chainId, children, className, ...pro
 
   let path: string;
   let displayName: string;
+  let iconUrl: string | undefined;
   switch (type) {
-    case "address":
+    case "address": {
       if (!props.address) {
         return <div className={cn("text-muted-foreground", className)}>None</div>;
       }
       path = `/address/${props.address}`;
       displayName = formatAddress(props.address);
+      const meta = getKnownAddressMeta(props.address);
+      iconUrl = meta?.iconUrl;
       break;
+    }
     case "tx":
       path = `/tx/${props.txHash}`;
       displayName = formatAddress(props.txHash);
@@ -89,7 +93,21 @@ export function LinkExternalBlockExplorer({ chainId, children, className, ...pro
       className={cn("text-foreground hover:no-underline hover:brightness-90", className)}
       {...props}
     >
-      {children ?? displayName}
+      {children ?? (
+        <>
+          {iconUrl && (
+            <Image
+              src={iconUrl}
+              alt=""
+              width={24}
+              height={24}
+              aria-hidden
+              className="h-6 w-6 shrink-0 rounded-full border border-card object-cover"
+            />
+          )}
+          {displayName}
+        </>
+      )}
     </LinkExternal>
   );
 }
