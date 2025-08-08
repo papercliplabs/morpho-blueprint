@@ -24,9 +24,9 @@ export function useVaultTableData({ vaultSummaries }: { vaultSummaries: VaultSum
   const { isConnected } = useAccount();
 
   const {
-    values: [chainsFilterValues, assetsFilterValues, curatorsFilterValues, accountFilterValues],
+    values: [chainsFilterValues, assetsFilterValues, curatorsFilterValues, accountFilterValues, categoryFilterValues],
   } = useShallowSearchParams({
-    keys: [FilterKey.Chains, FilterKey.SupplyAssets, FilterKey.Curators, FilterKey.Account],
+    keys: [FilterKey.Chains, FilterKey.SupplyAssets, FilterKey.Curators, FilterKey.Account, FilterKey.TokenCategories],
   });
 
   const data = useMemo(() => {
@@ -54,6 +54,10 @@ export function useVaultTableData({ vaultSummaries }: { vaultSummaries: VaultSum
         curatorsFilterValues === undefined ||
         curatorsFilterValues.length === 0 ||
         curatorsFilterValues.includes(dataEntry.vaultSummary.metadata?.curators[0]?.name ?? "N/A");
+      const categoryFilterMatch =
+        categoryFilterValues === undefined ||
+        categoryFilterValues.length === 0 ||
+        categoryFilterValues.includes(String(dataEntry.vaultSummary.asset.category ?? "N/A"));
 
       let accountFilterMatch = true;
       const accountFilterValue = accountFilterValues?.[0];
@@ -71,11 +75,11 @@ export function useVaultTableData({ vaultSummaries }: { vaultSummaries: VaultSum
         }
       }
 
-      return chainsFilterMatch && assetsFilterMatch && curatorsFilterMatch && accountFilterMatch;
+      return chainsFilterMatch && assetsFilterMatch && curatorsFilterMatch && categoryFilterMatch && accountFilterMatch;
     });
 
     return filteredData;
-  }, [data, chainsFilterValues, assetsFilterValues, curatorsFilterValues, accountFilterValues, isConnected]);
+  }, [data, chainsFilterValues, assetsFilterValues, curatorsFilterValues, categoryFilterValues, accountFilterValues, isConnected]);
 
   return { data: filteredData, isPositionsLoading: isLoading };
 }

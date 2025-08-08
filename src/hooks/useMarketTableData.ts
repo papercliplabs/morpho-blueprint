@@ -24,9 +24,9 @@ export function useMarketTableData({ marketSummaries }: { marketSummaries: Marke
   const { isConnected } = useAccount();
 
   const {
-    values: [chainsFilterValues, collateralAssetFilterValues, loanAssetFilterValues, accountFilterValues],
+    values: [chainsFilterValues, collateralAssetFilterValues, loanAssetFilterValues, accountFilterValues, categoryFilterValues],
   } = useShallowSearchParams({
-    keys: [FilterKey.Chains, FilterKey.CollateralAssets, FilterKey.LoanAssets, FilterKey.Account],
+    keys: [FilterKey.Chains, FilterKey.CollateralAssets, FilterKey.LoanAssets, FilterKey.Account, FilterKey.TokenCategories],
   });
 
   const data = useMemo(() => {
@@ -57,6 +57,16 @@ export function useMarketTableData({ marketSummaries }: { marketSummaries: Marke
         loanAssetFilterValues === undefined ||
         loanAssetFilterValues.length === 0 ||
         loanAssetFilterValues.includes(dataEntry.marketSummary.loanAsset.symbol.toString());
+      const categoryFilterMatch =
+        categoryFilterValues === undefined ||
+        categoryFilterValues.length === 0 ||
+        categoryFilterValues.includes(
+          String(
+            dataEntry.marketSummary.collateralAsset?.category ??
+              dataEntry.marketSummary.loanAsset.category ??
+              "N/A",
+          ),
+        );
 
       let accountFilterMatch = true;
       const accountFilterValue = accountFilterValues?.[0];
@@ -74,11 +84,17 @@ export function useMarketTableData({ marketSummaries }: { marketSummaries: Marke
         }
       }
 
-      return chainsFilterMatch && collateralAssetFilterMatch && loanAssetFilterMatch && accountFilterMatch;
+      return (
+        chainsFilterMatch &&
+        collateralAssetFilterMatch &&
+        loanAssetFilterMatch &&
+        categoryFilterMatch &&
+        accountFilterMatch
+      );
     });
 
     return filteredData;
-  }, [data, chainsFilterValues, collateralAssetFilterValues, loanAssetFilterValues, accountFilterValues, isConnected]);
+  }, [data, chainsFilterValues, collateralAssetFilterValues, loanAssetFilterValues, categoryFilterValues, accountFilterValues, isConnected]);
 
   return { data: filteredData, isPositionsLoading: isLoading };
 }

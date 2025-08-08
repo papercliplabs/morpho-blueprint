@@ -5,6 +5,7 @@ export enum FilterKey {
   LoanAssets = "loan-assets",
   Curators = "curators",
   Account = "account",
+  TokenCategories = "token-categories",
 }
 
 export const ALL_FILTER_KEYS = Object.values(FilterKey);

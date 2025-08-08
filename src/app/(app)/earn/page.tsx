@@ -67,6 +67,7 @@ async function VaultFiltersWrapper() {
   const chainOptionsMap: Record<string, MultiSelectOption> = {};
   const assetOptionsMap: Record<string, MultiSelectOption> = {};
   const curatorOptionsMap: Record<string, MultiSelectOption> = {};
+  const tokenCategoryOptionsMap: Record<string, MultiSelectOption> = {};
   for (const vault of vaultSummaries) {
     chainOptionsMap[vault.chain.id.toString()] = {
       value: vault.chain.name,
@@ -93,6 +94,14 @@ async function VaultFiltersWrapper() {
       ),
     };
 
+    if (vault.asset.category) {
+      const category = String(vault.asset.category);
+      tokenCategoryOptionsMap[category] = {
+        value: category,
+        component: <>{category}</>,
+      };
+    }
+
     const curator = vault.metadata?.curators[0];
     if (curator) {
       curatorOptionsMap[curator.name] = {
@@ -112,6 +121,7 @@ async function VaultFiltersWrapper() {
       chainOptions={Object.values(chainOptionsMap)}
       assetOptions={Object.values(assetOptionsMap)}
       curatorOptions={Object.values(curatorOptionsMap)}
+      tokenCategoryOptions={Object.values(tokenCategoryOptionsMap)}
     />
   );
 }

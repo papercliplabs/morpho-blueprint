@@ -67,6 +67,7 @@ async function MarketFiltersWrapper() {
   const chainOptionsMap: Record<string, MultiSelectOption> = {};
   const collateralAssetOptionsMap: Record<string, MultiSelectOption> = {};
   const loanAssetOptionsMap: Record<string, MultiSelectOption> = {};
+  const tokenCategoryOptionsMap: Record<string, MultiSelectOption> = {};
   for (const marketSummary of marketSummaries) {
     chainOptionsMap[marketSummary.chain.id.toString()] = {
       value: marketSummary.chain.name,
@@ -94,6 +95,14 @@ async function MarketFiltersWrapper() {
           </>
         ),
       };
+
+      if (marketSummary.collateralAsset.category) {
+        const category = String(marketSummary.collateralAsset.category);
+        tokenCategoryOptionsMap[category] = {
+          value: category,
+          component: <>{category}</>,
+        };
+      }
     }
 
     loanAssetOptionsMap[marketSummary.loanAsset.symbol.toString()] = {
@@ -105,6 +114,14 @@ async function MarketFiltersWrapper() {
         </>
       ),
     };
+
+    if (marketSummary.loanAsset.category) {
+      const category = String(marketSummary.loanAsset.category);
+      tokenCategoryOptionsMap[category] = {
+        value: category,
+        component: <>{category}</>,
+      };
+    }
   }
 
   return (
@@ -112,6 +129,7 @@ async function MarketFiltersWrapper() {
       chainOptions={Object.values(chainOptionsMap)}
       collateralAssetOptions={Object.values(collateralAssetOptionsMap)}
       loanAssetOptions={Object.values(loanAssetOptionsMap)}
+      tokenCategoryOptions={Object.values(tokenCategoryOptionsMap)}
     />
   );
 }
