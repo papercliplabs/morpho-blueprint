@@ -4,6 +4,7 @@ export enum FilterKey {
   CollateralAssets = "collateral-assets",
   LoanAssets = "loan-assets",
   Curators = "curators",
+  VaultTags = "vault-tags",
   Account = "account",
 }
 

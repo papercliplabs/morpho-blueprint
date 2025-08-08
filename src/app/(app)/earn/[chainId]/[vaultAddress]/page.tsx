@@ -8,6 +8,7 @@ import { DataChart } from "@/components/DataChart/DataChart";
 import LinkExternal from "@/components/LinkExternal";
 import { TokenIcon } from "@/components/TokenIcon";
 import { MarketAllocationTable } from "@/components/tables/MarketAllocationTable";
+import { Badge } from "@/components/ui/badge";
 import { BreakcrumbBack } from "@/components/ui/breakcrumb-back";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
@@ -129,13 +130,16 @@ async function VaultHeader({ chainId, vaultAddress }: VaultIdentifier) {
     return null;
   }
   const curator = vault.metadata?.curators?.[0];
+  const tag = APP_CONFIG.supportedVaults
+    ? APP_CONFIG.supportedVaults[chainId]?.find((v) => getAddress(v.address) === getAddress(vaultAddress))?.tag
+    : undefined;
 
   return (
     <div className="flex flex-col justify-between gap-4 md:flex-row">
       <div className="flex flex-col">
         <div className="flex h-[64px] items-center gap-3">
           <TokenIcon token={vault.asset} chain={vault.chain} size="md" />
-          <h1 className="heading-3">{vault.name}</h1>
+          <h1 className="heading-3 flex items-center gap-3">{vault.name}</h1>
         </div>
         <div className="flex items-center gap-2 text-muted-foreground">
           <span>
@@ -157,6 +161,12 @@ async function VaultHeader({ chainId, vaultAddress }: VaultIdentifier) {
                   />
                 </LinkExternal>
               </div>
+            </>
+          )}
+          {tag && (
+            <>
+              <span>&bull;</span>
+              <Badge aria-label="Vault type">{tag}</Badge>
             </>
           )}
         </div>

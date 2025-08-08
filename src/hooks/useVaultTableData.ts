@@ -4,7 +4,8 @@ import { getAddress } from "viem";
 import { useAccount } from "wagmi";
 
 import { FilterKey } from "@/components/filters/types";
-import type { SupportedChainId } from "@/config/types";
+import { APP_CONFIG } from "@/config";
+import type { SupportedChainId, VaultConfig } from "@/config/types";
 import type { VaultPosition } from "@/data/whisk/getVaultPositions";
 import type { VaultSummary } from "@/data/whisk/getVaultSummaries";
 import { useShallowSearchParams } from "./useShallowSearchParams";
@@ -24,9 +25,9 @@ export function useVaultTableData({ vaultSummaries }: { vaultSummaries: VaultSum
   const { isConnected } = useAccount();
 
   const {
-    values: [chainsFilterValues, assetsFilterValues, curatorsFilterValues, accountFilterValues],
+    values: [chainsFilterValues, assetsFilterValues, curatorsFilterValues, tagFilterValues, accountFilterValues],
   } = useShallowSearchParams({
-    keys: [FilterKey.Chains, FilterKey.SupplyAssets, FilterKey.Curators, FilterKey.Account],
+    keys: [FilterKey.Chains, FilterKey.SupplyAssets, FilterKey.Curators, FilterKey.VaultTags, FilterKey.Account],
   });
 
   const data = useMemo(() => {
@@ -55,6 +56,17 @@ export function useVaultTableData({ vaultSummaries }: { vaultSummaries: VaultSum
         curatorsFilterValues.length === 0 ||
         curatorsFilterValues.includes(dataEntry.vaultSummary.metadata?.curators[0]?.name ?? "N/A");
 
+      // Tags filter: match against optional supportedVaults
+      let tagFilterMatch = true;
+      if (tagFilterValues !== undefined && tagFilterValues.length > 0) {
+        const configForChain: VaultConfig[] =
+          APP_CONFIG.supportedVaults?.[dataEntry.vaultSummary.chain.id as SupportedChainId] ?? [];
+        const thisVaultTag = configForChain.find(
+          (vc: VaultConfig) => getAddress(vc.address) === getAddress(dataEntry.vaultSummary.vaultAddress),
+        )?.tag;
+        tagFilterMatch = thisVaultTag !== undefined && tagFilterValues.includes(thisVaultTag);
+      }
+
       let accountFilterMatch = true;
       const accountFilterValue = accountFilterValues?.[0];
       if (dataEntry.position !== undefined && accountFilterValue && isConnected) {
@@ -71,11 +83,19 @@ export function useVaultTableData({ vaultSummaries }: { vaultSummaries: VaultSum
         }
       }
 
-      return chainsFilterMatch && assetsFilterMatch && curatorsFilterMatch && accountFilterMatch;
+      return chainsFilterMatch && assetsFilterMatch && curatorsFilterMatch && tagFilterMatch && accountFilterMatch;
     });
 
     return filteredData;
-  }, [data, chainsFilterValues, assetsFilterValues, curatorsFilterValues, accountFilterValues, isConnected]);
+  }, [
+    data,
+    chainsFilterValues,
+    assetsFilterValues,
+    curatorsFilterValues,
+    tagFilterValues,
+    accountFilterValues,
+    isConnected,
+  ]);
 
   return { data: filteredData, isPositionsLoading: isLoading };
 }
