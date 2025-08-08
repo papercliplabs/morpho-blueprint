@@ -83,7 +83,8 @@ async function VaultFiltersWrapper() {
         </>
       ),
     };
-    assetOptionsMap[vault.asset.symbol.toString()] = {
+    const assetKey = vault.asset.symbol.toString();
+    assetOptionsMap[assetKey] = {
       value: vault.asset.symbol,
       component: (
         <>
@@ -92,6 +93,12 @@ async function VaultFiltersWrapper() {
         </>
       ),
     };
+
+    // Augment asset option with category for in-UI filtering pills
+    const assetOption = assetOptionsMap[assetKey];
+    if (assetOption) {
+      assetOption.category = vault.asset.category ?? null;
+    }
 
     const curator = vault.metadata?.curators[0];
     if (curator) {

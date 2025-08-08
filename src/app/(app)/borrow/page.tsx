@@ -85,7 +85,8 @@ async function MarketFiltersWrapper() {
     };
 
     if (marketSummary.collateralAsset) {
-      collateralAssetOptionsMap[marketSummary.collateralAsset.symbol.toString()] = {
+      const collateralKey = marketSummary.collateralAsset.symbol.toString();
+      collateralAssetOptionsMap[collateralKey] = {
         value: marketSummary.collateralAsset.symbol,
         component: (
           <>
@@ -94,9 +95,16 @@ async function MarketFiltersWrapper() {
           </>
         ),
       };
+
+      // Add category for in-UI filtering pills
+      const collateralOption = collateralAssetOptionsMap[collateralKey];
+      if (collateralOption) {
+        collateralOption.category = marketSummary.collateralAsset.category ?? null;
+      }
     }
 
-    loanAssetOptionsMap[marketSummary.loanAsset.symbol.toString()] = {
+    const loanKey = marketSummary.loanAsset.symbol.toString();
+    loanAssetOptionsMap[loanKey] = {
       value: marketSummary.loanAsset.symbol,
       component: (
         <>
@@ -105,6 +113,11 @@ async function MarketFiltersWrapper() {
         </>
       ),
     };
+
+    const loanOption = loanAssetOptionsMap[loanKey];
+    if (loanOption) {
+      loanOption.category = marketSummary.loanAsset.category ?? null;
+    }
   }
 
   return (

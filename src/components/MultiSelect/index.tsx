@@ -12,6 +12,7 @@ import { PopoverDrawer, PopoverDrawerContent, PopoverDrawerTrigger } from "../ui
 export type MultiSelectOption = {
   value: string;
   component: React.ReactNode;
+  category?: string | null;
 };
 
 type MultiSelectProps = {
@@ -36,6 +37,22 @@ export function MultiSelect({
   options,
 }: MultiSelectProps) {
   const [open, setOpen] = React.useState(defaultOpen);
+  const [activeCategory, setActiveCategory] = React.useState<string | null>(null);
+
+  const categories = React.useMemo(() => {
+    const set = new Set<string>();
+    for (const option of options) {
+      if (option.category) {
+        set.add(String(option.category));
+      }
+    }
+    return Array.from(set);
+  }, [options]);
+
+  const filteredOptions = React.useMemo(() => {
+    if (!activeCategory) return options;
+    return options.filter((o) => String(o.category ?? "") === activeCategory);
+  }, [options, activeCategory]);
 
   return (
     <PopoverDrawer open={open} onOpenChange={setOpen}>
@@ -51,10 +68,11 @@ export function MultiSelect({
       <PopoverDrawerContent className="w-full p-0 lg:w-[200px]" align="start">
         <Command>
           <CommandInput placeholder={placeholder} className="body-large" />
+          <CategoryPills categories={categories} activeCategory={activeCategory} onChange={setActiveCategory} />
           <CommandList>
             <CommandEmpty>{noResultsText}</CommandEmpty>
             <CommandGroup>
-              {options.map((option) => (
+              {filteredOptions.map((option) => (
                 <CommandItem
                   key={option.value}
                   value={option.value}
@@ -77,5 +95,40 @@ export function MultiSelect({
         </Command>
       </PopoverDrawerContent>
     </PopoverDrawer>
+  );
+}
+
+type CategoryPillsProps = {
+  categories: string[];
+  activeCategory: string | null;
+  onChange: (category: string | null) => void;
+};
+
+function CategoryPills({ categories, activeCategory, onChange }: CategoryPillsProps) {
+  if (categories.length === 0) return null;
+  return (
+    <div className="flex gap-2 overflow-x-auto px-4 pt-3 pb-2">
+      <button
+        type="button"
+        className={`rounded-md px-3 py-1 text-sm ${
+          activeCategory === null ? "bg-primary text-primary-foreground" : "bg-muted text-foreground"
+        }`}
+        onClick={() => onChange(null)}
+      >
+        All
+      </button>
+      {categories.map((category) => (
+        <button
+          type="button"
+          key={category}
+          className={`rounded-md px-3 py-1 text-sm ${
+            activeCategory === category ? "bg-primary text-primary-foreground" : "bg-muted text-foreground"
+          }`}
+          onClick={() => onChange(category)}
+        >
+          {category === "Stable" ? "Stable" : category.toUpperCase()}
+        </button>
+      ))}
+    </div>
   );
 }
