@@ -25,7 +25,9 @@ export type VaultSummary = NonNullable<VaultSummariesQuery["morphoVaults"]["item
 
 export const getVaultSummaries = cache(async () => {
   const chainIds = Object.keys(APP_CONFIG.supportedVaults).map((chainId) => Number.parseInt(chainId) as ChainId);
-  const vaultAddresses = Object.values(APP_CONFIG.supportedVaults).flat();
+  const vaultAddresses = Object.values(APP_CONFIG.supportedVaults)
+    .flat()
+    .map((v) => v.address);
 
   const response = await executeWhiskQuery(query, {
     chainIds,
@@ -43,7 +45,7 @@ export const getVaultSummaries = cache(async () => {
     }
 
     // Filter out potential for wrong vault with same address on another chain
-    if (!APP_CONFIG.supportedVaults[vault.chain.id as SupportedChainId].includes(vault.vaultAddress)) {
+    if (!APP_CONFIG.supportedVaults[vault.chain.id as SupportedChainId].some((v) => v.address === vault.vaultAddress)) {
       return false;
     }
 
