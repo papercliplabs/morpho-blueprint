@@ -67,7 +67,6 @@ async function VaultFiltersWrapper() {
   const chainOptionsMap: Record<string, MultiSelectOption> = {};
   const assetOptionsMap: Record<string, MultiSelectOption> = {};
   const curatorOptionsMap: Record<string, MultiSelectOption> = {};
-  const tokenCategoryOptionsMap: Record<string, MultiSelectOption> = {};
   for (const vault of vaultSummaries) {
     chainOptionsMap[vault.chain.id.toString()] = {
       value: vault.chain.name,
@@ -84,7 +83,8 @@ async function VaultFiltersWrapper() {
         </>
       ),
     };
-    assetOptionsMap[vault.asset.symbol.toString()] = {
+    const assetKey = vault.asset.symbol.toString();
+    assetOptionsMap[assetKey] = {
       value: vault.asset.symbol,
       component: (
         <>
@@ -94,12 +94,10 @@ async function VaultFiltersWrapper() {
       ),
     };
 
-    if (vault.asset.category) {
-      const category = String(vault.asset.category);
-      tokenCategoryOptionsMap[category] = {
-        value: category,
-        component: <>{category}</>,
-      };
+    // Augment asset option with category for in-UI filtering pills
+    const assetOption = assetOptionsMap[assetKey];
+    if (assetOption) {
+      assetOption.category = vault.asset.category ?? null;
     }
 
     const curator = vault.metadata?.curators[0];
@@ -121,7 +119,6 @@ async function VaultFiltersWrapper() {
       chainOptions={Object.values(chainOptionsMap)}
       assetOptions={Object.values(assetOptionsMap)}
       curatorOptions={Object.values(curatorOptionsMap)}
-      tokenCategoryOptions={Object.values(tokenCategoryOptionsMap)}
     />
   );
 }

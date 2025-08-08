@@ -67,7 +67,6 @@ async function MarketFiltersWrapper() {
   const chainOptionsMap: Record<string, MultiSelectOption> = {};
   const collateralAssetOptionsMap: Record<string, MultiSelectOption> = {};
   const loanAssetOptionsMap: Record<string, MultiSelectOption> = {};
-  const tokenCategoryOptionsMap: Record<string, MultiSelectOption> = {};
   for (const marketSummary of marketSummaries) {
     chainOptionsMap[marketSummary.chain.id.toString()] = {
       value: marketSummary.chain.name,
@@ -86,7 +85,8 @@ async function MarketFiltersWrapper() {
     };
 
     if (marketSummary.collateralAsset) {
-      collateralAssetOptionsMap[marketSummary.collateralAsset.symbol.toString()] = {
+      const collateralKey = marketSummary.collateralAsset.symbol.toString();
+      collateralAssetOptionsMap[collateralKey] = {
         value: marketSummary.collateralAsset.symbol,
         component: (
           <>
@@ -96,16 +96,15 @@ async function MarketFiltersWrapper() {
         ),
       };
 
-      if (marketSummary.collateralAsset.category) {
-        const category = String(marketSummary.collateralAsset.category);
-        tokenCategoryOptionsMap[category] = {
-          value: category,
-          component: <>{category}</>,
-        };
+      // Add category for in-UI filtering pills
+      const collateralOption = collateralAssetOptionsMap[collateralKey];
+      if (collateralOption) {
+        collateralOption.category = marketSummary.collateralAsset.category ?? null;
       }
     }
 
-    loanAssetOptionsMap[marketSummary.loanAsset.symbol.toString()] = {
+    const loanKey = marketSummary.loanAsset.symbol.toString();
+    loanAssetOptionsMap[loanKey] = {
       value: marketSummary.loanAsset.symbol,
       component: (
         <>
@@ -115,12 +114,9 @@ async function MarketFiltersWrapper() {
       ),
     };
 
-    if (marketSummary.loanAsset.category) {
-      const category = String(marketSummary.loanAsset.category);
-      tokenCategoryOptionsMap[category] = {
-        value: category,
-        component: <>{category}</>,
-      };
+    const loanOption = loanAssetOptionsMap[loanKey];
+    if (loanOption) {
+      loanOption.category = marketSummary.loanAsset.category ?? null;
     }
   }
 
@@ -129,7 +125,6 @@ async function MarketFiltersWrapper() {
       chainOptions={Object.values(chainOptionsMap)}
       collateralAssetOptions={Object.values(collateralAssetOptionsMap)}
       loanAssetOptions={Object.values(loanAssetOptionsMap)}
-      tokenCategoryOptions={Object.values(tokenCategoryOptionsMap)}
     />
   );
 }

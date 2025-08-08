@@ -12,16 +12,15 @@ interface MarketFiltersProps {
   chainOptions: MultiSelectOption[];
   collateralAssetOptions: MultiSelectOption[];
   loanAssetOptions: MultiSelectOption[];
-  tokenCategoryOptions: MultiSelectOption[];
 }
 
-export function MarketFilters({ chainOptions, collateralAssetOptions, loanAssetOptions, tokenCategoryOptions }: MarketFiltersProps) {
+export function MarketFilters({ chainOptions, collateralAssetOptions, loanAssetOptions }: MarketFiltersProps) {
   const {
-    values: [chainValues, collateralAssetValues, loanAssetValues, categoryValues],
+    values: [chainValues, collateralAssetValues, loanAssetValues],
     addShallowSearchParams,
     removeShallowSearchParams,
   } = useShallowSearchParams({
-    keys: [FilterKey.Chains, FilterKey.CollateralAssets, FilterKey.LoanAssets, FilterKey.TokenCategories],
+    keys: [FilterKey.Chains, FilterKey.CollateralAssets, FilterKey.LoanAssets],
   });
 
   const onSelect = useCallback(
@@ -67,15 +66,6 @@ export function MarketFilters({ chainOptions, collateralAssetOptions, loanAssetO
           value={loanAssetValues ?? []}
           onSelect={(value) => onSelect(FilterKey.LoanAssets, loanAssetValues ?? [], value)}
           onReset={() => removeShallowSearchParams([FilterKey.LoanAssets])}
-        />
-      )}
-      {tokenCategoryOptions.length > 1 && (
-        <MultiSelect
-          emptyValue={categoryValues === undefined || categoryValues.length === 0 ? "All Categories" : "Categories"}
-          options={tokenCategoryOptions}
-          value={categoryValues ?? []}
-          onSelect={(value) => onSelect(FilterKey.TokenCategories, categoryValues ?? [], value)}
-          onReset={() => removeShallowSearchParams([FilterKey.TokenCategories])}
         />
       )}
       <ResetFiltersButton />
