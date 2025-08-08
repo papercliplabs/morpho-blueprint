@@ -4,12 +4,11 @@ import { getAddress } from "viem";
 import { useAccount } from "wagmi";
 
 import { FilterKey } from "@/components/filters/types";
-import type { SupportedChainId } from "@/config/types";
+import { APP_CONFIG } from "@/config";
+import type { SupportedChainId, VaultConfig } from "@/config/types";
 import type { VaultPosition } from "@/data/whisk/getVaultPositions";
 import type { VaultSummary } from "@/data/whisk/getVaultSummaries";
 import { useShallowSearchParams } from "./useShallowSearchParams";
-import { APP_CONFIG } from "@/config";
-import type { VaultConfig } from "@/config/types";
 import { useVaultPositions } from "./useVaultPositions";
 
 export interface VaultTableDataEntry {
@@ -88,7 +87,15 @@ export function useVaultTableData({ vaultSummaries }: { vaultSummaries: VaultSum
     });
 
     return filteredData;
-  }, [data, chainsFilterValues, assetsFilterValues, curatorsFilterValues, tagFilterValues, accountFilterValues, isConnected]);
+  }, [
+    data,
+    chainsFilterValues,
+    assetsFilterValues,
+    curatorsFilterValues,
+    tagFilterValues,
+    accountFilterValues,
+    isConnected,
+  ]);
 
   return { data: filteredData, isPositionsLoading: isLoading };
 }

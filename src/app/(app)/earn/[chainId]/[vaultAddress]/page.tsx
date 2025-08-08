@@ -8,10 +8,10 @@ import { DataChart } from "@/components/DataChart/DataChart";
 import LinkExternal from "@/components/LinkExternal";
 import { TokenIcon } from "@/components/TokenIcon";
 import { MarketAllocationTable } from "@/components/tables/MarketAllocationTable";
+import { Badge } from "@/components/ui/badge";
 import { BreakcrumbBack } from "@/components/ui/breakcrumb-back";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { VaultActions } from "@/components/vault/VaultActions";
 import { VaultInfo, VaultInfoSkeleton } from "@/components/vault/VaultInfo";
@@ -139,9 +139,7 @@ async function VaultHeader({ chainId, vaultAddress }: VaultIdentifier) {
       <div className="flex flex-col">
         <div className="flex h-[64px] items-center gap-3">
           <TokenIcon token={vault.asset} chain={vault.chain} size="md" />
-          <h1 className="heading-3 flex items-center gap-3">
-            {vault.name}
-          </h1>
+          <h1 className="heading-3 flex items-center gap-3">{vault.name}</h1>
         </div>
         <div className="flex items-center gap-2 text-muted-foreground">
           <span>
