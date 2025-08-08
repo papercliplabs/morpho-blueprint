@@ -13,15 +13,16 @@ interface VaultFiltersProps {
   chainOptions: MultiSelectOption[];
   assetOptions: MultiSelectOption[];
   curatorOptions: MultiSelectOption[];
+  tagOptions?: MultiSelectOption[];
 }
 
-export function VaultFilters({ chainOptions, assetOptions, curatorOptions }: VaultFiltersProps) {
+export function VaultFilters({ chainOptions, assetOptions, curatorOptions, tagOptions = [] }: VaultFiltersProps) {
   const {
-    values: [chainValues, assetValues, curatorValues],
+    values: [chainValues, assetValues, curatorValues, tagValues],
     addShallowSearchParams,
     removeShallowSearchParams,
   } = useShallowSearchParams({
-    keys: [FilterKey.Chains, FilterKey.SupplyAssets, FilterKey.Curators],
+    keys: [FilterKey.Chains, FilterKey.SupplyAssets, FilterKey.Curators, FilterKey.VaultTags],
   });
 
   const onSelect = useCallback(
@@ -53,6 +54,15 @@ export function VaultFilters({ chainOptions, assetOptions, curatorOptions }: Vau
           value={assetValues ?? []}
           onSelect={(value) => onSelect(FilterKey.SupplyAssets, assetValues ?? [], value)}
           onReset={() => removeShallowSearchParams([FilterKey.SupplyAssets])}
+        />
+      )}
+      {tagOptions.length > 0 && (
+        <MultiSelect
+          emptyValue={tagValues === undefined || tagValues.length === 0 ? "Type" : "Type"}
+          options={tagOptions}
+          value={tagValues ?? []}
+          onSelect={(value) => onSelect(FilterKey.VaultTags, tagValues ?? [], value)}
+          onReset={() => removeShallowSearchParams([FilterKey.VaultTags])}
         />
       )}
       {!APP_CONFIG.featureFlags.hideCurator && curatorOptions.length > 1 && (

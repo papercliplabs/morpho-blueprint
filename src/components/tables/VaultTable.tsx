@@ -1,5 +1,6 @@
 "use client";
 import type { ColumnDef } from "@tanstack/react-table";
+import { getAddress } from "viem";
 
 import { Table } from "@/components/ui/table";
 import { APP_CONFIG } from "@/config";
@@ -12,6 +13,8 @@ import { ApyTooltip } from "../Tooltips/ApyToolip";
 import { VaultName } from "../vault/VaultName";
 
 import { TableAssetAmount } from "./Elements/TableAssetAmount";
+import { Badge } from "../ui/badge";
+import type { SupportedChainId, VaultConfig } from "@/config/types";
 
 interface VaultTableProps {
   vaultSummaries: VaultSummary[];
@@ -19,6 +22,10 @@ interface VaultTableProps {
 
 type Column = ColumnDef<VaultTableDataEntry>;
 function getColumns(isPositionLoading: boolean): Column[] {
+  const includeTypeColumn = Object.values(APP_CONFIG.vaultConfigs ?? {}).some((configs) =>
+    (configs ?? []).some((c) => c.tag !== undefined),
+  );
+
   return [
     {
       accessorKey: "vaultSummary.name",
@@ -108,6 +115,34 @@ function getColumns(isPositionLoading: boolean): Column[] {
         ),
       minSize: 140,
     },
+    ...(
+      includeTypeColumn
+        ? ([
+            {
+              id: "type",
+              accessorFn: (row) => {
+                const configForChain: VaultConfig[] =
+                  APP_CONFIG.vaultConfigs?.[row.vaultSummary.chain.id as SupportedChainId] ?? [];
+                const tag = configForChain.find(
+                  (vc: VaultConfig) => getAddress(vc.address) === getAddress(row.vaultSummary.vaultAddress),
+                )?.tag;
+                return tag ?? "";
+              },
+              header: "Type",
+              cell: ({ row }) => {
+                const { vaultSummary } = row.original;
+                const configForChain: VaultConfig[] =
+                  APP_CONFIG.vaultConfigs?.[vaultSummary.chain.id as SupportedChainId] ?? [];
+                const tag = configForChain.find(
+                  (vc: VaultConfig) => getAddress(vc.address) === getAddress(vaultSummary.vaultAddress),
+                )?.tag;
+                return tag ? <Badge variant="small">{tag}</Badge> : "—";
+              },
+              minSize: 110,
+            } as Column,
+          ] as Column[])
+        : ([] as Column[])
+    ),
     ...(!APP_CONFIG.featureFlags.hideCurator
       ? [
           {

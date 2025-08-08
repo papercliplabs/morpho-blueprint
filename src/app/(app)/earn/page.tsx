@@ -11,6 +11,7 @@ import { Card, CardHeader } from "@/components/ui/card";
 import { Skeleton, Skeletons } from "@/components/ui/skeleton";
 import { EarnSummaryMetrics, EarnSummaryMetricsSkeleton } from "@/components/vault/EarnSummaryMetrics";
 import { APP_CONFIG } from "@/config";
+import type { SupportedChainId, VaultTag } from "@/config/types";
 import { getVaultSummaries } from "@/data/whisk/getVaultSummaries";
 
 export const metadata: Metadata = {
@@ -67,6 +68,7 @@ async function VaultFiltersWrapper() {
   const chainOptionsMap: Record<string, MultiSelectOption> = {};
   const assetOptionsMap: Record<string, MultiSelectOption> = {};
   const curatorOptionsMap: Record<string, MultiSelectOption> = {};
+  const tagOptionsMap: Record<string, MultiSelectOption> = {};
   for (const vault of vaultSummaries) {
     chainOptionsMap[vault.chain.id.toString()] = {
       value: vault.chain.name,
@@ -105,6 +107,19 @@ async function VaultFiltersWrapper() {
         ),
       };
     }
+
+    // Derive tag from optional config
+    const chainId = vault.chain.id as SupportedChainId;
+    const tag = APP_CONFIG.vaultConfigs
+      ? APP_CONFIG.vaultConfigs[chainId]?.find((v) => v.address.toLowerCase() === vault.vaultAddress.toLowerCase())?.tag
+      : undefined;
+    if (tag) {
+      const value: VaultTag = tag;
+      tagOptionsMap[value] = {
+        value,
+        component: <>{value}</>,
+      };
+    }
   }
 
   return (
@@ -112,6 +127,7 @@ async function VaultFiltersWrapper() {
       chainOptions={Object.values(chainOptionsMap)}
       assetOptions={Object.values(assetOptionsMap)}
       curatorOptions={Object.values(curatorOptionsMap)}
+      tagOptions={Object.values(tagOptionsMap)}
     />
   );
 }
