@@ -111,7 +111,8 @@ async function VaultFiltersWrapper() {
     // Derive tag from optional config
     const chainId = vault.chain.id as SupportedChainId;
     const tag = APP_CONFIG.supportedVaults
-      ? APP_CONFIG.supportedVaults[chainId]?.find((v) => v.address.toLowerCase() === vault.vaultAddress.toLowerCase())?.tag
+      ? APP_CONFIG.supportedVaults[chainId]?.find((v) => v.address.toLowerCase() === vault.vaultAddress.toLowerCase())
+          ?.tag
       : undefined;
     if (tag) {
       const value: VaultTag = tag;
