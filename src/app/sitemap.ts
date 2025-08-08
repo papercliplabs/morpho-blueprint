@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { getAddress } from "viem";
 
 import { APP_CONFIG } from "@/config";
 import { getSupportedMarketIds } from "@/data/whisk/getSupportedMarketIds";
@@ -6,9 +7,9 @@ import { getSupportedMarketIds } from "@/data/whisk/getSupportedMarketIds";
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supportedMarketIds = await getSupportedMarketIds();
 
-  const vaultPages = Object.entries(APP_CONFIG.supportedVaults).flatMap(([chainId, addresses]) => {
-    return addresses.map((address) => ({
-      url: `${APP_CONFIG.metadata.url}/earn/${chainId}/${address}`,
+  const vaultPages = Object.entries(APP_CONFIG.supportedVaults).flatMap(([chainId, vaults]) => {
+    return vaults.map((v) => ({
+      url: `${APP_CONFIG.metadata.url}/earn/${chainId}/${getAddress(v.address)}`,
       lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 0.8,

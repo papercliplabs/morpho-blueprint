@@ -89,21 +89,21 @@ export const APP_CONFIG: AppConfig = {
   },
   supportedVaults: {
     [mainnet.id]: [
-      getAddress("0x95EeF579155cd2C5510F312c8fA39208c3Be01a8"), // USDT
-      getAddress("0xBE40491F3261Fd42724F1AEb465796eb11c06ddF"), // FRAX
+      { address: getAddress("0x95EeF579155cd2C5510F312c8fA39208c3Be01a8") }, // USDT
+      { address: getAddress("0xBE40491F3261Fd42724F1AEb465796eb11c06ddF") }, // FRAX
     ],
     [base.id]: [
-      getAddress("0x12AFDeFb2237a5963e7BAb3e2D46ad0eee70406e"), // USDC
-      getAddress("0x8c3A6B12332a6354805Eb4b72ef619aEdd22BcdD"), // Degen
+      { address: getAddress("0x12AFDeFb2237a5963e7BAb3e2D46ad0eee70406e") }, // USDC
+      { address: getAddress("0x8c3A6B12332a6354805Eb4b72ef619aEdd22BcdD") }, // Degen
     ],
     [worldchain.id]: [
-      getAddress("0x0db7e405278c2674f462ac9d9eb8b8346d1c1571"), // WETH
-      getAddress("0x348831b46876d3df2db98bdec5e3b4083329ab9f"), // WLD
-      getAddress("0xb1e80387ebe53ff75a89736097d34dc8d9e9045b"), // USDC
+      { address: getAddress("0x0db7e405278c2674f462ac9d9eb8b8346d1c1571") }, // WETH
+      { address: getAddress("0x348831b46876d3df2db98bdec5e3b4083329ab9f") }, // WLD
+      { address: getAddress("0xb1e80387ebe53ff75a89736097d34dc8d9e9045b") }, // USDC
     ],
     [polygon.id]: [
-      getAddress("0xF91D80E43272DBC610551E8c872E0438d62C1c69"), // WPOL
-      getAddress("0xF5C81d25ee174d83f1FD202cA94AE6070d073cCF"), // WETH
+      { address: getAddress("0xF91D80E43272DBC610551E8c872E0438d62C1c69") }, // WPOL
+      { address: getAddress("0xF5C81d25ee174d83f1FD202cA94AE6070d073cCF") }, // WETH
     ],
   },
 
