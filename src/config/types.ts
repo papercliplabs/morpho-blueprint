@@ -10,6 +10,11 @@ import type { EventName } from "@/data/trackEvent";
 // Used for type safety. SUPPORTED_CHAIN_IDS comes from ./index.ts and should contain all chain IDs your app supports
 export type SupportedChainId = (typeof SUPPORTED_CHAIN_IDS)[number];
 
+export interface VaultConfig {
+  address: Address;
+  description?: string;
+}
+
 export interface AppConfig {
   metadata: {
     url: string; // Base URL of your app. Should NOT have a trailing slash
@@ -64,7 +69,7 @@ export interface AppConfig {
 
   reownProjectId: string; // Reown/wallet connect project ID. Get this from https://cloud.reown.com
   chainConfig: Record<SupportedChainId, { chain: Chain; rpcUrls: [string, ...string[]] }>; // Chain configuration for all chains your app supports
-  supportedVaults: Record<SupportedChainId, Address[]>; // List of all supported vaults which will appear in the earn page table.
+  supportedVaults: Record<SupportedChainId, VaultConfig[]>; // List of all supported vaults which will appear in the earn page table.
   // Note: Supported markets are derived based on supported vault allocations^
 
   actionParameters: {
