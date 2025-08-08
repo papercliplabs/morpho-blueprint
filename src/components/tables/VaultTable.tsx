@@ -20,7 +20,7 @@ interface VaultTableProps {
 
 type Column = ColumnDef<VaultTableDataEntry>;
 function getColumns(isPositionLoading: boolean): Column[] {
-  const includeTypeColumn = Object.values(APP_CONFIG.vaultConfigs ?? {}).some((configs) =>
+  const includeTypeColumn = Object.values(APP_CONFIG.supportedVaults ?? {}).some((configs) =>
     (configs ?? []).some((c) => c.tag !== undefined),
   );
 
@@ -119,7 +119,7 @@ function getColumns(isPositionLoading: boolean): Column[] {
             id: "type",
             accessorFn: (row) => {
               const configForChain: VaultConfig[] =
-                APP_CONFIG.vaultConfigs?.[row.vaultSummary.chain.id as SupportedChainId] ?? [];
+                APP_CONFIG.supportedVaults?.[row.vaultSummary.chain.id as SupportedChainId] ?? [];
               const tag = configForChain.find(
                 (vc: VaultConfig) => getAddress(vc.address) === getAddress(row.vaultSummary.vaultAddress),
               )?.tag;
@@ -129,7 +129,7 @@ function getColumns(isPositionLoading: boolean): Column[] {
             cell: ({ row }) => {
               const { vaultSummary } = row.original;
               const configForChain: VaultConfig[] =
-                APP_CONFIG.vaultConfigs?.[vaultSummary.chain.id as SupportedChainId] ?? [];
+                APP_CONFIG.supportedVaults?.[vaultSummary.chain.id as SupportedChainId] ?? [];
               const tag = configForChain.find(
                 (vc: VaultConfig) => getAddress(vc.address) === getAddress(vaultSummary.vaultAddress),
               )?.tag;

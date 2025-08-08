@@ -56,11 +56,11 @@ export function useVaultTableData({ vaultSummaries }: { vaultSummaries: VaultSum
         curatorsFilterValues.length === 0 ||
         curatorsFilterValues.includes(dataEntry.vaultSummary.metadata?.curators[0]?.name ?? "N/A");
 
-      // Tags filter: match against optional vaultConfigs
+      // Tags filter: match against optional supportedVaults
       let tagFilterMatch = true;
       if (tagFilterValues !== undefined && tagFilterValues.length > 0) {
         const configForChain: VaultConfig[] =
-          APP_CONFIG.vaultConfigs?.[dataEntry.vaultSummary.chain.id as SupportedChainId] ?? [];
+          APP_CONFIG.supportedVaults?.[dataEntry.vaultSummary.chain.id as SupportedChainId] ?? [];
         const thisVaultTag = configForChain.find(
           (vc: VaultConfig) => getAddress(vc.address) === getAddress(dataEntry.vaultSummary.vaultAddress),
         )?.tag;

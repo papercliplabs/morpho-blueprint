@@ -88,12 +88,12 @@ export const APP_CONFIG: AppConfig = {
   },
   supportedVaults: {
     [mainnet.id]: [
-      { address: getAddress("0x95EeF579155cd2C5510F312c8fA39208c3Be01a8") }, // USDT
-      { address: getAddress("0xBE40491F3261Fd42724F1AEb465796eb11c06ddF") }, // FRAX
+      { address: getAddress("0x95EeF579155cd2C5510F312c8fA39208c3Be01a8"), tag: "Prime" }, // USDT
+      { address: getAddress("0xBE40491F3261Fd42724F1AEb465796eb11c06ddF"), tag: "High-Yield" }, // FRAX
     ],
     [base.id]: [
-      { address: getAddress("0x12AFDeFb2237a5963e7BAb3e2D46ad0eee70406e") }, // USDC
-      { address: getAddress("0x8c3A6B12332a6354805Eb4b72ef619aEdd22BcdD") }, // Degen
+      { address: getAddress("0x12AFDeFb2237a5963e7BAb3e2D46ad0eee70406e"), tag: "Prime" }, // USDC
+      { address: getAddress("0x8c3A6B12332a6354805Eb4b72ef619aEdd22BcdD"), tag: "High-Yield" }, // Degen
     ],
     [worldchain.id]: [
       { address: getAddress("0x0db7e405278c2674f462ac9d9eb8b8346d1c1571") }, // WETH

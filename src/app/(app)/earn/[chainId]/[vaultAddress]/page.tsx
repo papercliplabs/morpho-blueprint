@@ -130,8 +130,8 @@ async function VaultHeader({ chainId, vaultAddress }: VaultIdentifier) {
     return null;
   }
   const curator = vault.metadata?.curators?.[0];
-  const tag = APP_CONFIG.vaultConfigs
-    ? APP_CONFIG.vaultConfigs[chainId]?.find((v) => getAddress(v.address) === getAddress(vaultAddress))?.tag
+  const tag = APP_CONFIG.supportedVaults
+    ? APP_CONFIG.supportedVaults[chainId]?.find((v) => getAddress(v.address) === getAddress(vaultAddress))?.tag
     : undefined;
 
   return (
