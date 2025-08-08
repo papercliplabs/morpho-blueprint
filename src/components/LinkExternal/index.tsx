@@ -99,6 +99,8 @@ export function LinkExternalBlockExplorer({ chainId, children, className, ...pro
             <Image
               src={iconUrl}
               alt=""
+              width={24}
+              height={24}
               aria-hidden
               className="h-6 w-6 shrink-0 rounded-full border border-card object-cover"
             />
