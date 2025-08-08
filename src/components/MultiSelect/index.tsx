@@ -68,11 +68,7 @@ export function MultiSelect({
       <PopoverDrawerContent className="w-full p-0 lg:w-[200px]" align="start">
         <Command>
           <CommandInput placeholder={placeholder} className="body-large" />
-          <CategoryPills
-            categories={categories}
-            activeCategory={activeCategory}
-            onChange={setActiveCategory}
-          />
+          <CategoryPills categories={categories} activeCategory={activeCategory} onChange={setActiveCategory} />
           <CommandList>
             <CommandEmpty>{noResultsText}</CommandEmpty>
             <CommandGroup>
@@ -111,8 +107,9 @@ type CategoryPillsProps = {
 function CategoryPills({ categories, activeCategory, onChange }: CategoryPillsProps) {
   if (categories.length === 0) return null;
   return (
-    <div className="flex gap-2 overflow-x-auto px-4 pb-2 pt-3">
+    <div className="flex gap-2 overflow-x-auto px-4 pt-3 pb-2">
       <button
+        type="button"
         className={`rounded-md px-3 py-1 text-sm ${
           activeCategory === null ? "bg-primary text-primary-foreground" : "bg-muted text-foreground"
         }`}
@@ -122,6 +119,7 @@ function CategoryPills({ categories, activeCategory, onChange }: CategoryPillsPr
       </button>
       {categories.map((category) => (
         <button
+          type="button"
           key={category}
           className={`rounded-md px-3 py-1 text-sm ${
             activeCategory === category ? "bg-primary text-primary-foreground" : "bg-muted text-foreground"
