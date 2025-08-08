@@ -121,5 +121,10 @@ export const APP_CONFIG: AppConfig = {
     component: Analytics(),
     eventCb,
   },
-  knownAddresses: new Map<Address, { name: string; iconUrl?: string }>([]),
+  knownAddresses: new Map<Address, { name: string; iconUrl?: string }>([
+    ["0xCC3E7c85Bb0EE4f09380e041fee95a0caeDD4a02", {
+      name: "Compound DAO",
+      iconUrl: "/compound-dao.png"
+    }],
+  ]),
 };
