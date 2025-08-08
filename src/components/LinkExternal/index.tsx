@@ -1,9 +1,9 @@
 "use client";
 import { ArrowUpRight } from "lucide-react";
+import Image from "next/image";
 import type { AnchorHTMLAttributes, ComponentProps } from "react";
 import type { Address } from "viem";
 import { usePublicClient } from "wagmi";
-
 import { formatAddress, getKnownAddressMeta } from "@/utils/format";
 import { cn } from "@/utils/shadcn";
 
@@ -70,7 +70,7 @@ export function LinkExternalBlockExplorer({ chainId, children, className, ...pro
   let displayName: string;
   let iconUrl: string | undefined;
   switch (type) {
-    case "address":
+    case "address": {
       if (!props.address) {
         return <div className={cn("text-muted-foreground", className)}>None</div>;
       }
@@ -79,6 +79,7 @@ export function LinkExternalBlockExplorer({ chainId, children, className, ...pro
       const meta = getKnownAddressMeta(props.address);
       iconUrl = meta?.iconUrl;
       break;
+    }
     case "tx":
       path = `/tx/${props.txHash}`;
       displayName = formatAddress(props.txHash);
@@ -95,7 +96,7 @@ export function LinkExternalBlockExplorer({ chainId, children, className, ...pro
       {children ?? (
         <>
           {iconUrl && (
-            <img
+            <Image
               src={iconUrl}
               alt=""
               aria-hidden

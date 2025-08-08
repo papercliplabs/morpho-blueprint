@@ -1,4 +1,4 @@
-import { formatUnits, type Address, getAddress } from "viem";
+import { type Address, formatUnits, getAddress } from "viem";
 import { APP_CONFIG } from "@/config";
 
 const MAX_USD_VALUE = 1e12;

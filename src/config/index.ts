@@ -1,4 +1,5 @@
 import { Inter } from "next/font/google";
+import type { Address } from "viem";
 import { getAddress } from "viem";
 import { base, mainnet, polygon, worldchain } from "viem/chains";
 import { eventCb } from "./callbacks";
@@ -7,7 +8,6 @@ import { LogoDesktop, LogoMobile } from "./components/Logo";
 import { PrivacyPolicy } from "./components/PrivacyPolicy";
 import { TermsOfUse } from "./components/TermsOfUse";
 import type { AppConfig } from "./types";
-import type { Address } from "viem";
 
 export const SUPPORTED_CHAIN_IDS = [mainnet.id, polygon.id, base.id, worldchain.id] as const;
 
