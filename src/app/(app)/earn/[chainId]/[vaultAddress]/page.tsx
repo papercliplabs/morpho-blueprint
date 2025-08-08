@@ -37,7 +37,7 @@ export default async function VaultPage({ params }: { params: Promise<{ chainId:
     notFound();
   }
 
-  if (!APP_CONFIG.supportedVaults[chainId as SupportedChainId]?.includes(vaultAddress)) {
+  if (!APP_CONFIG.supportedVaults[chainId as SupportedChainId]?.some((v) => v.address === vaultAddress)) {
     return <UnsupportedVault />;
   }
 
@@ -189,15 +189,21 @@ async function KeyMetricsWrapper({ chainId, vaultAddress }: VaultIdentifier) {
 
 async function VaultAboutCard({ chainId, vaultAddress }: VaultIdentifier) {
   const vault = await getVault(chainId, vaultAddress);
-  // Hide unless there is about content
-  if (!vault || !vault.metadata?.description) {
+  if (!vault) {
     return null;
   }
+
+  const overrideDescription = APP_CONFIG.supportedVaults[chainId as SupportedChainId]?.find(
+    (v) => v.address === vaultAddress,
+  )?.description;
+  const description = overrideDescription ?? vault.metadata?.description;
+  // Hide unless there is about content
+  if (!description) return null;
 
   return (
     <Card>
       <CardHeader>About</CardHeader>
-      <p className="body-large text-muted-foreground">{vault.metadata?.description}</p>
+      <p className="body-large text-muted-foreground">{description}</p>
     </Card>
   );
 }

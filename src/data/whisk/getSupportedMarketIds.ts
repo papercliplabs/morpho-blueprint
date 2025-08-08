@@ -29,7 +29,9 @@ const query = graphql(`
 // Return mapping chainId -> marketIds
 const getSupportedMarketIdsUncached = cache(async (): Promise<Record<SupportedChainId, Hex[]>> => {
   const chainIds = Object.keys(APP_CONFIG.supportedVaults) as unknown as ChainId[];
-  const vaultAddresses = Object.values(APP_CONFIG.supportedVaults).flat();
+  const vaultAddresses = Object.values(APP_CONFIG.supportedVaults)
+    .flat()
+    .map((v) => v.address);
 
   const responses = await executeWhiskQuery(query, {
     chainIds,

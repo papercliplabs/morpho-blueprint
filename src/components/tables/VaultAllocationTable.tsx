@@ -86,7 +86,7 @@ const columns: Column[] = [
 export function VaultAllocationTable({ market }: VaultAllocationTableProps) {
   const data = useMemo(() => {
     const supportedVaultIdentifiers = Object.entries(APP_CONFIG.supportedVaults).map(([chainId, vaults]) =>
-      vaults.map((vault) => `${chainId}:${vault}`),
+      vaults.map((vault) => `${chainId}:${getAddress(vault.address)}`),
     );
     return market.vaultAllocations.filter((allocation) => {
       const identifier = `${allocation.vault.chain.id}:${allocation.vault.vaultAddress}`;
