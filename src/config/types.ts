@@ -79,6 +79,11 @@ export interface AppConfig {
     publicAllocatorSupplyTargetUtilizationWad: bigint; // Scaled by WAD
   };
 
+  // Map of known addresses to friendly display metadata. If an address is present here,
+  // the app will render the friendly name (and optional icon) instead of the raw address
+  // wherever addresses are displayed.
+  knownAddresses: Map<Address, { name: string; iconUrl?: string }>;
+
   // Note the default value is false to preserve backwards compatibility when upgrading versions (new features are opt-in, i.e upgrading won't add any new features)
   featureFlags: {
     enableDarkModeToggle?: boolean; // (optional) Controls if the dark mode toggle is shown in the footer. If so .dark should be defined in theme.css

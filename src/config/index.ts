@@ -1,4 +1,5 @@
 import { Inter } from "next/font/google";
+import type { Address } from "viem";
 import { getAddress } from "viem";
 import { base, mainnet, polygon, worldchain } from "viem/chains";
 import { eventCb } from "./callbacks";
@@ -120,4 +121,5 @@ export const APP_CONFIG: AppConfig = {
     component: Analytics(),
     eventCb,
   },
+  knownAddresses: new Map<Address, { name: string; iconUrl?: string }>([]),
 };

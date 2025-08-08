@@ -1,4 +1,5 @@
-import { formatUnits } from "viem";
+import { type Address, formatUnits, getAddress } from "viem";
+import { APP_CONFIG } from "@/config";
 
 const MAX_USD_VALUE = 1e12;
 
@@ -65,6 +66,14 @@ export function descaleBigIntToNumber(value: bigint | string, decimals: number):
   return Math.floor(Number(formattedUnits) * 1e8) / 1e8; // Round down to 8 decimal places for precision
 }
 
-export function formatAddress(address: string) {
-  return `${address.slice(0, 4)}...${address.slice(-4)}`;
+export function formatAddress(address: Address) {
+  const meta = getKnownAddressMeta(address);
+  if (meta?.name) return meta.name;
+  const checksummed = getAddress(address);
+  return `${checksummed.slice(0, 4)}...${checksummed.slice(-4)}`;
+}
+
+export function getKnownAddressMeta(address: Address) {
+  const checksummed = getAddress(address);
+  return APP_CONFIG.knownAddresses.get(checksummed);
 }
