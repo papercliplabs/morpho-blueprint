@@ -7,6 +7,7 @@ import { LogoDesktop, LogoMobile } from "./components/Logo";
 import { PrivacyPolicy } from "./components/PrivacyPolicy";
 import { TermsOfUse } from "./components/TermsOfUse";
 import type { AppConfig } from "./types";
+import type { Address } from "viem";
 
 export const SUPPORTED_CHAIN_IDS = [mainnet.id, polygon.id, base.id, worldchain.id] as const;
 
@@ -120,4 +121,8 @@ export const APP_CONFIG: AppConfig = {
     component: Analytics(),
     eventCb,
   },
+
+  // Provide friendly names and optional icons for addresses that should be rendered
+  // as names throughout the app instead of raw hex strings. Empty by default.
+  knownAddresses: new Map<Address, { name: string; iconUrl?: string }>([]),
 };
