@@ -93,6 +93,7 @@ async function MarketFiltersWrapper() {
             {marketSummary.collateralAsset.symbol}
           </>
         ),
+        category: marketSummary.collateralAsset.category ?? null,
       };
     }
 
@@ -104,6 +105,7 @@ async function MarketFiltersWrapper() {
           {marketSummary.loanAsset.symbol}
         </>
       ),
+      category: marketSummary.loanAsset.category ?? null,
     };
   }
 

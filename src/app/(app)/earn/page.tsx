@@ -94,6 +94,7 @@ async function VaultFiltersWrapper() {
           {vault.asset.symbol}
         </>
       ),
+      category: vault.asset.category ?? null,
     };
 
     const curator = vault.metadata?.curators[0];
