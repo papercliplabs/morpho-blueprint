@@ -39,7 +39,7 @@ function getColumns(isPositionLoading: boolean): Column[] {
           />
         );
       },
-      minSize: 240,
+      minSize: 220,
     },
     {
       id: "yourDeposits",
@@ -63,7 +63,7 @@ function getColumns(isPositionLoading: boolean): Column[] {
           Number(b.original.position?.supplyAmount.formatted ?? "0"),
           b.original.position?.supplyAmount.usd,
         ),
-      minSize: 140,
+      minSize: 130,
     },
     {
       id: "inWallet",
@@ -87,7 +87,7 @@ function getColumns(isPositionLoading: boolean): Column[] {
           Number(b.original.position?.walletUnderlyingAssetHolding?.balance.formatted ?? "0"),
           b.original.position?.walletUnderlyingAssetHolding?.balance.usd,
         ),
-      minSize: 140,
+      minSize: 130,
     },
     {
       id: "totalDeposits",
@@ -111,7 +111,7 @@ function getColumns(isPositionLoading: boolean): Column[] {
           Number(b.original.vaultSummary.totalSupplied.formatted ?? "0"),
           b.original.vaultSummary.totalSupplied.usd,
         ),
-      minSize: 140,
+      minSize: 130,
     },
     ...(includeTypeColumn
       ? ([
@@ -135,7 +135,7 @@ function getColumns(isPositionLoading: boolean): Column[] {
               )?.tag;
               return tag ? <Badge variant="small">{tag}</Badge> : "—";
             },
-            minSize: 110,
+            minSize: 100,
           } as Column,
         ] as Column[])
       : ([] as Column[])),
@@ -163,7 +163,7 @@ function getColumns(isPositionLoading: boolean): Column[] {
                 "None"
               );
             },
-            minSize: 130,
+            minSize: 120,
           } as Column,
         ]
       : []),
@@ -193,7 +193,7 @@ function getColumns(isPositionLoading: boolean): Column[] {
           />
         );
       },
-      minSize: 150,
+      minSize: 140,
     },
     {
       id: "supplyApy",
@@ -212,7 +212,7 @@ function getColumns(isPositionLoading: boolean): Column[] {
           />
         );
       },
-      minSize: 140,
+      minSize: 130,
     },
   ];
 }
