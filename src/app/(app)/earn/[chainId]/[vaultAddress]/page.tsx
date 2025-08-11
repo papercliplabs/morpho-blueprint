@@ -21,6 +21,7 @@ import { APP_CONFIG } from "@/config";
 import type { SupportedChainId } from "@/config/types";
 import { getVault } from "@/data/whisk/getVault";
 import type { VaultIdentifier } from "@/utils/types";
+import { getVaultTag } from "@/utils/vault";
 
 export const metadata: Metadata = {
   title: `${APP_CONFIG.metadata.name} | Vault`,
@@ -130,9 +131,7 @@ async function VaultHeader({ chainId, vaultAddress }: VaultIdentifier) {
     return null;
   }
   const curator = vault.metadata?.curators?.[0];
-  const tag = APP_CONFIG.supportedVaults
-    ? APP_CONFIG.supportedVaults[chainId]?.find((v) => getAddress(v.address) === getAddress(vaultAddress))?.tag
-    : undefined;
+  const tag = getVaultTag(chainId, vaultAddress);
 
   return (
     <div className="flex flex-col justify-between gap-4 md:flex-row">

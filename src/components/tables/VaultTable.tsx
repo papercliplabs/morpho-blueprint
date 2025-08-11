@@ -1,13 +1,13 @@
 "use client";
 import type { ColumnDef } from "@tanstack/react-table";
-import { getAddress } from "viem";
 
 import { Table } from "@/components/ui/table";
 import { APP_CONFIG } from "@/config";
-import type { SupportedChainId, VaultConfig } from "@/config/types";
+import type { SupportedChainId } from "@/config/types";
 import type { VaultSummary } from "@/data/whisk/getVaultSummaries";
 import { useVaultTableData, type VaultTableDataEntry } from "@/hooks/useVaultTableData";
 import { sortTableAssetAmount } from "@/utils/sort";
+import { getVaultTag } from "@/utils/vault";
 import AvatarGroup from "../AvatarGroup";
 import { ApyTooltip } from "../Tooltips/ApyToolip";
 import { Badge } from "../ui/badge";
@@ -117,22 +117,12 @@ function getColumns(isPositionLoading: boolean): Column[] {
       ? ([
           {
             id: "type",
-            accessorFn: (row) => {
-              const configForChain: VaultConfig[] =
-                APP_CONFIG.supportedVaults?.[row.vaultSummary.chain.id as SupportedChainId] ?? [];
-              const tag = configForChain.find(
-                (vc: VaultConfig) => getAddress(vc.address) === getAddress(row.vaultSummary.vaultAddress),
-              )?.tag;
-              return tag ?? "";
-            },
+            accessorFn: (row) =>
+              getVaultTag(row.vaultSummary.chain.id as SupportedChainId, row.vaultSummary.vaultAddress) ?? "",
             header: "Type",
             cell: ({ row }) => {
               const { vaultSummary } = row.original;
-              const configForChain: VaultConfig[] =
-                APP_CONFIG.supportedVaults?.[vaultSummary.chain.id as SupportedChainId] ?? [];
-              const tag = configForChain.find(
-                (vc: VaultConfig) => getAddress(vc.address) === getAddress(vaultSummary.vaultAddress),
-              )?.tag;
+              const tag = getVaultTag(vaultSummary.chain.id as SupportedChainId, vaultSummary.vaultAddress);
               return tag ? <Badge variant="small">{tag}</Badge> : "—";
             },
             minSize: 100,

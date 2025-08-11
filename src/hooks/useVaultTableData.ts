@@ -4,10 +4,10 @@ import { getAddress } from "viem";
 import { useAccount } from "wagmi";
 
 import { FilterKey } from "@/components/filters/types";
-import { APP_CONFIG } from "@/config";
-import type { SupportedChainId, VaultConfig } from "@/config/types";
+import type { SupportedChainId } from "@/config/types";
 import type { VaultPosition } from "@/data/whisk/getVaultPositions";
 import type { VaultSummary } from "@/data/whisk/getVaultSummaries";
+import { getVaultTag } from "@/utils/vault";
 import { useShallowSearchParams } from "./useShallowSearchParams";
 import { useVaultPositions } from "./useVaultPositions";
 
@@ -59,11 +59,10 @@ export function useVaultTableData({ vaultSummaries }: { vaultSummaries: VaultSum
       // Tags filter: match against optional supportedVaults
       let tagFilterMatch = true;
       if (tagFilterValues !== undefined && tagFilterValues.length > 0) {
-        const configForChain: VaultConfig[] =
-          APP_CONFIG.supportedVaults?.[dataEntry.vaultSummary.chain.id as SupportedChainId] ?? [];
-        const thisVaultTag = configForChain.find(
-          (vc: VaultConfig) => getAddress(vc.address) === getAddress(dataEntry.vaultSummary.vaultAddress),
-        )?.tag;
+        const thisVaultTag = getVaultTag(
+          dataEntry.vaultSummary.chain.id as SupportedChainId,
+          dataEntry.vaultSummary.vaultAddress,
+        );
         tagFilterMatch = thisVaultTag !== undefined && tagFilterValues.includes(thisVaultTag);
       }
 
