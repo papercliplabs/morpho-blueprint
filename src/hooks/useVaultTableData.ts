@@ -7,6 +7,7 @@ import { FilterKey } from "@/components/filters/types";
 import type { SupportedChainId } from "@/config/types";
 import type { VaultPosition } from "@/data/whisk/getVaultPositions";
 import type { VaultSummary } from "@/data/whisk/getVaultSummaries";
+import { getVaultTag } from "@/utils/vault";
 import { useShallowSearchParams } from "./useShallowSearchParams";
 import { useVaultPositions } from "./useVaultPositions";
 
@@ -24,9 +25,9 @@ export function useVaultTableData({ vaultSummaries }: { vaultSummaries: VaultSum
   const { isConnected } = useAccount();
 
   const {
-    values: [chainsFilterValues, assetsFilterValues, curatorsFilterValues, accountFilterValues],
+    values: [chainsFilterValues, assetsFilterValues, curatorsFilterValues, tagFilterValues, accountFilterValues],
   } = useShallowSearchParams({
-    keys: [FilterKey.Chains, FilterKey.SupplyAssets, FilterKey.Curators, FilterKey.Account],
+    keys: [FilterKey.Chains, FilterKey.SupplyAssets, FilterKey.Curators, FilterKey.VaultTags, FilterKey.Account],
   });
 
   const data = useMemo(() => {
@@ -55,6 +56,16 @@ export function useVaultTableData({ vaultSummaries }: { vaultSummaries: VaultSum
         curatorsFilterValues.length === 0 ||
         curatorsFilterValues.includes(dataEntry.vaultSummary.metadata?.curators[0]?.name ?? "N/A");
 
+      // Tags filter: match against optional supportedVaults
+      let tagFilterMatch = true;
+      if (tagFilterValues !== undefined && tagFilterValues.length > 0) {
+        const thisVaultTag = getVaultTag(
+          dataEntry.vaultSummary.chain.id as SupportedChainId,
+          dataEntry.vaultSummary.vaultAddress,
+        );
+        tagFilterMatch = thisVaultTag !== undefined && tagFilterValues.includes(thisVaultTag);
+      }
+
       let accountFilterMatch = true;
       const accountFilterValue = accountFilterValues?.[0];
       if (dataEntry.position !== undefined && accountFilterValue && isConnected) {
@@ -71,11 +82,19 @@ export function useVaultTableData({ vaultSummaries }: { vaultSummaries: VaultSum
         }
       }
 
-      return chainsFilterMatch && assetsFilterMatch && curatorsFilterMatch && accountFilterMatch;
+      return chainsFilterMatch && assetsFilterMatch && curatorsFilterMatch && tagFilterMatch && accountFilterMatch;
     });
 
     return filteredData;
-  }, [data, chainsFilterValues, assetsFilterValues, curatorsFilterValues, accountFilterValues, isConnected]);
+  }, [
+    data,
+    chainsFilterValues,
+    assetsFilterValues,
+    curatorsFilterValues,
+    tagFilterValues,
+    accountFilterValues,
+    isConnected,
+  ]);
 
   return { data: filteredData, isPositionsLoading: isLoading };
 }

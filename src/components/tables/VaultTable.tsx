@@ -3,14 +3,15 @@ import type { ColumnDef } from "@tanstack/react-table";
 
 import { Table } from "@/components/ui/table";
 import { APP_CONFIG } from "@/config";
+import type { SupportedChainId } from "@/config/types";
 import type { VaultSummary } from "@/data/whisk/getVaultSummaries";
 import { useVaultTableData, type VaultTableDataEntry } from "@/hooks/useVaultTableData";
 import { sortTableAssetAmount } from "@/utils/sort";
-
+import { getVaultTag } from "@/utils/vault";
 import AvatarGroup from "../AvatarGroup";
 import { ApyTooltip } from "../Tooltips/ApyToolip";
+import { Badge } from "../ui/badge";
 import { VaultName } from "../vault/VaultName";
-
 import { TableAssetAmount } from "./Elements/TableAssetAmount";
 
 interface VaultTableProps {
@@ -19,6 +20,10 @@ interface VaultTableProps {
 
 type Column = ColumnDef<VaultTableDataEntry>;
 function getColumns(isPositionLoading: boolean): Column[] {
+  const includeTypeColumn = Object.values(APP_CONFIG.supportedVaults ?? {}).some((configs) =>
+    (configs ?? []).some((c) => c.tag !== undefined),
+  );
+
   return [
     {
       accessorKey: "vaultSummary.name",
@@ -34,7 +39,7 @@ function getColumns(isPositionLoading: boolean): Column[] {
           />
         );
       },
-      minSize: 240,
+      minSize: 220,
     },
     {
       id: "yourDeposits",
@@ -58,7 +63,7 @@ function getColumns(isPositionLoading: boolean): Column[] {
           Number(b.original.position?.supplyAmount.formatted ?? "0"),
           b.original.position?.supplyAmount.usd,
         ),
-      minSize: 140,
+      minSize: 130,
     },
     {
       id: "inWallet",
@@ -82,7 +87,7 @@ function getColumns(isPositionLoading: boolean): Column[] {
           Number(b.original.position?.walletUnderlyingAssetHolding?.balance.formatted ?? "0"),
           b.original.position?.walletUnderlyingAssetHolding?.balance.usd,
         ),
-      minSize: 140,
+      minSize: 130,
     },
     {
       id: "totalDeposits",
@@ -106,8 +111,24 @@ function getColumns(isPositionLoading: boolean): Column[] {
           Number(b.original.vaultSummary.totalSupplied.formatted ?? "0"),
           b.original.vaultSummary.totalSupplied.usd,
         ),
-      minSize: 140,
+      minSize: 130,
     },
+    ...(includeTypeColumn
+      ? ([
+          {
+            id: "type",
+            accessorFn: (row) =>
+              getVaultTag(row.vaultSummary.chain.id as SupportedChainId, row.vaultSummary.vaultAddress) ?? "",
+            header: "Type",
+            cell: ({ row }) => {
+              const { vaultSummary } = row.original;
+              const tag = getVaultTag(vaultSummary.chain.id as SupportedChainId, vaultSummary.vaultAddress);
+              return tag ? <Badge variant="small">{tag}</Badge> : "—";
+            },
+            minSize: 100,
+          } as Column,
+        ] as Column[])
+      : ([] as Column[])),
     ...(!APP_CONFIG.featureFlags.hideCurator
       ? [
           {
@@ -132,7 +153,7 @@ function getColumns(isPositionLoading: boolean): Column[] {
                 "None"
               );
             },
-            minSize: 130,
+            minSize: 120,
           } as Column,
         ]
       : []),
@@ -162,7 +183,7 @@ function getColumns(isPositionLoading: boolean): Column[] {
           />
         );
       },
-      minSize: 150,
+      minSize: 140,
     },
     {
       id: "supplyApy",
@@ -181,7 +202,7 @@ function getColumns(isPositionLoading: boolean): Column[] {
           />
         );
       },
-      minSize: 140,
+      minSize: 130,
     },
   ];
 }
