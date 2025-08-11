@@ -26,10 +26,14 @@ export function VaultFilters({ chainOptions, assetOptions, curatorOptions, tagOp
   });
 
   const onSelect = useCallback(
-    (key: string, currentValues: string[], value: string) => {
-      const deselecting = currentValues.includes(value);
+    (key: string, currentValues: string[], values: string[]) => {
+      const itemsToAdd = values.filter((v) => !currentValues.includes(v));
+      const itemsToRemove = values.filter((v) => currentValues.includes(v));
       addShallowSearchParams([
-        { key, value: deselecting ? currentValues.filter((v) => v !== value) : [...currentValues, value] },
+        {
+          key,
+          value: [...currentValues.filter((v) => !itemsToRemove.includes(v)), ...itemsToAdd],
+        },
       ]);
     },
     [addShallowSearchParams],
@@ -52,7 +56,7 @@ export function VaultFilters({ chainOptions, assetOptions, curatorOptions, tagOp
           placeholder="Search for token"
           options={assetOptions}
           value={assetValues ?? []}
-          onSelect={(value) => onSelect(FilterKey.SupplyAssets, assetValues ?? [], value)}
+          onSelect={(values) => onSelect(FilterKey.SupplyAssets, assetValues ?? [], values)}
           onReset={() => removeShallowSearchParams([FilterKey.SupplyAssets])}
         />
       )}
@@ -61,7 +65,7 @@ export function VaultFilters({ chainOptions, assetOptions, curatorOptions, tagOp
           emptyValue={tagValues === undefined || tagValues.length === 0 ? "Type" : "Type"}
           options={tagOptions}
           value={tagValues ?? []}
-          onSelect={(value) => onSelect(FilterKey.VaultTags, tagValues ?? [], value)}
+          onSelect={(values) => onSelect(FilterKey.VaultTags, tagValues ?? [], values)}
           onReset={() => removeShallowSearchParams([FilterKey.VaultTags])}
         />
       )}
@@ -70,7 +74,7 @@ export function VaultFilters({ chainOptions, assetOptions, curatorOptions, tagOp
           emptyValue={curatorValues === undefined || curatorValues.length === 0 ? "All Curators" : "Curators"}
           options={curatorOptions}
           value={curatorValues ?? []}
-          onSelect={(value) => onSelect(FilterKey.Curators, curatorValues ?? [], value)}
+          onSelect={(values) => onSelect(FilterKey.Curators, curatorValues ?? [], values)}
           onReset={() => removeShallowSearchParams([FilterKey.Curators])}
         />
       )}

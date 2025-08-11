@@ -24,10 +24,14 @@ export function MarketFilters({ chainOptions, collateralAssetOptions, loanAssetO
   });
 
   const onSelect = useCallback(
-    (key: string, currentValues: string[], value: string) => {
-      const deselecting = currentValues.includes(value);
+    (key: string, currentValues: string[], values: string[]) => {
+      const itemsToAdd = values.filter((v) => !currentValues.includes(v));
+      const itemsToRemove = values.filter((v) => currentValues.includes(v));
       addShallowSearchParams([
-        { key, value: deselecting ? currentValues.filter((v) => v !== value) : [...currentValues, value] },
+        {
+          key,
+          value: [...currentValues.filter((v) => !itemsToRemove.includes(v)), ...itemsToAdd],
+        },
       ]);
     },
     [addShallowSearchParams],
@@ -40,7 +44,7 @@ export function MarketFilters({ chainOptions, collateralAssetOptions, loanAssetO
           emptyValue={chainValues === undefined || chainValues.length === 0 ? "All Chains" : "Chains"}
           options={chainOptions}
           value={chainValues ?? []}
-          onSelect={(value) => onSelect(FilterKey.Chains, chainValues ?? [], value)}
+          onSelect={(values) => onSelect(FilterKey.Chains, chainValues ?? [], values)}
           onReset={() => removeShallowSearchParams([FilterKey.Chains])}
         />
       )}
@@ -54,7 +58,7 @@ export function MarketFilters({ chainOptions, collateralAssetOptions, loanAssetO
           placeholder="Search for token"
           options={collateralAssetOptions}
           value={collateralAssetValues ?? []}
-          onSelect={(value) => onSelect(FilterKey.CollateralAssets, collateralAssetValues ?? [], value)}
+          onSelect={(values) => onSelect(FilterKey.CollateralAssets, collateralAssetValues ?? [], values)}
           onReset={() => removeShallowSearchParams([FilterKey.CollateralAssets])}
         />
       )}
@@ -64,7 +68,7 @@ export function MarketFilters({ chainOptions, collateralAssetOptions, loanAssetO
           placeholder="Search for token"
           options={loanAssetOptions}
           value={loanAssetValues ?? []}
-          onSelect={(value) => onSelect(FilterKey.LoanAssets, loanAssetValues ?? [], value)}
+          onSelect={(values) => onSelect(FilterKey.LoanAssets, loanAssetValues ?? [], values)}
           onReset={() => removeShallowSearchParams([FilterKey.LoanAssets])}
         />
       )}

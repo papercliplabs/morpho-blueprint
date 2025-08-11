@@ -1,17 +1,19 @@
 "use client";
 
 import { ChevronDown } from "lucide-react";
-import * as React from "react";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 
 import { PopoverDrawer, PopoverDrawerContent, PopoverDrawerTrigger } from "../ui/popover-drawer";
+import { CategoryControls } from "./CategoryControls";
 
 export type MultiSelectOption = {
   value: string;
   component: React.ReactNode;
+  category?: string | null;
 };
 
 type MultiSelectProps = {
@@ -21,7 +23,7 @@ type MultiSelectProps = {
   noResultsText?: string;
   value: string[];
   options: MultiSelectOption[];
-  onSelect: (value: string) => void;
+  onSelect: (values: string[]) => void;
   onReset: () => void;
 };
 
@@ -35,7 +37,11 @@ export function MultiSelect({
   onSelect,
   options,
 }: MultiSelectProps) {
-  const [open, setOpen] = React.useState(defaultOpen);
+  const [open, setOpen] = useState(defaultOpen);
+  const [sortedOptions, setSortedOptions] = useState(options);
+  useEffect(() => {
+    setSortedOptions(options);
+  }, [options]);
 
   return (
     <PopoverDrawer open={open} onOpenChange={setOpen}>
@@ -51,15 +57,17 @@ export function MultiSelect({
       <PopoverDrawerContent className="w-full p-0 lg:w-[200px]" align="start">
         <Command>
           <CommandInput placeholder={placeholder} className="body-large" />
+          <CategoryControls
+            options={options}
+            value={value}
+            onSelect={onSelect}
+            onSortedOptionsChange={setSortedOptions}
+          />
           <CommandList>
             <CommandEmpty>{noResultsText}</CommandEmpty>
             <CommandGroup>
-              {options.map((option) => (
-                <CommandItem
-                  key={option.value}
-                  value={option.value}
-                  onSelect={(currentValue) => onSelect(currentValue)}
-                >
+              {sortedOptions.map((option: MultiSelectOption) => (
+                <CommandItem key={option.value} value={option.value} onSelect={(val) => onSelect([val])}>
                   <Checkbox checked={value.includes(option.value)} />
                   {option.component}
                 </CommandItem>
