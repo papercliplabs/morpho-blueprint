@@ -147,6 +147,34 @@ graphql(`
       }
     }
   }
+
+  fragment MarketHistoricalEntryFragment on MorphoMarketHistoricalEntry {
+    bucketTimestamp
+    totalSupplied {
+      formatted
+      usd
+    }
+    totalBorrowed {
+      formatted
+      usd
+    }
+    totalCollateral {
+      formatted
+      usd
+    }
+    borrowApy1d{
+      base
+      total
+    }
+    borrowApy7d{
+      base
+      total
+    }
+    borrowApy30d{
+      base
+      total
+    }
+  }
 `);
 
 // Some cleaner type names

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { isHex } from "viem";
-
+import { DataChart } from "@/components/DataChart/DataChart";
 import { IrmChart } from "@/components/IrmChart";
 import { IrmMetrics, IrmMetricsSkeleton } from "@/components/market/IrmMetrics";
 import MarketActions from "@/components/market/MarketActions";
@@ -73,6 +73,14 @@ export default async function MarketPage({ params }: { params: Promise<{ chainId
               <KeyMetricsWrapper chainId={chainId} marketId={marketId} />
             </Suspense>
           </Card>
+
+          <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
+            <MarketHistoricalLiquidityChartWrapper chainId={chainId} marketId={marketId} />
+          </Suspense>
+
+          <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
+            <MarketHistoricalApyChartWrapper chainId={chainId} marketId={marketId} />
+          </Suspense>
 
           <Card>
             <CardHeader>Vault Allocation</CardHeader>
@@ -169,6 +177,99 @@ async function KeyMetricsWrapper({ chainId, marketId }: MarketIdentifier) {
   }
 
   return <MarketKeyMetrics market={market} />;
+}
+
+async function MarketHistoricalLiquidityChartWrapper({ chainId, marketId }: MarketIdentifier) {
+  const market = await getMarket(chainId, marketId);
+
+  // Null if the chain doesn't support historical data
+  if (!market || !market.historical || !market.collateralAsset) {
+    return null;
+  }
+
+  const collateralPrice = market.collateralAsset.priceUsd ?? 0;
+
+  return (
+    <DataChart
+      data={market.historical}
+      title="Liquidity"
+      defaultTab="totalBorrowed"
+      tabOptions={[
+        {
+          type: "tokenAmount",
+          key: "totalBorrowed",
+          title: "Borrow",
+          description: "Total amount of assets borrowed from the market",
+          underlyingAssetSymbol: market.loanAsset.symbol,
+          underlyingAssetValue: Number(market.totalBorrowed.formatted),
+          usdValue: market.totalBorrowed.usd ?? 0,
+        },
+        {
+          type: "tokenAmount",
+          key: "totalSupplied",
+          title: "Supply",
+          description: "Total amount of assets supplied to the market",
+          underlyingAssetSymbol: market.loanAsset.symbol,
+          underlyingAssetValue: Number(market.totalSupplied.formatted),
+          usdValue: market.totalSupplied.usd ?? 0,
+        },
+        {
+          type: "tokenAmount",
+          key: "totalCollateral",
+          title: "Collateral",
+          description: "Total amount of collateral supplied to the market",
+          underlyingAssetSymbol: market.collateralAsset.symbol,
+          underlyingAssetValue: Number(market.totalBorrowed.formatted),
+          usdValue:
+            Number(market.historical.daily[market.historical.daily.length - 1]?.totalCollateral.formatted) *
+            collateralPrice,
+        },
+      ]}
+    />
+  );
+}
+
+async function MarketHistoricalApyChartWrapper({ chainId, marketId }: MarketIdentifier) {
+  const market = await getMarket(chainId, marketId);
+
+  // Null if the chain doesn't support historical data
+  if (!market || !market.historical || !market.collateralAsset) {
+    return null;
+  }
+
+  return (
+    <DataChart
+      data={market.historical}
+      title="Native Borrow Rate"
+      defaultTab="borrowApy1d"
+      tabOptions={[
+        {
+          type: "apy",
+          key: "borrowApy1d",
+          description: "Native borrow APY (exluding rewards and fees) using a 1 day rolling average",
+          title: "APY (1D)",
+          baseApy: market.historical.daily[market.historical.daily.length - 1]?.borrowApy1d?.base ?? 0,
+          totalApy: market.historical.daily[market.historical.daily.length - 1]?.borrowApy1d?.total ?? 0,
+        },
+        {
+          type: "apy",
+          key: "borrowApy7d",
+          description: "Native borrow APY (exluding rewards and fees) using a 7 day rolling average",
+          title: "APY (7D)",
+          baseApy: market.historical.daily[market.historical.daily.length - 1]?.borrowApy7d?.base ?? 0,
+          totalApy: market.historical.daily[market.historical.daily.length - 1]?.borrowApy7d?.total ?? 0,
+        },
+        {
+          type: "apy",
+          key: "borrowApy30d",
+          description: "Native borrow APY (exluding rewards and fees) using a 30 day rolling average",
+          title: "APY (30D)",
+          baseApy: market.historical.daily[market.historical.daily.length - 1]?.borrowApy30d?.base ?? 0,
+          totalApy: market.historical.daily[market.historical.daily.length - 1]?.borrowApy30d?.total ?? 0,
+        },
+      ]}
+    />
+  );
 }
 
 async function VaultAllocationTableWrapper({ chainId, marketId }: MarketIdentifier) {

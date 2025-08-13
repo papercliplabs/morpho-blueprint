@@ -166,6 +166,7 @@ export function DataChart<D extends DataEntry>(props: Props<D>) {
                   strokeWidth={2}
                   dot={false}
                   connectNulls={true}
+                  type="monotone"
                 />
                 {isApy && (
                   <ReferenceLine

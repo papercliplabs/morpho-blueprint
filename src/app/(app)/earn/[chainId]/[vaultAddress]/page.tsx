@@ -246,13 +246,13 @@ async function VaultHistoricalApyChartWrapper({ chainId, vaultAddress }: VaultId
   return (
     <DataChart
       data={vault.historical}
-      title="APY"
+      title="Native APY"
       defaultTab="supplyApy1d"
       tabOptions={[
         {
           type: "apy",
           key: "supplyApy1d",
-          description: "Native supply APY using a 1 day rolling average",
+          description: "Native supply APY (exluding rewards and fees) using a 1 day rolling average",
           title: "APY (1D)",
           baseApy: vault.historical.daily[vault.historical.daily.length - 1]?.supplyApy1d?.base ?? 0,
           totalApy: vault.historical.daily[vault.historical.daily.length - 1]?.supplyApy1d?.total ?? 0,
@@ -260,7 +260,7 @@ async function VaultHistoricalApyChartWrapper({ chainId, vaultAddress }: VaultId
         {
           type: "apy",
           key: "supplyApy7d",
-          description: "Native supply APY using a 7 day rolling average",
+          description: "Native supply APY (exluding rewards and fees) using a 7 day rolling average",
           title: "APY (7D)",
           baseApy: vault.historical.daily[vault.historical.daily.length - 1]?.supplyApy7d?.base ?? 0,
           totalApy: vault.historical.daily[vault.historical.daily.length - 1]?.supplyApy7d?.total ?? 0,
@@ -268,7 +268,7 @@ async function VaultHistoricalApyChartWrapper({ chainId, vaultAddress }: VaultId
         {
           type: "apy",
           key: "supplyApy30d",
-          description: "Native supply APY using a 30 day rolling average",
+          description: "Native supply APY (exluding rewards and fees) using a 30 day rolling average",
           title: "APY (30D)",
           baseApy: vault.historical.daily[vault.historical.daily.length - 1]?.supplyApy30d?.base ?? 0,
           totalApy: vault.historical.daily[vault.historical.daily.length - 1]?.supplyApy30d?.total ?? 0,
