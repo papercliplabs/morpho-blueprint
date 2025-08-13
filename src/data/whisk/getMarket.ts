@@ -100,6 +100,18 @@ const query = graphql(`
           raw
           formatted
         }
+
+        historical {
+            hourly {
+              ...MarketHistoricalEntryFragment
+            }
+            daily {
+              ...MarketHistoricalEntryFragment
+            }
+            weekly {
+              ...MarketHistoricalEntryFragment
+            }
+          }
       }
     }
   }
