@@ -6,12 +6,15 @@ import { AvailableLiquidityTooltipContent } from "@/components/Tooltips/Availabl
 import NumberFlow from "@/components/ui/number-flow";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Market } from "@/data/whisk/getMarket";
+import { extractMarketBorrowApy } from "@/utils/market";
 
 interface MarketKeyMetricsProps {
   market: Market;
 }
 
 export function MarketKeyMetrics({ market }: MarketKeyMetricsProps) {
+  const borrowApy = extractMarketBorrowApy(market);
+
   return (
     <MarketKeyMetricsLayout
       totalSupplyValue={<NumberFlow value={market.totalSupplied.usd ?? 0} format={{ currency: "USD" }} />}
@@ -27,15 +30,13 @@ export function MarketKeyMetrics({ market }: MarketKeyMetricsProps) {
           publicAllocatorLiquidity={market.publicAllocatorSharedLiquidity.usd ?? 0}
         />
       }
-      borrowApyValue={
-        <ApyTooltipTrigger totalApy={market.borrowApy.total} showSparkle={market.borrowApy.rewards.length > 0} />
-      }
+      borrowApyValue={<ApyTooltipTrigger totalApy={borrowApy.total} showSparkle={borrowApy.rewards.length > 0} />}
       borrowApyTooltip={
         <ApyTooltipContent
           type="borrow"
-          nativeApy={market.borrowApy.base}
-          totalApy={market.borrowApy.total}
-          rewards={market.borrowApy.rewards}
+          nativeApy={borrowApy.base}
+          totalApy={borrowApy.total}
+          rewards={borrowApy.rewards}
         />
       }
     />

@@ -60,6 +60,15 @@ const query = graphql(`
             supplyApy {
               ...ApyFragment
             }
+            supplyApy1d {
+              ...ApyFragment
+            }
+            supplyApy7d {
+              ...ApyFragment
+            }
+            supplyApy30d {
+              ...ApyFragment
+            }
           }
           enabled
           position {

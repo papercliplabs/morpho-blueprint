@@ -8,6 +8,10 @@ import { PrivacyPolicy } from "./components/PrivacyPolicy";
 import { TermsOfUse } from "./components/TermsOfUse";
 import type { AppConfig } from "./types";
 
+// Custom tags for your vaults which can be used within the VaultConfig
+// These are used for sorting on the earn page, and a badge on the vault page
+export type VaultTag = "Prime" | "High-Yield" | "Tactical";
+
 export const SUPPORTED_CHAIN_IDS = [mainnet.id, polygon.id, base.id, worldchain.id] as const;
 
 const inter = Inter({
@@ -110,6 +114,8 @@ export const APP_CONFIG: AppConfig = {
     maxBorrowLtvMargin: 0.05,
     publicAllocatorSupplyTargetUtilizationWad: BigInt(90_0000000000000000),
   },
+
+  apyWindow: "7d",
 
   featureFlags: {
     enableDarkModeToggle: true,

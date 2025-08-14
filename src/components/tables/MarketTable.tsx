@@ -4,13 +4,12 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Table } from "@/components/ui/table";
 import type { MarketSummary } from "@/data/whisk/getMarketSummaries";
 import { type MarketTableDataEntry, useMarketTableData } from "@/hooks/useMarketTableData";
+import { extractMarketBorrowApy } from "@/utils/market";
 import { sortTableAssetAmount } from "@/utils/sort";
-
 import { TokenIcon } from "../TokenIcon";
 import { ApyTooltip } from "../Tooltips/ApyToolip";
 import NumberFlow, { NumberFlowWithLoading } from "../ui/number-flow";
 import { Skeleton } from "../ui/skeleton";
-
 import { TableAssetAmount } from "./Elements/TableAssetAmount";
 
 interface MarketTableProps {
@@ -137,16 +136,17 @@ function getColumns(isPositionLoading: boolean): ColumnDef<MarketTableDataEntry>
     },
     {
       id: "borrowApy",
-      accessorFn: (row) => row.marketSummary.borrowApy.total,
+      accessorFn: (row) => extractMarketBorrowApy(row.marketSummary).total,
       header: "Borrow APY",
       cell: ({ row }) => {
         const { marketSummary } = row.original;
+        const apy = extractMarketBorrowApy(marketSummary);
         return (
           <ApyTooltip
             type="borrow"
-            nativeApy={marketSummary.borrowApy.base}
-            totalApy={marketSummary.borrowApy.total}
-            rewards={marketSummary.borrowApy.rewards}
+            nativeApy={apy.base}
+            totalApy={apy.total}
+            rewards={apy.rewards}
             triggerVariant="sm"
           />
         );

@@ -235,47 +235,54 @@ async function VaultHistoricalDepositsChartWrapper({ chainId, vaultAddress }: Va
   );
 }
 
-async function VaultHistoricalApyChartWrapper({ chainId, vaultAddress }: VaultIdentifier) {
-  const vault = await getVault(chainId, vaultAddress);
+async function VaultHistoricalApyChartWrapper(_params: VaultIdentifier) {
+  return null; // Disable for now until we resolve historical apy inconsistency
 
-  // Null if the chain doesn't support historical data
-  if (!vault || !vault.historical) {
-    return null;
-  }
+  // const vault = await getVault(chainId, vaultAddress);
 
-  return (
-    <DataChart
-      data={vault.historical}
-      title="Native APY"
-      defaultTab="supplyApy1d"
-      tabOptions={[
-        {
-          type: "apy",
-          key: "supplyApy1d",
-          description: "Native supply APY (exluding rewards and fees) using a 1 day rolling average",
-          title: "APY (1D)",
-          baseApy: vault.historical.daily[vault.historical.daily.length - 1]?.supplyApy1d?.base ?? 0,
-          totalApy: vault.historical.daily[vault.historical.daily.length - 1]?.supplyApy1d?.total ?? 0,
-        },
-        {
-          type: "apy",
-          key: "supplyApy7d",
-          description: "Native supply APY (exluding rewards and fees) using a 7 day rolling average",
-          title: "APY (7D)",
-          baseApy: vault.historical.daily[vault.historical.daily.length - 1]?.supplyApy7d?.base ?? 0,
-          totalApy: vault.historical.daily[vault.historical.daily.length - 1]?.supplyApy7d?.total ?? 0,
-        },
-        {
-          type: "apy",
-          key: "supplyApy30d",
-          description: "Native supply APY (exluding rewards and fees) using a 30 day rolling average",
-          title: "APY (30D)",
-          baseApy: vault.historical.daily[vault.historical.daily.length - 1]?.supplyApy30d?.base ?? 0,
-          totalApy: vault.historical.daily[vault.historical.daily.length - 1]?.supplyApy30d?.total ?? 0,
-        },
-      ]}
-    />
-  );
+  // // Null if the chain doesn't support historical data
+  // if (!vault || !vault.historical) {
+  //   return null;
+  // }
+
+  // let key: "supplyApy1d" | "supplyApy7d" | "supplyApy30d";
+  // let baseApy: number;
+  // let totalApy: number;
+  // switch (APP_CONFIG.apyWindow) {
+  //   case "1d":
+  //     key = "supplyApy1d";
+  //     baseApy = vault.supplyApy1d.base;
+  //     totalApy = vault.supplyApy1d.total;
+  //     break;
+  //   case "7d":
+  //     key = "supplyApy7d";
+  //     baseApy = vault.supplyApy7d.base;
+  //     totalApy = vault.supplyApy7d.total;
+  //     break;
+  //   case "30d":
+  //     key = "supplyApy30d";
+  //     baseApy = vault.supplyApy30d.base;
+  //     totalApy = vault.supplyApy30d.total;
+  //     break;
+  // }
+
+  // return (
+  //   <DataChart
+  //     data={vault.historical}
+  //     title={`Native APY (${APP_CONFIG.apyWindow})`}
+  //     defaultTab={key}
+  //     tabOptions={[
+  //       {
+  //         type: "apy",
+  //         key,
+  //         description: `Native supply APY (exluding rewards and fees).`,
+  //         title: `APY (${APP_CONFIG.apyWindow})`,
+  //         baseApy,
+  //         totalApy,
+  //       },
+  //     ]}
+  //   />
+  // );
 }
 
 async function MarketAllocationTableWrapper({ chainId, vaultAddress }: VaultIdentifier) {

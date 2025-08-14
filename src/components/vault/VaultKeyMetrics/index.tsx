@@ -5,26 +5,26 @@ import { ApyTooltipContent, ApyTooltipTrigger } from "@/components/Tooltips/ApyT
 import NumberFlow from "@/components/ui/number-flow";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Vault } from "@/data/whisk/getVault";
+import { extractVaultSupplyApy } from "@/utils/vault";
 
 interface VaultKeyMetricsProps {
   vault: Vault;
 }
 
 export function VaultKeyMetrics({ vault }: VaultKeyMetricsProps) {
+  const supplyApy = extractVaultSupplyApy(vault);
   return (
     <VaultKeyMetricsLayout
       totalDepositsValue={<NumberFlow value={vault.totalSupplied.usd ?? 0} format={{ currency: "USD" }} />}
       availableLiquidityValue={<NumberFlow value={vault.totalLiquidity.usd ?? 0} format={{ currency: "USD" }} />}
-      supplyApyValue={
-        <ApyTooltipTrigger totalApy={vault.supplyApy.total} showSparkle={vault.supplyApy.rewards.length > 0} />
-      }
+      supplyApyValue={<ApyTooltipTrigger totalApy={supplyApy.total} showSparkle={supplyApy.rewards.length > 0} />}
       supplyApyTooltip={
         <ApyTooltipContent
           type="earn"
-          nativeApy={vault.supplyApy.base}
-          totalApy={vault.supplyApy.total}
-          performanceFee={vault.supplyApy.fee}
-          rewards={vault.supplyApy.rewards}
+          nativeApy={supplyApy.base}
+          totalApy={supplyApy.total}
+          performanceFee={supplyApy.fee}
+          rewards={supplyApy.rewards}
         />
       }
     />

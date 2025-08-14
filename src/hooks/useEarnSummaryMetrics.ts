@@ -3,7 +3,7 @@ import { useMemo } from "react";
 import { useAccount } from "wagmi";
 
 import type { VaultSummary } from "@/data/whisk/getVaultSummaries";
-
+import { extractVaultSupplyApy } from "@/utils/vault";
 import { useVaultTableData } from "./useVaultTableData";
 
 interface EarnSummaryMetrics {
@@ -41,7 +41,8 @@ export function useEarnSummaryMetrics({ vaultSummaries }: { vaultSummaries: Vaul
       }, 0);
 
       const userEarnAggregator = vaultTableData.reduce((acc, entry) => {
-        return acc + (entry.position?.supplyAmount.usd ?? 0) * (entry.vaultSummary.supplyApy.total ?? 0);
+        const apy = extractVaultSupplyApy(entry.vaultSummary);
+        return acc + (entry.position?.supplyAmount.usd ?? 0) * apy.total;
       }, 0);
 
       userEarnApy = userDepositsUsd > 0 ? userEarnAggregator / userDepositsUsd : 0;

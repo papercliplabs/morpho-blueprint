@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { MetricWithTooltip } from "@/components/Metric";
 import NumberFlow, { NumberFlowWithLoading } from "@/components/ui/number-flow";
 import { Skeleton } from "@/components/ui/skeleton";
+import { APP_CONFIG } from "@/config";
 import type { VaultSummary } from "@/data/whisk/getVaultSummaries";
 import { useEarnSummaryMetrics } from "@/hooks/useEarnSummaryMetrics";
 
@@ -98,7 +99,7 @@ function EarnSummaryMetricsLayout({
         </MetricWithTooltip>
         <MetricWithTooltip
           label="Your earn APY"
-          tooltip="Your net earn APY across all vaults in the table."
+          tooltip={`Your net earn APY across all vaults in the table. The native APY is from a ${APP_CONFIG.apyWindow} rolling average.`}
           className="flex-1 md:items-end"
         >
           {userEarnApy}

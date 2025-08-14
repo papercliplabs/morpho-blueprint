@@ -7,7 +7,7 @@ import type { SupportedChainId } from "@/config/types";
 import type { VaultSummary } from "@/data/whisk/getVaultSummaries";
 import { useVaultTableData, type VaultTableDataEntry } from "@/hooks/useVaultTableData";
 import { sortTableAssetAmount } from "@/utils/sort";
-import { getVaultTag } from "@/utils/vault";
+import { extractVaultSupplyApy, getVaultTag } from "@/utils/vault";
 import AvatarGroup from "../AvatarGroup";
 import { ApyTooltip } from "../Tooltips/ApyToolip";
 import { Badge } from "../ui/badge";
@@ -187,17 +187,18 @@ function getColumns(isPositionLoading: boolean): Column[] {
     },
     {
       id: "supplyApy",
-      accessorFn: (row) => row.vaultSummary.supplyApy.total,
+      accessorFn: (row) => extractVaultSupplyApy(row.vaultSummary).total,
       header: "Supply APY",
       cell: ({ row }) => {
         const { vaultSummary } = row.original;
+        const apy = extractVaultSupplyApy(vaultSummary);
         return (
           <ApyTooltip
             type="earn"
-            nativeApy={vaultSummary.supplyApy.base}
-            totalApy={vaultSummary.supplyApy.total}
-            performanceFee={vaultSummary.supplyApy.fee}
-            rewards={vaultSummary.supplyApy.rewards}
+            nativeApy={apy.base}
+            totalApy={apy.total}
+            performanceFee={apy.fee}
+            rewards={apy.rewards}
             triggerVariant="sm"
           />
         );

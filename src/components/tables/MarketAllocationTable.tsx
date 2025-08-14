@@ -4,7 +4,7 @@ import { useMemo } from "react";
 
 import { Table } from "@/components/ui/table";
 import type { Vault } from "@/data/whisk/getVault";
-
+import { extractMarketSupplyApy } from "@/utils/market";
 import { MarketName } from "../market/MarketName";
 import { ApyTooltip } from "../Tooltips/ApyToolip";
 import { TotalSupplyTooltip } from "../Tooltips/TotalSupplyTooltip";
@@ -62,16 +62,17 @@ const columns: ColumnDef<Vault["marketAllocations"][number]>[] = [
   },
   {
     id: "supplyApy",
-    accessorKey: "market.supplyApy.total",
+    accessorFn: (row) => extractMarketSupplyApy(row.market).total,
     header: "Supply APY",
     cell: ({ row }) => {
       const { market } = row.original;
+      const supplyApy = extractMarketSupplyApy(market);
       return (
         <ApyTooltip
           type="earn"
-          nativeApy={market.supplyApy.base}
-          totalApy={market.supplyApy.total}
-          rewards={market.supplyApy.rewards}
+          nativeApy={supplyApy.base}
+          totalApy={supplyApy.total}
+          rewards={supplyApy.rewards}
           triggerVariant="sm"
         />
       );
