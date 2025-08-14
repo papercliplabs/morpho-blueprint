@@ -72,6 +72,18 @@ graphql(`
       ...ApyFragment
     }
 
+    supplyApy1d {
+      ...ApyFragment
+    }
+
+    supplyApy7d {
+      ...ApyFragment
+    }
+
+    supplyApy30d {  
+      ...ApyFragment
+    }
+
     marketAllocations {
       market {
         collateralAsset {
@@ -132,6 +144,19 @@ graphql(`
     borrowApy {
       ...ApyFragment
     }
+
+    borrowApy1d {
+      ...ApyFragment
+    }
+
+    borrowApy7d {
+      ...ApyFragment
+    }
+
+    borrowApy30d {
+      ...ApyFragment
+    }
+    
 
     vaultAllocations {
       vault {

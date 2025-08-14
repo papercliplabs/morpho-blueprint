@@ -3,7 +3,7 @@ import { useMemo } from "react";
 import { useAccount } from "wagmi";
 
 import type { MarketSummary } from "@/data/whisk/getMarketSummaries";
-
+import { extractMarketBorrowApy } from "@/utils/market";
 import { useMarketTableData } from "./useMarketTableData";
 
 interface EarnSummaryMetrics {
@@ -36,7 +36,8 @@ export function useBorrowSummaryMetrics({ marketSummaries }: { marketSummaries: 
       }, 0);
 
       const userBorrowAggregator = marketTableData.reduce((acc, entry) => {
-        return acc + (entry.position?.borrowAmount.usd ?? 0) * (entry.marketSummary.borrowApy.total ?? 0);
+        const apy = extractMarketBorrowApy(entry.marketSummary);
+        return acc + (entry.position?.borrowAmount.usd ?? 0) * apy.total;
       }, 0);
 
       userBorrowApy = userBorrowsUsd > 0 ? userBorrowAggregator / userBorrowsUsd : 0;

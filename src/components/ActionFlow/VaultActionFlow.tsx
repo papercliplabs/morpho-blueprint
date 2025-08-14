@@ -1,12 +1,11 @@
 import type { VaultAction, VaultPositionChange } from "@/actions";
 import type { Vault } from "@/data/whisk/getVault";
-
+import { extractVaultSupplyApy } from "@/utils/vault";
 import { AssetChangeSummary } from "../AssetChangeSummary";
 import { MetricChange } from "../MetricChange";
 import { ApyTooltip } from "../Tooltips/ApyToolip";
 import { NumberFlowWithLoading } from "../ui/number-flow";
 import { Skeleton } from "../ui/skeleton";
-
 import { ActionFlow, type ActionFlowProps } from ".";
 
 export function VaultActionFlow({
@@ -73,6 +72,7 @@ export function VaultActionSimulationMetrics({
   positionChange: VaultPositionChange;
   isLoading?: boolean;
 }) {
+  const supplyApy = extractVaultSupplyApy(vault);
   return (
     <div className="flex w-full flex-col gap-2">
       <MetricChange
@@ -99,10 +99,10 @@ export function VaultActionSimulationMetrics({
         initialValue={
           <ApyTooltip
             type="earn"
-            nativeApy={vault.supplyApy.base}
-            totalApy={vault.supplyApy.total}
-            performanceFee={vault.supplyApy.fee}
-            rewards={vault.supplyApy.rewards}
+            nativeApy={supplyApy.base}
+            totalApy={supplyApy.total}
+            performanceFee={supplyApy.fee}
+            rewards={supplyApy.rewards}
             triggerVariant="sm"
             sparkleSide="left"
           />

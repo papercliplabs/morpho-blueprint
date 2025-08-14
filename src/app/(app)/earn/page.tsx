@@ -11,7 +11,7 @@ import { Card, CardHeader } from "@/components/ui/card";
 import { Skeleton, Skeletons } from "@/components/ui/skeleton";
 import { EarnSummaryMetrics, EarnSummaryMetricsSkeleton } from "@/components/vault/EarnSummaryMetrics";
 import { APP_CONFIG } from "@/config";
-import type { SupportedChainId, VaultTag } from "@/config/types";
+import type { SupportedChainId } from "@/config/types";
 import { getVaultSummaries } from "@/data/whisk/getVaultSummaries";
 import { getVaultTag } from "@/utils/vault";
 
@@ -114,10 +114,9 @@ async function VaultFiltersWrapper() {
     const chainId = vault.chain.id as SupportedChainId;
     const tag = getVaultTag(chainId, vault.vaultAddress);
     if (tag) {
-      const value: VaultTag = tag;
-      tagOptionsMap[value] = {
-        value,
-        component: <>{value}</>,
+      tagOptionsMap[tag] = {
+        value: tag,
+        component: <>{tag}</>,
       };
     }
   }

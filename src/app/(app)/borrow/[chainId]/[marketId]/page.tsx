@@ -192,7 +192,7 @@ async function MarketHistoricalLiquidityChartWrapper({ chainId, marketId }: Mark
   return (
     <DataChart
       data={market.historical}
-      title="Liquidity"
+      title="Assets"
       defaultTab="totalBorrowed"
       tabOptions={[
         {
@@ -229,47 +229,54 @@ async function MarketHistoricalLiquidityChartWrapper({ chainId, marketId }: Mark
   );
 }
 
-async function MarketHistoricalApyChartWrapper({ chainId, marketId }: MarketIdentifier) {
-  const market = await getMarket(chainId, marketId);
+async function MarketHistoricalApyChartWrapper(_params: MarketIdentifier) {
+  return null; // Disable for now until we resolve historical apy inconsistency
+
+  // const market = await getMarket(chainId, marketId);
 
   // Null if the chain doesn't support historical data
-  if (!market || !market.historical || !market.collateralAsset) {
-    return null;
-  }
+  // if (!market || !market.historical || !market.collateralAsset ) {
+  //   return null;
+  // }
 
-  return (
-    <DataChart
-      data={market.historical}
-      title="Native Borrow Rate"
-      defaultTab="borrowApy1d"
-      tabOptions={[
-        {
-          type: "apy",
-          key: "borrowApy1d",
-          description: "Native borrow APY (exluding rewards and fees) using a 1 day rolling average",
-          title: "APY (1D)",
-          baseApy: market.historical.daily[market.historical.daily.length - 1]?.borrowApy1d?.base ?? 0,
-          totalApy: market.historical.daily[market.historical.daily.length - 1]?.borrowApy1d?.total ?? 0,
-        },
-        {
-          type: "apy",
-          key: "borrowApy7d",
-          description: "Native borrow APY (exluding rewards and fees) using a 7 day rolling average",
-          title: "APY (7D)",
-          baseApy: market.historical.daily[market.historical.daily.length - 1]?.borrowApy7d?.base ?? 0,
-          totalApy: market.historical.daily[market.historical.daily.length - 1]?.borrowApy7d?.total ?? 0,
-        },
-        {
-          type: "apy",
-          key: "borrowApy30d",
-          description: "Native borrow APY (exluding rewards and fees) using a 30 day rolling average",
-          title: "APY (30D)",
-          baseApy: market.historical.daily[market.historical.daily.length - 1]?.borrowApy30d?.base ?? 0,
-          totalApy: market.historical.daily[market.historical.daily.length - 1]?.borrowApy30d?.total ?? 0,
-        },
-      ]}
-    />
-  );
+  // let key: "borrowApy1d" | "borrowApy7d" | "borrowApy30d";
+  // let baseApy: number;
+  // let totalApy: number;
+  // switch (APP_CONFIG.apyWindow) {
+  //   case "1d":
+  //     key = "borrowApy1d";
+  //     baseApy = market.borrowApy1d.base;
+  //     totalApy = market.borrowApy1d.total;
+  //     break;
+  //   case "7d":
+  //     key = "borrowApy7d";
+  //     baseApy = market.borrowApy7d.base;
+  //     totalApy = market.borrowApy7d.total;
+  //     break;
+  //   case "30d":
+  //     key = "borrowApy30d";
+  //     baseApy = market.borrowApy30d.base;
+  //     totalApy = market.borrowApy30d.total;
+  //     break;
+  // }
+
+  // return (
+  //   <DataChart
+  //     data={market.historical}
+  //     title={`Native Borrow Rate (${APP_CONFIG.apyWindow})`}
+  //     defaultTab={key}
+  //     tabOptions={[
+  //       {
+  //         type: "apy",
+  //         key,
+  //         description: "Native borrow APY (exluding rewards and fees).",
+  //         title: `Native rate (${APP_CONFIG.apyWindow})`,
+  //         baseApy,
+  //         totalApy,
+  //       },
+  //     ]}
+  //   />
+  // );
 }
 
 async function VaultAllocationTableWrapper({ chainId, marketId }: MarketIdentifier) {

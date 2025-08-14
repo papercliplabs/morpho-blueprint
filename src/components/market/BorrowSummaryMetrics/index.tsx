@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { MetricWithTooltip } from "@/components/Metric";
 import { NumberFlowWithLoading } from "@/components/ui/number-flow";
 import { Skeleton } from "@/components/ui/skeleton";
+import { APP_CONFIG } from "@/config";
 import type { MarketSummary } from "@/data/whisk/getMarketSummaries";
 import { useBorrowSummaryMetrics } from "@/hooks/useBorrowSummaryMetrics";
 
@@ -96,7 +97,7 @@ function BorrowSummaryMetricsLayout({
         </MetricWithTooltip>
         <MetricWithTooltip
           label="Your borrow APY"
-          tooltip="Your net borrow APY across all markets in the table."
+          tooltip={`Your net borrow APY across all markets in the table. The native APY is from a ${APP_CONFIG.apyWindow} rolling average.`}
           className="flex-1 md:items-end"
         >
           {userBorrowApy}

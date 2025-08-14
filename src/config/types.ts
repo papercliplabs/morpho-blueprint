@@ -2,7 +2,7 @@ import type { NextFontWithVariable } from "next/dist/compiled/@next/font";
 import type { ReactNode } from "react";
 import type { Address, Chain } from "viem";
 
-import type { SUPPORTED_CHAIN_IDS } from "@/config";
+import type { SUPPORTED_CHAIN_IDS, VaultTag } from "@/config";
 import type { EventName } from "@/data/trackEvent";
 
 // You shouldn't modify this file unless deploying a fully custom fork (otherwise the app will likely break)
@@ -10,13 +10,15 @@ import type { EventName } from "@/data/trackEvent";
 // Used for type safety. SUPPORTED_CHAIN_IDS comes from ./index.ts and should contain all chain IDs your app supports
 export type SupportedChainId = (typeof SUPPORTED_CHAIN_IDS)[number];
 
-// Extendable by app implementers to enumerate the set of tags used for vaults.
-// Update this union to match your design taxonomy (e.g. "Prime" | "High-Yield" | "Tactical").
-export type VaultTag = "Prime" | "High-Yield" | "Tactical";
+// Windows available for native apy smoothing (1 day, 7 days, 30 days)
+export type ApyWindow = "1d" | "7d" | "30d";
 
 export interface VaultConfig {
+  // Address of the vault
   address: Address;
+  // Vault description which will override the default one from Morpho metadata repo.
   description?: string;
+  // Optional tag which is used for sorting on the earn page, and a badge on the vault page.
   tag?: VaultTag;
 }
 
@@ -75,7 +77,7 @@ export interface AppConfig {
   reownProjectId: string; // Reown/wallet connect project ID. Get this from https://cloud.reown.com
   chainConfig: Record<SupportedChainId, { chain: Chain; rpcUrls: [string, ...string[]] }>; // Chain configuration for all chains your app supports
 
-  supportedVaults: Record<SupportedChainId, VaultConfig[]>; // List of all supported vaults which will appear in the earn page table.
+  supportedVaults: Record<SupportedChainId, VaultConfig[]>; // Config for all supported vaults which will appear in the earn page table.
   // Note: Supported markets are derived based on supported vault allocations^
 
   actionParameters: {
@@ -84,6 +86,10 @@ export interface AppConfig {
     // Target utilization above which the public allocator shared liquidity algorithm is enabled for borrowing
     publicAllocatorSupplyTargetUtilizationWad: bigint; // Scaled by WAD
   };
+
+  // Controls the apy window used for native apy metrics and charts (rewards remain instantanious).
+  // Instantaneous APYs can be misleading, so we've opted to show windowed instead which is generlly more useful for users.
+  apyWindow: ApyWindow;
 
   // Note the default value is false to preserve backwards compatibility when upgrading versions (new features are opt-in, i.e upgrading won't add any new features)
   featureFlags: {

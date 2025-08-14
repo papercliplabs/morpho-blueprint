@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Sparkles } from "@/components/ui/icons/Sparkles";
 import NumberFlow from "@/components/ui/number-flow";
 import { TooltipPopover, TooltipPopoverContent, TooltipPopoverTrigger } from "@/components/ui/tooltip-popover";
+import { APP_CONFIG } from "@/config";
 import type { TokenInfo } from "@/data/whisk/fragments";
 import { formatNumber } from "@/utils/format";
 
@@ -76,7 +77,7 @@ function ApyTooltipContent({ type, totalApy, nativeApy, rewards, performanceFee 
       </div>
       <div className="body-small flex flex-col gap-2">
         <span className="flex justify-between">
-          <span>Native APY</span>
+          <span>Native APY ({APP_CONFIG.apyWindow})</span>
           <span className="body-small-plus">{formatNumber(nativeApy, { style: "percent" })}</span>
         </span>
         {!!rewards &&
