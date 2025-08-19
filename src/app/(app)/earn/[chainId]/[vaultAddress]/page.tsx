@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { BreakcrumbBack } from "@/components/ui/breakcrumb-back";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
+import { Markdown } from "@/components/ui/markdown";
 import { Skeleton } from "@/components/ui/skeleton";
 import { VaultActions } from "@/components/vault/VaultActions";
 import { VaultInfo, VaultInfoSkeleton } from "@/components/vault/VaultInfo";
@@ -202,7 +203,9 @@ async function VaultAboutCard({ chainId, vaultAddress }: VaultIdentifier) {
   return (
     <Card>
       <CardHeader>About</CardHeader>
-      <p className="body-large text-muted-foreground">{description}</p>
+      <div className="body-large">
+        <Markdown>{description}</Markdown>
+      </div>
     </Card>
   );
 }
