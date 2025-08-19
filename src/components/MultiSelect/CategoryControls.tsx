@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo } from "react";
+import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
 
 type CategoryOptionLike = {
   value: string;
@@ -108,19 +109,16 @@ export function CategoryControls<TOption extends CategoryOptionLike>({
   if (categoryMap.size === 0) return null;
 
   return (
-    <div className="flex gap-2 overflow-x-auto px-4 pt-3 pb-2">
-      {categoryMap.keys().map((category) => (
-        <button
-          type="button"
-          key={category}
-          className={`rounded-md px-3 py-1 text-sm ${
-            activeCategory === category ? "bg-primary text-primary-foreground" : "bg-muted text-foreground"
-          }`}
-          onClick={() => handleCategoryChange(category)}
-        >
-          {category === "Stable" ? "Stable" : category.toUpperCase()}
-        </button>
-      ))}
+    <div className="flex w-full gap-2 overflow-x-auto px-4 pt-3 pb-2">
+      <Tabs variant="default" value={activeCategory ?? ""} onValueChange={handleCategoryChange} className="grow">
+        <TabsList className="h-5 flex-1">
+          {Array.from(categoryMap.keys()).map((category) => (
+            <TabsTrigger value={category} key={category}>
+              {category === "Stable" ? "Stable" : category.toUpperCase()}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
     </div>
   );
 }
