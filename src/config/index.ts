@@ -8,11 +8,12 @@ import { PrivacyPolicy } from "./components/PrivacyPolicy";
 import { TermsOfUse } from "./components/TermsOfUse";
 import type { AppConfig } from "./types";
 
+// Specify all chains your app supports
+export const SUPPORTED_CHAIN_IDS = [mainnet.id, polygon.id, base.id, worldchain.id] as const;
+
 // Custom tags for your vaults which can be used within the VaultConfig
 // These are used for sorting on the earn page, and a badge on the vault page
-export type VaultTag = "Prime" | "High-Yield" | "Tactical";
-
-export const SUPPORTED_CHAIN_IDS = [mainnet.id, polygon.id, base.id, worldchain.id] as const;
+export const VAULT_TAG_OPTIONS = ["Prime", "High-Yield", "Tactical"] as const;
 
 const inter = Inter({
   variable: "--font-main",

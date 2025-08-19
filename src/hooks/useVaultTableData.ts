@@ -7,7 +7,7 @@ import { FilterKey } from "@/components/filters/types";
 import type { SupportedChainId } from "@/config/types";
 import type { VaultPosition } from "@/data/whisk/getVaultPositions";
 import type { VaultSummary } from "@/data/whisk/getVaultSummaries";
-import { getVaultTag } from "@/utils/vault";
+import { getVaultTagData } from "@/utils/vault";
 import { useShallowSearchParams } from "./useShallowSearchParams";
 import { useVaultPositions } from "./useVaultPositions";
 
@@ -59,11 +59,11 @@ export function useVaultTableData({ vaultSummaries }: { vaultSummaries: VaultSum
       // Tags filter: match against optional supportedVaults
       let tagFilterMatch = true;
       if (tagFilterValues !== undefined && tagFilterValues.length > 0) {
-        const thisVaultTag = getVaultTag(
+        const thisVaultTagData = getVaultTagData(
           dataEntry.vaultSummary.chain.id as SupportedChainId,
           dataEntry.vaultSummary.vaultAddress,
         );
-        tagFilterMatch = thisVaultTag !== undefined && tagFilterValues.includes(thisVaultTag);
+        tagFilterMatch = thisVaultTagData !== undefined && tagFilterValues.includes(thisVaultTagData.tag);
       }
 
       let accountFilterMatch = true;

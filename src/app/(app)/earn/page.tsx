@@ -13,7 +13,7 @@ import { EarnSummaryMetrics, EarnSummaryMetricsSkeleton } from "@/components/vau
 import { APP_CONFIG } from "@/config";
 import type { SupportedChainId } from "@/config/types";
 import { getVaultSummaries } from "@/data/whisk/getVaultSummaries";
-import { getVaultTag } from "@/utils/vault";
+import { getVaultTagData } from "@/utils/vault";
 
 export const metadata: Metadata = {
   title: `${APP_CONFIG.metadata.name} | Earn`,
@@ -112,11 +112,11 @@ async function VaultFiltersWrapper() {
 
     // Derive tag from optional config
     const chainId = vault.chain.id as SupportedChainId;
-    const tag = getVaultTag(chainId, vault.vaultAddress);
-    if (tag) {
-      tagOptionsMap[tag] = {
-        value: tag,
-        component: <>{tag}</>,
+    const tagData = getVaultTagData(chainId, vault.vaultAddress);
+    if (tagData) {
+      tagOptionsMap[tagData.tag] = {
+        value: tagData.tag,
+        component: <>{tagData.tag}</>,
       };
     }
   }

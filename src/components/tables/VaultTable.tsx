@@ -7,7 +7,7 @@ import type { SupportedChainId } from "@/config/types";
 import type { VaultSummary } from "@/data/whisk/getVaultSummaries";
 import { useVaultTableData, type VaultTableDataEntry } from "@/hooks/useVaultTableData";
 import { sortTableAssetAmount } from "@/utils/sort";
-import { extractVaultSupplyApy, getVaultTag } from "@/utils/vault";
+import { extractVaultSupplyApy, getVaultTagData } from "@/utils/vault";
 import AvatarGroup from "../AvatarGroup";
 import { ApyTooltip } from "../Tooltips/ApyToolip";
 import { Badge } from "../ui/badge";
@@ -118,12 +118,18 @@ function getColumns(isPositionLoading: boolean): Column[] {
           {
             id: "type",
             accessorFn: (row) =>
-              getVaultTag(row.vaultSummary.chain.id as SupportedChainId, row.vaultSummary.vaultAddress) ?? "",
+              getVaultTagData(row.vaultSummary.chain.id as SupportedChainId, row.vaultSummary.vaultAddress)?.tag ?? "",
             header: "Type",
             cell: ({ row }) => {
               const { vaultSummary } = row.original;
-              const tag = getVaultTag(vaultSummary.chain.id as SupportedChainId, vaultSummary.vaultAddress);
-              return tag ? <Badge variant="small">{tag}</Badge> : "—";
+              const tagData = getVaultTagData(vaultSummary.chain.id as SupportedChainId, vaultSummary.vaultAddress);
+              return tagData ? (
+                <Badge variant="small" style={{ backgroundColor: tagData.color }}>
+                  {tagData.tag}
+                </Badge>
+              ) : (
+                "—"
+              );
             },
             minSize: 100,
           } as Column,

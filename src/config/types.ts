@@ -2,7 +2,7 @@ import type { NextFontWithVariable } from "next/dist/compiled/@next/font";
 import type { ReactNode } from "react";
 import type { Address, Chain } from "viem";
 
-import type { SUPPORTED_CHAIN_IDS, VaultTag } from "@/config";
+import type { SUPPORTED_CHAIN_IDS, VAULT_TAG_OPTIONS } from "@/config";
 import type { EventName } from "@/data/trackEvent";
 
 // You shouldn't modify this file unless deploying a fully custom fork (otherwise the app will likely break)
@@ -12,6 +12,8 @@ export type SupportedChainId = (typeof SUPPORTED_CHAIN_IDS)[number];
 
 // Windows available for native apy smoothing (1 day, 7 days, 30 days)
 export type ApyWindow = "1d" | "7d" | "30d";
+
+export type VaultTag = (typeof VAULT_TAG_OPTIONS)[number];
 
 export interface VaultConfig {
   // Address of the vault

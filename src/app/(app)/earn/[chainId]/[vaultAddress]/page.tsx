@@ -22,7 +22,7 @@ import { APP_CONFIG } from "@/config";
 import type { SupportedChainId } from "@/config/types";
 import { getVault } from "@/data/whisk/getVault";
 import type { VaultIdentifier } from "@/utils/types";
-import { getVaultTag } from "@/utils/vault";
+import { getVaultTagData } from "@/utils/vault";
 
 export const metadata: Metadata = {
   title: `${APP_CONFIG.metadata.name} | Vault`,
@@ -132,7 +132,7 @@ async function VaultHeader({ chainId, vaultAddress }: VaultIdentifier) {
     return null;
   }
   const curator = vault.metadata?.curators?.[0];
-  const tag = getVaultTag(chainId, vaultAddress);
+  const tagData = getVaultTagData(chainId, vaultAddress);
 
   return (
     <div className="flex flex-col justify-between gap-4 md:flex-row">
@@ -163,10 +163,12 @@ async function VaultHeader({ chainId, vaultAddress }: VaultIdentifier) {
               </div>
             </>
           )}
-          {tag && (
+          {tagData && (
             <>
               <span>&bull;</span>
-              <Badge aria-label="Vault type">{tag}</Badge>
+              <Badge aria-label="Vault type" style={{ backgroundColor: tagData.color }}>
+                {tagData.tag}
+              </Badge>
             </>
           )}
         </div>

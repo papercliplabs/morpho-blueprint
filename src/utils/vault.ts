@@ -1,14 +1,28 @@
 import { type Address, getAddress } from "viem";
 
-import { APP_CONFIG, type VaultTag } from "@/config";
-import type { SupportedChainId } from "@/config/types";
+import { APP_CONFIG, VAULT_TAG_OPTIONS } from "@/config";
+import type { SupportedChainId, VaultTag } from "@/config/types";
 import type { VaultSummary } from "@/data/whisk/getVaultSummaries";
 import type { ApyFragmentFragment } from "@/generated/gql/whisk/graphql";
 
-export function getVaultTag(chainId: SupportedChainId, vaultAddress: Address): VaultTag | undefined {
+export function getVaultTagData(
+  chainId: SupportedChainId,
+  vaultAddress: Address,
+): { tag: VaultTag; color: string } | undefined {
   const configsForChain = APP_CONFIG.supportedVaults?.[chainId] ?? [];
   const target = getAddress(vaultAddress);
-  return configsForChain.find((v) => getAddress(v.address) === target)?.tag;
+
+  const tag = configsForChain.find((v) => getAddress(v.address) === target)?.tag;
+
+  if (!tag) {
+    return undefined;
+  }
+
+  const tagIndex = VAULT_TAG_OPTIONS.indexOf(tag);
+
+  const color = `oklch(from var(--chart-${(tagIndex + 1) % 5}) l c h / 0.1)`;
+
+  return { tag, color };
 }
 
 export function extractVaultSupplyApy(vault: VaultSummary): ApyFragmentFragment {
