@@ -5,6 +5,7 @@ import { APP_CONFIG } from "@/config";
 import type { SupportedChainId } from "@/config/types";
 import { graphql } from "@/generated/gql/whisk";
 import type { VaultSummariesQuery } from "@/generated/gql/whisk/graphql";
+import { customizeVault } from "@/utils/vault";
 import type { ChainId } from "@/whisk-types";
 import { executeWhiskQuery } from "./execute";
 
@@ -21,7 +22,7 @@ const query = graphql(`
   }
 `);
 
-export type VaultSummary = NonNullable<VaultSummariesQuery["morphoVaults"]["items"][number]>;
+export type VaultSummary = NonNullable<VaultSummariesQuery["morphoVaults"]["items"][number]> & { isHidden: boolean };
 
 export const getVaultSummaries = cache(async () => {
   const chainIds = Object.keys(APP_CONFIG.supportedVaults).map((chainId) => Number.parseInt(chainId) as ChainId);
@@ -52,5 +53,5 @@ export const getVaultSummaries = cache(async () => {
     return true;
   });
 
-  return vaults as VaultSummary[];
+  return vaults.filter((v) => v !== null).map(customizeVault);
 });

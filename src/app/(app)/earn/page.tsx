@@ -133,5 +133,5 @@ async function VaultFiltersWrapper() {
 
 async function VaultTableWrapper() {
   const vaultSummaries = await getVaultSummaries();
-  return <VaultTable vaultSummaries={vaultSummaries} />;
+  return <VaultTable vaultSummaries={vaultSummaries.filter((v) => !v.isHidden)} />;
 }

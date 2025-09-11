@@ -22,7 +22,7 @@ import { APP_CONFIG } from "@/config";
 import type { SupportedChainId } from "@/config/types";
 import { getVault } from "@/data/whisk/getVault";
 import type { VaultIdentifier } from "@/utils/types";
-import { getVaultTagData } from "@/utils/vault";
+import { getVaultConfig, getVaultTagData } from "@/utils/vault";
 
 export const metadata: Metadata = {
   title: `${APP_CONFIG.metadata.name} | Vault`,
@@ -39,7 +39,9 @@ export default async function VaultPage({ params }: { params: Promise<{ chainId:
     notFound();
   }
 
-  if (!APP_CONFIG.supportedVaults[chainId as SupportedChainId]?.some((v) => v.address === vaultAddress)) {
+  const vaultConfig = getVaultConfig(chainId, vaultAddressString);
+
+  if (!vaultConfig || vaultConfig?.isHidden) {
     return <UnsupportedVault />;
   }
 
@@ -191,22 +193,16 @@ async function KeyMetricsWrapper({ chainId, vaultAddress }: VaultIdentifier) {
 
 async function VaultAboutCard({ chainId, vaultAddress }: VaultIdentifier) {
   const vault = await getVault(chainId, vaultAddress);
-  if (!vault) {
+
+  if (!vault || !vault.metadata?.description) {
     return null;
   }
-
-  const overrideDescription = APP_CONFIG.supportedVaults[chainId as SupportedChainId]?.find(
-    (v) => v.address === vaultAddress,
-  )?.description;
-  const description = overrideDescription ?? vault.metadata?.description;
-  // Hide unless there is about content
-  if (!description) return null;
 
   return (
     <Card>
       <CardHeader>About</CardHeader>
       <div className="body-large">
-        <Markdown>{description}</Markdown>
+        <Markdown>{vault.metadata.description}</Markdown>
       </div>
     </Card>
   );

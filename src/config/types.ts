@@ -18,10 +18,14 @@ export type VaultTag = (typeof VAULT_TAG_OPTIONS)[number];
 export interface VaultConfig {
   // Address of the vault
   address: Address;
+  // Vault name which will override the default one from Morpho metadata repo.
+  name?: string;
   // Vault description which will override the default one from Morpho metadata repo.
   description?: string;
   // Optional tag which is used for sorting on the earn page, and a badge on the vault page.
   tag?: VaultTag;
+  // Optional flag to hide the vault from within the app, while still using the vault to compute TVL.
+  isHidden?: boolean;
 }
 
 export interface AppConfig {
