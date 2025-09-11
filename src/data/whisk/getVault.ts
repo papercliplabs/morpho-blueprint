@@ -104,7 +104,7 @@ const query = graphql(`
   }
 `);
 
-export type Vault = NonNullable<VaultQuery["morphoVaults"]["items"][number]>;
+export type Vault = NonNullable<VaultQuery["morphoVaults"]["items"][number]> & { isHidden: boolean };
 
 export const getVault = cache(async (chainId: SupportedChainId, vaultAddress: Address): Promise<Vault> => {
   const data = await executeWhiskQuery(query, {

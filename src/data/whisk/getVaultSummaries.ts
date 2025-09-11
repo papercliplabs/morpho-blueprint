@@ -22,7 +22,7 @@ const query = graphql(`
   }
 `);
 
-export type VaultSummary = NonNullable<VaultSummariesQuery["morphoVaults"]["items"][number]>;
+export type VaultSummary = NonNullable<VaultSummariesQuery["morphoVaults"]["items"][number]> & { isHidden: boolean };
 
 export const getVaultSummaries = cache(async () => {
   const chainIds = Object.keys(APP_CONFIG.supportedVaults).map((chainId) => Number.parseInt(chainId) as ChainId);

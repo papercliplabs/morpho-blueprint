@@ -23,27 +23,25 @@ export function useEarnSummaryMetrics({ vaultSummaries }: { vaultSummaries: Vaul
   const { address } = useAccount();
 
   const earnSummaryMetrics = useMemo(() => {
-    const totalSuppliedUsd = vaultTableData.reduce(
-      (acc, entry) => acc + (entry.vaultSummary.totalSupplied.usd ?? 0),
-      0,
-    );
-    const totalLiqudityUsd = vaultTableData.reduce(
-      (acc, entry) => acc + (entry.vaultSummary.totalLiquidity.usd ?? 0),
-      0,
-    );
+    const totalSuppliedUsd = vaultSummaries.reduce((acc, entry) => acc + (entry.totalSupplied.usd ?? 0), 0);
+    const totalLiqudityUsd = vaultSummaries.reduce((acc, entry) => acc + (entry.totalLiquidity.usd ?? 0), 0);
     const totalBorrowedUsd = totalSuppliedUsd - totalLiqudityUsd;
 
     let userDepositsUsd: number | undefined;
     let userEarnApy: number | undefined;
     if (address && !isPositionsLoading) {
-      userDepositsUsd = vaultTableData.reduce((acc, entry) => {
-        return acc + (entry.position?.supplyAmount.usd ?? 0);
-      }, 0);
+      userDepositsUsd = vaultTableData
+        .filter((v) => !v.vaultSummary.isHidden)
+        .reduce((acc, entry) => {
+          return acc + (entry.position?.supplyAmount.usd ?? 0);
+        }, 0);
 
-      const userEarnAggregator = vaultTableData.reduce((acc, entry) => {
-        const apy = extractVaultSupplyApy(entry.vaultSummary);
-        return acc + (entry.position?.supplyAmount.usd ?? 0) * apy.total;
-      }, 0);
+      const userEarnAggregator = vaultTableData
+        .filter((v) => !v.vaultSummary.isHidden)
+        .reduce((acc, entry) => {
+          const apy = extractVaultSupplyApy(entry.vaultSummary);
+          return acc + (entry.position?.supplyAmount.usd ?? 0) * apy.total;
+        }, 0);
 
       userEarnApy = userDepositsUsd > 0 ? userEarnAggregator / userDepositsUsd : 0;
     }
@@ -55,7 +53,7 @@ export function useEarnSummaryMetrics({ vaultSummaries }: { vaultSummaries: Vaul
       userDepositsUsd,
       userEarnApy,
     };
-  }, [vaultTableData, address, isPositionsLoading]);
+  }, [vaultTableData, address, isPositionsLoading, vaultSummaries]);
 
   return {
     data: earnSummaryMetrics,

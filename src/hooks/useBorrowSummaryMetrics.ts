@@ -23,10 +23,7 @@ export function useBorrowSummaryMetrics({ marketSummaries }: { marketSummaries: 
   const { address } = useAccount();
 
   const borrowSummaryMetrics = useMemo(() => {
-    const totalBorrowedUsd = marketTableData.reduce(
-      (acc, entry) => acc + (entry.marketSummary.totalBorrowed.usd ?? 0),
-      0,
-    );
+    const totalBorrowedUsd = marketSummaries.reduce((acc, entry) => acc + (entry.totalBorrowed.usd ?? 0), 0);
 
     let userBorrowsUsd: number | undefined;
     let userBorrowApy: number | undefined;
@@ -49,7 +46,7 @@ export function useBorrowSummaryMetrics({ marketSummaries }: { marketSummaries: 
       userBorrowsUsd,
       userBorrowApy,
     };
-  }, [marketTableData, address, isPositionsLoading]);
+  }, [marketTableData, address, isPositionsLoading, marketSummaries]);
 
   return {
     data: borrowSummaryMetrics,
