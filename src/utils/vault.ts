@@ -1,7 +1,7 @@
 import { type Address, getAddress } from "viem";
 
 import { APP_CONFIG, VAULT_TAG_OPTIONS } from "@/config";
-import type { SupportedChainId, VaultTag } from "@/config/types";
+import type { SupportedChainId, VaultConfig, VaultTag } from "@/config/types";
 import type { VaultSummary } from "@/data/whisk/getVaultSummaries";
 import type { ApyFragmentFragment } from "@/generated/gql/whisk/graphql";
 
@@ -34,4 +34,36 @@ export function extractVaultSupplyApy(vault: VaultSummary): ApyFragmentFragment 
     case "30d":
       return vault.supplyApy30d;
   }
+}
+
+export function getVaultConfig(chainId: SupportedChainId, vaultAddress: string): VaultConfig | undefined {
+  return APP_CONFIG.supportedVaults[chainId]?.find((v) => v.address === getAddress(vaultAddress));
+}
+
+export function customizeVault<
+  V extends {
+    name: string;
+    chain: { id: number };
+    vaultAddress: string;
+    metadata?: Record<string, unknown> | null;
+  },
+>(vault: V): V & { isHidden: boolean } {
+  const { chain, name, metadata, vaultAddress } = vault;
+
+  const chainId = chain.id as SupportedChainId;
+  const config = getVaultConfig(chainId, vaultAddress);
+
+  if (!config) return { ...vault, isHidden: true };
+
+  return {
+    ...vault,
+    name: config?.name ?? name,
+    ...(metadata && {
+      metadata: {
+        ...metadata,
+        description: config?.description || metadata?.description,
+      },
+    }),
+    isHidden: config?.isHidden ?? false,
+  };
 }

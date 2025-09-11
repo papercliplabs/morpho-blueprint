@@ -5,6 +5,7 @@ import type { Address } from "viem";
 import type { SupportedChainId } from "@/config/types";
 import { graphql } from "@/generated/gql/whisk";
 import type { VaultQuery } from "@/generated/gql/whisk/graphql";
+import { customizeVault } from "@/utils/vault";
 import { executeWhiskQuery } from "./execute";
 
 const query = graphql(`
@@ -117,5 +118,5 @@ export const getVault = cache(async (chainId: SupportedChainId, vaultAddress: Ad
     throw new Error(`Vault not found: ${chainId}:${vaultAddress}`);
   }
 
-  return vault;
+  return customizeVault(vault);
 });
