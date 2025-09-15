@@ -63,6 +63,14 @@ const cspHeader = `
 `;
 
 const nextConfig: NextConfig = {
+  webpack: (config) => {
+    // Fix MetaMask SDK React Native dependency warnings in web builds
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      "@react-native-async-storage/async-storage": false,
+    };
+    return config;
+  },
   async headers() {
     return [
       {
