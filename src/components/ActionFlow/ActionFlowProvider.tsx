@@ -2,7 +2,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useModal } from "connectkit";
 import { createContext, type ReactNode, useCallback, useContext, useState } from "react";
-import { RpcError,  BaseError, type Hex } from "viem";
+import { BaseError, type Hex, RpcError } from "viem";
 import { estimateGas, sendTransaction, waitForTransactionReceipt } from "viem/actions";
 import { useAccount, useConnectorClient, usePublicClient, useSwitchChain } from "wagmi";
 
@@ -163,7 +163,7 @@ export function ActionFlowProvider({
         }
       } catch (error) {
         const errorMessage =
-        error instanceof BaseError ? parseViemError(error) : (error as Error).message || String(error);
+          error instanceof BaseError ? parseViemError(error) : (error as Error).message || String(error);
 
         setError(errorMessage);
         setFlowState("review");
