@@ -25,11 +25,13 @@ export function prepareChartDataWithDomain<D extends DataEntry>(
 
   if (maxX < minX) return [];
 
-  return createPaddedData(
+  const paddedData = createPaddedData(
     data.filter((d) => d.bucketTimestamp >= minX),
     minX,
     field,
   );
+
+  return paddedData.slice(1); // Always drop the first point to avoid injecting 0 where time is close (delta between fetch and now)
 }
 
 function createPaddedData<D extends DataEntry>(

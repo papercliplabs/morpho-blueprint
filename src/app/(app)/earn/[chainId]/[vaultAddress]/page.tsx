@@ -236,54 +236,52 @@ async function VaultHistoricalDepositsChartWrapper({ chainId, vaultAddress }: Va
   );
 }
 
-async function VaultHistoricalApyChartWrapper(_params: VaultIdentifier) {
-  return null; // Disable for now until we resolve historical apy inconsistency
+async function VaultHistoricalApyChartWrapper({ chainId, vaultAddress }: VaultIdentifier) {
+  const vault = await getVault(chainId, vaultAddress);
 
-  // const vault = await getVault(chainId, vaultAddress);
+  // Null if the chain doesn't support historical data
+  if (!vault || !vault.historical) {
+    return null;
+  }
 
-  // // Null if the chain doesn't support historical data
-  // if (!vault || !vault.historical) {
-  //   return null;
-  // }
+  let key: "supplyApy1d" | "supplyApy7d" | "supplyApy30d";
+  let baseApy: number;
+  let totalApy: number;
+  switch (APP_CONFIG.apyWindow) {
+    case "1d":
+      key = "supplyApy1d";
+      baseApy = vault.supplyApy1d.base;
+      totalApy = vault.supplyApy1d.total;
+      break;
+    case "7d":
+      key = "supplyApy7d";
+      baseApy = vault.supplyApy7d.base;
+      totalApy = vault.supplyApy7d.total;
+      break;
+    case "30d":
+      key = "supplyApy30d";
+      baseApy = vault.supplyApy30d.base;
+      totalApy = vault.supplyApy30d.total;
+      break;
+  }
 
-  // let key: "supplyApy1d" | "supplyApy7d" | "supplyApy30d";
-  // let baseApy: number;
-  // let totalApy: number;
-  // switch (APP_CONFIG.apyWindow) {
-  //   case "1d":
-  //     key = "supplyApy1d";
-  //     baseApy = vault.supplyApy1d.base;
-  //     totalApy = vault.supplyApy1d.total;
-  //     break;
-  //   case "7d":
-  //     key = "supplyApy7d";
-  //     baseApy = vault.supplyApy7d.base;
-  //     totalApy = vault.supplyApy7d.total;
-  //     break;
-  //   case "30d":
-  //     key = "supplyApy30d";
-  //     baseApy = vault.supplyApy30d.base;
-  //     totalApy = vault.supplyApy30d.total;
-  //     break;
-  // }
-
-  // return (
-  //   <DataChart
-  //     data={vault.historical}
-  //     title={`Native APY (${APP_CONFIG.apyWindow})`}
-  //     defaultTab={key}
-  //     tabOptions={[
-  //       {
-  //         type: "apy",
-  //         key,
-  //         description: `Native supply APY (exluding rewards and fees).`,
-  //         title: `APY (${APP_CONFIG.apyWindow})`,
-  //         baseApy,
-  //         totalApy,
-  //       },
-  //     ]}
-  //   />
-  // );
+  return (
+    <DataChart
+      data={vault.historical}
+      title={`Native APY (${APP_CONFIG.apyWindow})`}
+      defaultTab={key}
+      tabOptions={[
+        {
+          type: "apy",
+          key,
+          description: `Native supply APY (exluding rewards and fees).`,
+          title: `APY (${APP_CONFIG.apyWindow})`,
+          baseApy,
+          totalApy,
+        },
+      ]}
+    />
+  );
 }
 
 async function MarketAllocationTableWrapper({ chainId, vaultAddress }: VaultIdentifier) {
