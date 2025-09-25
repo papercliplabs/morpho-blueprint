@@ -1,6 +1,6 @@
 import { getDefaultConfig } from "connectkit";
-import { type Chain, type FallbackTransport, fallback, http } from "viem";
-import { createConfig } from "wagmi";
+import { type Chain, http } from "viem";
+import { createConfig, type Transport } from "wagmi";
 
 import { APP_CONFIG } from "@/config";
 
@@ -9,11 +9,17 @@ export const wagmiConfig = createConfig(
     // Your dApps chains
     chains: Object.values(APP_CONFIG.chainConfig).map(({ chain }) => chain) as [Chain, ...Chain[]],
     transports: Object.values(APP_CONFIG.chainConfig).reduce(
-      (acc, { chain, rpcUrls }) => {
-        acc[chain.id] = fallback(rpcUrls.map((url) => http(url)));
+      (acc, { chain }) => {
+        // RPCs use proxy route
+        acc[chain.id] = http(`/api/rpc/${chain.id}`, {
+          batch: {
+            batchSize: APP_CONFIG.maxRpcBatchSize,
+            wait: 16,
+          },
+        });
         return acc;
       },
-      {} as Record<number, FallbackTransport>,
+      {} as Record<number, Transport>,
     ),
 
     walletConnectProjectId: APP_CONFIG.reownProjectId,
