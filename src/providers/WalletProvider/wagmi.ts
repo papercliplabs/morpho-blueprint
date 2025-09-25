@@ -30,6 +30,11 @@ export const wagmiConfig = createConfig(
     appUrl: APP_CONFIG.metadata.url,
     appIcon: APP_CONFIG.metadata.images.icons.svg,
 
+    // Supress wallet connect SSR error: "indexedDB is not defined".
+    // https://github.com/WalletConnect/walletconnect-monorepo/issues/6841
+    // This works becuase connectkit will use it's default when connectors is undefined.
+    connectors: typeof indexedDB === "undefined" ? [] : undefined,
+
     ssr: true,
   }),
 );

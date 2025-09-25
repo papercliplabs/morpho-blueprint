@@ -71,6 +71,12 @@ const nextConfig: NextConfig = {
     };
     return config;
   },
+  turbopack: {
+    // Fix MetaMask SDK React Native dependency warnings in web builds
+    resolveAlias: {
+      "@react-native-async-storage/async-storage": "./turbo-empty.ts",
+    },
+  },
   async headers() {
     return [
       {
