@@ -14,7 +14,7 @@ env:
   WHISK_API_URL: ${{ secrets.WHISK_API_URL }}
   WHISK_API_KEY: ${{ secrets.WHISK_API_KEY }}
   NEXT_PUBLIC_URL: ${{ secrets.NEXT_PUBLIC_URL }}
-  NEXT_PUBLIC_MAINNET_RPC_URL_1: ${{ secrets.NEXT_PUBLIC_MAINNET_RPC_URL_1 }}
+  MAINNET_RPC_URL_1: ${{ secrets.MAINNET_RPC_URL_1 }}
 
 jobs:
   vitest:

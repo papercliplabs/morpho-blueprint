@@ -82,6 +82,7 @@ export interface AppConfig {
 
   reownProjectId: string; // Reown/wallet connect project ID. Get this from https://cloud.reown.com
   chainConfig: Record<SupportedChainId, { chain: Chain; rpcUrls: [string, ...string[]] }>; // Chain configuration for all chains your app supports
+  maxRpcBatchSize: number; // Maximum number of RPC calls to batch in a single http request
 
   supportedVaults: Record<SupportedChainId, VaultConfig[]>; // Config for all supported vaults which will appear in the earn page table.
   // Note: Supported markets are derived based on supported vault allocations^

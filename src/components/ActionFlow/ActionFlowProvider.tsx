@@ -4,7 +4,7 @@ import { useModal } from "connectkit";
 import { createContext, type ReactNode, useCallback, useContext, useState } from "react";
 import { BaseError, type Hex, RpcError } from "viem";
 import { estimateGas, sendTransaction, waitForTransactionReceipt } from "viem/actions";
-import { useAccount, useConnectorClient, usePublicClient, useSwitchChain } from "wagmi";
+import { useAccount, useClient, useConnectorClient, useSwitchChain } from "wagmi";
 
 import type { SuccessfulAction } from "@/actions";
 import { trackEvent } from "@/data/trackEvent";
@@ -59,11 +59,11 @@ export function ActionFlowProvider({
   const [lastTransactionHash, setLastTransactionHash] = useState<Hex | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const { data: client } = useConnectorClient({ chainId });
+  const { data: client } = useConnectorClient({ chainId, assertChainId: false });
   const { connector } = useAccount();
   const { setOpen: setConnectKitOpen } = useModal();
 
-  const publicClient = usePublicClient({ chainId });
+  const publicClient = useClient({ chainId });
   const { switchChainAsync } = useSwitchChain();
   const queryClient = useQueryClient();
   const { chainId: accountChainId } = useAccount();

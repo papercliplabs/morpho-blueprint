@@ -1,4 +1,4 @@
-import ReactMarkdown from "react-markdown";
+import ReactMarkdown, { defaultUrlTransform } from "react-markdown";
 import { cn } from "@/utils/shadcn";
 
 interface MarkdownProps {
@@ -20,11 +20,18 @@ export function Markdown({ children, className }: MarkdownProps) {
           ul: ({ children }) => <ul className="mb-4 list-disc space-y-1 pl-6">{children}</ul>,
           ol: ({ children }) => <ol className="mb-4 list-decimal space-y-1 pl-6">{children}</ol>,
           li: ({ children }) => <li className="text-muted-foreground">{children}</li>,
-          a: ({ children, href }) => (
-            <a href={href} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-              {children}
-            </a>
-          ),
+          a: ({ children, href }) => {
+            const sanitizedUrl = defaultUrlTransform(href ?? "");
+            if (sanitizedUrl === "") {
+              return children;
+            }
+
+            return (
+              <a href={sanitizedUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                {children}
+              </a>
+            );
+          },
           code: ({ children }) => <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-sm">{children}</code>,
           pre: ({ children }) => <pre className="mb-4 overflow-x-auto rounded-md bg-muted p-3">{children}</pre>,
         }}
