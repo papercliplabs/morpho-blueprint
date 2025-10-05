@@ -25,7 +25,7 @@ export function parseDataRanges(data: Market["historical"]) {
   let initialRange: DataRange | undefined;
   const availableRanges: DataRange[] = [];
 
-  // Determine which ranges are even selectable (mirrors DateSelector)
+  // Determine which ranges are even selectable
   const weekly = data.weekly ?? [];
   const fullDomain = weekly.length > 1 ? weekly[weekly.length - 1]!.bucketTimestamp - weekly[0]!.bucketTimestamp : 0;
 
