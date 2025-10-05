@@ -51,16 +51,17 @@ export const VaultWithdrawForm = forwardRef<{ reset: () => void }, VaultWithdraw
     const formSchema = useMemo(() => {
       return z
         .object({
-          withdrawAmount: z.string().nonempty("Amount is required."),
+          withdrawAmount: z.string(),
           isMaxWithdraw: z.boolean(),
         })
         .superRefine((data, ctx) => {
           const withdrawAmount = Number(data.withdrawAmount);
-          if (Number.isNaN(withdrawAmount) || withdrawAmount <= 0) {
+
+          if (Number.isNaN(withdrawAmount) || withdrawAmount < 0) {
             ctx.addIssue({
               path: ["withdrawAmount"],
               code: z.ZodIssueCode.custom,
-              message: "Amount must be >0.",
+              message: "Amount must be >=0.",
             });
           }
 

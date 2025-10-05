@@ -68,16 +68,16 @@ export const MarketSupplyCollateralAndBorrowForm = forwardRef<
           : Number(data.supplyCollateralAmount);
         const borrowAmount = Number.isNaN(Number(data.borrowAmount)) ? 0 : Number(data.borrowAmount);
 
-        if (supplyCollateralAmount <= 0 && borrowAmount <= 0) {
+        if (supplyCollateralAmount < 0 && borrowAmount < 0) {
           ctx.addIssue({
             path: ["supplyCollateralAmount"],
             code: z.ZodIssueCode.custom,
-            message: "One amount is required.",
+            message: "Amount must be positive.",
           });
           ctx.addIssue({
             path: ["borrowAmount"],
             code: z.ZodIssueCode.custom,
-            message: "One amount is required.",
+            message: "Amount must be positive.",
           });
         }
 

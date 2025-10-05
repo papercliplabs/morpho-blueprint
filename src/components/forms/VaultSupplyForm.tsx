@@ -51,16 +51,17 @@ export const VaultSupplyForm = forwardRef<{ reset: () => void }, VaultSupplyForm
     const formSchema = useMemo(() => {
       return z
         .object({
-          supplyAmount: z.string().nonempty("Amount is required."),
+          supplyAmount: z.string(),
           isMaxSupply: z.boolean(),
         })
         .superRefine((data, ctx) => {
           const supplyAmount = Number(data.supplyAmount);
-          if (Number.isNaN(supplyAmount) || supplyAmount <= 0) {
+
+          if (Number.isNaN(supplyAmount) || supplyAmount < 0) {
             ctx.addIssue({
               path: ["supplyAmount"],
               code: z.ZodIssueCode.custom,
-              message: "Amount must be >0.",
+              message: "Amount must be >=0.",
             });
           }
 

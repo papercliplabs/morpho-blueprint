@@ -81,16 +81,16 @@ export const MarketRepayAndWithdrawCollateralForm = forwardRef<
           ? 0
           : Number(data.withdrawCollateralAmount);
 
-        if (repayAmount <= 0 && withdrawCollateralAmount <= 0) {
+        if (repayAmount < 0 && withdrawCollateralAmount < 0) {
           ctx.addIssue({
             path: ["repayAmount"],
             code: z.ZodIssueCode.custom,
-            message: "One amount is required.",
+            message: "Amount must be positive.",
           });
           ctx.addIssue({
             path: ["withdrawCollateralAmount"],
             code: z.ZodIssueCode.custom,
-            message: "One amount is required.",
+            message: "Amount must be positive.",
           });
         }
 
