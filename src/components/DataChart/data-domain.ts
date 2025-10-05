@@ -15,8 +15,15 @@ const RANGE_DURATION: Record<DataRange, number> = {
   All: 0,
 } as const;
 
-export function parseInitialRange(data: Market["historical"]): DataRange | undefined {
-  if (!data) return;
+export function parseDataRanges(data: Market["historical"]) {
+  if (!data)
+    return {
+      initialRange: undefined,
+      availableRanges: [],
+    };
+
+  let initialRange: DataRange | undefined;
+  const availableRanges: DataRange[] = [];
 
   // Determine which ranges are even selectable (mirrors DateSelector)
   const weekly = data.weekly ?? [];
@@ -28,13 +35,18 @@ export function parseInitialRange(data: Market["historical"]): DataRange | undef
   if (fullDomain >= 30 * DAY) selectableRanges.push("6M");
   if (fullDomain >= 6 * 30 * DAY) selectableRanges.push("All");
 
-  // Try ranges from smallest to largest and pick the first with enough points
+  // Pick the largest range with enough points
   for (const range of selectableRanges) {
     const series = range === "All" ? data.weekly : range === "6M" || range === "1M" ? data.daily : data.hourly;
 
     const length = estimatePreparedLength(series, range);
-    if (length > NO_DATA_POINT_THRESHOLD) return range;
+    if (length > NO_DATA_POINT_THRESHOLD) {
+      initialRange = range;
+      availableRanges.push(range);
+    }
   }
+
+  return { initialRange, availableRanges };
 }
 
 export function prepareChartDataWithDomain<D extends DataEntry>(

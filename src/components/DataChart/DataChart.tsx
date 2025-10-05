@@ -20,12 +20,13 @@ interface Props<D extends DataEntry> {
   title: string;
   data: HistoricalData<D>;
   initialRange: DataRange;
+  availableRanges: DataRange[];
   defaultTab: Exclude<keyof D, "bucketTimestamp">;
   tabOptions?: Array<TabOptions<D>>;
 }
 
 export function DataChart<D extends DataEntry>(props: Props<D>) {
-  const { data: allData, title, defaultTab, tabOptions, initialRange } = props;
+  const { data: allData, title, defaultTab, tabOptions, initialRange, availableRanges } = props;
   const [range, setRange] = useState<DataRange>(initialRange);
   const [tab, setTab] = useState<Exclude<keyof D, "bucketTimestamp">>(defaultTab);
   const [withRewards, setWithRewards] = useState(false);
@@ -199,7 +200,7 @@ export function DataChart<D extends DataEntry>(props: Props<D>) {
           )}
         </div>
         <div className="mt-8 flex justify-end">
-          <DateSelector range={range} setRange={setRange} fullDomain={getFullDomain(allData.weekly)} />
+          <DateSelector range={range} setRange={setRange} availableRanges={availableRanges} />
         </div>
       </div>
     </Card>
@@ -212,11 +213,6 @@ function formatXAxis(timestamp: number, range: DataRange) {
     month: "short",
     year: range === "All" ? "numeric" : undefined,
   }).format(new Date(timestamp * 1000));
-}
-
-function getFullDomain(data: DataEntry[]) {
-  if (data.length === 0) return 0;
-  return data[data.length - 1]!.bucketTimestamp - data[0]!.bucketTimestamp;
 }
 
 function calculateAverage(data: number[]): number {
