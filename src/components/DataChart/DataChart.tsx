@@ -11,23 +11,22 @@ import { Switch } from "../ui/switch";
 import { ChartHeader } from "./ChartHeader";
 import { CurrencySelector } from "./CurrencySelector";
 import { type DataRange, DateSelector, periods } from "./DateSelector";
-import { getMinX, prepareChartDataWithDomain } from "./data-domain";
+import { getMinX, NO_DATA_POINT_THRESHOLD, prepareChartDataWithDomain } from "./data-domain";
 import { type TabOptions, TabSelector } from "./TabSelector";
 import type { DataEntry, HistoricalData } from "./types";
 import { useIntervalX } from "./useIntervalX";
 
-const NO_DATA_POINT_THRESHOLD = 10; // Need at least this many data points to show a nice chart
-
 interface Props<D extends DataEntry> {
   title: string;
   data: HistoricalData<D>;
+  initialRange: DataRange;
   defaultTab: Exclude<keyof D, "bucketTimestamp">;
   tabOptions?: Array<TabOptions<D>>;
 }
 
 export function DataChart<D extends DataEntry>(props: Props<D>) {
-  const { data: allData, title, defaultTab, tabOptions } = props;
-  const [range, setRange] = useState<DataRange>("1M");
+  const { data: allData, title, defaultTab, tabOptions, initialRange } = props;
+  const [range, setRange] = useState<DataRange>(initialRange);
   const [tab, setTab] = useState<Exclude<keyof D, "bucketTimestamp">>(defaultTab);
   const [withRewards, setWithRewards] = useState(false);
 
