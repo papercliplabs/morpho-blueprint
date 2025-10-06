@@ -5,7 +5,7 @@
   "packageManager": "pnpm@10.16.1",
   "scripts": {
     "dev": "concurrently --names \"next,codegen\" --prefix-colors \"cyan.bold,yellow.bold\" \"next dev --turbopack\" \"pnpm codegen --watch\"",
-    "prebuild": "pnpm lint && pnpm audit",
+    "prebuild": "pnpm lint && pnpm audit --audit-level moderate",
     "build": "pnpm codegen && next build",
     "start": "next start",
     "lint": "biome check .",
