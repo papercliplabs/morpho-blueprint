@@ -1,10 +1,9 @@
-import type { Market } from "@/data/whisk/getMarket";
 import type { DataRange } from "./DateSelector";
 import type { DataEntry } from "./types";
 
-const HOUR = 60 * 60;
-const DAY = 24 * HOUR;
-const WEEK = 7 * DAY;
+export const HOUR = 60 * 60;
+export const DAY = 24 * HOUR;
+export const WEEK = 7 * DAY;
 
 export const NO_DATA_POINT_THRESHOLD = 10; // Need at least this many data points to show a nice chart
 
@@ -14,40 +13,6 @@ const RANGE_DURATION: Record<DataRange, number> = {
   "6M": 26 * WEEK,
   All: 0,
 } as const;
-
-export function parseDataRanges(data: Market["historical"]) {
-  if (!data)
-    return {
-      initialRange: undefined,
-      availableRanges: [],
-    };
-
-  let initialRange: DataRange | undefined;
-  const availableRanges: DataRange[] = [];
-
-  // Determine which ranges are even selectable
-  const weekly = data.weekly ?? [];
-  const fullDomain = weekly.length > 1 ? weekly[weekly.length - 1]!.bucketTimestamp - weekly[0]!.bucketTimestamp : 0;
-
-  const selectableRanges: DataRange[] = [];
-  if (fullDomain >= WEEK) selectableRanges.push("1W");
-  if (fullDomain >= WEEK) selectableRanges.push("1M");
-  if (fullDomain >= 30 * DAY) selectableRanges.push("6M");
-  if (fullDomain >= 6 * 30 * DAY) selectableRanges.push("All");
-
-  // Pick the largest range with enough points
-  for (const range of selectableRanges) {
-    const series = range === "All" ? data.weekly : range === "6M" || range === "1M" ? data.daily : data.hourly;
-
-    const length = estimatePreparedLength(series, range);
-    if (length > NO_DATA_POINT_THRESHOLD) {
-      initialRange = range;
-      availableRanges.push(range);
-    }
-  }
-
-  return { initialRange, availableRanges };
-}
 
 export function prepareChartDataWithDomain<D extends DataEntry>(
   data: D[],
@@ -88,7 +53,7 @@ function createPaddedData<D extends DataEntry>(
   return [...padding, ...data];
 }
 
-function calculateDataInterval<D extends DataEntry>(data: D[]): number | null {
+export function calculateDataInterval<D extends DataEntry>(data: D[]): number | null {
   if (data.length < 2) return null;
 
   const intervals = data
@@ -128,24 +93,4 @@ export function getMinX<D extends DataEntry>(data: D[], range: DataRange) {
   const now = Math.floor(Date.now() / 1000);
   const minX = now - RANGE_DURATION[range];
   return minX;
-}
-
-// Estimate the number of points produced by prepareChartDataWithDomain for the given range.
-function estimatePreparedLength<D extends DataEntry>(data: D[] | undefined, range: DataRange): number {
-  if (!data || !data.length || !data[0]) return 0;
-  if (range === "All") return data.length;
-
-  const minX = getMinX(data, range);
-  const maxX = data[data.length - 1]!.bucketTimestamp;
-  if (maxX < minX) return 0;
-
-  const filtered = data.filter((d) => d.bucketTimestamp >= minX);
-  if (!filtered.length) return 0;
-
-  const interval = calculateDataInterval(filtered) || DAY;
-  const delta = Math.max(0, filtered[0]!.bucketTimestamp - minX);
-  const paddingCount = Math.ceil(delta / interval);
-
-  // prepareChartDataWithDomain pads then slices off the first point
-  return Math.max(0, paddingCount + filtered.length - 1);
 }

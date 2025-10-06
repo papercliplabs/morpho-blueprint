@@ -11,7 +11,14 @@ import { Switch } from "../ui/switch";
 import { ChartHeader } from "./ChartHeader";
 import { CurrencySelector } from "./CurrencySelector";
 import { type DataRange, DateSelector, periods } from "./DateSelector";
-import { getMinX, NO_DATA_POINT_THRESHOLD, prepareChartDataWithDomain } from "./data-domain";
+import {
+  calculateDataInterval,
+  DAY,
+  getMinX,
+  NO_DATA_POINT_THRESHOLD,
+  prepareChartDataWithDomain,
+  WEEK,
+} from "./data-domain";
 import { type TabOptions, TabSelector } from "./TabSelector";
 import type { DataEntry, HistoricalData } from "./types";
 import { useIntervalX } from "./useIntervalX";
@@ -19,15 +26,16 @@ import { useIntervalX } from "./useIntervalX";
 interface Props<D extends DataEntry> {
   title: string;
   data: HistoricalData<D>;
-  initialRange: DataRange;
-  availableRanges: DataRange[];
   defaultTab: Exclude<keyof D, "bucketTimestamp">;
   tabOptions?: Array<TabOptions<D>>;
 }
 
 export function DataChart<D extends DataEntry>(props: Props<D>) {
-  const { data: allData, title, defaultTab, tabOptions, initialRange, availableRanges } = props;
-  const [range, setRange] = useState<DataRange>(initialRange);
+  const { data: allData, title, defaultTab, tabOptions } = props;
+
+  const { initialRange, availableRanges } = parseDataRanges(allData);
+
+  const [range, setRange] = useState<DataRange>(initialRange ?? "1W");
   const [tab, setTab] = useState<Exclude<keyof D, "bucketTimestamp">>(defaultTab);
   const [withRewards, setWithRewards] = useState(false);
 
@@ -79,6 +87,10 @@ export function DataChart<D extends DataEntry>(props: Props<D>) {
   );
 
   const rewardsId = useId();
+
+  if (!initialRange) {
+    return null;
+  }
 
   return (
     <Card>
@@ -218,4 +230,59 @@ function formatXAxis(timestamp: number, range: DataRange) {
 function calculateAverage(data: number[]): number {
   if (data.length === 0) return 0;
   return data.reduce((acc, d) => acc + Number(d), 0) / data.length;
+}
+
+function parseDataRanges<D extends DataEntry>(data: HistoricalData<D>) {
+  if (!data) {
+    return {
+      initialRange: undefined,
+      availableRanges: [],
+    };
+  }
+
+  let initialRange: DataRange | undefined;
+  const availableRanges: DataRange[] = [];
+
+  // Determine which ranges are even selectable
+  const weekly = data.weekly ?? [];
+  const fullDomain = weekly.length > 1 ? weekly[weekly.length - 1]!.bucketTimestamp - weekly[0]!.bucketTimestamp : 0;
+
+  const selectableRanges: DataRange[] = [];
+  if (fullDomain >= WEEK) selectableRanges.push("1W");
+  if (fullDomain >= WEEK) selectableRanges.push("1M");
+  if (fullDomain >= 30 * DAY) selectableRanges.push("6M");
+  if (fullDomain >= 6 * 30 * DAY) selectableRanges.push("All");
+
+  // Pick the largest range with enough points
+  for (const range of selectableRanges) {
+    const series = range === "All" ? data.weekly : range === "6M" || range === "1M" ? data.daily : data.hourly;
+
+    const length = estimatePreparedLength(series, range);
+    if (length > NO_DATA_POINT_THRESHOLD) {
+      initialRange = range;
+      availableRanges.push(range);
+    }
+  }
+
+  return { initialRange, availableRanges };
+}
+
+// Estimate the number of points produced by prepareChartDataWithDomain for the given range.
+function estimatePreparedLength<D extends DataEntry>(data: D[] | undefined, range: DataRange): number {
+  if (!data || !data.length || !data[0]) return 0;
+  if (range === "All") return data.length;
+
+  const minX = getMinX(data, range);
+  const maxX = data[data.length - 1]!.bucketTimestamp;
+  if (maxX < minX) return 0;
+
+  const filtered = data.filter((d) => d.bucketTimestamp >= minX);
+  if (!filtered.length) return 0;
+
+  const interval = calculateDataInterval(filtered) || DAY;
+  const delta = Math.max(0, filtered[0]!.bucketTimestamp - minX);
+  const paddingCount = Math.ceil(delta / interval);
+
+  // prepareChartDataWithDomain pads then slices off the first point
+  return Math.max(0, paddingCount + filtered.length - 1);
 }

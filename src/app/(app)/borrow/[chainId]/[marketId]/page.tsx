@@ -4,7 +4,6 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { isHex } from "viem";
 import { DataChart } from "@/components/DataChart/DataChart";
-import { parseDataRanges } from "@/components/DataChart/data-domain";
 import { IrmChart } from "@/components/IrmChart";
 import { IrmMetrics, IrmMetricsSkeleton } from "@/components/market/IrmMetrics";
 import MarketActions from "@/components/market/MarketActions";
@@ -183,10 +182,8 @@ async function KeyMetricsWrapper({ chainId, marketId }: MarketIdentifier) {
 async function MarketHistoricalLiquidityChartWrapper({ chainId, marketId }: MarketIdentifier) {
   const market = await getMarket(chainId, marketId);
 
-  const { initialRange, availableRanges } = parseDataRanges(market.historical);
-
   // Null if the chain doesn't support historical data
-  if (!market || !market.historical || !market.collateralAsset || !initialRange) {
+  if (!market || !market.historical || !market.collateralAsset) {
     return null;
   }
 
@@ -195,8 +192,6 @@ async function MarketHistoricalLiquidityChartWrapper({ chainId, marketId }: Mark
   return (
     <DataChart
       data={market.historical}
-      initialRange={initialRange}
-      availableRanges={availableRanges}
       title="Assets"
       defaultTab="totalBorrowed"
       tabOptions={[
@@ -237,10 +232,8 @@ async function MarketHistoricalLiquidityChartWrapper({ chainId, marketId }: Mark
 async function MarketHistoricalApyChartWrapper({ chainId, marketId }: MarketIdentifier) {
   const market = await getMarket(chainId, marketId);
 
-  const { initialRange, availableRanges } = parseDataRanges(market.historical);
-
   // Null if the chain doesn't support historical data
-  if (!market || !market.historical || !market.collateralAsset || !initialRange) {
+  if (!market || !market.historical || !market.collateralAsset) {
     return null;
   }
 
@@ -268,8 +261,6 @@ async function MarketHistoricalApyChartWrapper({ chainId, marketId }: MarketIden
   return (
     <DataChart
       data={market.historical}
-      initialRange={initialRange}
-      availableRanges={availableRanges}
       title={`Native Borrow Rate (${APP_CONFIG.apyWindow})`}
       defaultTab={key}
       tabOptions={[
