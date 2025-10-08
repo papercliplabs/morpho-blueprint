@@ -15,6 +15,7 @@ import type { SupportedChainId } from "@/config/types";
 import type { MarketNonIdle } from "@/data/whisk/getMarket";
 import { useMarketPosition } from "@/hooks/useMarketPositions";
 import { useWatchNumberInputField } from "@/hooks/useWatchNumberInputField";
+import { descaleBigIntToNumber, numberToString } from "@/utils/format";
 import { computeAvailableToBorrow, computeMarketPositonChange } from "@/utils/math";
 import { MarketActionSimulationMetrics } from "../ActionFlow/MarketActionFlow";
 import { Button } from "../ui/button";
@@ -44,64 +45,77 @@ export const MarketSupplyCollateralAndBorrowForm = forwardRef<
     market.marketId as Hex,
   );
 
-  const { walletCollateralAssetBalance } = useMemo(() => {
+  const { walletCollateralAssetBalanceRaw } = useMemo(() => {
     if (!position || !position.walletCollateralAssetHolding) {
-      return { walletCollateralAssetBalance: undefined, positionBorrowBalance: undefined };
+      return { walletCollateralAssetBalanceRaw: undefined as undefined | bigint };
     }
 
     return {
-      walletCollateralAssetBalance: Number(position.walletCollateralAssetHolding.balance.formatted),
-      positionBorrowBalance: Number(position.borrowAmount.formatted),
+      walletCollateralAssetBalanceRaw: BigInt(position.walletCollateralAssetHolding.balance.raw ?? 0n),
     };
   }, [position]);
 
   const formSchema = useMemo(() => {
     return z
       .object({
-        supplyCollateralAmount: z.string(),
+        supplyCollateralAmount: z
+          .string()
+          .pipe(z.coerce.number().nonnegative({ message: "Amount must be >=0" }))
+          .pipe(z.coerce.string()),
         isMaxSupplyCollateral: z.boolean(),
-        borrowAmount: z.string(),
+        borrowAmount: z
+          .string()
+          .pipe(z.coerce.number().nonnegative({ message: "Amount must be >=0" }))
+          .pipe(z.coerce.string()),
       })
       .superRefine((data, ctx) => {
-        const supplyCollateralAmount = Number.isNaN(Number(data.supplyCollateralAmount))
-          ? 0
-          : Number(data.supplyCollateralAmount);
-        const borrowAmount = Number.isNaN(Number(data.borrowAmount)) ? 0 : Number(data.borrowAmount);
+        try {
+          // Supply must not exceed wallet balance (compare in raw)
+          const rawSupplyCollateralAmount = parseUnits(data.supplyCollateralAmount, market.collateralAsset.decimals);
+          const maxSupplyRaw = walletCollateralAssetBalanceRaw ?? 0n;
+          if (rawSupplyCollateralAmount > maxSupplyRaw) {
+            ctx.addIssue({
+              path: ["supplyCollateralAmount"],
+              code: z.ZodIssueCode.custom,
+              message: "Amount exceeds wallet balance.",
+            });
+          }
 
-        if (supplyCollateralAmount < 0 && borrowAmount < 0) {
-          ctx.addIssue({
-            path: ["supplyCollateralAmount"],
-            code: z.ZodIssueCode.custom,
-            message: "Amount must be positive.",
-          });
-          ctx.addIssue({
-            path: ["borrowAmount"],
-            code: z.ZodIssueCode.custom,
-            message: "Amount must be positive.",
-          });
-        }
-
-        const maxSupplyCollateralAmount = walletCollateralAssetBalance ?? Number.POSITIVE_INFINITY;
-        if (supplyCollateralAmount > maxSupplyCollateralAmount) {
-          ctx.addIssue({
-            path: ["supplyCollateralAmount"],
-            code: z.ZodIssueCode.custom,
-            message: "Amount exceeds wallet balance.",
-          });
-        }
-
-        if (position) {
-          const maxBorrowAmount = computeAvailableToBorrow(market, position, supplyCollateralAmount, 0);
-          if (borrowAmount > maxBorrowAmount) {
+          // Borrow cannot exceed available to borrow (compute numerically but compare via raw)
+          if (position) {
+            const supplyCollateralAmountNum = descaleBigIntToNumber(
+              rawSupplyCollateralAmount,
+              market.collateralAsset.decimals,
+            );
+            const maxBorrowAmountNum = computeAvailableToBorrow(market, position, supplyCollateralAmountNum, 0);
+            const rawBorrowAmount = parseUnits(data.borrowAmount, market.loanAsset.decimals);
+            const maxBorrowRaw = parseUnits(numberToString(maxBorrowAmountNum), market.loanAsset.decimals);
+            if (rawBorrowAmount > maxBorrowRaw) {
+              ctx.addIssue({
+                path: ["borrowAmount"],
+                code: z.ZodIssueCode.custom,
+                message: "Exceeds max borrow.",
+              });
+            }
+          }
+        } catch {
+          if (data.supplyCollateralAmount) {
+            ctx.addIssue({
+              path: ["supplyCollateralAmount"],
+              code: z.ZodIssueCode.custom,
+              message: "Invalid amount.",
+            });
+          }
+          if (data.borrowAmount) {
             ctx.addIssue({
               path: ["borrowAmount"],
               code: z.ZodIssueCode.custom,
-              message: "Exceeds max borrow.",
+              message: "Invalid amount.",
             });
           }
         }
       });
-  }, [walletCollateralAssetBalance, position, market]);
+  }, [walletCollateralAssetBalanceRaw, position, market]);
 
   const form = useForm({
     mode: "onChange",
@@ -216,7 +230,7 @@ export const MarketSupplyCollateralAndBorrowForm = forwardRef<
                 header={`Add ${market.collateralAsset.symbol}`}
                 chain={market.chain}
                 asset={market.collateralAsset}
-                maxValue={walletCollateralAssetBalance}
+                maxValue={descaleBigIntToNumber(walletCollateralAssetBalanceRaw ?? 0n, market.collateralAsset.decimals)}
                 setIsMax={(isMax) => {
                   form.setValue("isMaxSupplyCollateral", isMax);
                 }}

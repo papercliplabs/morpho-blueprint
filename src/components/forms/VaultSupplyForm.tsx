@@ -14,6 +14,7 @@ import type { SupportedChainId } from "@/config/types";
 import type { Vault } from "@/data/whisk/getVault";
 import { useVaultPosition } from "@/hooks/useVaultPositions";
 import { useWatchNumberInputField } from "@/hooks/useWatchNumberInputField";
+import { descaleBigIntToNumber } from "@/utils/format";
 import { computeVaultPositionChange } from "@/utils/math";
 import { VaultActionSimulationMetrics } from "../ActionFlow/VaultActionFlow";
 import { Button } from "../ui/button";
@@ -40,41 +41,43 @@ export const VaultSupplyForm = forwardRef<{ reset: () => void }, VaultSupplyForm
       getAddress(vault.vaultAddress),
     );
 
-    const walletUnderlyingAssetBalance = useMemo(() => {
+    const walletUnderlyingAssetBalanceRaw = useMemo(() => {
       if (!position?.walletUnderlyingAssetHolding) {
-        return undefined;
+        return undefined as undefined | bigint;
       }
 
-      return Number(position.walletUnderlyingAssetHolding.balance.formatted);
+      return BigInt(position.walletUnderlyingAssetHolding.balance.raw ?? 0n);
     }, [position]);
 
     const formSchema = useMemo(() => {
       return z
         .object({
-          supplyAmount: z.string(),
+          supplyAmount: z
+            .string()
+            .pipe(z.coerce.number().nonnegative({ message: "Amount must be >=0" }))
+            .pipe(z.coerce.string()),
           isMaxSupply: z.boolean(),
         })
         .superRefine((data, ctx) => {
-          const supplyAmount = Number(data.supplyAmount);
-
-          if (Number.isNaN(supplyAmount) || supplyAmount < 0) {
+          try {
+            const rawSupplyAmount = parseUnits(data.supplyAmount, vault.asset.decimals);
+            const maxSupplyRaw = walletUnderlyingAssetBalanceRaw ?? 0n;
+            if (rawSupplyAmount > maxSupplyRaw) {
+              ctx.addIssue({
+                path: ["supplyAmount"],
+                code: z.ZodIssueCode.custom,
+                message: "Amount exceeds wallet balance.",
+              });
+            }
+          } catch {
             ctx.addIssue({
               path: ["supplyAmount"],
               code: z.ZodIssueCode.custom,
-              message: "Amount must be >=0.",
-            });
-          }
-
-          const maxSupplyAmount = walletUnderlyingAssetBalance ?? Number.POSITIVE_INFINITY;
-          if (supplyAmount > maxSupplyAmount) {
-            ctx.addIssue({
-              path: ["supplyAmount"],
-              code: z.ZodIssueCode.custom,
-              message: "Amount exceeds wallet balance.",
+              message: "Invalid amount.",
             });
           }
         });
-    }, [walletUnderlyingAssetBalance]);
+    }, [walletUnderlyingAssetBalanceRaw, vault.asset.decimals]);
 
     const form = useForm({
       mode: "onChange",
@@ -156,7 +159,7 @@ export const VaultSupplyForm = forwardRef<{ reset: () => void }, VaultSupplyForm
                 header={`Supply ${vault.asset.symbol}`}
                 chain={vault.chain}
                 asset={vault.asset}
-                maxValue={walletUnderlyingAssetBalance}
+                maxValue={descaleBigIntToNumber(walletUnderlyingAssetBalanceRaw ?? 0n, vault.asset.decimals)}
                 setIsMax={(isMax) => {
                   form.setValue("isMaxSupply", isMax);
                 }}
