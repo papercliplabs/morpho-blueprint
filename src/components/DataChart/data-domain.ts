@@ -1,9 +1,11 @@
 import type { DataRange } from "./DateSelector";
 import type { DataEntry } from "./types";
 
-const HOUR = 60 * 60;
-const DAY = 24 * HOUR;
-const WEEK = 7 * DAY;
+export const HOUR = 60 * 60;
+export const DAY = 24 * HOUR;
+export const WEEK = 7 * DAY;
+
+export const NO_DATA_POINT_THRESHOLD = 10; // Need at least this many data points to show a nice chart
 
 const RANGE_DURATION: Record<DataRange, number> = {
   "1W": WEEK,
@@ -51,7 +53,7 @@ function createPaddedData<D extends DataEntry>(
   return [...padding, ...data];
 }
 
-function calculateDataInterval<D extends DataEntry>(data: D[]): number | null {
+export function calculateDataInterval<D extends DataEntry>(data: D[]): number | null {
   if (data.length < 2) return null;
 
   const intervals = data
