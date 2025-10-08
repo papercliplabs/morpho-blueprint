@@ -20,7 +20,7 @@ All configuration happens via files in the [config folder](src/config/), which s
 
 All read-only data in Morpho Blueprint is powered by [Whisk](https://www.whisk.so/) and enters the app via the [data layer](src/data/whisk). Using Whisk is the fastest way to get to production, but you are welcome to replace this layer with your own data source.
 
-[Reach out](https://paperclip.xyz/contact) if you want to use Whisk, or you're interested in a full white-glove solution including design and development. We can generally get your app to production within 48 hours.
+[Reach out](https://paperclip.xyz/contact) if you want to use Whisk, or you're interested in a full white-glove solution including design and development. We can generally get your app to production in a few days.
 
 > If the provided customization parameters are insufficient for your use case, you can modify code outside the `/config` folder, but this will be harder to pick up additional future features and patches from this canonical template repo.
 

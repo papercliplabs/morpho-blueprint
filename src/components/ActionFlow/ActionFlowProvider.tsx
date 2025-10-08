@@ -146,7 +146,7 @@ export function ActionFlowProvider({
               stepName: step.name,
               ...trackingPayload,
             });
-            await new Promise((resolve) => setTimeout(resolve, 1000)); // Delay to let rpc data propogate (ex approval on prev tx)
+            await new Promise((resolve) => setTimeout(resolve, 2000)); // Delay to let rpc data propogate (ex approval on prev tx)
             setActiveStep((step) => step + 1);
           } else {
             void trackEvent("tx-revert", {
