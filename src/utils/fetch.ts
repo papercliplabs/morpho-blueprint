@@ -12,7 +12,7 @@ export async function promiseWithRetry<T>(
     factor: 2, // Exponential backoff factor
     randomize: true, // Avoid thundering herd effect
     onFailedAttempt: (e) => {
-      console.warn(`pRetry attempt failed, trying again: attempt: ${e.attemptNumber}, message: ${e.message}`);
+      console.warn(`pRetry attempt failed, trying again: attempt: ${e.attemptNumber}, message: ${e.message}`, e);
     },
   };
 
