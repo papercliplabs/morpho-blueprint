@@ -14,7 +14,6 @@ import type { SupportedChainId } from "@/config/types";
 import type { MarketNonIdle } from "@/data/whisk/getMarket";
 import { useMarketPosition } from "@/hooks/useMarketPositions";
 import { useWatchNumberInputField } from "@/hooks/useWatchNumberInputField";
-import { numberToString } from "@/utils/format";
 import { computeAvailableToBorrow, computeMarketPositonChange } from "@/utils/math";
 import { MarketActionSimulationMetrics } from "../ActionFlow/MarketActionFlow";
 import { Button } from "../ui/button";
@@ -86,9 +85,22 @@ export const MarketSupplyCollateralAndBorrowForm = forwardRef<
 
   const maxBorrowAmount = useMemo(() => {
     if (!position) {
-      return 0;
+      return 0n;
     }
-    return computeAvailableToBorrow(market, position, debouncedSupplyCollateralAmount, 0);
+
+    try {
+      return parseUnits(
+        computeAvailableToBorrow(market, position, debouncedSupplyCollateralAmount, 0).toString(),
+        market.loanAsset.decimals,
+      );
+    } catch {
+      console.warn("Failed to compute max borrow amount", {
+        market,
+        position,
+        debouncedSupplyCollateralAmount,
+      });
+      return 0n;
+    }
   }, [position, market, debouncedSupplyCollateralAmount]);
 
   const missingAmountInputs = useMemo(() => {
@@ -186,14 +198,7 @@ export const MarketSupplyCollateralAndBorrowForm = forwardRef<
                 header={`Borrow ${market.loanAsset.symbol}`}
                 chain={market.chain}
                 asset={market.loanAsset}
-                maxValue={(() => {
-                  // Convert numeric max to raw bigint for consistency
-                  try {
-                    return parseUnits(numberToString(maxBorrowAmount), market.loanAsset.decimals);
-                  } catch {
-                    return 0n;
-                  }
-                })()}
+                maxValue={maxBorrowAmount}
               />
             </div>
 

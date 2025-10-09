@@ -14,7 +14,6 @@ import type { SupportedChainId } from "@/config/types";
 import type { MarketNonIdle } from "@/data/whisk/getMarket";
 import { useMarketPosition } from "@/hooks/useMarketPositions";
 import { useWatchNumberInputField } from "@/hooks/useWatchNumberInputField";
-import { numberToString } from "@/utils/format";
 import { computeMarketMaxWithdrawCollateral, computeMarketPositonChange } from "@/utils/math";
 import { MarketActionSimulationMetrics } from "../ActionFlow/MarketActionFlow";
 import { Button } from "../ui/button";
@@ -100,9 +99,22 @@ export const MarketRepayAndWithdrawCollateralForm = forwardRef<
 
   const maxWithdrawCollateralAmount = useMemo(() => {
     if (!position) {
-      return 0;
+      return 0n;
     }
-    return computeMarketMaxWithdrawCollateral(market, position, repayAmount);
+
+    try {
+      return parseUnits(
+        computeMarketMaxWithdrawCollateral(market, position, repayAmount).toString(),
+        market.collateralAsset.decimals,
+      );
+    } catch {
+      console.warn("Failed to compute max withdraw collateral amount", {
+        market,
+        position,
+        repayAmount,
+      });
+      return 0n;
+    }
   }, [position, market, repayAmount]);
 
   const missingAmountInputs = useMemo(() => {
@@ -224,14 +236,7 @@ export const MarketRepayAndWithdrawCollateralForm = forwardRef<
                 header={`Withdraw ${market.collateralAsset.symbol}`}
                 chain={market.chain}
                 asset={market.collateralAsset}
-                maxValue={(() => {
-                  // Convert numeric max to raw bigint for consistency
-                  try {
-                    return parseUnits(numberToString(maxWithdrawCollateralAmount), market.collateralAsset.decimals);
-                  } catch {
-                    return 0n;
-                  }
-                })()}
+                maxValue={maxWithdrawCollateralAmount}
               />
             </div>
 
