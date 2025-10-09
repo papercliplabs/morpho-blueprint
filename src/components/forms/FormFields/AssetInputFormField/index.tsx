@@ -1,14 +1,14 @@
 "use client";
 
 import clsx from "clsx";
-
+import { formatUnits } from "viem";
 import { TokenIcon } from "@/components/TokenIcon";
 import { Button } from "@/components/ui/button";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import NumberFlow from "@/components/ui/number-flow";
+import { NumberInput } from "@/components/ui/number-input";
 import type { ChainInfo, TokenInfo } from "@/data/whisk/fragments";
-import { numberToString } from "@/utils/format";
+import { descaleBigIntToNumber } from "@/utils/format";
 
 // biome-ignore lint/suspicious/noExplicitAny: Allow any for the FormField component
 interface AssetInputFormFieldProps<TFieldValues extends Record<string, any>>
@@ -17,7 +17,7 @@ interface AssetInputFormFieldProps<TFieldValues extends Record<string, any>>
   chain: ChainInfo;
   asset: TokenInfo & { priceUsd: number | null };
   setIsMax?: (isMax: boolean) => void;
-  maxValue?: number;
+  maxValue?: bigint;
 }
 
 // biome-ignore lint/suspicious/noExplicitAny: Allow any for the FormField component
@@ -41,25 +41,17 @@ function AssetInputFormField<TFieldValues extends Record<string, any>>({
           <div className="flex flex-col gap-1">
             <div className="flex min-w-0 items-center justify-between gap-4">
               <FormControl>
-                <Input
-                  autoComplete="off"
+                <NumberInput
                   className={clsx(
                     "!heading-2 h-12 rounded-none border-none bg-transparent p-0 shadow-none focus:ring-0 focus:ring-offset-0",
                     fieldState.error && !!field.value && "text-destructive",
                   )}
-                  placeholder="0"
-                  inputMode="decimal"
-                  type="text"
+                  maximumFractionDigits={asset.decimals}
                   {...field}
                   onChange={(e) => {
-                    const value = e.target.value;
-                    if (/^0*(\d+)?(\.\d*)?$/.test(value)) {
-                      field.onChange(value);
-                      setIsMax?.(false);
-                    }
+                    field.onChange(e);
+                    setIsMax?.(false);
                   }}
-                  value={field.value ?? ""}
-                  {...props}
                 />
               </FormControl>
               {!!asset && (
@@ -80,16 +72,16 @@ function AssetInputFormField<TFieldValues extends Record<string, any>>({
                 <div className="flex h-[24px] items-center gap-1">
                   <span>Available: </span>
                   <div className="relative">
-                    <NumberFlow value={maxValue ?? 0} />
+                    <NumberFlow value={descaleBigIntToNumber(maxValue, asset.decimals)} />
                   </div>
                   <Button
                     variant="secondary"
                     size="xs"
                     type="button"
-                    disabled={field.disabled}
+                    disabled={maxValue === 0n || field.disabled}
                     onClick={() => {
                       if (!field.disabled) {
-                        field.onChange(numberToString(maxValue));
+                        field.onChange(formatUnits(maxValue, asset.decimals));
                         setIsMax?.(true);
                       }
                     }}

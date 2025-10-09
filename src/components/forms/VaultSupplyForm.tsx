@@ -7,8 +7,7 @@ import { useForm } from "react-hook-form";
 import { useDebounce } from "use-debounce";
 import { getAddress, maxUint256, parseUnits } from "viem";
 import { useAccount, usePublicClient } from "wagmi";
-import { z } from "zod";
-
+import type { z } from "zod";
 import { type SuccessfulVaultAction, vaultSupplyAction } from "@/actions";
 import type { SupportedChainId } from "@/config/types";
 import type { Vault } from "@/data/whisk/getVault";
@@ -20,6 +19,7 @@ import { Button } from "../ui/button";
 import { ErrorMessage } from "../ui/error-message";
 import { Form } from "../ui/form";
 import { AssetInputFormField } from "./FormFields/AssetInputFormField";
+import { createVaultSupplyFormSchema } from "./schema/vault";
 
 interface VaultSupplyFormProps {
   vault: Vault;
@@ -40,40 +40,20 @@ export const VaultSupplyForm = forwardRef<{ reset: () => void }, VaultSupplyForm
       getAddress(vault.vaultAddress),
     );
 
-    const walletUnderlyingAssetBalance = useMemo(() => {
+    const walletUnderlyingAssetBalanceRaw = useMemo(() => {
       if (!position?.walletUnderlyingAssetHolding) {
-        return undefined;
+        return undefined as undefined | bigint;
       }
 
-      return Number(position.walletUnderlyingAssetHolding.balance.formatted);
+      return BigInt(position.walletUnderlyingAssetHolding.balance.raw ?? 0n);
     }, [position]);
 
     const formSchema = useMemo(() => {
-      return z
-        .object({
-          supplyAmount: z.string().nonempty("Amount is required."),
-          isMaxSupply: z.boolean(),
-        })
-        .superRefine((data, ctx) => {
-          const supplyAmount = Number(data.supplyAmount);
-          if (Number.isNaN(supplyAmount) || supplyAmount <= 0) {
-            ctx.addIssue({
-              path: ["supplyAmount"],
-              code: z.ZodIssueCode.custom,
-              message: "Amount must be >0.",
-            });
-          }
-
-          const maxSupplyAmount = walletUnderlyingAssetBalance ?? Number.POSITIVE_INFINITY;
-          if (supplyAmount > maxSupplyAmount) {
-            ctx.addIssue({
-              path: ["supplyAmount"],
-              code: z.ZodIssueCode.custom,
-              message: "Amount exceeds wallet balance.",
-            });
-          }
-        });
-    }, [walletUnderlyingAssetBalance]);
+      return createVaultSupplyFormSchema({
+        asset: vault.asset,
+        walletUnderlyingAssetBalanceRaw,
+      });
+    }, [walletUnderlyingAssetBalanceRaw, vault.asset]);
 
     const form = useForm({
       mode: "onChange",
@@ -155,7 +135,7 @@ export const VaultSupplyForm = forwardRef<{ reset: () => void }, VaultSupplyForm
                 header={`Supply ${vault.asset.symbol}`}
                 chain={vault.chain}
                 asset={vault.asset}
-                maxValue={walletUnderlyingAssetBalance}
+                maxValue={walletUnderlyingAssetBalanceRaw ?? 0n}
                 setIsMax={(isMax) => {
                   form.setValue("isMaxSupply", isMax);
                 }}
