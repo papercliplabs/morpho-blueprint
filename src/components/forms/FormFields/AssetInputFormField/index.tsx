@@ -1,14 +1,14 @@
 "use client";
 
 import clsx from "clsx";
-
+import { formatUnits } from "viem";
 import { TokenIcon } from "@/components/TokenIcon";
 import { Button } from "@/components/ui/button";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import NumberFlow from "@/components/ui/number-flow";
 import { NumberInput } from "@/components/ui/number-input";
 import type { ChainInfo, TokenInfo } from "@/data/whisk/fragments";
-import { numberToString } from "@/utils/format";
+import { descaleBigIntToNumber } from "@/utils/format";
 
 // biome-ignore lint/suspicious/noExplicitAny: Allow any for the FormField component
 interface AssetInputFormFieldProps<TFieldValues extends Record<string, any>>
@@ -17,7 +17,7 @@ interface AssetInputFormFieldProps<TFieldValues extends Record<string, any>>
   chain: ChainInfo;
   asset: TokenInfo & { priceUsd: number | null };
   setIsMax?: (isMax: boolean) => void;
-  maxValue?: number;
+  maxValue?: bigint;
 }
 
 // biome-ignore lint/suspicious/noExplicitAny: Allow any for the FormField component
@@ -72,16 +72,16 @@ function AssetInputFormField<TFieldValues extends Record<string, any>>({
                 <div className="flex h-[24px] items-center gap-1">
                   <span>Available: </span>
                   <div className="relative">
-                    <NumberFlow value={maxValue} />
+                    <NumberFlow value={descaleBigIntToNumber(maxValue, asset.decimals)} />
                   </div>
                   <Button
                     variant="secondary"
                     size="xs"
                     type="button"
-                    disabled={maxValue === 0 || field.disabled}
+                    disabled={maxValue === 0n || field.disabled}
                     onClick={() => {
                       if (!field.disabled) {
-                        field.onChange(numberToString(maxValue));
+                        field.onChange(formatUnits(maxValue, asset.decimals));
                         setIsMax?.(true);
                       }
                     }}

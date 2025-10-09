@@ -8,14 +8,13 @@ import { useForm } from "react-hook-form";
 import { useDebounce } from "use-debounce";
 import { type Hex, maxUint256, parseUnits } from "viem";
 import { useAccount, usePublicClient } from "wagmi";
-import { z } from "zod";
-
+import type { z } from "zod";
 import { marketRepayAndWithdrawCollateralAction, type SuccessfulMarketAction } from "@/actions";
 import type { SupportedChainId } from "@/config/types";
 import type { MarketNonIdle } from "@/data/whisk/getMarket";
 import { useMarketPosition } from "@/hooks/useMarketPositions";
 import { useWatchNumberInputField } from "@/hooks/useWatchNumberInputField";
-import { descaleBigIntToNumber, numberToString } from "@/utils/format";
+import { numberToString } from "@/utils/format";
 import { computeMarketMaxWithdrawCollateral, computeMarketPositonChange } from "@/utils/math";
 import { MarketActionSimulationMetrics } from "../ActionFlow/MarketActionFlow";
 import { Button } from "../ui/button";
@@ -23,6 +22,7 @@ import { ErrorMessage } from "../ui/error-message";
 import { Form } from "../ui/form";
 import { Separator } from "../ui/seperator";
 import { AssetInputFormField } from "./FormFields/AssetInputFormField";
+import { createMarketRepayAndWithdrawCollateralFormSchema } from "./schema/market";
 
 interface MarketRepayAndWithdrawCollateralFormProps {
   market: MarketNonIdle;
@@ -69,85 +69,11 @@ export const MarketRepayAndWithdrawCollateralForm = forwardRef<
   }, [position]);
 
   const formSchema = useMemo(() => {
-    return z
-      .object({
-        repayAmount: z
-          .string()
-          .pipe(z.coerce.number().nonnegative({ message: "Amount must be >=0" }))
-          .pipe(z.coerce.string()),
-        isMaxRepay: z.boolean(),
-        withdrawCollateralAmount: z
-          .string()
-          .pipe(z.coerce.number().nonnegative({ message: "Amount must be >=0" }))
-          .pipe(z.coerce.string()),
-        isMaxWithdrawCollateral: z.boolean(),
-      })
-      .superRefine((data, ctx) => {
-        // Negative checks without casting to number
-        if (data.repayAmount.trim().startsWith("-") && data.withdrawCollateralAmount.trim().startsWith("-")) {
-          ctx.addIssue({
-            path: ["repayAmount"],
-            code: z.ZodIssueCode.custom,
-            message: "Amount must be positive.",
-          });
-          ctx.addIssue({
-            path: ["withdrawCollateralAmount"],
-            code: z.ZodIssueCode.custom,
-            message: "Amount must be positive.",
-          });
-        }
-
-        // Compare repay against raw limits in bigint space
-        try {
-          const rawRepayAmount = parseUnits(data.repayAmount, market.loanAsset.decimals);
-          const maxRepayRaw =
-            repayLimiter === "position" ? (positionBorrowAmountRaw ?? 0n) : (walletLoanAssetBalanceRaw ?? 0n);
-
-          if (rawRepayAmount > maxRepayRaw) {
-            ctx.addIssue({
-              path: ["repayAmount"],
-              code: z.ZodIssueCode.custom,
-              message: repayLimiter === "position" ? "Exceeds position." : "Exceeds wallet balance.",
-            });
-          }
-
-          // Validate withdraw collateral using max computed numerically but compared in raw units
-          if (position) {
-            const repayAmountNumber = descaleBigIntToNumber(rawRepayAmount, market.loanAsset.decimals);
-            const maxWithdrawCollateralAmount = computeMarketMaxWithdrawCollateral(market, position, repayAmountNumber);
-            const rawWithdrawAmount = parseUnits(data.withdrawCollateralAmount, market.collateralAsset.decimals);
-            const maxWithdrawRaw = parseUnits(
-              numberToString(maxWithdrawCollateralAmount),
-              market.collateralAsset.decimals,
-            );
-            if (rawWithdrawAmount > maxWithdrawRaw) {
-              ctx.addIssue({
-                path: ["withdrawCollateralAmount"],
-                code: z.ZodIssueCode.custom,
-                message: "Causes unhealthy position.",
-              });
-            }
-          }
-        } catch {
-          // If parse fails, surface invalid input
-          // Prefer to attribute error to the specific field when possible
-          if (data.repayAmount) {
-            ctx.addIssue({
-              path: ["repayAmount"],
-              code: z.ZodIssueCode.custom,
-              message: "Invalid amount.",
-            });
-          }
-          if (data.withdrawCollateralAmount) {
-            ctx.addIssue({
-              path: ["withdrawCollateralAmount"],
-              code: z.ZodIssueCode.custom,
-              message: "Invalid amount.",
-            });
-          }
-        }
-      });
-  }, [positionBorrowAmountRaw, walletLoanAssetBalanceRaw, position, repayLimiter, market]);
+    return createMarketRepayAndWithdrawCollateralFormSchema({
+      loanAsset: market.loanAsset,
+      positionBorrowAmountRaw,
+    });
+  }, [positionBorrowAmountRaw, market]);
 
   const form = useForm({
     mode: "onChange",
@@ -286,8 +212,7 @@ export const MarketRepayAndWithdrawCollateralForm = forwardRef<
                 maxValue={(() => {
                   const a = positionBorrowAmountRaw ?? 0n;
                   const b = walletLoanAssetBalanceRaw ?? 0n;
-                  const minRaw = a < b ? a : b;
-                  return descaleBigIntToNumber(minRaw, market.loanAsset.decimals);
+                  return a < b ? a : b;
                 })()}
                 setIsMax={(isMax) => {
                   form.setValue("isMaxRepay", isMax);
@@ -299,7 +224,14 @@ export const MarketRepayAndWithdrawCollateralForm = forwardRef<
                 header={`Withdraw ${market.collateralAsset.symbol}`}
                 chain={market.chain}
                 asset={market.collateralAsset}
-                maxValue={maxWithdrawCollateralAmount}
+                maxValue={(() => {
+                  // Convert numeric max to raw bigint for consistency
+                  try {
+                    return parseUnits(numberToString(maxWithdrawCollateralAmount), market.collateralAsset.decimals);
+                  } catch {
+                    return 0n;
+                  }
+                })()}
               />
             </div>
 

@@ -8,14 +8,13 @@ import { useForm } from "react-hook-form";
 import { useDebounce } from "use-debounce";
 import { getAddress, type Hex, maxUint256, parseUnits } from "viem";
 import { useAccount, usePublicClient } from "wagmi";
-import { z } from "zod";
-
+import type { z } from "zod";
 import { marketSupplyCollateralAndBorrowAction, type SuccessfulMarketAction } from "@/actions";
 import type { SupportedChainId } from "@/config/types";
 import type { MarketNonIdle } from "@/data/whisk/getMarket";
 import { useMarketPosition } from "@/hooks/useMarketPositions";
 import { useWatchNumberInputField } from "@/hooks/useWatchNumberInputField";
-import { descaleBigIntToNumber, numberToString } from "@/utils/format";
+import { numberToString } from "@/utils/format";
 import { computeAvailableToBorrow, computeMarketPositonChange } from "@/utils/math";
 import { MarketActionSimulationMetrics } from "../ActionFlow/MarketActionFlow";
 import { Button } from "../ui/button";
@@ -23,6 +22,7 @@ import { ErrorMessage } from "../ui/error-message";
 import { Form } from "../ui/form";
 import { Separator } from "../ui/seperator";
 import { AssetInputFormField } from "./FormFields/AssetInputFormField";
+import { createMarketSupplyCollateralAndBorrowFormSchema } from "./schema/market";
 
 interface MarketSupplyCollateralAndBorrowFormProps {
   market: MarketNonIdle;
@@ -56,66 +56,11 @@ export const MarketSupplyCollateralAndBorrowForm = forwardRef<
   }, [position]);
 
   const formSchema = useMemo(() => {
-    return z
-      .object({
-        supplyCollateralAmount: z
-          .string()
-          .pipe(z.coerce.number().nonnegative({ message: "Amount must be >=0" }))
-          .pipe(z.coerce.string()),
-        isMaxSupplyCollateral: z.boolean(),
-        borrowAmount: z
-          .string()
-          .pipe(z.coerce.number().nonnegative({ message: "Amount must be >=0" }))
-          .pipe(z.coerce.string()),
-      })
-      .superRefine((data, ctx) => {
-        try {
-          // Supply must not exceed wallet balance (compare in raw)
-          const rawSupplyCollateralAmount = parseUnits(data.supplyCollateralAmount, market.collateralAsset.decimals);
-          const maxSupplyRaw = walletCollateralAssetBalanceRaw ?? 0n;
-          if (rawSupplyCollateralAmount > maxSupplyRaw) {
-            ctx.addIssue({
-              path: ["supplyCollateralAmount"],
-              code: z.ZodIssueCode.custom,
-              message: "Amount exceeds wallet balance.",
-            });
-          }
-
-          // Borrow cannot exceed available to borrow (compute numerically but compare via raw)
-          if (position) {
-            const supplyCollateralAmountNum = descaleBigIntToNumber(
-              rawSupplyCollateralAmount,
-              market.collateralAsset.decimals,
-            );
-            const maxBorrowAmountNum = computeAvailableToBorrow(market, position, supplyCollateralAmountNum, 0);
-            const rawBorrowAmount = parseUnits(data.borrowAmount, market.loanAsset.decimals);
-            const maxBorrowRaw = parseUnits(numberToString(maxBorrowAmountNum), market.loanAsset.decimals);
-            if (rawBorrowAmount > maxBorrowRaw) {
-              ctx.addIssue({
-                path: ["borrowAmount"],
-                code: z.ZodIssueCode.custom,
-                message: "Exceeds max borrow.",
-              });
-            }
-          }
-        } catch {
-          if (data.supplyCollateralAmount) {
-            ctx.addIssue({
-              path: ["supplyCollateralAmount"],
-              code: z.ZodIssueCode.custom,
-              message: "Invalid amount.",
-            });
-          }
-          if (data.borrowAmount) {
-            ctx.addIssue({
-              path: ["borrowAmount"],
-              code: z.ZodIssueCode.custom,
-              message: "Invalid amount.",
-            });
-          }
-        }
-      });
-  }, [walletCollateralAssetBalanceRaw, position, market]);
+    return createMarketSupplyCollateralAndBorrowFormSchema({
+      collateralAsset: market.collateralAsset,
+      walletCollateralAssetBalanceRaw,
+    });
+  }, [walletCollateralAssetBalanceRaw, market]);
 
   const form = useForm({
     mode: "onChange",
@@ -230,7 +175,7 @@ export const MarketSupplyCollateralAndBorrowForm = forwardRef<
                 header={`Add ${market.collateralAsset.symbol}`}
                 chain={market.chain}
                 asset={market.collateralAsset}
-                maxValue={descaleBigIntToNumber(walletCollateralAssetBalanceRaw ?? 0n, market.collateralAsset.decimals)}
+                maxValue={walletCollateralAssetBalanceRaw ?? 0n}
                 setIsMax={(isMax) => {
                   form.setValue("isMaxSupplyCollateral", isMax);
                 }}
@@ -241,7 +186,14 @@ export const MarketSupplyCollateralAndBorrowForm = forwardRef<
                 header={`Borrow ${market.loanAsset.symbol}`}
                 chain={market.chain}
                 asset={market.loanAsset}
-                maxValue={maxBorrowAmount}
+                maxValue={(() => {
+                  // Convert numeric max to raw bigint for consistency
+                  try {
+                    return parseUnits(numberToString(maxBorrowAmount), market.loanAsset.decimals);
+                  } catch {
+                    return 0n;
+                  }
+                })()}
               />
             </div>
 

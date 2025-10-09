@@ -7,20 +7,19 @@ import { useForm } from "react-hook-form";
 import { useDebounce } from "use-debounce";
 import { getAddress, maxUint256, parseUnits } from "viem";
 import { useAccount, usePublicClient } from "wagmi";
-import { z } from "zod";
-
+import type { z } from "zod";
 import { type SuccessfulVaultAction, vaultWithdrawAction } from "@/actions";
 import type { SupportedChainId } from "@/config/types";
 import type { Vault } from "@/data/whisk/getVault";
 import { useVaultPosition } from "@/hooks/useVaultPositions";
 import { useWatchNumberInputField } from "@/hooks/useWatchNumberInputField";
-import { descaleBigIntToNumber } from "@/utils/format";
 import { computeVaultPositionChange } from "@/utils/math";
 import { VaultActionSimulationMetrics } from "../ActionFlow/VaultActionFlow";
 import { Button } from "../ui/button";
 import { ErrorMessage } from "../ui/error-message";
 import { Form } from "../ui/form";
 import { AssetInputFormField } from "./FormFields/AssetInputFormField";
+import { createVaultWithdrawFormSchema } from "./schema/vault";
 
 interface VaultWithdrawFormProps {
   vault: Vault;
@@ -50,34 +49,11 @@ export const VaultWithdrawForm = forwardRef<{ reset: () => void }, VaultWithdraw
     }, [position]);
 
     const formSchema = useMemo(() => {
-      return z
-        .object({
-          withdrawAmount: z
-            .string()
-            .pipe(z.coerce.number().nonnegative({ message: "Amount must be >=0" }))
-            .pipe(z.coerce.string()),
-          isMaxWithdraw: z.boolean(),
-        })
-        .superRefine((data, ctx) => {
-          try {
-            const rawWithdrawAmount = parseUnits(data.withdrawAmount, vault.asset.decimals);
-            const maxWithdrawRaw = positionBalanceRaw ?? 0n;
-            if (rawWithdrawAmount > maxWithdrawRaw) {
-              ctx.addIssue({
-                path: ["withdrawAmount"],
-                code: z.ZodIssueCode.custom,
-                message: "Amount exceeds balance.",
-              });
-            }
-          } catch {
-            ctx.addIssue({
-              path: ["withdrawAmount"],
-              code: z.ZodIssueCode.custom,
-              message: "Invalid amount.",
-            });
-          }
-        });
-    }, [positionBalanceRaw, vault.asset.decimals]);
+      return createVaultWithdrawFormSchema({
+        asset: vault.asset,
+        positionBalanceRaw,
+      });
+    }, [positionBalanceRaw, vault.asset]);
 
     const form = useForm({
       mode: "onChange",
@@ -157,7 +133,7 @@ export const VaultWithdrawForm = forwardRef<{ reset: () => void }, VaultWithdraw
                 header={`Withdraw ${vault.asset.symbol}`}
                 chain={vault.chain}
                 asset={vault.asset}
-                maxValue={descaleBigIntToNumber(positionBalanceRaw ?? 0n, vault.asset.decimals)}
+                maxValue={positionBalanceRaw ?? 0n}
                 setIsMax={(isMax) => {
                   form.setValue("isMaxWithdraw", isMax);
                 }}
