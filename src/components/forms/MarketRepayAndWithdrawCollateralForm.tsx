@@ -69,10 +69,13 @@ export const MarketRepayAndWithdrawCollateralForm = forwardRef<
 
   const formSchema = useMemo(() => {
     return createMarketRepayAndWithdrawCollateralFormSchema({
+      market,
+      currentPosition: position,
       loanAsset: market.loanAsset,
       positionBorrowAmountRaw,
+      collateralAsset: market.collateralAsset,
     });
-  }, [positionBorrowAmountRaw, market]);
+  }, [positionBorrowAmountRaw, market, position]);
 
   const form = useForm({
     mode: "onChange",

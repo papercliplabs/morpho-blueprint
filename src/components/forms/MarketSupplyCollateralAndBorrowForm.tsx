@@ -56,10 +56,12 @@ export const MarketSupplyCollateralAndBorrowForm = forwardRef<
 
   const formSchema = useMemo(() => {
     return createMarketSupplyCollateralAndBorrowFormSchema({
+      market,
+      currentPosition: position,
       collateralAsset: market.collateralAsset,
       walletCollateralAssetBalanceRaw,
     });
-  }, [walletCollateralAssetBalanceRaw, market]);
+  }, [walletCollateralAssetBalanceRaw, market, position]);
 
   const form = useForm({
     mode: "onChange",
