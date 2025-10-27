@@ -35,7 +35,7 @@ function AssetInputFormField<TFieldValues extends Record<string, any>>({
       render={({ field, fieldState }) => (
         <FormItem className="group flex flex-col rounded-md border-2 border-transparent bg-muted p-4 transition has-focus:border-primary">
           <div className="flex items-center gap-2 text-muted-foreground">
-            <FormLabel className="body-small-plus">{header}</FormLabel>
+            <FormLabel className="body-small-plus max-w-40 truncate">{header}</FormLabel>
             <FormMessage />
           </div>
           <div className="flex flex-col gap-1">
@@ -65,7 +65,7 @@ function AssetInputFormField<TFieldValues extends Record<string, any>>({
               {!!asset && (
                 <div className="flex items-center gap-2 px-2">
                   <TokenIcon token={asset} chain={chain} size="sm" chainClassName="border-muted" />
-                  <span className="body-large-plus">{asset.symbol}</span>
+                  <span className="body-large-plus max-w-20 truncate">{asset.symbol}</span>
                 </div>
               )}
             </div>
