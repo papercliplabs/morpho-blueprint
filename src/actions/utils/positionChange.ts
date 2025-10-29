@@ -1,9 +1,8 @@
-import type { MarketId } from "@morpho-org/blue-sdk";
+import { type MarketId, MathLib } from "@morpho-org/blue-sdk";
 import type { MaybeDraft, SimulationState } from "@morpho-org/simulation-sdk";
-import { type Address, parseUnits } from "viem";
+import type { Address } from "viem";
 
 import { APP_CONFIG } from "@/config";
-import { descaleBigIntToNumber, numberToString } from "@/utils/format";
 
 import type { MarketPositionChange, VaultPositionChange } from "../types";
 
@@ -13,23 +12,18 @@ export function computeVaultPositionChange(
   initialSimulationState: SimulationState | MaybeDraft<SimulationState>,
   finalSimulationState: SimulationState | MaybeDraft<SimulationState>,
 ): VaultPositionChange {
-  const vault = initialSimulationState.getVault(vaultAddress);
-  const token = initialSimulationState.getToken(vault.asset);
-
   const vaultBefore = initialSimulationState.getVault(vaultAddress);
   const sharesBefore = initialSimulationState.getHolding(accountAddress, vaultAddress);
   const rawBalanceBefore = vaultBefore.toAssets(sharesBefore.balance);
-  const balanceBefore = descaleBigIntToNumber(rawBalanceBefore, token.decimals);
 
   const vaultAfter = finalSimulationState.getVault(vaultAddress);
   const sharedAfter = finalSimulationState.getHolding(accountAddress, vaultAddress);
   const rawBalanceAfter = vaultAfter.toAssets(sharedAfter.balance);
-  const balanceAfter = descaleBigIntToNumber(rawBalanceAfter, token.decimals);
 
   return {
     balance: {
-      before: balanceBefore,
-      after: balanceAfter,
+      before: rawBalanceBefore,
+      after: rawBalanceAfter,
     },
   };
 }
@@ -40,11 +34,6 @@ export function computeMarketPositionChange(
   initialSimulationState: SimulationState | MaybeDraft<SimulationState>,
   finalSimulationState: SimulationState | MaybeDraft<SimulationState>,
 ): MarketPositionChange {
-  const collateralAsset = initialSimulationState.getToken(
-    initialSimulationState.getMarket(marketId).params.collateralToken,
-  );
-  const loanAsset = initialSimulationState.getToken(initialSimulationState.getMarket(marketId).params.loanToken);
-
   const positionBefore = initialSimulationState.getPosition(accountAddress, marketId);
   const positionAfter = finalSimulationState.getPosition(accountAddress, marketId);
 
@@ -52,16 +41,12 @@ export function computeMarketPositionChange(
   const marketAfter = finalSimulationState.getMarket(marketId);
 
   const rawCollateralBefore = positionBefore.collateral;
-  const collateralBefore = descaleBigIntToNumber(rawCollateralBefore, collateralAsset.decimals);
 
   const rawCollateralAfter = positionAfter.collateral;
-  const collateralAfter = descaleBigIntToNumber(rawCollateralAfter, collateralAsset.decimals);
 
   const rawLoanBefore = marketBefore.toBorrowAssets(positionBefore.borrowShares);
-  const loanBefore = descaleBigIntToNumber(rawLoanBefore, loanAsset.decimals);
 
   const rawLoanAfter = marketAfter.toBorrowAssets(positionAfter.borrowShares);
-  const loanAfter = descaleBigIntToNumber(rawLoanAfter, loanAsset.decimals);
 
   const rawLtvBefore =
     marketBefore.getLtv({
@@ -73,11 +58,8 @@ export function computeMarketPositionChange(
       collateral: positionAfter.collateral,
       borrowShares: positionAfter.borrowShares,
     }) ?? 0n;
-  const ltvBefore = descaleBigIntToNumber(rawLtvBefore, 18);
-  const ltvAfter = descaleBigIntToNumber(rawLtvAfter, 18);
 
-  const maxLtv =
-    marketAfter.params.lltv - parseUnits(numberToString(APP_CONFIG.actionParameters.maxBorrowLtvMargin), 18);
+  const maxLtv = MathLib.zeroFloorSub(marketAfter.params.lltv, APP_CONFIG.actionParameters.maxBorrowLtvMarginWad);
   const rawMaxBorrowBefore =
     initialSimulationState.getMarket(marketId).getMaxBorrowAssets(rawCollateralBefore, {
       maxLtv,
@@ -87,28 +69,25 @@ export function computeMarketPositionChange(
       maxLtv,
     }) ?? 0n;
 
-  const rawAvailableToBorrowBefore = rawMaxBorrowBefore - rawLoanBefore;
-  const rawAvailableToBorrowAfter = rawMaxBorrowAfter - rawLoanAfter;
-
-  const availableToBorrowBefore = Math.max(descaleBigIntToNumber(rawAvailableToBorrowBefore, loanAsset.decimals), 0);
-  const availableToBorrowAfter = Math.max(descaleBigIntToNumber(rawAvailableToBorrowAfter, loanAsset.decimals), 0);
+  const rawAvailableToBorrowBefore = MathLib.zeroFloorSub(rawMaxBorrowBefore, rawLoanBefore);
+  const rawAvailableToBorrowAfter = MathLib.zeroFloorSub(rawMaxBorrowAfter, rawLoanAfter);
 
   return {
     collateral: {
-      before: collateralBefore,
-      after: collateralAfter,
+      before: rawCollateralBefore,
+      after: rawCollateralAfter,
     },
     loan: {
-      before: loanBefore,
-      after: loanAfter,
+      before: rawLoanBefore,
+      after: rawLoanAfter,
     },
     availableToBorrow: {
-      before: availableToBorrowBefore,
-      after: availableToBorrowAfter,
+      before: rawAvailableToBorrowBefore,
+      after: rawAvailableToBorrowAfter,
     },
     ltv: {
-      before: ltvBefore,
-      after: ltvAfter,
+      before: rawLtvBefore,
+      after: rawLtvAfter,
     },
   };
 }

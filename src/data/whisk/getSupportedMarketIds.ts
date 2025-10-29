@@ -5,7 +5,7 @@ import type { Hex } from "viem";
 import { APP_CONFIG } from "@/config";
 import type { SupportedChainId } from "@/config/types";
 import { graphql } from "@/generated/gql/whisk";
-import { SECONDS_PER_DAY } from "@/utils/contants";
+import { SECONDS_PER_DAY } from "@/utils/constants";
 import type { ChainId } from "@/whisk-types";
 import { executeWhiskQuery } from "./execute";
 

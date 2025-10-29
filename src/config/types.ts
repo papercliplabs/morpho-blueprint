@@ -88,8 +88,8 @@ export interface AppConfig {
   // Note: Supported markets are derived based on supported vault allocations^
 
   actionParameters: {
-    // [0, 1] controls the max borrow origination based on LLTV (maxBorrowLtv = LLTV - maxBorrowLtvMargin)
-    maxBorrowLtvMargin: number;
+    // controls the max borrow origination based on LLTV (maxBorrowLtv = LLTV - maxBorrowLtvMarginWad)
+    maxBorrowLtvMarginWad: bigint; // Scaled by WAD
     // Target utilization above which the public allocator shared liquidity algorithm is enabled for borrowing
     publicAllocatorSupplyTargetUtilizationWad: bigint; // Scaled by WAD
   };

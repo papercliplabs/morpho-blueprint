@@ -7,12 +7,12 @@ import { describe, expect } from "vitest";
 
 import { type VaultAction, vaultSupplyAction } from "@/actions";
 
-import { test } from "../config";
-import { RANDOM_ADDRESS } from "../helpers/constants";
-import { expectZeroErc20Balances, getErc20BalanceOf } from "../helpers/erc20";
-import { executeAction } from "../helpers/executeAction";
-import { expectOnlyAllowedApprovals } from "../helpers/logs";
-import { createVaultPosition, getMorphoVaultPosition, seedMarketLiquidity } from "../helpers/morpho";
+import { test } from "../../config";
+import { RANDOM_ADDRESS } from "../../helpers/constants";
+import { expectZeroErc20Balances, getErc20BalanceOf } from "../../helpers/erc20";
+import { executeAction } from "../../helpers/executeAction";
+import { expectOnlyAllowedApprovals } from "../../helpers/logs";
+import { createVaultPosition, getMorphoVaultPosition, seedMarketLiquidity } from "../../helpers/morpho";
 
 interface VaultSupplyTestParameters {
   client: AnvilTestClient;

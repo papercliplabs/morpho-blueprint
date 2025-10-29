@@ -1,5 +1,5 @@
 import { Inter } from "next/font/google";
-import { getAddress } from "viem";
+import { getAddress, parseUnits } from "viem";
 import {
   arbitrum,
   base,
@@ -218,7 +218,7 @@ export const APP_CONFIG: AppConfig = {
   },
 
   actionParameters: {
-    maxBorrowLtvMargin: 0.05,
+    maxBorrowLtvMarginWad: parseUnits("0.05", 18), // 5% below LLTV
     publicAllocatorSupplyTargetUtilizationWad: BigInt(90_0000000000000000),
   },
 

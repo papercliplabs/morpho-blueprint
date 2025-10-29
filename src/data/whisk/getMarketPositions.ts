@@ -38,6 +38,7 @@ const query = graphql(`
         }
 
         ltv {
+          raw
           formatted
         }
 
