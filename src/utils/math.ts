@@ -1,47 +1,46 @@
+import { MarketUtils, MathLib, ORACLE_PRICE_SCALE } from "@morpho-org/blue-sdk";
 import type { MarketPositionChange, VaultPositionChange } from "@/actions";
 import { APP_CONFIG } from "@/config";
 import type { MarketNonIdle } from "@/data/whisk/getMarket";
 import type { MarketPosition } from "@/data/whisk/getMarketPositions";
 import type { VaultPosition } from "@/data/whisk/getVaultPositions";
 
-export function computeAvailableToBorrow(
+export function computeMaxBorrow(
   market: MarketNonIdle,
-  currentPosition: MarketPosition,
-  collateralAmountChange: number,
-  borrowAmountChange: number,
-): number {
-  const currentCollateral = Number(currentPosition.collateralAmount?.formatted ?? 0);
-  const currentLoan = Number(currentPosition.borrowAmount.formatted);
-  const newCollateral = Math.max(currentCollateral + collateralAmountChange, 0);
-  const newLoan = Math.max(currentLoan + borrowAmountChange, 0);
+  collateralAmountChange: bigint,
+  position?: MarketPosition,
+): bigint {
+  const totalCollateral = MathLib.max(BigInt(position?.collateralAmount?.raw ?? 0) + collateralAmountChange, 0n);
+  const price = BigInt(market.collateralPriceInLoanAsset?.raw ?? 0);
+  const lltv = BigInt(market.lltv.raw);
 
-  // Includes margin for borrow origination
-  const maxLoan =
-    newCollateral *
-    Number(market.collateralPriceInLoanAsset?.formatted ?? 0) *
-    (Number(market.lltv.formatted) - APP_CONFIG.actionParameters.maxBorrowLtvMargin);
+  const maxLtv = MathLib.zeroFloorSub(lltv, APP_CONFIG.actionParameters.maxBorrowLtvMarginWad);
 
-  return Math.max(maxLoan - newLoan, 0);
-}
-
-export function computeMarketMaxWithdrawCollateral(
-  market: MarketNonIdle,
-  currentPosition: MarketPosition,
-  loanRepaymentAmount: number,
-): number {
-  if (Number(market.lltv.formatted) === 0 || Number(market.collateralPriceInLoanAsset?.formatted ?? 0) === 0) {
-    return 0;
+  if (price === 0n || maxLtv === 0n) {
+    return 0n;
   }
 
-  const collateral = Number(currentPosition.collateralAmount?.formatted ?? 0);
-  const currentLoan = Number(currentPosition.borrowAmount.formatted);
-  const newLoan = currentLoan - loanRepaymentAmount;
-  const minRequiredCollateral =
-    newLoan /
-    (Number(market.lltv.formatted) - APP_CONFIG.actionParameters.maxBorrowLtvMargin) /
-    Number(market.collateralPriceInLoanAsset?.formatted ?? 0);
-  const collateralWithdrawMax = collateral - minRequiredCollateral;
-  return Math.max(collateralWithdrawMax, 0);
+  const maxBorrow = MarketUtils.getMaxBorrowAssets(totalCollateral, { price }, { lltv: maxLtv })!;
+  return MathLib.max(maxBorrow, 0n);
+}
+
+export function computeRequiredCollateral(
+  market: MarketNonIdle,
+  loanAmountChange: bigint,
+  position?: MarketPosition,
+): bigint {
+  const lltv = BigInt(market.lltv.raw);
+  const price = BigInt(market.collateralPriceInLoanAsset?.raw ?? 0n);
+  const maxLtv = MathLib.zeroFloorSub(lltv, APP_CONFIG.actionParameters.maxBorrowLtvMarginWad);
+  if (price === 0n || maxLtv === 0n) {
+    return 0n;
+  }
+
+  const currentLoan = BigInt(position?.borrowAmount?.raw ?? 0n);
+  const newLoan = MathLib.max(currentLoan + loanAmountChange, 0n);
+
+  // Following https://github.com/morpho-org/sdks/blob/main/packages/blue-sdk/src/market/MarketUtils.ts#L390-L418
+  return MathLib.wDivUp(MathLib.mulDivUp(newLoan, ORACLE_PRICE_SCALE, price), maxLtv);
 }
 
 export function computeMarketPositonChange({
@@ -52,53 +51,30 @@ export function computeMarketPositonChange({
 }: {
   market: MarketNonIdle;
   currentPosition?: MarketPosition;
-  collateralAmountChange: number;
-  loanAmountChange: number;
+  collateralAmountChange: bigint;
+  loanAmountChange: bigint;
 }): MarketPositionChange {
-  if (!currentPosition) {
-    return {
-      collateral: {
-        before: 0,
-        after: 0,
-      },
-      loan: {
-        before: 0,
-        after: 0,
-      },
-      availableToBorrow: {
-        before: 0,
-        after: 0,
-      },
-      ltv: {
-        before: 0,
-        after: 0,
-      },
-    };
+  const currentCollateral = BigInt(currentPosition?.collateralAmount?.raw ?? 0);
+  const currentLoan = BigInt(currentPosition?.borrowAmount?.raw ?? 0);
+
+  const newCollateral = MathLib.max(currentCollateral + collateralAmountChange, 0);
+  const newLoan = MathLib.max(currentLoan + loanAmountChange, 0);
+
+  const currentMaxBorrow = computeMaxBorrow(market, 0n, currentPosition);
+  const currentAvailableToBorrow = MathLib.max(currentMaxBorrow - currentLoan, 0n);
+
+  const newMaxBorrow = computeMaxBorrow(market, collateralAmountChange, currentPosition);
+  const newAvailableToBorrow = MathLib.max(newMaxBorrow - newLoan, 0n);
+
+  const currentLtv = BigInt(currentPosition?.ltv?.raw ?? 0n);
+
+  let newLtv = currentLtv;
+  if (newLoan !== currentLoan || newCollateral !== currentCollateral) {
+    const newCollateralValue = MarketUtils.getCollateralValue(newCollateral, {
+      price: BigInt(market.collateralPriceInLoanAsset?.raw ?? 0),
+    });
+    newLtv = !newCollateralValue ? 0n : MathLib.wDivUp(newLoan, newCollateralValue);
   }
-
-  const currentCollateral = Number(currentPosition.collateralAmount?.formatted ?? 0);
-  const currentLoan = Number(currentPosition.borrowAmount.formatted);
-
-  const newCollateral = Math.max(currentCollateral + collateralAmountChange, 0);
-  const newLoan = Math.max(currentLoan + loanAmountChange, 0);
-
-  const currentAvailableToBorrow = computeAvailableToBorrow(market, currentPosition, 0, 0);
-  const newAvailableToBorrow = computeAvailableToBorrow(
-    market,
-    currentPosition,
-    collateralAmountChange,
-    loanAmountChange,
-  );
-
-  const collateralInLoan = newCollateral * Number(market.collateralPriceInLoanAsset?.formatted ?? 0);
-
-  const currentLtv = Number(currentPosition.ltv?.formatted ?? 0);
-  const newLtv =
-    collateralAmountChange === 0 && loanAmountChange === 0
-      ? currentLtv
-      : collateralInLoan > 0
-        ? newLoan / collateralInLoan
-        : 0;
 
   return {
     collateral: {
@@ -125,19 +101,10 @@ export function computeVaultPositionChange({
   supplyAmountChange,
 }: {
   currentPosition?: VaultPosition;
-  supplyAmountChange: number;
+  supplyAmountChange: bigint;
 }): VaultPositionChange {
-  if (!currentPosition) {
-    return {
-      balance: {
-        before: 0,
-        after: 0,
-      },
-    };
-  }
-
-  const currentSupply = Number(currentPosition.supplyAmount.formatted);
-  const newSupply = Math.max(currentSupply + supplyAmountChange, 0);
+  const currentSupply = BigInt(currentPosition?.supplyAmount?.raw ?? 0);
+  const newSupply = MathLib.max(currentSupply + supplyAmountChange, 0n);
 
   return {
     balance: {

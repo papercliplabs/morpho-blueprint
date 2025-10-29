@@ -102,8 +102,7 @@ export async function getSimulationState({
     (vaultAddress) => Array.from(userAddresses, (userAddress) => ({ vaultAddress, userAddress })),
   );
 
-  const [block, markets, users, positions, vaultMarketConfigs, vaultUsers] = await Promise.all([
-    getBlock(publicClient),
+  const [markets, users, positions, vaultMarketConfigs, vaultUsers] = await Promise.all([
     Promise.all(marketIds.map((marketId) => fetchMarket(marketId, publicClient))),
     Promise.all(userAddresses.map((userAddress) => fetchUser(userAddress, publicClient))),
     Promise.all(positionParams.map(({ userAddress, marketId }) => fetchPosition(userAddress, marketId, publicClient))),
@@ -151,9 +150,23 @@ export async function getSimulationState({
     ),
   ]);
 
+  // Fetch block after SDK data to ensure block.timestamp >= all market.lastUpdate timestamps
+  // This prevents "accrual timestamp can't be prior to last update" errors from fetch race condition
+  const block = await getBlock(publicClient);
+
   // Accrue interest on all markets and markets
-  const accruedMarkets = markets.map((market) => market.accrueInterest(block.timestamp));
-  const accruedVaults = vaults.map((vault) => vault.accrueInterest(block.timestamp));
+  const accruedMarkets = markets.map((market) =>
+    block.timestamp > market.lastUpdate ? market.accrueInterest(block.timestamp) : market,
+  );
+
+  const accruedVaults = vaults.map((vault) => {
+    try {
+      return vault.accrueInterest(block.timestamp);
+    } catch {
+      // Invalid interst accrual so ignore and just return the vault
+      return vault;
+    }
+  });
 
   const simulationState = new SimulationState({
     chainId: publicClient.chain.id,

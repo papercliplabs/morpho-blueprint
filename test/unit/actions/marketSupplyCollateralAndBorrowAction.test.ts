@@ -7,11 +7,11 @@ import { describe, expect } from "vitest";
 
 import { type MarketAction, marketSupplyCollateralAndBorrowAction } from "@/actions";
 
-import { test } from "../config";
-import { expectZeroErc20Balances, getErc20BalanceOf } from "../helpers/erc20";
-import { executeAction } from "../helpers/executeAction";
-import { expectOnlyAllowedApprovals } from "../helpers/logs";
-import { createMarketPosition, getMorphoMarketPosition, seedMarketLiquidity } from "../helpers/morpho";
+import { test } from "../../config";
+import { expectZeroErc20Balances, getErc20BalanceOf } from "../../helpers/erc20";
+import { executeAction } from "../../helpers/executeAction";
+import { expectOnlyAllowedApprovals } from "../../helpers/logs";
+import { createMarketPosition, getMorphoMarketPosition, seedMarketLiquidity } from "../../helpers/morpho";
 
 const WBTC_USDC_MARKET_ID = "0x3a85e619751152991742810df6ec69ce473daef99e28a64ab2340d7b7ccfee49" as MarketId;
 

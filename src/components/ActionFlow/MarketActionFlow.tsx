@@ -2,7 +2,7 @@ import { clsx } from "clsx";
 
 import type { MarketAction, MarketPositionChange } from "@/actions";
 import type { Market, MarketNonIdle } from "@/data/whisk/getMarket";
-import { formatNumber } from "@/utils/format";
+import { descaleBigIntToNumber, formatNumber } from "@/utils/format";
 
 import { AssetChangeSummary } from "../AssetChangeSummary";
 import { MetricChange, MetricChangeValues } from "../MetricChange";
@@ -48,8 +48,8 @@ function getTrackingPayload(market: Market, action: MarketAction | null, tag: st
   const loanDelta = action.positionChange.loan.after - action.positionChange.loan.before;
   return {
     ...basePayload,
-    collateralAmount: Math.abs(collateralDelta),
-    loanAmount: Math.abs(loanDelta),
+    collateralAmount: Math.abs(descaleBigIntToNumber(collateralDelta, market.collateralAsset?.decimals ?? 18)),
+    loanAmount: Math.abs(descaleBigIntToNumber(loanDelta, market.loanAsset.decimals)),
   };
 }
 
@@ -60,11 +60,13 @@ export function MarketActionSummary({
   market: MarketNonIdle;
   positionChange: MarketPositionChange;
 }) {
-  const collateralDeltaAmount = positionChange.collateral.after - positionChange.collateral.before;
+  const collateralDeltaAmountRaw = positionChange.collateral.after - positionChange.collateral.before;
+  const collateralDeltaAmount = descaleBigIntToNumber(collateralDeltaAmountRaw, market.collateralAsset.decimals);
   const collateralDeltaAmountUsd = collateralDeltaAmount * (market.collateralAsset.priceUsd ?? 0);
   const collateralAction = collateralDeltaAmount > 0 ? "Add" : "Withdraw";
 
-  const loanDeltaAmount = positionChange.loan.after - positionChange.loan.before;
+  const loanDeltaAmountRaw = positionChange.loan.after - positionChange.loan.before;
+  const loanDeltaAmount = descaleBigIntToNumber(loanDeltaAmountRaw, market.loanAsset.decimals);
   const loanDeltaAmountUsd = loanDeltaAmount * (market.loanAsset?.priceUsd ?? 0);
   const loanAction = loanDeltaAmount > 0 ? "Borrow" : "Repay";
 
@@ -106,7 +108,7 @@ export function MarketActionSimulationMetrics({
           name={`Collateral (${market.collateralAsset?.symbol})`}
           initialValue={
             <NumberFlowWithLoading
-              value={positionChange.collateral.before}
+              value={descaleBigIntToNumber(positionChange.collateral.before, market.collateralAsset.decimals)}
               isLoading={isLoading}
               loadingContent={<Skeleton className="h-[21px] w-8" />}
             />
@@ -114,7 +116,7 @@ export function MarketActionSimulationMetrics({
           finalValue={
             positionChange.collateral.after === positionChange.collateral.before ? undefined : (
               <NumberFlowWithLoading
-                value={positionChange.collateral.after}
+                value={descaleBigIntToNumber(positionChange.collateral.after, market.collateralAsset.decimals)}
                 isLoading={isLoading}
                 loadingContent={<Skeleton className="h-[21px] w-8" />}
               />
@@ -126,7 +128,7 @@ export function MarketActionSimulationMetrics({
         name={`Loan (${market.loanAsset?.symbol})`}
         initialValue={
           <NumberFlowWithLoading
-            value={positionChange.loan.before}
+            value={descaleBigIntToNumber(positionChange.loan.before, market.loanAsset.decimals)}
             isLoading={isLoading}
             loadingContent={<Skeleton className="h-[21px] w-8" />}
           />
@@ -134,7 +136,7 @@ export function MarketActionSimulationMetrics({
         finalValue={
           positionChange.loan.after === positionChange.loan.before ? undefined : (
             <NumberFlowWithLoading
-              value={positionChange.loan.after}
+              value={descaleBigIntToNumber(positionChange.loan.after, market.loanAsset.decimals)}
               isLoading={isLoading}
               loadingContent={<Skeleton className="h-[21px] w-8" />}
             />
@@ -145,7 +147,7 @@ export function MarketActionSimulationMetrics({
         name="Available to borrow"
         initialValue={
           <NumberFlowWithLoading
-            value={positionChange.availableToBorrow.before}
+            value={descaleBigIntToNumber(positionChange.availableToBorrow.before, market.loanAsset.decimals)}
             isLoading={isLoading}
             loadingContent={<Skeleton className="h-[21px] w-8" />}
           />
@@ -153,7 +155,7 @@ export function MarketActionSimulationMetrics({
         finalValue={
           positionChange.availableToBorrow.after === positionChange.availableToBorrow.before ? undefined : (
             <NumberFlowWithLoading
-              value={positionChange.availableToBorrow.after}
+              value={descaleBigIntToNumber(positionChange.availableToBorrow.after, market.loanAsset.decimals)}
               isLoading={isLoading}
               loadingContent={<Skeleton className="h-[21px] w-8" />}
             />
@@ -168,7 +170,7 @@ export function MarketActionSimulationMetrics({
               <div className="inline-flex">
                 {positionChange.ltv.after !== positionChange.ltv.before && "("}
                 <NumberFlowWithLoading
-                  value={positionChange.ltv.before}
+                  value={descaleBigIntToNumber(positionChange.ltv.before, 18)}
                   isLoading={isLoading}
                   format={{ style: "percent" }}
                   loadingContent={<Skeleton className="h-[21px] w-8" />}
@@ -179,7 +181,7 @@ export function MarketActionSimulationMetrics({
               positionChange.ltv.after === positionChange.ltv.before ? undefined : (
                 <div className="inline-flex">
                   <NumberFlowWithLoading
-                    value={positionChange.ltv.after}
+                    value={descaleBigIntToNumber(positionChange.ltv.after, 18)}
                     isLoading={isLoading}
                     format={{ style: "percent" }}
                     loadingContent={<Skeleton className="h-[21px] w-8" />}
@@ -200,12 +202,12 @@ function marketPositionChangeToActionName(positonChange: MarketPositionChange) {
   const collateralDelta = positonChange.collateral.after - positonChange.collateral.before;
   const loanDelta = positonChange.loan.after - positonChange.loan.before;
   const collateralActionName =
-    collateralDelta === 0 ? "" : collateralDelta > 0 ? "Supply Collateral" : "Withdraw Collateral";
-  const loanActionName = loanDelta === 0 ? "" : loanDelta > 0 ? "Borrow" : "Repay";
+    collateralDelta === 0n ? "" : collateralDelta > 0n ? "Supply Collateral" : "Withdraw Collateral";
+  const loanActionName = loanDelta === 0n ? "" : loanDelta > 0n ? "Borrow" : "Repay";
 
   const middleCopy = collateralActionName !== "" && loanActionName !== "" ? " and " : "";
   const actionName =
-    loanDelta > 0
+    loanDelta > 0n
       ? collateralActionName + middleCopy + loanActionName
       : loanActionName + middleCopy + collateralActionName;
 

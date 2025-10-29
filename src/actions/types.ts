@@ -49,12 +49,12 @@ export interface SimulatedValueChange<T> {
 }
 
 export type VaultPositionChange = {
-  balance: SimulatedValueChange<number>;
+  balance: SimulatedValueChange<bigint>;
 };
 
 export type MarketPositionChange = {
-  collateral: SimulatedValueChange<number>;
-  loan: SimulatedValueChange<number>;
-  availableToBorrow: SimulatedValueChange<number>;
-  ltv: SimulatedValueChange<number>;
+  collateral: SimulatedValueChange<bigint>;
+  loan: SimulatedValueChange<bigint>;
+  availableToBorrow: SimulatedValueChange<bigint>;
+  ltv: SimulatedValueChange<bigint>;
 };

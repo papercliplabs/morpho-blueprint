@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 
 import type { SuccessfulVaultAction } from "@/actions";
 import { VaultActionFlow } from "@/components/ActionFlow/VaultActionFlow";
-import { VaultWithdrawForm } from "@/components/forms/VaultWithdrawForm";
+import { VaultWithdrawForm } from "@/components/forms/vault-withdraw/VaultWithdrawForm";
 import type { Vault } from "@/data/whisk/getVault";
 
 export default function VaultWithdraw({

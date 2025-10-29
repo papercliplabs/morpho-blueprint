@@ -39,7 +39,7 @@ const meta = {
       decimals: 0.06,
       category: TokenCategory.Stable,
     },
-    maxValue: 1.0,
+    maxValue: 1000000000000000000n,
     setIsMax: fn(),
     name: "test",
     header: "Supply",

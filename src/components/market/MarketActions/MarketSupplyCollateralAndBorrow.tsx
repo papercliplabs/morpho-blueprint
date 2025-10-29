@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 
 import type { SuccessfulMarketAction } from "@/actions";
 import { MarketActionFlow } from "@/components/ActionFlow/MarketActionFlow";
-import { MarketSupplyCollateralAndBorrowForm } from "@/components/forms/MarketSupplyCollateralAndBorrowForm";
+import { MarketSupplyCollateralAndBorrowForm } from "@/components/forms/market-supply-collateral-and-borrow/MarketSupplyCollateralAndBorrowForm";
 import type { MarketNonIdle } from "@/data/whisk/getMarket";
 
 export default function MarketSupplyCollateralAndBorrow({
