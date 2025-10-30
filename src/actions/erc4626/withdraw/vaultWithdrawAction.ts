@@ -4,9 +4,9 @@ import { type Address, maxUint256 } from "viem";
 import { getIsContract } from "@/actions/data/rpc/getIsContract";
 import { getSimulationState } from "@/actions/data/rpc/getSimulationState";
 
-import { type PublicClientWithChain, UserFacingError, type VaultAction } from "../types";
-import { actionFromInputOps } from "../utils/actionFromInputOps";
-import { computeVaultPositionChange } from "../utils/positionChange";
+import { type PublicClientWithChain, UserFacingError, type VaultAction } from "../../types";
+import { actionFromInputOps } from "../../utils/actionFromInputOps";
+import { computeVaultPositionChange } from "../../utils/positionChange";
 
 interface VaultWithdrawActionParameters {
   publicClient: PublicClientWithChain;

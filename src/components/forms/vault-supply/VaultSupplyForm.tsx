@@ -45,9 +45,6 @@ export const VaultSupplyForm = forwardRef<{ reset: () => void }, VaultSupplyForm
                     ? BigInt(position.walletUnderlyingAssetHolding.balance.raw)
                     : undefined
                 }
-                setIsMax={(isMax) => {
-                  form.setValue("isMaxSupply", isMax);
-                }}
               />
 
               <div className="h-[1px] bg-border" />

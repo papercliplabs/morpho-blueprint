@@ -5,9 +5,10 @@ import { useModal } from "connectkit";
 import { useCallback, useEffect, useMemo } from "react";
 import { type UseFormReturn, useForm } from "react-hook-form";
 import { useDebounce } from "use-debounce";
-import { getAddress, maxUint256 } from "viem";
+import { getAddress } from "viem";
 import { useAccount, usePublicClient } from "wagmi";
-import { UserFacingError, type VaultAction, vaultSupplyAction } from "@/actions";
+import { UserFacingError, type VaultAction } from "@/actions";
+import { erc4626SupplyAction } from "@/actions/erc4626/supply/erc4626SupplyAction";
 import type { SupportedChainId } from "@/config/types";
 import type { Vault } from "@/data/whisk/getVault";
 import type { VaultPosition } from "@/data/whisk/getVaultPositions";
@@ -49,7 +50,6 @@ export function useVaultSupplyForm({ vault, onSuccessfulActionSimulation }: UseV
     resolver: standardSchemaResolver(formSchema),
     defaultValues: {
       supplyAmount: "",
-      isMaxSupply: false,
     },
   });
 
@@ -69,16 +69,16 @@ export function useVaultSupplyForm({ vault, onSuccessfulActionSimulation }: UseV
       }
 
       const { data: action, error } = await tryCatch(
-        vaultSupplyAction({
-          publicClient,
+        erc4626SupplyAction({
+          client: publicClient,
           vaultAddress: getAddress(vault.vaultAddress),
           accountAddress: address,
-          supplyAmount: submittedValues.isMaxSupply ? maxUint256 : submittedValues.supplyAmount,
-          allowWrappingNativeAssets: false, // TODO: revisit
+          supplyAmount: submittedValues.supplyAmount,
         }),
       );
 
       if (error) {
+        console.log("ERRRRR:", error);
         form.setError("root", {
           message: error instanceof UserFacingError ? error.message : "An unknown error occurred",
         });
@@ -99,13 +99,6 @@ export function useVaultSupplyForm({ vault, onSuccessfulActionSimulation }: UseV
     }
   }, [position, form.trigger]);
 
-  // Reset isMax when a new account connects
-  useEffect(() => {
-    if (address) {
-      form.setValue("isMaxSupply", false);
-    }
-  }, [address, form.setValue]);
-
   return {
     form,
     derivedFormValues,
@@ -124,22 +117,14 @@ function useDerivedFormValues({
   position?: VaultPosition;
   form: UseFormReturn<VaultSupplyFormSchemaInput, undefined, VaultSupplyFormSchemaOutput>;
 }) {
-  const [formInputSupplyAmount, formInputIsMaxSupply] = form.watch(["supplyAmount", "isMaxSupply"]);
+  const formInputSupplyAmount = form.watch("supplyAmount");
 
   // Debounce inputs which can change rapidly
   const [debouncedFormInputSupplyAmount] = useDebounce(formInputSupplyAmount, DEBOUNCE_TIME_MS);
 
   const supplyAmount = useMemo(() => {
-    if (formInputIsMaxSupply && position?.walletUnderlyingAssetHolding?.balance.raw != null) {
-      return BigInt(position.walletUnderlyingAssetHolding.balance.raw);
-    }
     return parseOnchainAmount(debouncedFormInputSupplyAmount, vault.asset.decimals) ?? 0n;
-  }, [
-    debouncedFormInputSupplyAmount,
-    vault.asset.decimals,
-    formInputIsMaxSupply,
-    position?.walletUnderlyingAssetHolding?.balance.raw,
-  ]);
+  }, [debouncedFormInputSupplyAmount, vault.asset.decimals]);
 
   const positionChange = useMemo(() => {
     return computeVaultPositionChange({

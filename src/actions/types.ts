@@ -55,3 +55,15 @@ export type MarketPositionChange = {
   availableToBorrow: SimulatedValueChange<bigint>;
   ltv: SimulatedValueChange<bigint>;
 };
+
+export interface Erc4626SupplyActionParameters {
+  client: PublicClientWithChain;
+  vaultAddress: Address;
+  accountAddress: Address;
+  supplyAmount: bigint;
+}
+
+export interface Position {
+  shares: bigint;
+  assets: bigint;
+}

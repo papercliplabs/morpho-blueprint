@@ -8,7 +8,6 @@ export function createVaultSupplyFormSchema(decimals: number, accountLoanTokenBa
       max: accountLoanTokenBalance,
       maxErrorMessage: "Amount exceeds balance.",
     }),
-    isMaxSupply: z.boolean(),
   });
 }
 

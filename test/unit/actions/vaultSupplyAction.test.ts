@@ -5,7 +5,7 @@ import { type Address, maxUint256, parseEther, parseUnits, zeroAddress } from "v
 import { readContract } from "viem/actions";
 import { describe, expect } from "vitest";
 
-import { type VaultAction, vaultSupplyAction } from "@/actions";
+import { erc4626SupplyAction, type VaultAction } from "@/actions";
 
 import { test } from "../../config";
 import { RANDOM_ADDRESS } from "../../helpers/constants";
@@ -62,12 +62,11 @@ async function runVaultSupplyTest({
   } = getChainAddresses(client.chain.id);
 
   // Act
-  const action = await vaultSupplyAction({
-    publicClient: client,
+  const action = await erc4626SupplyAction({
+    client,
     vaultAddress,
     accountAddress: client.account.address,
     supplyAmount,
-    allowWrappingNativeAssets: false,
   });
 
   await beforeExecutionCb?.(client);
