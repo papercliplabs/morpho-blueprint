@@ -1,7 +1,7 @@
 import { getChainAddresses, MathLib } from "@morpho-org/blue-sdk";
 import { fetchVaultConfig, metaMorphoAbi } from "@morpho-org/blue-sdk-viem";
 import type { AnvilTestClient } from "@morpho-org/test";
-import { type Address, type Log, maxUint256, parseEther, parseUnits, zeroAddress } from "viem";
+import { type Address, maxUint256, parseEther, parseUnits, zeroAddress } from "viem";
 import { readContract } from "viem/actions";
 import { describe, expect } from "vitest";
 
@@ -24,7 +24,6 @@ interface VaultSupplyTestParameters {
 
   supplyAmount: bigint;
 
-  expectSuccess?: boolean;
   beforeExecutionCb?: (client: AnvilTestClient) => Promise<void>;
   callerType?: "eoa" | "contract";
 }
@@ -38,7 +37,6 @@ async function runVaultSupplyTest({
   supplyAmount,
 
   beforeExecutionCb,
-  expectSuccess = true,
   callerType = "eoa",
 }: VaultSupplyTestParameters): Promise<VaultAction> {
   // Arrange
@@ -74,19 +72,9 @@ async function runVaultSupplyTest({
 
   await beforeExecutionCb?.(client);
 
-  let logs: Log[] = [];
-  if (action.status === "success") {
-    // Execute
-    logs = await executeAction(client, action);
-  }
+  const logs = await executeAction(client, action);
 
   // Assert
-  expect(action.status).toEqual(expectSuccess ? "success" : "error");
-
-  if (action.status === "error") {
-    return action;
-  }
-
   await expectOnlyAllowedApprovals(
     client,
     logs,
@@ -167,41 +155,32 @@ describe("vaultSupplyAction", () => {
             walletUnderlyingAssetBalance: parseUnits("100", 6),
           },
           supplyAmount: parseUnits("1000", 6),
-          expectSuccess: false,
         }),
       ).rejects.toThrow();
     });
     test("insufficient balance", async ({ client }) => {
-      const result = await runVaultSupplyTest({
-        client,
-        vaultAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
-        intitialState: {
-          walletUnderlyingAssetBalance: parseUnits("100", 6),
-        },
-        supplyAmount: parseUnits("1000", 6),
-        expectSuccess: false,
-      });
-
-      // Will be error otherwise would have failed in run test
-      if (result.status === "error") {
-        expect(result.message).toEqual("Simulation Error: Insufficient wallet balance.");
-      }
+      await expect(
+        runVaultSupplyTest({
+          client,
+          vaultAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+          intitialState: {
+            walletUnderlyingAssetBalance: parseUnits("100", 6),
+          },
+          supplyAmount: parseUnits("1000", 6),
+        }),
+      ).rejects.toThrow("Simulation Error: Insufficient wallet balance.");
     });
     test("zero supply amount", async ({ client }) => {
-      const result = await runVaultSupplyTest({
-        client,
-        vaultAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
-        intitialState: {
-          walletUnderlyingAssetBalance: parseUnits("100", 6),
-        },
-        supplyAmount: 0n,
-        expectSuccess: false,
-      });
-
-      // Will be error otherwise would have failed in run test
-      if (result.status === "error") {
-        expect(result.message).toEqual("Supply amount must be greater than 0.");
-      }
+      await expect(
+        runVaultSupplyTest({
+          client,
+          vaultAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+          intitialState: {
+            walletUnderlyingAssetBalance: parseUnits("100", 6),
+          },
+          supplyAmount: 0n,
+        }),
+      ).rejects.toThrow("Supply amount must be greater than 0.");
     });
     test("tx should revert if slippage tolerance is exceeded", async ({ client }) => {
       const vaultAddress = "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB";

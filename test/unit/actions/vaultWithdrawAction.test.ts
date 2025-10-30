@@ -1,7 +1,7 @@
 import { getChainAddresses } from "@morpho-org/blue-sdk";
 import { fetchVaultConfig } from "@morpho-org/blue-sdk-viem";
 import type { AnvilTestClient } from "@morpho-org/test";
-import { type Address, type Log, maxUint256, parseUnits, zeroAddress } from "viem";
+import { type Address, maxUint256, parseUnits, zeroAddress } from "viem";
 import { describe, expect } from "vitest";
 
 import { vaultWithdrawAction } from "@/actions";
@@ -22,7 +22,6 @@ interface VaultWithdrawTestParameters {
 
   withdrawAmount: bigint;
 
-  expectSuccess?: boolean;
   beforeExecutionCb?: (client: AnvilTestClient) => Promise<void>;
   callerType?: "eoa" | "contract";
 }
@@ -36,7 +35,6 @@ async function runVaultWithdrawTest({
   withdrawAmount,
 
   beforeExecutionCb,
-  expectSuccess = true,
   callerType = "eoa",
 }: VaultWithdrawTestParameters) {
   // Arrange
@@ -65,19 +63,9 @@ async function runVaultWithdrawTest({
 
   await beforeExecutionCb?.(client);
 
-  let logs: Log[] = [];
-  if (action.status === "success") {
-    // Execute
-    logs = await executeAction(client, action);
-  }
+  const logs = await executeAction(client, action);
 
   // Assert
-  expect(action.status).toEqual(expectSuccess ? "success" : "error");
-
-  if (action.status === "error") {
-    return action;
-  }
-
   await expectOnlyAllowedApprovals(
     client,
     logs,
@@ -167,37 +155,29 @@ describe("vaultWithdrawAction", () => {
     });
 
     test("insufficient position", async ({ client }) => {
-      const result = await runVaultWithdrawTest({
-        client,
-        vaultAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
-        initialState: {
-          positionSupplyAmount: parseUnits("100", 6),
-        },
-        withdrawAmount: parseUnits("1000", 6),
-        expectSuccess: false,
-      });
-
-      // Will be error otherwise would have failed in run test - this is defined within morpho SDK
-      if (result.status === "error") {
-        expect(result.message).toContain("Simulation Error: insufficient balance of user");
-      }
+      await expect(
+        runVaultWithdrawTest({
+          client,
+          vaultAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+          initialState: {
+            positionSupplyAmount: parseUnits("100", 6),
+          },
+          withdrawAmount: parseUnits("1000", 6),
+        }),
+      ).rejects.toThrow("Simulation Error: insufficient balance of user");
     });
 
     test("zero withdraw amount", async ({ client }) => {
-      const result = await runVaultWithdrawTest({
-        client,
-        vaultAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
-        initialState: {
-          positionSupplyAmount: parseUnits("10", 6),
-        },
-        withdrawAmount: BigInt(0),
-        expectSuccess: false,
-      });
-
-      // Will be error otherwise would have failed in run test
-      if (result.status === "error") {
-        expect(result.message).toEqual("Withdraw amount must be greater than 0.");
-      }
+      await expect(
+        runVaultWithdrawTest({
+          client,
+          vaultAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+          initialState: {
+            positionSupplyAmount: parseUnits("10", 6),
+          },
+          withdrawAmount: BigInt(0),
+        }),
+      ).rejects.toThrow("Withdraw amount must be greater than 0.");
     });
 
     // Note: it's not possible to deflate the share price in metamorpho v1.1 since it doesn't realize market losses.
