@@ -1,17 +1,12 @@
 import type { ChainId } from "@morpho-org/blue-sdk";
 
-import type { Subbundle, SuccessfulAction } from "../types";
+import type { Action, Subbundle } from "../types";
 
 import { encodeBundlerCalls } from "./encodeBundlerCalls";
 
 // Encode subbundles into an action in the order they are provided
-export function actionFromSubbundles(
-  chainId: ChainId,
-  subbundles: Subbundle[],
-  executeBundleName: string,
-): SuccessfulAction {
+export function actionFromSubbundles(chainId: ChainId, subbundles: Subbundle[], executeBundleName: string): Action {
   return {
-    status: "success",
     signatureRequests: subbundles.flatMap((subbundle) => subbundle.signatureRequirements),
     transactionRequests: [
       ...subbundles.flatMap((subbundle) => subbundle.transactionRequirements),

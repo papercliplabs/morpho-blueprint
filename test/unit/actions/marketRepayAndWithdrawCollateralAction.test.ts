@@ -6,7 +6,7 @@ import { readContract } from "viem/actions";
 import { describe, expect } from "vitest";
 
 import { type MarketAction, marketRepayAndWithdrawCollateralAction } from "@/actions";
-
+import { tryCatch } from "@/utils/tryCatch";
 import { test } from "../../config";
 import { expectZeroErc20Balances, getErc20BalanceOf } from "../../helpers/erc20";
 import { executeAction } from "../../helpers/executeAction";
@@ -42,7 +42,6 @@ async function runMarketRepayAndWithdrawCollateralTest({
   repayAmount,
   withdrawCollateralAmount,
 
-  expectSuccess = true,
   beforeExecutionCb,
   callerType = "eoa",
 }: MarketRepayAndWithdrawCollateralTestParameters): Promise<MarketAction> {
@@ -75,77 +74,73 @@ async function runMarketRepayAndWithdrawCollateralTest({
   } = getChainAddresses(client.chain.id);
 
   // Act
-  const action = await marketRepayAndWithdrawCollateralAction({
-    publicClient: client,
-    marketId: marketId as MarketId,
-    accountAddress: client.account.address,
-    repayAmount,
-    withdrawCollateralAmount,
-  });
+  const action = await tryCatch(
+    marketRepayAndWithdrawCollateralAction({
+      publicClient: client,
+      marketId: marketId as MarketId,
+      accountAddress: client.account.address,
+      repayAmount,
+      withdrawCollateralAmount,
+    }),
+  );
 
   await beforeExecutionCb?.(client);
 
   let logs: Log[] = [];
-  if (action.status === "success") {
+  if (action)
     // Execute
     logs = await executeAction(client, action);
-  }
+}
 
-  // Assert
-  expect(action.status).toEqual(expectSuccess ? "success" : "error");
+// Assert
+// Would already fail if it was not expected to
+await expectOnlyAllowedApprovals(
+  client,
+  logs,
+  client.account.address,
+  [...(permit2 ? [permit2] : []), generalAdapter1], // Only ever allowed to apporve GA1 or permit2
+  [generalAdapter1], // Only ever allowed to permit GA1
+);
 
-  // Would already fail if it was not expected to
-  if (action.status === "error") {
-    return action;
-  }
+const marketPosition = await getMorphoMarketPosition(client, marketId);
+const userWalletLoanAssetBalance = await getErc20BalanceOf(client, loanAssetAddress, client.account.address);
+const userWalletCollateralAssetBalance = await getErc20BalanceOf(
+  client,
+  collateralAssetAddress,
+  client.account.address,
+);
 
-  await expectOnlyAllowedApprovals(
-    client,
-    logs,
-    client.account.address,
-    [...(permit2 ? [permit2] : []), generalAdapter1], // Only ever allowed to apporve GA1 or permit2
-    [generalAdapter1], // Only ever allowed to permit GA1
-  );
-
-  const marketPosition = await getMorphoMarketPosition(client, marketId);
-  const userWalletLoanAssetBalance = await getErc20BalanceOf(client, loanAssetAddress, client.account.address);
-  const userWalletCollateralAssetBalance = await getErc20BalanceOf(
-    client,
-    collateralAssetAddress,
-    client.account.address,
-  );
-
-  if (repayAmount === maxUint256) {
-    expect(marketPosition.loanBalance).toEqual(0n);
-    expect(userWalletLoanAssetBalance).toBeWithinRange(
-      MathLib.mulDivUp(
-        initialState.walletLoanAssetBalance - initialState.positionLoanBalance,
-        DEFAULT_SLIPPAGE_TOLERANCE,
-        MathLib.WAD,
-      ),
+if (repayAmount === maxUint256) {
+  expect(marketPosition.loanBalance).toEqual(0n);
+  expect(userWalletLoanAssetBalance).toBeWithinRange(
+    MathLib.mulDivUp(
       initialState.walletLoanAssetBalance - initialState.positionLoanBalance,
-    );
-  } else {
-    expect(marketPosition.loanBalance).toBeWithinRange(
-      initialState.positionLoanBalance - repayAmount,
-      initialState.positionLoanBalance - repayAmount + 1n,
-    );
-    expect(userWalletLoanAssetBalance).toEqual(initialState.walletLoanAssetBalance - repayAmount);
-  }
+      DEFAULT_SLIPPAGE_TOLERANCE,
+      MathLib.WAD,
+    ),
+    initialState.walletLoanAssetBalance - initialState.positionLoanBalance,
+  );
+} else {
+  expect(marketPosition.loanBalance).toBeWithinRange(
+    initialState.positionLoanBalance - repayAmount,
+    initialState.positionLoanBalance - repayAmount + 1n,
+  );
+  expect(userWalletLoanAssetBalance).toEqual(initialState.walletLoanAssetBalance - repayAmount);
+}
 
-  if (withdrawCollateralAmount === maxUint256) {
-    expect(marketPosition.collateralBalance).toEqual(0n);
-    expect(userWalletCollateralAssetBalance).toEqual(initialState.positionCollateralBalance);
-  } else {
-    expect(marketPosition.collateralBalance).toEqual(initialState.positionCollateralBalance - withdrawCollateralAmount);
-    expect(userWalletCollateralAssetBalance).toEqual(withdrawCollateralAmount);
-  }
+if (withdrawCollateralAmount === maxUint256) {
+  expect(marketPosition.collateralBalance).toEqual(0n);
+  expect(userWalletCollateralAssetBalance).toEqual(initialState.positionCollateralBalance);
+} else {
+  expect(marketPosition.collateralBalance).toEqual(initialState.positionCollateralBalance - withdrawCollateralAmount);
+  expect(userWalletCollateralAssetBalance).toEqual(withdrawCollateralAmount);
+}
 
-  // Make sure no funds left in bundler or adapters (underlying assets or shares)
-  await expectZeroErc20Balances(client, [bundler3, generalAdapter1], collateralAssetAddress);
-  await expectZeroErc20Balances(client, [bundler3, generalAdapter1], loanAssetAddress);
+// Make sure no funds left in bundler or adapters (underlying assets or shares)
+await expectZeroErc20Balances(client, [bundler3, generalAdapter1], collateralAssetAddress);
+await expectZeroErc20Balances(client, [bundler3, generalAdapter1], loanAssetAddress);
 
-  return action;
+return action;
 }
 
 const successTestCases: ({ name: string } & Omit<MarketRepayAndWithdrawCollateralTestParameters, "client">)[] = [

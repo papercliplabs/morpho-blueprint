@@ -1,10 +1,9 @@
-import { type ChainId, getChainAddresses, NATIVE_ADDRESS } from "@morpho-org/blue-sdk";
+import { type ChainId, getChainAddresses, MathLib, NATIVE_ADDRESS } from "@morpho-org/blue-sdk";
 import { BundlerAction } from "@morpho-org/bundler-sdk-viem";
 import type { MaybeDraft, SimulationState } from "@morpho-org/simulation-sdk";
 import { type Address, encodeFunctionData, erc20Abi, isAddressEqual, maxUint256, parseEther } from "viem";
 
 import type { Subbundle } from "../types";
-import { bigIntMax, bigIntMin } from "../utils/bigint";
 import { computeAmountWithRebasingMargin } from "../utils/math";
 
 // If a user requests max action and wrapping of native asset, leave this much native in their wallet for future gas.
@@ -55,10 +54,10 @@ export function inputTransferSubbundle({
   const accountNativeBalance = accountNativeHolding.balance;
 
   let nativeAmountToWrap = 0n;
-  const erc20Amount = bigIntMin(amount, accountErc20Balance);
-  const usableNativeBalance = bigIntMax(accountNativeBalance - MIN_REMAINING_NATIVE_ASSET_BALANCE_AFTER_WRAPPING, 0n);
+  const erc20Amount = MathLib.min(amount, accountErc20Balance);
+  const usableNativeBalance = MathLib.max(accountNativeBalance - MIN_REMAINING_NATIVE_ASSET_BALANCE_AFTER_WRAPPING, 0n);
   if (isWrappedNative && allowWrappingNativeAssets) {
-    nativeAmountToWrap = isMaxTransfer ? usableNativeBalance : bigIntMin(amount - erc20Amount, usableNativeBalance); // Guaranteed to be >= 0
+    nativeAmountToWrap = isMaxTransfer ? usableNativeBalance : MathLib.min(amount - erc20Amount, usableNativeBalance); // Guaranteed to be >= 0
   }
 
   if (!isMaxTransfer && erc20Amount + nativeAmountToWrap < amount) {

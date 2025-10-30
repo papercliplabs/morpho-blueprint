@@ -2,7 +2,7 @@
 
 import { forwardRef, useImperativeHandle } from "react";
 
-import type { SuccessfulMarketAction } from "@/actions";
+import type { MarketAction } from "@/actions";
 import type { MarketNonIdle } from "@/data/whisk/getMarket";
 import { MarketActionSimulationMetrics } from "../../ActionFlow/MarketActionFlow";
 import { Button } from "../../ui/button";
@@ -14,7 +14,7 @@ import { useMarketSupplyCollateralAndBorrowForm } from "./useMarketSupplyCollate
 
 interface MarketSupplyCollateralAndBorrowFormProps {
   market: MarketNonIdle;
-  onSuccessfulActionSimulation: (action: SuccessfulMarketAction) => void;
+  onSuccessfulActionSimulation: (action: MarketAction) => void;
 }
 
 export const MarketSupplyCollateralAndBorrowForm = forwardRef<

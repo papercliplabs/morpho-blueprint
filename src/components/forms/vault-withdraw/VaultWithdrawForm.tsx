@@ -2,7 +2,7 @@
 
 import { forwardRef, useImperativeHandle } from "react";
 
-import type { SuccessfulVaultAction } from "@/actions";
+import type { VaultAction } from "@/actions";
 import type { Vault } from "@/data/whisk/getVault";
 import { VaultActionSimulationMetrics } from "../../ActionFlow/VaultActionFlow";
 import { Button } from "../../ui/button";
@@ -13,7 +13,7 @@ import { useVaultWithdrawForm } from "./useVaultWithdrawForm";
 
 interface VaultWithdrawFormProps {
   vault: Vault;
-  onSuccessfulActionSimulation: (action: SuccessfulVaultAction) => void;
+  onSuccessfulActionSimulation: (action: VaultAction) => void;
 }
 
 export const VaultWithdrawForm = forwardRef<{ reset: () => void }, VaultWithdrawFormProps>(

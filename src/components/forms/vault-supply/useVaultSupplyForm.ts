@@ -7,7 +7,7 @@ import { type UseFormReturn, useForm } from "react-hook-form";
 import { useDebounce } from "use-debounce";
 import { getAddress, maxUint256 } from "viem";
 import { useAccount, usePublicClient } from "wagmi";
-import { type SuccessfulVaultAction, vaultSupplyAction } from "@/actions";
+import { UserFacingError, type VaultAction, vaultSupplyAction } from "@/actions";
 import type { SupportedChainId } from "@/config/types";
 import type { Vault } from "@/data/whisk/getVault";
 import type { VaultPosition } from "@/data/whisk/getVaultPositions";
@@ -15,6 +15,7 @@ import { useVaultPosition } from "@/hooks/useVaultPositions";
 import { DEBOUNCE_TIME_MS } from "@/utils/constants";
 import { computeVaultPositionChange } from "@/utils/math";
 import { parseOnchainAmount } from "@/utils/schemas";
+import { tryCatch } from "@/utils/tryCatch";
 import {
   createVaultSupplyFormSchema,
   type VaultSupplyFormSchemaInput,
@@ -23,7 +24,7 @@ import {
 
 interface UseVaultSupplyFormParamters {
   vault: Vault;
-  onSuccessfulActionSimulation: (action: SuccessfulVaultAction) => void;
+  onSuccessfulActionSimulation: (action: VaultAction) => void;
 }
 
 export function useVaultSupplyForm({ vault, onSuccessfulActionSimulation }: UseVaultSupplyFormParamters) {
@@ -67,18 +68,22 @@ export function useVaultSupplyForm({ vault, onSuccessfulActionSimulation }: UseV
         return;
       }
 
-      const action = await vaultSupplyAction({
-        publicClient,
-        vaultAddress: getAddress(vault.vaultAddress),
-        accountAddress: address,
-        supplyAmount: submittedValues.isMaxSupply ? maxUint256 : submittedValues.supplyAmount,
-        allowWrappingNativeAssets: false, // TODO: revisit
-      });
+      const { data: action, error } = await tryCatch(
+        vaultSupplyAction({
+          publicClient,
+          vaultAddress: getAddress(vault.vaultAddress),
+          accountAddress: address,
+          supplyAmount: submittedValues.isMaxSupply ? maxUint256 : submittedValues.supplyAmount,
+          allowWrappingNativeAssets: false, // TODO: revisit
+        }),
+      );
 
-      if (action.status === "success") {
-        onSuccessfulActionSimulation(action);
+      if (error) {
+        form.setError("root", {
+          message: error instanceof UserFacingError ? error.message : "An unknown error occurred",
+        });
       } else {
-        form.setError("root", { message: action.message });
+        onSuccessfulActionSimulation(action);
       }
     },
     [address, setConnectKitOpen, publicClient, vault, onSuccessfulActionSimulation, form.setError, form.clearErrors],

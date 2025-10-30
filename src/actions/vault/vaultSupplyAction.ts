@@ -7,7 +7,7 @@ import { getSimulationState } from "@/actions/data/rpc/getSimulationState";
 
 import { inputTransferSubbundle } from "../subbundles/inputTransferSubbundle";
 import { subbundleFromInputOps } from "../subbundles/subbundleFromInputOps";
-import type { PublicClientWithChain, VaultAction } from "../types";
+import { type PublicClientWithChain, UserFacingError, type VaultAction } from "../types";
 import { actionFromSubbundles } from "../utils/actionFromSubbundles";
 import { computeVaultPositionChange } from "../utils/positionChange";
 
@@ -32,10 +32,7 @@ export async function vaultSupplyAction({
   } = getChainAddresses(publicClient.chain.id);
 
   if (supplyAmount <= 0n) {
-    return {
-      status: "error",
-      message: "Supply amount must be greater than 0.",
-    };
+    throw new UserFacingError("Supply amount must be greater than 0.");
   }
 
   const [intitialSimulationState, accountIsContract] = await Promise.all([
@@ -99,10 +96,10 @@ export async function vaultSupplyAction({
         vaultSupplySubbundle.finalSimulationState,
       ),
     };
-  } catch (e) {
-    return {
-      status: "error",
-      message: `Simulation Error: ${(e instanceof Error ? e.message : JSON.stringify(e)).split("0x")[0]}`,
-    };
+  } catch (error) {
+    throw new UserFacingError(
+      `Simulation Error: ${(error instanceof Error ? error.message : JSON.stringify(error)).split("0x")[0]}`,
+      { cause: error },
+    );
   }
 }

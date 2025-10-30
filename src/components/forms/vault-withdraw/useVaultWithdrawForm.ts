@@ -5,7 +5,7 @@ import { type UseFormReturn, useForm } from "react-hook-form";
 import { useDebounce } from "use-debounce";
 import { getAddress, maxUint256 } from "viem";
 import { useAccount, usePublicClient } from "wagmi";
-import { type SuccessfulVaultAction, vaultWithdrawAction } from "@/actions";
+import { UserFacingError, type VaultAction, vaultWithdrawAction } from "@/actions";
 import type { SupportedChainId } from "@/config/types";
 import type { Vault } from "@/data/whisk/getVault";
 import type { VaultPosition } from "@/data/whisk/getVaultPositions";
@@ -13,6 +13,7 @@ import { useVaultPosition } from "@/hooks/useVaultPositions";
 import { DEBOUNCE_TIME_MS } from "@/utils/constants";
 import { computeVaultPositionChange } from "@/utils/math";
 import { parseOnchainAmount } from "@/utils/schemas";
+import { tryCatch } from "@/utils/tryCatch";
 import {
   createVaultWithdrawFormSchema,
   type VaultWithdrawFormSchemaInput,
@@ -21,7 +22,7 @@ import {
 
 interface UseVaultWithdrawFormParamters {
   vault: Vault;
-  onSuccessfulActionSimulation: (action: SuccessfulVaultAction) => void;
+  onSuccessfulActionSimulation: (action: VaultAction) => void;
 }
 
 export function useVaultWithdrawForm({ vault, onSuccessfulActionSimulation }: UseVaultWithdrawFormParamters) {
@@ -65,17 +66,21 @@ export function useVaultWithdrawForm({ vault, onSuccessfulActionSimulation }: Us
         return;
       }
 
-      const action = await vaultWithdrawAction({
-        publicClient,
-        vaultAddress: getAddress(vault.vaultAddress),
-        accountAddress: address,
-        withdrawAmount: submittedValues.isMaxWithdraw ? maxUint256 : submittedValues.withdrawAmount,
-      });
+      const { data: action, error } = await tryCatch(
+        vaultWithdrawAction({
+          publicClient,
+          vaultAddress: getAddress(vault.vaultAddress),
+          accountAddress: address,
+          withdrawAmount: submittedValues.isMaxWithdraw ? maxUint256 : submittedValues.withdrawAmount,
+        }),
+      );
 
-      if (action.status === "success") {
-        onSuccessfulActionSimulation(action);
+      if (error) {
+        form.setError("root", {
+          message: error instanceof UserFacingError ? error.message : "An unknown error occurred",
+        });
       } else {
-        form.setError("root", { message: action.message });
+        onSuccessfulActionSimulation(action);
       }
     },
     [address, setConnectKitOpen, publicClient, vault, onSuccessfulActionSimulation, form.setError, form.clearErrors],

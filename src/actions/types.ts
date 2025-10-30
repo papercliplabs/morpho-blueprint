@@ -1,5 +1,14 @@
 import type { BundlerCall, SignatureRequirementFunction } from "@morpho-org/bundler-sdk-viem";
-import type { Address, Client, Hex, PublicClient, TransactionRequest as ViemTransactionRequest } from "viem";
+import type { Address, Chain, Client, Hex, Transport, TransactionRequest as ViemTransactionRequest } from "viem";
+
+export type PublicClientWithChain = Client<Transport, Chain>;
+
+export class UserFacingError extends Error {
+  constructor(message: string, options?: ErrorOptions) {
+    super(message, options);
+    this.name = "UserFacingError";
+  }
+}
 
 interface ActionMetadata {
   name: string;
@@ -16,26 +25,14 @@ export interface TransactionRequest extends ActionMetadata {
   };
 }
 
-export type SuccessfulAction = {
-  status: "success";
+export type Action = {
   signatureRequests: SignatureRequest[];
   transactionRequests: TransactionRequest[];
 };
 
-export type ErrorAction = {
-  status: "error";
-  message: string;
-};
+export type VaultAction = Action & { positionChange: VaultPositionChange };
 
-export type Action = SuccessfulAction | ErrorAction;
-
-export type SuccessfulVaultAction = SuccessfulAction & { positionChange: VaultPositionChange };
-export type VaultAction = SuccessfulVaultAction | ErrorAction;
-
-export type SuccessfulMarketAction = SuccessfulAction & { positionChange: MarketPositionChange };
-export type MarketAction = SuccessfulMarketAction | ErrorAction;
-
-export type PublicClientWithChain = Client & { chain: NonNullable<PublicClient["chain"]> };
+export type MarketAction = Action & { positionChange: MarketPositionChange };
 
 export interface Subbundle {
   signatureRequirements: SignatureRequest[];

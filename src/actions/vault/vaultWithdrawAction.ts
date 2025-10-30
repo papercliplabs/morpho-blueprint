@@ -4,7 +4,7 @@ import { type Address, maxUint256 } from "viem";
 import { getIsContract } from "@/actions/data/rpc/getIsContract";
 import { getSimulationState } from "@/actions/data/rpc/getSimulationState";
 
-import type { PublicClientWithChain, VaultAction } from "../types";
+import { type PublicClientWithChain, UserFacingError, type VaultAction } from "../types";
 import { actionFromInputOps } from "../utils/actionFromInputOps";
 import { computeVaultPositionChange } from "../utils/positionChange";
 
@@ -22,10 +22,7 @@ export async function vaultWithdrawAction({
   withdrawAmount,
 }: VaultWithdrawActionParameters): Promise<VaultAction> {
   if (withdrawAmount <= 0n) {
-    return {
-      status: "error",
-      message: "Withdraw amount must be greater than 0.",
-    };
+    throw new UserFacingError("Withdraw amount must be greater than 0.");
   }
 
   const [initialSimulationState, isContract] = await Promise.all([
@@ -63,16 +60,13 @@ export async function vaultWithdrawAction({
     "Confirm Withdraw",
   );
 
-  if (preparedAction.status === "success") {
-    return {
-      ...preparedAction,
-      positionChange: computeVaultPositionChange(
-        vaultAddress,
-        accountAddress,
-        initialSimulationState,
-        preparedAction.finalSimulationState,
-      ),
-    };
-  }
-  return preparedAction;
+  return {
+    ...preparedAction,
+    positionChange: computeVaultPositionChange(
+      vaultAddress,
+      accountAddress,
+      initialSimulationState,
+      preparedAction.finalSimulationState,
+    ),
+  };
 }
