@@ -6,7 +6,7 @@ import { BaseError, type Hex, RpcError } from "viem";
 import { estimateGas, sendTransaction, waitForTransactionReceipt } from "viem/actions";
 import { useAccount, useClient, useConnectorClient, useSwitchChain } from "wagmi";
 
-import type { SuccessfulAction } from "@/actions";
+import type { Action } from "@/actions";
 import { trackEvent } from "@/data/trackEvent";
 import { fetchJsonResponse } from "@/utils/fetch";
 
@@ -28,7 +28,7 @@ type ActionFlowContextType = {
   lastTransactionHash: Hex | null;
   error: string | null;
 
-  action: SuccessfulAction;
+  action: Action;
 
   startFlow: () => void;
 };
@@ -37,7 +37,7 @@ const ActionFlowContext = createContext<ActionFlowContextType | undefined>(undef
 
 interface ActionFlowProviderProps {
   chainId: number;
-  action: SuccessfulAction;
+  action: Action;
   flowCompletionCb?: () => void;
   children: ReactNode;
 

@@ -4,16 +4,11 @@ import type { SimulationResult, SimulationState } from "@morpho-org/simulation-s
 import type { Address } from "viem";
 
 import { subbundleFromInputOps } from "../subbundles/subbundleFromInputOps";
-import type { Action } from "../types";
+import { type Action, UserFacingError } from "../types";
 
 import { actionFromSubbundles } from "./actionFromSubbundles";
 
-export type MorphoAction =
-  | (Extract<Action, { status: "success" }> & {
-      status: "success";
-      finalSimulationState: SimulationResult[number];
-    })
-  | Extract<Action, { status: "error" }>;
+export type MorphoAction = Action & { finalSimulationState: SimulationResult[number] };
 
 export function actionFromInputOps(
   chainId: ChainId,
@@ -36,10 +31,9 @@ export function actionFromInputOps(
       ...actionFromSubbundles(chainId, [subbundle], executeBundleName),
       finalSimulationState: subbundle.finalSimulationState,
     };
-  } catch (e) {
-    return {
-      status: "error",
-      message: `Simulation Error: ${e instanceof Error ? e.message : JSON.stringify(e)}`,
-    };
+  } catch (error) {
+    throw new UserFacingError(`Simulation Error: ${error instanceof Error ? error.message : JSON.stringify(error)}`, {
+      cause: error,
+    });
   }
 }

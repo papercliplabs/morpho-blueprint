@@ -40,7 +40,7 @@ function getTrackingPayload(market: Market, action: MarketAction | null, tag: st
     marketId: market.marketId,
   };
 
-  if (!action || action.status !== "success") {
+  if (!action) {
     return basePayload;
   }
 

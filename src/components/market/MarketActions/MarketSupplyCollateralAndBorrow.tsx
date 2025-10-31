@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 
-import type { SuccessfulMarketAction } from "@/actions";
+import type { MarketAction } from "@/actions";
 import { MarketActionFlow } from "@/components/ActionFlow/MarketActionFlow";
 import { MarketSupplyCollateralAndBorrowForm } from "@/components/forms/market-supply-collateral-and-borrow/MarketSupplyCollateralAndBorrowForm";
 import type { MarketNonIdle } from "@/data/whisk/getMarket";
@@ -14,7 +14,7 @@ export default function MarketSupplyCollateralAndBorrow({
   market: MarketNonIdle;
   onFlowClosed?: (success: boolean) => void;
 }) {
-  const [action, setAction] = useState<SuccessfulMarketAction | null>(null);
+  const [action, setAction] = useState<MarketAction | null>(null);
   const [flowOpen, setFlowOpen] = useState(false);
   const [success, setSuccess] = useState(false);
 

@@ -5,12 +5,12 @@ import { type Address, maxUint256 } from "viem";
 import { getIsContract } from "@/actions/data/rpc/getIsContract";
 import { getSimulationState } from "@/actions/data/rpc/getSimulationState";
 
-import type { MarketAction, PublicClientWithChain } from "../types";
+import { type ClientWithChain, type MarketAction, UserFacingError } from "../types";
 import { actionFromInputOps } from "../utils/actionFromInputOps";
 import { computeMarketPositionChange } from "../utils/positionChange";
 
 interface MarketRepayAndWithdrawCollateralActionParameters {
-  publicClient: PublicClientWithChain;
+  publicClient: ClientWithChain;
   marketId: MarketId;
   accountAddress: Address;
   repayAmount: bigint; // Max uint256 for entire position balance
@@ -27,16 +27,10 @@ export async function marketRepayAndWithdrawCollateralAction({
   const { morpho: morphoBlueAddress } = getChainAddresses(publicClient.chain.id);
 
   if (repayAmount < 0n || withdrawCollateralAmount < 0n) {
-    return {
-      status: "error",
-      message: "Repay and withdraw collateral amounts cannot be negative.",
-    };
+    throw new UserFacingError("Repay and withdraw collateral amounts cannot be negative.");
   }
   if (repayAmount === 0n && withdrawCollateralAmount === 0n) {
-    return {
-      status: "error",
-      message: "Repay and withdraw collateral amounts cannot both be 0.",
-    };
+    throw new UserFacingError("Repay and withdraw collateral amounts cannot both be 0.");
   }
 
   const [initialSimulationState, isContract] = await Promise.all([
@@ -99,16 +93,13 @@ export async function marketRepayAndWithdrawCollateralAction({
     `Confirm ${isRepay ? "Repay" : ""}${isRepay && isWithdraw ? " & " : ""}${isWithdraw ? "Withdraw" : ""}`,
   );
 
-  if (action.status === "success") {
-    return {
-      ...action,
-      positionChange: computeMarketPositionChange(
-        marketId,
-        accountAddress,
-        initialSimulationState,
-        action.finalSimulationState,
-      ),
-    };
-  }
-  return action;
+  return {
+    ...action,
+    positionChange: computeMarketPositionChange(
+      marketId,
+      accountAddress,
+      initialSimulationState,
+      action.finalSimulationState,
+    ),
+  };
 }

@@ -1,7 +1,7 @@
 import { DEFAULT_SLIPPAGE_TOLERANCE, getChainAddresses, type MarketId, MathLib } from "@morpho-org/blue-sdk";
 import { blueAbi, fetchMarket } from "@morpho-org/blue-sdk-viem";
 import type { AnvilTestClient } from "@morpho-org/test";
-import { type Hex, type Log, maxUint256, parseUnits } from "viem";
+import { type Hex, maxUint256, parseUnits } from "viem";
 import { readContract } from "viem/actions";
 import { describe, expect } from "vitest";
 
@@ -28,7 +28,6 @@ interface MarketRepayAndWithdrawCollateralTestParameters {
   repayAmount: bigint;
   withdrawCollateralAmount: bigint;
 
-  expectSuccess?: boolean;
   beforeExecutionCb?: (client: AnvilTestClient) => Promise<void>;
   callerType?: "eoa" | "contract";
 }
@@ -42,7 +41,6 @@ async function runMarketRepayAndWithdrawCollateralTest({
   repayAmount,
   withdrawCollateralAmount,
 
-  expectSuccess = true,
   beforeExecutionCb,
   callerType = "eoa",
 }: MarketRepayAndWithdrawCollateralTestParameters): Promise<MarketAction> {
@@ -85,20 +83,9 @@ async function runMarketRepayAndWithdrawCollateralTest({
 
   await beforeExecutionCb?.(client);
 
-  let logs: Log[] = [];
-  if (action.status === "success") {
-    // Execute
-    logs = await executeAction(client, action);
-  }
+  const logs = await executeAction(client, action);
 
   // Assert
-  expect(action.status).toEqual(expectSuccess ? "success" : "error");
-
-  // Would already fail if it was not expected to
-  if (action.status === "error") {
-    return action;
-  }
-
   await expectOnlyAllowedApprovals(
     client,
     logs,
@@ -240,96 +227,79 @@ describe("marketRepayAndWithdrawCollateralAction", () => {
 
   describe("sad path", () => {
     test("repay and withdraw both 0", async ({ client }) => {
-      const result = await runMarketRepayAndWithdrawCollateralTest({
-        client,
-        marketId: WBTC_USDC_MARKET_ID,
-        initialState: {
-          positionCollateralBalance: parseUnits("10", 18),
-          positionLoanBalance: parseUnits("1000", 6),
-          walletLoanAssetBalance: parseUnits("1000", 6),
-        },
-        repayAmount: parseUnits("0", 6),
-        withdrawCollateralAmount: parseUnits("0", 18),
-        expectSuccess: false,
-      });
-
-      // It will, otherwise will fail in run test
-      if (result.status === "error") {
-        expect(result.message).toEqual("Repay and withdraw collateral amounts cannot both be 0.");
-      }
+      await expect(
+        runMarketRepayAndWithdrawCollateralTest({
+          client,
+          marketId: WBTC_USDC_MARKET_ID,
+          initialState: {
+            positionCollateralBalance: parseUnits("10", 18),
+            positionLoanBalance: parseUnits("1000", 6),
+            walletLoanAssetBalance: parseUnits("1000", 6),
+          },
+          repayAmount: parseUnits("0", 6),
+          withdrawCollateralAmount: parseUnits("0", 18),
+        }),
+      ).rejects.toThrow("Repay and withdraw collateral amounts cannot both be 0.");
     });
     test("insufficient repay balance", async ({ client }) => {
-      const result = await runMarketRepayAndWithdrawCollateralTest({
-        client,
-        marketId: WBTC_USDC_MARKET_ID,
-        initialState: {
-          positionCollateralBalance: parseUnits("10", 18),
-          positionLoanBalance: parseUnits("1000", 6),
-          walletLoanAssetBalance: parseUnits("5", 6),
-        },
-        repayAmount: parseUnits("10", 6),
-        withdrawCollateralAmount: parseUnits("0", 18),
-        expectSuccess: false,
-      });
-
-      // It will, otherwise will fail in run test
-      if (result.status === "error") {
-        expect(result.message).toContain("Simulation Error: insufficient balance of user");
-      }
+      await expect(
+        runMarketRepayAndWithdrawCollateralTest({
+          client,
+          marketId: WBTC_USDC_MARKET_ID,
+          initialState: {
+            positionCollateralBalance: parseUnits("10", 18),
+            positionLoanBalance: parseUnits("1000", 6),
+            walletLoanAssetBalance: parseUnits("5", 6),
+          },
+          repayAmount: parseUnits("10", 6),
+          withdrawCollateralAmount: parseUnits("0", 18),
+        }),
+      ).rejects.toThrow("Simulation Error: insufficient balance of user");
     });
     test("repay exceeds position balance", async ({ client }) => {
-      const result = await runMarketRepayAndWithdrawCollateralTest({
-        client,
-        marketId: WBTC_USDC_MARKET_ID,
-        initialState: {
-          positionCollateralBalance: parseUnits("10", 18),
-          positionLoanBalance: parseUnits("500", 6),
-          walletLoanAssetBalance: parseUnits("2000", 6),
-        },
-        repayAmount: parseUnits("1000", 6),
-        withdrawCollateralAmount: parseUnits("0", 18),
-        expectSuccess: false,
-      });
-
-      if (result.status === "error") {
-        expect(result.message).toContain("Simulation Error: insufficient position for user");
-      }
+      await expect(
+        runMarketRepayAndWithdrawCollateralTest({
+          client,
+          marketId: WBTC_USDC_MARKET_ID,
+          initialState: {
+            positionCollateralBalance: parseUnits("10", 18),
+            positionLoanBalance: parseUnits("500", 6),
+            walletLoanAssetBalance: parseUnits("2000", 6),
+          },
+          repayAmount: parseUnits("1000", 6),
+          withdrawCollateralAmount: parseUnits("0", 18),
+        }),
+      ).rejects.toThrow("Simulation Error: insufficient position for user");
     });
     test("withdraw collateral exceeds position balance", async ({ client }) => {
-      const result = await runMarketRepayAndWithdrawCollateralTest({
-        client,
-        marketId: WBTC_USDC_MARKET_ID,
-        initialState: {
-          positionCollateralBalance: parseUnits("10", 18),
-          positionLoanBalance: parseUnits("100", 6),
-          walletLoanAssetBalance: parseUnits("200", 6),
-        },
-        repayAmount: maxUint256,
-        withdrawCollateralAmount: parseUnits("100", 18),
-        expectSuccess: false,
-      });
-
-      if (result.status === "error") {
-        expect(result.message).toContain("Simulation Error: insufficient position for user");
-      }
+      await expect(
+        runMarketRepayAndWithdrawCollateralTest({
+          client,
+          marketId: WBTC_USDC_MARKET_ID,
+          initialState: {
+            positionCollateralBalance: parseUnits("10", 18),
+            positionLoanBalance: parseUnits("100", 6),
+            walletLoanAssetBalance: parseUnits("200", 6),
+          },
+          repayAmount: maxUint256,
+          withdrawCollateralAmount: parseUnits("100", 18),
+        }),
+      ).rejects.toThrow("Simulation Error: insufficient position for user");
     });
     test("prepare error if loan is not sufficently collateralized", async ({ client }) => {
-      const result = await runMarketRepayAndWithdrawCollateralTest({
-        client,
-        marketId: WBTC_USDC_MARKET_ID,
-        initialState: {
-          positionCollateralBalance: parseUnits("10", 18),
-          positionLoanBalance: parseUnits("1000", 6),
-          walletLoanAssetBalance: parseUnits("5", 6),
-        },
-        repayAmount: parseUnits("0", 6),
-        withdrawCollateralAmount: parseUnits("10", 18),
-        expectSuccess: false,
-      });
-
-      if (result.status === "error") {
-        expect(result.message).toContain("Simulation Error: insufficient collateral for user");
-      }
+      await expect(
+        runMarketRepayAndWithdrawCollateralTest({
+          client,
+          marketId: WBTC_USDC_MARKET_ID,
+          initialState: {
+            positionCollateralBalance: parseUnits("10", 18),
+            positionLoanBalance: parseUnits("1000", 6),
+            walletLoanAssetBalance: parseUnits("5", 6),
+          },
+          repayAmount: parseUnits("0", 6),
+          withdrawCollateralAmount: parseUnits("10", 18),
+        }),
+      ).rejects.toThrow("Simulation Error: insufficient collateral for user");
     });
     test("tx reverts if slippage tolerance is exceeded", async ({ client }) => {
       await expect(

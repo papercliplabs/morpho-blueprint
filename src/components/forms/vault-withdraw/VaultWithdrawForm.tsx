@@ -2,7 +2,7 @@
 
 import { forwardRef, useImperativeHandle } from "react";
 
-import type { SuccessfulVaultAction } from "@/actions";
+import type { VaultAction } from "@/actions";
 import type { Vault } from "@/data/whisk/getVault";
 import { VaultActionSimulationMetrics } from "../../ActionFlow/VaultActionFlow";
 import { Button } from "../../ui/button";
@@ -13,15 +13,17 @@ import { useVaultWithdrawForm } from "./useVaultWithdrawForm";
 
 interface VaultWithdrawFormProps {
   vault: Vault;
-  onSuccessfulActionSimulation: (action: SuccessfulVaultAction) => void;
+  onSuccessfulActionSimulation: (action: VaultAction) => void;
 }
 
 export const VaultWithdrawForm = forwardRef<{ reset: () => void }, VaultWithdrawFormProps>(
   ({ vault, onSuccessfulActionSimulation }, ref) => {
-    const { form, handleSubmit, position, isPositionLoading, derivedFormValues } = useVaultWithdrawForm({
-      vault,
-      onSuccessfulActionSimulation,
-    });
+    const { form, handleSubmit, position, isPositionLoading, derivedFormValues, submitErrorMsg } = useVaultWithdrawForm(
+      {
+        vault,
+        onSuccessfulActionSimulation,
+      },
+    );
 
     // Expose reset method to parent
     useImperativeHandle(ref, () => ({
@@ -65,7 +67,7 @@ export const VaultWithdrawForm = forwardRef<{ reset: () => void }, VaultWithdraw
                 >
                   {derivedFormValues.missingAmount ? "Enter an amount" : "Review"}
                 </Button>
-                <ErrorMessage message={form.formState.errors.root?.message} />
+                <ErrorMessage message={submitErrorMsg} />
               </div>
             </div>
           </fieldset>

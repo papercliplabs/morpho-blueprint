@@ -159,7 +159,7 @@ export const APP_CONFIG: AppConfig = {
 
   supportedVaults: {
     [mainnet.id]: [
-      { address: getAddress("0xBeEf11eCb698f4B5378685C05A210bdF71093521") }, // Steakhouse USDC
+      { address: getAddress("0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB") }, // Steakhouse USDC
       { address: getAddress("0xbEef047a543E45807105E51A8BBEFCc5950fcfBa") }, // Steakhouse USDT
       { address: getAddress("0xBeEf11eCb698f4B5378685C05A210bdF71093521") }, // Steakhouse RUSD
     ],
@@ -220,6 +220,10 @@ export const APP_CONFIG: AppConfig = {
   actionParameters: {
     maxBorrowLtvMarginWad: parseUnits("0.05", 18), // 5% below LLTV
     publicAllocatorSupplyTargetUtilizationWad: BigInt(90_0000000000000000),
+    bundler3Config: {
+      enabled: true,
+      slippageToleranceWad: parseUnits("0.0003", 18), // 0.03% slippage
+    },
   },
 
   apyWindow: "1d",
