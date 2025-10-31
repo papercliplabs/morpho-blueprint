@@ -1,9 +1,6 @@
-import { MathLib } from "@morpho-org/blue-sdk";
 import { type Address, erc20Abi, erc4626Abi, isAddressEqual, zeroAddress } from "viem";
-import { multicall, readContract } from "viem/actions";
-import { SHARE_SANITY_TOLERANCE_WAD } from "@/actions/constants";
+import { multicall } from "viem/actions";
 import { type Erc4626SupplyActionParameters, type Position, UserFacingError } from "@/actions/types";
-import type { SimulateTransactionRequestsResult } from "@/actions/utils/simulateTransactionsRequests";
 
 export function validateErc4626SupplyParameters({
   vaultAddress,
@@ -101,58 +98,5 @@ export async function fetchErc4626SupplyData({
       shares: initialPositionShares,
       assets: initialPositionAssets,
     } satisfies Position,
-  };
-}
-
-export async function verifyErc4626SupplyAssetChanges({
-  client,
-  vaultAddress,
-  underlyingAssetAddress,
-  supplyAmount,
-  assetChanges,
-  quotedShares,
-}: Omit<Erc4626SupplyActionParameters, "accountAddress"> & {
-  underlyingAssetAddress: Address;
-  assetChanges: SimulateTransactionRequestsResult["assetChanges"];
-  quotedShares: bigint;
-}): Promise<Position> {
-  // Only expect vault asset and vault shares to change
-  if (assetChanges.length !== 2) {
-    throw new Error(`Unexpected number of asset changes: ${assetChanges.length}.`, { cause: assetChanges });
-  }
-
-  const vaultShareChange = assetChanges.find((change) => isAddressEqual(change.token.address, vaultAddress));
-  const underlyingAssetChange = assetChanges.find((change) =>
-    isAddressEqual(change.token.address, underlyingAssetAddress),
-  );
-
-  if (!vaultShareChange || !underlyingAssetChange) {
-    throw new Error("Missing expected asset changes.");
-  }
-
-  // Supply asset change should exactly equal the supply amount
-  // Note diff should be negative since it's from the perspective of the account
-  if (-supplyAmount !== underlyingAssetChange.value.diff) {
-    throw new Error("Unexpected underlying asset change.");
-  }
-
-  // Share change should be within a sanity tolerance of what was quoted
-  // Note this is NOT a slippage check, it is a sanity check that in simulation the vault gave us close to the quoted shares.
-  // This is expected to always pass unless the vault is malicious.
-  const minExpectedShares = MathLib.wMulUp(quotedShares, MathLib.WAD - SHARE_SANITY_TOLERANCE_WAD);
-  if (vaultShareChange.value.diff < minExpectedShares) {
-    throw new Error("Simulated share change is much less than quoted.");
-  }
-
-  const finalPositionAssets = await readContract(client, {
-    abi: erc4626Abi,
-    address: vaultAddress,
-    functionName: "previewRedeem",
-    args: [vaultShareChange.value.post],
-  });
-
-  return {
-    shares: vaultShareChange.value.post,
-    assets: finalPositionAssets,
   };
 }

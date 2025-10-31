@@ -2,7 +2,6 @@ import { getChainAddresses, MathLib } from "@morpho-org/blue-sdk";
 import { BundlerAction } from "@morpho-org/bundler-sdk-viem";
 import { encodeFunctionData, erc20Abi } from "viem";
 import { MAX_ABSOLUTE_SHARE_PRICE_RAY } from "@/actions/constants";
-import { simulateTransactionRequests } from "@/actions/utils/simulateTransactionsRequests";
 import { APP_CONFIG } from "@/config";
 import { tryCatch } from "@/utils/tryCatch";
 import {
@@ -11,7 +10,7 @@ import {
   UserFacingError,
   type VaultAction,
 } from "../../types";
-import { fetchErc4626SupplyData, validateErc4626SupplyParameters, verifyErc4626SupplyAssetChanges } from "./helpers";
+import { fetchErc4626SupplyData, validateErc4626SupplyParameters } from "./helpers";
 
 /**
  * Action to supply to an ERC4626 vault via Bundler3.
@@ -108,34 +107,13 @@ export async function erc4626SupplyViaBundler3Action({
       ]),
   });
 
-  const { data: simulationResult, error: simulationError } = await tryCatch(
-    simulateTransactionRequests(client, accountAddress, transactionRequests, [vaultAddress, underlyingAssetAddress]),
-  );
-  if (simulationError) {
-    throw new UserFacingError("Simulation failure.", { cause: simulationError });
-  }
-
-  const { data: finalPosition, error: verifyAssetChangesError } = await tryCatch(
-    verifyErc4626SupplyAssetChanges({
-      client,
-      vaultAddress,
-      underlyingAssetAddress,
-      supplyAmount,
-      assetChanges: simulationResult.assetChanges,
-      quotedShares,
-    }),
-  );
-  if (verifyAssetChangesError) {
-    throw new UserFacingError("Asset change simuation check failure.", { cause: verifyAssetChangesError });
-  }
-
   return {
     transactionRequests,
     signatureRequests: [], // No signatures since we use approval tx only
     positionChange: {
       balance: {
         before: initialPosition.assets,
-        after: finalPosition.assets,
+        after: initialPosition.assets + supplyAmount, // Ideally this is computed from simulation results. But, eth_simulateV1 is not yet supported on all chains
       },
     },
   };
