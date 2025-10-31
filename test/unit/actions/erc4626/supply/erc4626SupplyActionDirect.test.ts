@@ -9,7 +9,7 @@ import { failureTestCases, runErc4626SupplyTest, runSlippageTest, successTestCas
 describe("erc4626SupplyActionDirect", () => {
   describe("happy path", () => {
     successTestCases.map((testCase) => {
-      test.only(testCase.name, async ({ client }) => {
+      test(testCase.name, async ({ client }) => {
         await runErc4626SupplyTest({
           client,
           ...testCase,

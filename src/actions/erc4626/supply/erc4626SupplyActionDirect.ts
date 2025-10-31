@@ -99,7 +99,7 @@ export async function erc4626SupplyActionDirect({
   });
 
   const { data: simulationResult, error: simulationError } = await tryCatch(
-    simulateTransactionRequests(client, accountAddress, transactionRequests),
+    simulateTransactionRequests(client, accountAddress, transactionRequests, [vaultAddress, underlyingAssetAddress]),
   );
   if (simulationError) {
     throw new UserFacingError("Simulation failure.", { cause: simulationError });

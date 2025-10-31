@@ -50,12 +50,7 @@ describe("erc4626SupplyViaBundler3Action", () => {
       } = getChainAddresses(client.chain.id);
 
       await expect(
-        runSlippageTest(
-          client,
-          erc4626SupplyViaBundler3Action,
-          [generalAdapter1],
-          [bundler3, generalAdapter1],
-        ),
+        runSlippageTest(client, erc4626SupplyViaBundler3Action, [generalAdapter1], [bundler3, generalAdapter1]),
       ).rejects.toThrow("action-tx-reverted");
     });
   });

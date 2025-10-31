@@ -1,4 +1,4 @@
-import { MathLib, NATIVE_ADDRESS } from "@morpho-org/blue-sdk";
+import { MathLib } from "@morpho-org/blue-sdk";
 import { type Address, erc20Abi, erc4626Abi, isAddressEqual, zeroAddress } from "viem";
 import { multicall, readContract } from "viem/actions";
 import { SHARE_SANITY_TOLERANCE_WAD } from "@/actions/constants";
@@ -116,16 +116,13 @@ export async function verifyErc4626SupplyAssetChanges({
   assetChanges: SimulateTransactionRequestsResult["assetChanges"];
   quotedShares: bigint;
 }): Promise<Position> {
-  // Filter out ETH changes (we don't include any value, so only gas)
-  const tokenChanges = assetChanges.filter((change) => !isAddressEqual(change.token.address, NATIVE_ADDRESS));
-
   // Only expect vault asset and vault shares to change
-  if (tokenChanges.length !== 2) {
-    throw new Error("Unexpected number of asset changes.", { cause: assetChanges });
+  if (assetChanges.length !== 2) {
+    throw new Error(`Unexpected number of asset changes: ${assetChanges.length}.`, { cause: assetChanges });
   }
 
-  const vaultShareChange = tokenChanges.find((change) => isAddressEqual(change.token.address, vaultAddress));
-  const underlyingAssetChange = tokenChanges.find((change) =>
+  const vaultShareChange = assetChanges.find((change) => isAddressEqual(change.token.address, vaultAddress));
+  const underlyingAssetChange = assetChanges.find((change) =>
     isAddressEqual(change.token.address, underlyingAssetAddress),
   );
 

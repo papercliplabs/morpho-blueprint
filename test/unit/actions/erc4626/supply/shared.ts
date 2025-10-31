@@ -122,39 +122,39 @@ export const successTestCases: Array<{
     },
     supplyAmount: parseUnits("1000", 6),
   },
-  // {
-  //   name: "Supply exact wallet balance",
-  //   vaultAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
-  //   initialState: {
-  //     walletUnderlyingAssetBalance: parseUnits("1337", 6),
-  //   },
-  //   supplyAmount: parseUnits("1337", 6),
-  // },
-  // {
-  //   name: "Supply with existing vault position",
-  //   vaultAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
-  //   initialState: {
-  //     walletUnderlyingAssetBalance: parseUnits("500", 6),
-  //     vaultPositionBalance: parseUnits("100", 6),
-  //   },
-  //   supplyAmount: parseUnits("500", 6),
-  // },
-  // {
-  //   name: "Minimal supply amount (1 wei)",
-  //   vaultAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
-  //   initialState: {
-  //     walletUnderlyingAssetBalance: parseUnits("1000", 6),
-  //   },
-  //   supplyAmount: BigInt(1),
-  // },
-  // {
-  //   name: "Very large supply amount",
-  //   vaultAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
-  //   initialState: {
-  //     walletUnderlyingAssetBalance: parseUnits("1000000", 6), // 1M USDC
-  //   },
-  //   supplyAmount: parseUnits("1000000", 6),
-  // },
+  {
+    name: "Supply exact wallet balance",
+    vaultAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+    initialState: {
+      walletUnderlyingAssetBalance: parseUnits("1337", 6),
+    },
+    supplyAmount: parseUnits("1337", 6),
+  },
+  {
+    name: "Supply with existing vault position",
+    vaultAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+    initialState: {
+      walletUnderlyingAssetBalance: parseUnits("500", 6),
+      vaultPositionBalance: parseUnits("100", 6),
+    },
+    supplyAmount: parseUnits("500", 6),
+  },
+  {
+    name: "Minimal supply amount (1 wei)",
+    vaultAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+    initialState: {
+      walletUnderlyingAssetBalance: parseUnits("1000", 6),
+    },
+    supplyAmount: BigInt(1),
+  },
+  {
+    name: "Very large supply amount",
+    vaultAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+    initialState: {
+      walletUnderlyingAssetBalance: parseUnits("1000000", 6), // 1M USDC
+    },
+    supplyAmount: parseUnits("1000000", 6),
+  },
 ];
 
 // Shared failure test cases

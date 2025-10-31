@@ -183,7 +183,7 @@ importers:
         specifier: ^3.2.0
         version: 3.2.0(graphql@16.11.0)
       '@morpho-org/test':
-        specifier: ^2.1.5
+        specifier: ^2.6.0
         version: 2.6.0(viem@2.38.5(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@4.1.12))(vitest@3.2.4)
       '@parcel/watcher':
         specifier: ^2.5.1

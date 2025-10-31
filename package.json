@@ -75,7 +75,7 @@
     "@graphql-codegen/cli": "^6.0.0",
     "@graphql-codegen/schema-ast": "^5.0.0",
     "@graphql-typed-document-node/core": "^3.2.0",
-    "@morpho-org/test": "^2.1.5",
+    "@morpho-org/test": "^2.6.0",
     "@parcel/watcher": "^2.5.1",
     "@storybook/addon-actions": "^8.6.12",
     "@storybook/addon-essentials": "^8.6.12",

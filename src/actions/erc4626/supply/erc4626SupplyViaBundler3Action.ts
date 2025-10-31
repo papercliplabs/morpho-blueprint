@@ -29,10 +29,6 @@ export async function erc4626SupplyViaBundler3Action({
 }: Erc4626SupplyActionParameters): Promise<VaultAction> {
   validateErc4626SupplyParameters({ vaultAddress, accountAddress, supplyAmount });
 
-  if (APP_CONFIG.actionParameters.bundler3Config === "disabled") {
-    throw new UserFacingError("Bundler3 is not enabled.");
-  }
-
   // Will throw if unsupported chainId
   const {
     bundler3: { generalAdapter1: generalAdapter1Address },
@@ -113,7 +109,7 @@ export async function erc4626SupplyViaBundler3Action({
   });
 
   const { data: simulationResult, error: simulationError } = await tryCatch(
-    simulateTransactionRequests(client, accountAddress, transactionRequests),
+    simulateTransactionRequests(client, accountAddress, transactionRequests, [vaultAddress, underlyingAssetAddress]),
   );
   if (simulationError) {
     throw new UserFacingError("Simulation failure.", { cause: simulationError });
