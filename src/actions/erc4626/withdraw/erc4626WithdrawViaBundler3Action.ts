@@ -40,13 +40,16 @@ export async function erc4626WithdrawViaBundler3Action({
     throw new UserFacingError("Unable to load vault data.", { cause: error });
   }
 
-  const { maxWithdraw, initialPosition, allowance, quotedSharesRedeemed } = data;
+  const { maxWithdraw, initialPosition, allowance, quotedSharesRedeemed, maxRedeem } = data;
 
   const isFullWithdraw = withdrawAmount === maxUint256;
 
   // Validate liquidity and balance based on withdraw type
   if (isFullWithdraw) {
-    // Don't check maxRedeem becuause it can be an underestimate due to rounding and can cause false negatives
+    // Just sanity check for disabled vaults for maxRedeem since actual value can be an underestimate due to rounding and can cause false negatives
+    if (maxRedeem === 0n) {
+      throw new UserFacingError("Vault does not support full withdraw.");
+    }
   } else {
     if (maxWithdraw < withdrawAmount) {
       throw new UserFacingError("Insufficient liquidity to withdraw requested amount.");
@@ -207,7 +210,7 @@ function buildErc4626WithdrawTransactionRequests({
 
   // Max shares needed for worst-case slippage, clamped to position size
   const maxInputShares = MathLib.min(
-    MathLib.mulDivDown(exactOutputAssets, MathLib.RAY, minSharePriceRay),
+    MathLib.mulDivUp(exactOutputAssets, MathLib.RAY, minSharePriceRay),
     positionShares,
   );
 

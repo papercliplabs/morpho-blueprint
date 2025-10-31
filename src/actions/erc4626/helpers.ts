@@ -124,7 +124,7 @@ export async function fetchErc4626WithdrawData({
 }: Erc4626WithdrawActionParameters & {
   spender?: Address;
 }) {
-  const [underlyingAssetAddress, maxWithdraw, initialPositionShares] = await multicall(client, {
+  const [underlyingAssetAddress, maxWithdraw, maxRedeem, initialPositionShares] = await multicall(client, {
     contracts: [
       {
         abi: erc4626Abi,
@@ -136,6 +136,12 @@ export async function fetchErc4626WithdrawData({
         abi: erc4626Abi,
         address: vaultAddress,
         functionName: "maxWithdraw",
+        args: [accountAddress],
+      },
+      {
+        abi: erc4626Abi,
+        address: vaultAddress,
+        functionName: "maxRedeem",
         args: [accountAddress],
       },
       {
@@ -160,7 +166,7 @@ export async function fetchErc4626WithdrawData({
       // Unused if spender is not provided
       {
         abi: erc20Abi,
-        address: underlyingAssetAddress,
+        address: vaultAddress,
         functionName: "allowance",
         args: [accountAddress, spender ?? zeroAddress],
       },
@@ -182,6 +188,7 @@ export async function fetchErc4626WithdrawData({
   return {
     underlyingAssetAddress,
     maxWithdraw,
+    maxRedeem,
     quotedSharesRedeemed,
     allowance: spender ? allowance : 0n,
     initialPosition: {

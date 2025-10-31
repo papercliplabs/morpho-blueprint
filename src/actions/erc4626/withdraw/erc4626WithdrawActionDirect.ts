@@ -31,12 +31,15 @@ export async function erc4626WithdrawActionDirect({
     throw new UserFacingError("Unable to load vault data.", { cause: error });
   }
 
-  const { maxWithdraw, initialPosition } = data;
+  const { maxWithdraw, initialPosition, maxRedeem } = data;
 
   const isFullWithdraw = withdrawAmount === maxUint256;
 
   if (isFullWithdraw) {
-    // Don't check maxRedeem becuause it can be an underestimate due to rounding and can cause false negatives
+    // Just sanity check for disabled vaults for maxRedeem since actual value can be an underestimate due to rounding and can cause false negatives
+    if (maxRedeem === 0n) {
+      throw new UserFacingError("Vault does not support full withdraw.");
+    }
   } else {
     if (maxWithdraw < withdrawAmount) {
       throw new UserFacingError("Insufficient liquidity to withdraw requested amount.");
