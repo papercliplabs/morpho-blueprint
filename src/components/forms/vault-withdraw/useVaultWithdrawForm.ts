@@ -5,7 +5,8 @@ import { type UseFormReturn, useForm } from "react-hook-form";
 import { useDebounce } from "use-debounce";
 import { getAddress, maxUint256 } from "viem";
 import { useAccount, usePublicClient } from "wagmi";
-import { UserFacingError, type VaultAction, vaultWithdrawAction } from "@/actions";
+import { UserFacingError, type VaultAction } from "@/actions";
+import { erc4626WithdrawAction } from "@/actions/erc4626/withdraw/erc4626WithdrawAction";
 import type { SupportedChainId } from "@/config/types";
 import type { Vault } from "@/data/whisk/getVault";
 import type { VaultPosition } from "@/data/whisk/getVaultPositions";
@@ -68,8 +69,8 @@ export function useVaultWithdrawForm({ vault, onSuccessfulActionSimulation }: Us
       }
 
       const { data: action, error } = await tryCatch(
-        vaultWithdrawAction({
-          publicClient,
+        erc4626WithdrawAction({
+          client: publicClient,
           vaultAddress: getAddress(vault.vaultAddress),
           accountAddress: address,
           withdrawAmount: submittedValues.isMaxWithdraw ? maxUint256 : submittedValues.withdrawAmount,
@@ -78,6 +79,7 @@ export function useVaultWithdrawForm({ vault, onSuccessfulActionSimulation }: Us
 
       if (error) {
         setSubmitErrorMsg(error instanceof UserFacingError ? error.message : "An unknown error occurred");
+        console.error(error);
       } else {
         onSuccessfulActionSimulation(action);
       }

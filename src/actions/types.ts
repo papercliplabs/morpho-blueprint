@@ -1,7 +1,7 @@
 import type { BundlerCall, SignatureRequirementFunction } from "@morpho-org/bundler-sdk-viem";
 import type { Address, Chain, Client, Hex, Transport, TransactionRequest as ViemTransactionRequest } from "viem";
 
-export type PublicClientWithChain = Client<Transport, Chain>;
+export type ClientWithChain = Client<Transport, Chain>;
 
 export class UserFacingError extends Error {
   constructor(message: string, options?: ErrorOptions) {
@@ -57,10 +57,18 @@ export type MarketPositionChange = {
 };
 
 export interface Erc4626SupplyActionParameters {
-  client: PublicClientWithChain;
+  client: ClientWithChain;
   vaultAddress: Address;
   accountAddress: Address;
   supplyAmount: bigint;
+}
+
+export interface Erc4626WithdrawActionParameters {
+  client: ClientWithChain;
+  vaultAddress: Address;
+  accountAddress: Address;
+  /** Pass maxUint256 for entire position balance (leaving no dust) */
+  withdrawAmount: bigint;
 }
 
 export interface Position {

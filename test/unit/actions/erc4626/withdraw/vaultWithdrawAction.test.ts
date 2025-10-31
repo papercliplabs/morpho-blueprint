@@ -6,11 +6,11 @@ import { describe, expect } from "vitest";
 
 import { vaultWithdrawAction } from "@/actions";
 
-import { test } from "../../config";
-import { expectZeroErc20Balances, getErc20BalanceOf } from "../../helpers/erc20";
-import { executeAction } from "../../helpers/executeAction";
-import { expectOnlyAllowedApprovals } from "../../helpers/logs";
-import { createVaultPosition, getMorphoVaultPosition } from "../../helpers/morpho";
+import { test } from "../../../../config";
+import { expectZeroErc20Balances, getErc20BalanceOf } from "../../../../helpers/erc20";
+import { executeAction } from "../../../../helpers/executeAction";
+import { expectOnlyAllowedApprovals } from "../../../../helpers/logs";
+import { createVaultPosition, getMorphoVaultPosition } from "../../../../helpers/morpho";
 
 interface VaultWithdrawTestParameters {
   client: AnvilTestClient;

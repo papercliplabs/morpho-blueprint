@@ -5,12 +5,12 @@ import { type Address, maxUint256 } from "viem";
 import { getIsContract } from "@/actions/data/rpc/getIsContract";
 
 import { getMarketSimulationStateAccountingForPublicReallocation } from "../data/rpc/getSimulationState";
-import { type MarketAction, type PublicClientWithChain, UserFacingError } from "../types";
+import { type ClientWithChain, type MarketAction, UserFacingError } from "../types";
 import { actionFromInputOps } from "../utils/actionFromInputOps";
 import { computeMarketPositionChange } from "../utils/positionChange";
 
 interface MarketSupplyCollateralAndBorrowActionParameters {
-  publicClient: PublicClientWithChain;
+  publicClient: ClientWithChain;
   marketId: MarketId;
   allocatingVaultAddresses: Address[];
   accountAddress: Address;

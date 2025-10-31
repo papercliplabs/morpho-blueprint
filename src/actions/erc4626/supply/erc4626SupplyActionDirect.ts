@@ -6,7 +6,7 @@ import {
   UserFacingError,
   type VaultAction,
 } from "../../types";
-import { fetchErc4626SupplyData, validateErc4626SupplyParameters } from "./helpers";
+import { fetchErc4626SupplyData, validateErc4626ActionParameters } from "../helpers";
 
 /**
  * Action to supply directly to an ERC4626 vault.
@@ -22,7 +22,7 @@ export async function erc4626SupplyActionDirect({
   accountAddress,
   supplyAmount,
 }: Erc4626SupplyActionParameters): Promise<VaultAction> {
-  validateErc4626SupplyParameters({ vaultAddress, accountAddress, supplyAmount });
+  validateErc4626ActionParameters({ vaultAddress, accountAddress, amount: supplyAmount });
 
   const { data, error } = await tryCatch(
     // Spender is vault address since we are calling deposit on the vault directly

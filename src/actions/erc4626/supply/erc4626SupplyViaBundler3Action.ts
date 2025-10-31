@@ -10,7 +10,7 @@ import {
   UserFacingError,
   type VaultAction,
 } from "../../types";
-import { fetchErc4626SupplyData, validateErc4626SupplyParameters } from "./helpers";
+import { fetchErc4626SupplyData, validateErc4626ActionParameters } from "../helpers";
 
 /**
  * Action to supply to an ERC4626 vault via Bundler3.
@@ -18,7 +18,7 @@ import { fetchErc4626SupplyData, validateErc4626SupplyParameters } from "./helpe
  * It is assumed the vault correctly implements the ERC-4626 specification: https://eips.ethereum.org/EIPS/eip-4626
  *
  * Note that while bundler3 also enables the use of permit2, this action uses explicit approval transactions.
- * This is to reduce complexity, and lends itself to a better UX for EIP-5792 enabled wallets (atomic batching).
+ * This is to reduce complexity, and lends itself to a better UX for wallets with atomic batching capabilities (EIP-5792).
  */
 export async function erc4626SupplyViaBundler3Action({
   client,
@@ -26,7 +26,7 @@ export async function erc4626SupplyViaBundler3Action({
   accountAddress,
   supplyAmount,
 }: Erc4626SupplyActionParameters): Promise<VaultAction> {
-  validateErc4626SupplyParameters({ vaultAddress, accountAddress, supplyAmount });
+  validateErc4626ActionParameters({ vaultAddress, accountAddress, amount: supplyAmount });
 
   // Will throw if unsupported chainId
   const {
@@ -63,7 +63,7 @@ export async function erc4626SupplyViaBundler3Action({
 
   if (requiresApproval) {
     // We do not need to revoke existing approval since we are approving GA1.
-    // GA1 is a known contract and doesn't have a approval frontrunning attack vulnerability
+    // GA1 is a known contract and doesn't have an approval frontrunning attack vulnerability
 
     // Approve GA1 to spend supplyAmount of underlying assets
     transactionRequests.push({
@@ -90,17 +90,22 @@ export async function erc4626SupplyViaBundler3Action({
   );
 
   // Supply to vault via bundler3 with slippage protection
+  // Asset flow:
+  //  - assets: account -> GA1 -> vault
+  //  - shares: vault -> account (minted)
   transactionRequests.push({
     name: "Supply to vault",
     tx: () =>
       BundlerAction.encodeBundle(client.chain.id, [
         {
           // Transfer supplyAmount of underlying assets from account into GA1 (uses approval from above)
+          // Note GA1 requires assets are in adapter for ERC-4626 deposit
           type: "erc20TransferFrom",
           args: [underlyingAssetAddress, supplyAmount, generalAdapter1Address],
         },
         {
           // Supply supplyAmount of underlying assets to the vault on behalf of the account
+          // Note there will be no dust left since exact input
           type: "erc4626Deposit",
           args: [vaultAddress, supplyAmount, maxSharePriceRay, accountAddress],
         },
