@@ -18,10 +18,12 @@ interface VaultWithdrawFormProps {
 
 export const VaultWithdrawForm = forwardRef<{ reset: () => void }, VaultWithdrawFormProps>(
   ({ vault, onSuccessfulActionSimulation }, ref) => {
-    const { form, handleSubmit, position, isPositionLoading, derivedFormValues } = useVaultWithdrawForm({
-      vault,
-      onSuccessfulActionSimulation,
-    });
+    const { form, handleSubmit, position, isPositionLoading, derivedFormValues, submitErrorMsg } = useVaultWithdrawForm(
+      {
+        vault,
+        onSuccessfulActionSimulation,
+      },
+    );
 
     // Expose reset method to parent
     useImperativeHandle(ref, () => ({
@@ -65,7 +67,7 @@ export const VaultWithdrawForm = forwardRef<{ reset: () => void }, VaultWithdraw
                 >
                   {derivedFormValues.missingAmount ? "Enter an amount" : "Review"}
                 </Button>
-                <ErrorMessage message={form.formState.errors.root?.message} />
+                <ErrorMessage message={submitErrorMsg} />
               </div>
             </div>
           </fieldset>

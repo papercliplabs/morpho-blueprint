@@ -21,9 +21,8 @@ export const MarketSupplyCollateralAndBorrowForm = forwardRef<
   { reset: () => void },
   MarketSupplyCollateralAndBorrowFormProps
 >(({ market, onSuccessfulActionSimulation }, ref) => {
-  const { form, handleSubmit, position, isPositionLoading, derivedFormValues } = useMarketSupplyCollateralAndBorrowForm(
-    { market, onSuccessfulActionSimulation },
-  );
+  const { form, handleSubmit, position, isPositionLoading, derivedFormValues, submitErrorMsg } =
+    useMarketSupplyCollateralAndBorrowForm({ market, onSuccessfulActionSimulation });
 
   // Expose reset method to parent
   useImperativeHandle(ref, () => ({
@@ -77,7 +76,7 @@ export const MarketSupplyCollateralAndBorrowForm = forwardRef<
               >
                 {derivedFormValues.missingAmount ? "Enter an amount" : "Review"}
               </Button>
-              <ErrorMessage message={form.formState.errors.root?.message} />
+              <ErrorMessage message={submitErrorMsg} />
             </div>
           </div>
         </fieldset>

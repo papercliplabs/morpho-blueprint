@@ -2,7 +2,7 @@
 
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { useModal } from "connectkit";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { type UseFormReturn, useForm } from "react-hook-form";
 import { useDebounce } from "use-debounce";
 import { getAddress } from "viem";
@@ -32,6 +32,7 @@ export function useVaultSupplyForm({ vault, onSuccessfulActionSimulation }: UseV
   const { address } = useAccount();
   const publicClient = usePublicClient({ chainId: vault.chain.id });
   const { setOpen: setConnectKitOpen } = useModal();
+  const [submitErrorMsg, setSubmitErrorMsg] = useState<string | null>(null);
 
   const { data: position, isLoading: isPositionLoading } = useVaultPosition(
     vault.chain.id as SupportedChainId,
@@ -55,8 +56,8 @@ export function useVaultSupplyForm({ vault, onSuccessfulActionSimulation }: UseV
 
   const handleSubmit = useCallback(
     async (submittedValues: VaultSupplyFormSchemaOutput) => {
-      // Clear any root errors we set in the previous submit
-      form.clearErrors("root");
+      // Clear any previous error
+      setSubmitErrorMsg(null);
 
       if (!address) {
         setConnectKitOpen(true);
@@ -64,7 +65,7 @@ export function useVaultSupplyForm({ vault, onSuccessfulActionSimulation }: UseV
       }
 
       if (!publicClient) {
-        form.setError("root", { message: `Missing client for chain ${vault.chain.id}` });
+        setSubmitErrorMsg(`Missing client for chain ${vault.chain.id}`);
         return;
       }
 
@@ -78,15 +79,12 @@ export function useVaultSupplyForm({ vault, onSuccessfulActionSimulation }: UseV
       );
 
       if (error) {
-        console.log("ERRRRR:", error);
-        form.setError("root", {
-          message: error instanceof UserFacingError ? error.message : "An unknown error occurred",
-        });
+        setSubmitErrorMsg(error instanceof UserFacingError ? error.message : "An unknown error occurred");
       } else {
         onSuccessfulActionSimulation(action);
       }
     },
-    [address, setConnectKitOpen, publicClient, vault, onSuccessfulActionSimulation, form.setError, form.clearErrors],
+    [address, setConnectKitOpen, publicClient, vault, onSuccessfulActionSimulation],
   );
 
   const derivedFormValues = useDerivedFormValues({ vault, position, form });
@@ -105,6 +103,7 @@ export function useVaultSupplyForm({ vault, onSuccessfulActionSimulation }: UseV
     handleSubmit,
     position,
     isPositionLoading,
+    submitErrorMsg,
   };
 }
 

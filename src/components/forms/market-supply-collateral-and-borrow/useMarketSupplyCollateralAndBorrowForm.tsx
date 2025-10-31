@@ -1,7 +1,7 @@
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { type MarketId, MathLib } from "@morpho-org/blue-sdk";
 import { useModal } from "connectkit";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { type UseFormReturn, useForm } from "react-hook-form";
 import { useDebounce } from "use-debounce";
 import { getAddress, type Hex, maxUint256 } from "viem";
@@ -33,6 +33,7 @@ export function useMarketSupplyCollateralAndBorrowForm({
   const { address } = useAccount();
   const publicClient = usePublicClient({ chainId: market.chain.id });
   const { setOpen: setConnectKitOpen } = useModal();
+  const [submitErrorMsg, setSubmitErrorMsg] = useState<string | null>(null);
 
   const { data: position, isLoading: isPositionLoading } = useMarketPosition(
     market.chain.id as SupportedChainId,
@@ -59,8 +60,8 @@ export function useMarketSupplyCollateralAndBorrowForm({
 
   const handleSubmit = useCallback(
     async (submittedValues: MarketSupplyCollateralAndBorrowFormSchemaOutput) => {
-      // Clear any root errors we set in the previous submit
-      form.clearErrors("root");
+      // Clear any previous error
+      setSubmitErrorMsg(null);
 
       if (!address) {
         setConnectKitOpen(true);
@@ -68,7 +69,7 @@ export function useMarketSupplyCollateralAndBorrowForm({
       }
 
       if (!publicClient) {
-        form.setError("root", { message: `Missing client for chain ${market.chain.id}` });
+        setSubmitErrorMsg(`Missing client for chain ${market.chain.id}`);
         return;
       }
 
@@ -89,14 +90,12 @@ export function useMarketSupplyCollateralAndBorrowForm({
       );
 
       if (error) {
-        form.setError("root", {
-          message: error instanceof UserFacingError ? error.message : "An unknown error occurred",
-        });
+        setSubmitErrorMsg(error instanceof UserFacingError ? error.message : "An unknown error occurred");
       } else {
         onSuccessfulActionSimulation(action);
       }
     },
-    [address, setConnectKitOpen, publicClient, market, onSuccessfulActionSimulation, form],
+    [address, setConnectKitOpen, publicClient, market, onSuccessfulActionSimulation],
   );
 
   const derivedFormValues = useDerivedFormValues({
@@ -137,6 +136,7 @@ export function useMarketSupplyCollateralAndBorrowForm({
     handleSubmit,
     position,
     isPositionLoading,
+    submitErrorMsg,
   };
 }
 

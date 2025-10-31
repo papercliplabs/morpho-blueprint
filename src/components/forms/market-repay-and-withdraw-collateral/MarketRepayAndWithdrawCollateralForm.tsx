@@ -22,7 +22,7 @@ export const MarketRepayAndWithdrawCollateralForm = forwardRef<
   { reset: () => void },
   MarketRepayAndWithdrawCollateralFormProps
 >(({ market, onSuccessfulActionSimulation }, ref) => {
-  const { form, handleSubmit, position, isPositionLoading, derivedFormValues } =
+  const { form, handleSubmit, position, isPositionLoading, derivedFormValues, submitErrorMsg } =
     useMarketRepayAndWithdrawCollateralForm({
       market,
       onSuccessfulActionSimulation,
@@ -96,7 +96,7 @@ export const MarketRepayAndWithdrawCollateralForm = forwardRef<
               >
                 {derivedFormValues.missingAmount ? "Enter an amount" : "Review"}
               </Button>
-              <ErrorMessage message={form.formState.errors.root?.message} />
+              <ErrorMessage message={submitErrorMsg} />
             </div>
           </div>
         </fieldset>

@@ -17,7 +17,7 @@ interface VaultSupplyFormProps {
 
 export const VaultSupplyForm = forwardRef<{ reset: () => void }, VaultSupplyFormProps>(
   ({ vault, onSuccessfulActionSimulation }, ref) => {
-    const { form, handleSubmit, position, isPositionLoading, derivedFormValues } = useVaultSupplyForm({
+    const { form, handleSubmit, position, isPositionLoading, derivedFormValues, submitErrorMsg } = useVaultSupplyForm({
       vault,
       onSuccessfulActionSimulation,
     });
@@ -65,7 +65,7 @@ export const VaultSupplyForm = forwardRef<{ reset: () => void }, VaultSupplyForm
                 >
                   {derivedFormValues.missingAmount ? "Enter an amount" : "Review"}
                 </Button>
-                <ErrorMessage message={form.formState.errors.root?.message} />
+                <ErrorMessage message={submitErrorMsg} />
               </div>
             </div>
           </fieldset>
