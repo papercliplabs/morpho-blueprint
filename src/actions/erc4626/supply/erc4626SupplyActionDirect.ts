@@ -14,7 +14,7 @@ import { fetchErc4626SupplyData, validateErc4626SupplyParameters, verifyErc4626S
  * It is assumed the vault correctly implements the ERC-4626 specification: https://eips.ethereum.org/EIPS/eip-4626
  *
  * Note this has no slippage protection, meaning the supply is susceptible to share price inflation.
- * In practice, vaults generally protect against this.
+ * In practice, vaults generally protect against this (or against subsequent deflation after it occurs).
  * See more on ERC-4626 inflation attacks here: https://docs.openzeppelin.com/contracts/5.x/erc4626
  */
 export async function erc4626SupplyActionDirect({

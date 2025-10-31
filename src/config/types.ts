@@ -96,7 +96,10 @@ export interface AppConfig {
     // Configuration for bundler3 support.
     // NOTE: currently this only controls vault actions, market actions use bundler3 and a default slippage.
     //       in the future this will control both vault and market actions.
-    readonly bundler3Config: "disabled" | { readonly slippageToleranceWad: bigint };
+    readonly bundler3Config: {
+      readonly enabled: boolean;
+      readonly slippageToleranceWad: bigint;
+    };
   };
 
   // Controls the apy window used for native apy metrics and charts (rewards remain instantanious).

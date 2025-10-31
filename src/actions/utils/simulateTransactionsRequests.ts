@@ -7,11 +7,18 @@ export async function simulateTransactionRequests(
   accountAddress: Address,
   transactionRequests: TransactionRequest[],
 ) {
+  console.log(
+    "DEBUG",
+    transactionRequests,
+    transactionRequests.map((request) => request.tx()),
+  );
+
   const { assetChanges, results } = await simulateCalls(client, {
     account: accountAddress,
     calls: transactionRequests.map((request) => {
       const tx = request.tx();
       return {
+        from: accountAddress,
         to: tx.to,
         data: tx.data,
       };
