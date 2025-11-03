@@ -52,7 +52,7 @@ function AssetInputFormField<
                   className={clsx(
                     "!heading-2 h-12 rounded-none border-none bg-transparent p-0 shadow-none focus:ring-0 focus:ring-offset-0",
                     fieldState.error && !!field.value && fieldState.isDirty
-                      ? "text-destructive"
+                      ? "text-destructive-foreground"
                       : "placeholder:text-muted-foreground/80",
                   )}
                   decimals={asset.decimals}
