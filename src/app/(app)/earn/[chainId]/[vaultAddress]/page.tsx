@@ -133,7 +133,7 @@ async function VaultHeader({ chainId, vaultAddress }: VaultIdentifier) {
   if (!vault) {
     return null;
   }
-  const curator = vault.metadata?.curators?.[0];
+  const curator = vault.metadata?.curator;
   const tagData = getVaultTagData(chainId, vaultAddress);
 
   return (

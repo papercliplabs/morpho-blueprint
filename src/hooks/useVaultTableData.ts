@@ -54,7 +54,7 @@ export function useVaultTableData({ vaultSummaries }: { vaultSummaries: VaultSum
       const curatorsFilterMatch =
         curatorsFilterValues === undefined ||
         curatorsFilterValues.length === 0 ||
-        curatorsFilterValues.includes(dataEntry.vaultSummary.metadata?.curators[0]?.name ?? "N/A");
+        curatorsFilterValues.includes(dataEntry.vaultSummary.metadata?.curator?.name ?? "N/A");
 
       // Tags filter: match against optional supportedVaults
       let tagFilterMatch = true;

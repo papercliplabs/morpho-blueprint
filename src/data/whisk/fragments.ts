@@ -51,7 +51,7 @@ graphql(`
     }
 
     metadata {
-      curators {
+      curator {
         ...CuratorInfoFragment
       }
     }
