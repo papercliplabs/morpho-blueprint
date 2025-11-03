@@ -37,10 +37,8 @@ const columns: Column[] = [
           cell: ({ row }) => {
             const { vault } = row.original;
             const curator = vault.metadata?.curator;
-            return curator ? (
-              <Avatar src={curator.image} alt={curator.name} size="sm" className="rounded-full border" />
-            ) : (
-              "Unknown"
+            return (
+              curator && <Avatar src={curator.image} alt={curator.name} size="sm" className="rounded-full border" />
             );
           },
           minSize: 130,

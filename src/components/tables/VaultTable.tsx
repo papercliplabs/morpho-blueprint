@@ -145,10 +145,8 @@ function getColumns(isPositionLoading: boolean): Column[] {
             cell: ({ row }) => {
               const { vaultSummary } = row.original;
               const curator = vaultSummary.metadata?.curator;
-              return curator ? (
-                <Avatar src={curator.image} alt={curator.name} size="sm" className="rounded-full border" />
-              ) : (
-                "Unknown"
+              return (
+                curator && <Avatar src={curator.image} alt={curator.name} size="sm" className="rounded-full border" />
               );
             },
             minSize: 120,
