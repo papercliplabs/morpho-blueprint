@@ -22,7 +22,7 @@ import { SimulationState } from "@morpho-org/simulation-sdk";
 import { type Address, zeroAddress } from "viem";
 import { getBlock } from "viem/actions";
 
-import type { PublicClientWithChain } from "@/actions/types";
+import type { ClientWithChain } from "@/actions/types";
 import { APP_CONFIG } from "@/config";
 
 type GetSimulationStateMarketTypeParameters = {
@@ -44,7 +44,7 @@ type GetSimulationStateVaultTypeParameters = {
 };
 
 export type GetSimulationStateParameters = {
-  publicClient: PublicClientWithChain;
+  publicClient: ClientWithChain;
   accountAddress: Address;
   additionalTokenAddresses?: Address[];
 } & (GetSimulationStateMarketTypeParameters | GetSimulationStateVaultTypeParameters);
@@ -234,7 +234,7 @@ export async function getMarketSimulationStateAccountingForPublicReallocation({
   requestedBorrowAmount,
   additionalTokenAddresses,
 }: {
-  publicClient: PublicClientWithChain;
+  publicClient: ClientWithChain;
   marketId: MarketId;
   accountAddress: Address;
   allocatingVaultAddresses: Address[];

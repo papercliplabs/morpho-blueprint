@@ -1,16 +1,16 @@
-import { DEFAULT_SLIPPAGE_TOLERANCE, getChainAddresses, type MarketId } from "@morpho-org/blue-sdk";
+import { getChainAddresses, type MarketId } from "@morpho-org/blue-sdk";
 import type { InputBundlerOperation } from "@morpho-org/bundler-sdk-viem";
 import { type Address, maxUint256 } from "viem";
 
 import { getIsContract } from "@/actions/data/rpc/getIsContract";
 import { getSimulationState } from "@/actions/data/rpc/getSimulationState";
-
-import type { MarketAction, PublicClientWithChain } from "../types";
+import { APP_CONFIG } from "@/config";
+import { type ClientWithChain, type MarketAction, UserFacingError } from "../types";
 import { actionFromInputOps } from "../utils/actionFromInputOps";
 import { computeMarketPositionChange } from "../utils/positionChange";
 
 interface MarketRepayAndWithdrawCollateralActionParameters {
-  publicClient: PublicClientWithChain;
+  publicClient: ClientWithChain;
   marketId: MarketId;
   accountAddress: Address;
   repayAmount: bigint; // Max uint256 for entire position balance
@@ -27,16 +27,10 @@ export async function marketRepayAndWithdrawCollateralAction({
   const { morpho: morphoBlueAddress } = getChainAddresses(publicClient.chain.id);
 
   if (repayAmount < 0n || withdrawCollateralAmount < 0n) {
-    return {
-      status: "error",
-      message: "Repay and withdraw collateral amounts cannot be negative.",
-    };
+    throw new UserFacingError("Repay and withdraw collateral amounts cannot be negative.");
   }
   if (repayAmount === 0n && withdrawCollateralAmount === 0n) {
-    return {
-      status: "error",
-      message: "Repay and withdraw collateral amounts cannot both be 0.",
-    };
+    throw new UserFacingError("Repay and withdraw collateral amounts cannot both be 0.");
   }
 
   const [initialSimulationState, isContract] = await Promise.all([
@@ -72,7 +66,7 @@ export async function marketRepayAndWithdrawCollateralAction({
                 onBehalf: accountAddress,
                 // Use shares if a max repay to ensure fully closed position
                 ...(isMaxRepay ? { shares: userPosition.borrowShares } : { assets: repayAmount }),
-                slippage: DEFAULT_SLIPPAGE_TOLERANCE,
+                slippage: APP_CONFIG.actionParameters.bundler3Config.slippageToleranceWad,
               },
             } as InputBundlerOperation,
           ]
@@ -99,16 +93,13 @@ export async function marketRepayAndWithdrawCollateralAction({
     `Confirm ${isRepay ? "Repay" : ""}${isRepay && isWithdraw ? " & " : ""}${isWithdraw ? "Withdraw" : ""}`,
   );
 
-  if (action.status === "success") {
-    return {
-      ...action,
-      positionChange: computeMarketPositionChange(
-        marketId,
-        accountAddress,
-        initialSimulationState,
-        action.finalSimulationState,
-      ),
-    };
-  }
-  return action;
+  return {
+    ...action,
+    positionChange: computeMarketPositionChange(
+      marketId,
+      accountAddress,
+      initialSimulationState,
+      action.finalSimulationState,
+    ),
+  };
 }

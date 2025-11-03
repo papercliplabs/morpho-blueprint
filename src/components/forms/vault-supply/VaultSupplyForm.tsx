@@ -1,7 +1,7 @@
 "use client";
 
 import { forwardRef, useImperativeHandle } from "react";
-import type { SuccessfulVaultAction } from "@/actions";
+import type { VaultAction } from "@/actions";
 import type { Vault } from "@/data/whisk/getVault";
 import { VaultActionSimulationMetrics } from "../../ActionFlow/VaultActionFlow";
 import { Button } from "../../ui/button";
@@ -12,12 +12,12 @@ import { useVaultSupplyForm } from "./useVaultSupplyForm";
 
 interface VaultSupplyFormProps {
   vault: Vault;
-  onSuccessfulActionSimulation: (action: SuccessfulVaultAction) => void;
+  onSuccessfulActionSimulation: (action: VaultAction) => void;
 }
 
 export const VaultSupplyForm = forwardRef<{ reset: () => void }, VaultSupplyFormProps>(
   ({ vault, onSuccessfulActionSimulation }, ref) => {
-    const { form, handleSubmit, position, isPositionLoading, derivedFormValues } = useVaultSupplyForm({
+    const { form, handleSubmit, position, isPositionLoading, derivedFormValues, submitErrorMsg } = useVaultSupplyForm({
       vault,
       onSuccessfulActionSimulation,
     });
@@ -45,9 +45,6 @@ export const VaultSupplyForm = forwardRef<{ reset: () => void }, VaultSupplyForm
                     ? BigInt(position.walletUnderlyingAssetHolding.balance.raw)
                     : undefined
                 }
-                setIsMax={(isMax) => {
-                  form.setValue("isMaxSupply", isMax);
-                }}
               />
 
               <div className="h-[1px] bg-border" />
@@ -68,7 +65,7 @@ export const VaultSupplyForm = forwardRef<{ reset: () => void }, VaultSupplyForm
                 >
                   {derivedFormValues.missingAmount ? "Enter an amount" : "Review"}
                 </Button>
-                <ErrorMessage message={form.formState.errors.root?.message} />
+                <ErrorMessage message={submitErrorMsg} />
               </div>
             </div>
           </fieldset>

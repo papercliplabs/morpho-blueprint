@@ -1,7 +1,7 @@
 import { getChainAddresses, type MarketId } from "@morpho-org/blue-sdk";
 import { blueAbi, fetchMarket } from "@morpho-org/blue-sdk-viem";
 import type { AnvilTestClient } from "@morpho-org/test";
-import { type Address, type Hex, type Log, maxUint256, parseUnits } from "viem";
+import { type Address, type Hex, maxUint256, parseUnits } from "viem";
 import { readContract } from "viem/actions";
 import { describe, expect } from "vitest";
 
@@ -29,7 +29,6 @@ interface MarketSupplyCollateralAndBorrowTestParameters {
   collateralAmount: bigint;
   borrowAmount: bigint;
 
-  expectSuccess?: boolean;
   beforeExecutionCb?: (client: AnvilTestClient) => Promise<void>;
   callerType?: "eoa" | "contract";
 }
@@ -44,7 +43,6 @@ async function runMarketSupplyCollateralAndBorrowTest({
   collateralAmount,
   borrowAmount,
 
-  expectSuccess = true,
   beforeExecutionCb,
   callerType = "eoa",
 }: MarketSupplyCollateralAndBorrowTestParameters): Promise<MarketAction> {
@@ -84,19 +82,9 @@ async function runMarketSupplyCollateralAndBorrowTest({
 
   await beforeExecutionCb?.(client);
 
-  let logs: Log[] = [];
-  if (action.status === "success") {
-    // Execute
-    logs = await executeAction(client, action);
-  }
+  const logs = await executeAction(client, action);
 
   // Assert
-  expect(action.status).toEqual(expectSuccess ? "success" : "error");
-
-  if (action.status === "error") {
-    return action;
-  }
-
   await expectOnlyAllowedApprovals(
     client,
     logs,
@@ -226,60 +214,49 @@ describe("marketSupplyCollateralAndBorrowAction", () => {
 
   describe("sad path", () => {
     test("insufficient wallet collateral balance", async ({ client }) => {
-      const result = await runMarketSupplyCollateralAndBorrowTest({
-        client,
-        marketId: WBTC_USDC_MARKET_ID,
-        allocatingVaultAddresses: [],
-        intitialState: {
-          walletCollateralAmount: 0n,
-          positionCollateralAmount: parseUnits("10", 8),
-        },
-        collateralAmount: parseUnits("100", 8),
-        borrowAmount: 0n,
-        expectSuccess: false,
-      });
-
-      // It will, otherwise will fail in run test
-      if (result.status === "error") {
-        expect(result.message).toContain("Simulation Error: insufficient balance of user");
-      }
+      await expect(
+        runMarketSupplyCollateralAndBorrowTest({
+          client,
+          marketId: WBTC_USDC_MARKET_ID,
+          allocatingVaultAddresses: [],
+          intitialState: {
+            walletCollateralAmount: 0n,
+            positionCollateralAmount: parseUnits("10", 8),
+          },
+          collateralAmount: parseUnits("100", 8),
+          borrowAmount: 0n,
+        }),
+      ).rejects.toThrow("Simulation Error: insufficient balance of user");
     });
     test("collateral and borrow both 0", async ({ client }) => {
-      const result = await runMarketSupplyCollateralAndBorrowTest({
-        client,
-        marketId: WBTC_USDC_MARKET_ID,
-        allocatingVaultAddresses: [],
-        intitialState: {
-          walletCollateralAmount: 0n,
-          positionCollateralAmount: 0n,
-        },
-        collateralAmount: 0n,
-        borrowAmount: 0n,
-        expectSuccess: false,
-      });
-
-      // It will, otherwise will fail in run test
-      if (result.status === "error") {
-        expect(result.message).toEqual("Collateral and borrow amounts cannot both be 0.");
-      }
+      await expect(
+        runMarketSupplyCollateralAndBorrowTest({
+          client,
+          marketId: WBTC_USDC_MARKET_ID,
+          allocatingVaultAddresses: [],
+          intitialState: {
+            walletCollateralAmount: 0n,
+            positionCollateralAmount: 0n,
+          },
+          collateralAmount: 0n,
+          borrowAmount: 0n,
+        }),
+      ).rejects.toThrow("Collateral and borrow amounts cannot both be 0.");
     });
     test("prepare error if loan is not sufficently collateralized", async ({ client }) => {
-      const result = await runMarketSupplyCollateralAndBorrowTest({
-        client,
-        marketId: WBTC_USDC_MARKET_ID,
-        allocatingVaultAddresses: [],
-        intitialState: {
-          walletCollateralAmount: parseUnits("10", 8),
-          positionCollateralAmount: 0n,
-        },
-        collateralAmount: parseUnits("1", 8),
-        borrowAmount: parseUnits("1000000", 6),
-        expectSuccess: false,
-      });
-
-      if (result.status === "error") {
-        expect(result.message).toContain("Simulation Error: insufficient collateral for user");
-      }
+      await expect(
+        runMarketSupplyCollateralAndBorrowTest({
+          client,
+          marketId: WBTC_USDC_MARKET_ID,
+          allocatingVaultAddresses: [],
+          intitialState: {
+            walletCollateralAmount: parseUnits("10", 8),
+            positionCollateralAmount: 0n,
+          },
+          collateralAmount: parseUnits("1", 8),
+          borrowAmount: parseUnits("1000000", 6),
+        }),
+      ).rejects.toThrow("Simulation Error: insufficient collateral for user");
     });
 
     test("tx reverts if slippage tolerance is exceeded", async ({ client }) => {

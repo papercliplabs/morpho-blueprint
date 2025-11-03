@@ -1,16 +1,16 @@
-import { DEFAULT_SLIPPAGE_TOLERANCE, getChainAddresses, type MarketId } from "@morpho-org/blue-sdk";
+import { getChainAddresses, type MarketId } from "@morpho-org/blue-sdk";
 import type { InputBundlerOperation } from "@morpho-org/bundler-sdk-viem";
 import { type Address, maxUint256 } from "viem";
 
 import { getIsContract } from "@/actions/data/rpc/getIsContract";
-
+import { APP_CONFIG } from "@/config";
 import { getMarketSimulationStateAccountingForPublicReallocation } from "../data/rpc/getSimulationState";
-import type { MarketAction, PublicClientWithChain } from "../types";
+import { type ClientWithChain, type MarketAction, UserFacingError } from "../types";
 import { actionFromInputOps } from "../utils/actionFromInputOps";
 import { computeMarketPositionChange } from "../utils/positionChange";
 
 interface MarketSupplyCollateralAndBorrowActionParameters {
-  publicClient: PublicClientWithChain;
+  publicClient: ClientWithChain;
   marketId: MarketId;
   allocatingVaultAddresses: Address[];
   accountAddress: Address;
@@ -30,16 +30,11 @@ export async function marketSupplyCollateralAndBorrowAction({
   const { morpho: morphoBlueAddress } = getChainAddresses(publicClient.chain.id);
 
   if (collateralAmount < 0n || borrowAmount < 0n) {
-    return {
-      status: "error",
-      message: "Collateral and borrow amounts cannot be negative.",
-    };
+    throw new UserFacingError("Collateral and borrow amounts cannot be negative.");
   }
+
   if (collateralAmount === 0n && borrowAmount === 0n) {
-    return {
-      status: "error",
-      message: "Collateral and borrow amounts cannot both be 0.",
-    };
+    throw new UserFacingError("Collateral and borrow amounts cannot both be 0.");
   }
 
   const [initialSimulationState, isContract] = await Promise.all([
@@ -92,7 +87,7 @@ export async function marketSupplyCollateralAndBorrowAction({
                 onBehalf: accountAddress,
                 receiver: accountAddress,
                 assets: borrowAmount,
-                slippage: DEFAULT_SLIPPAGE_TOLERANCE,
+                slippage: APP_CONFIG.actionParameters.bundler3Config.slippageToleranceWad,
               },
             } as InputBundlerOperation,
           ]
@@ -104,16 +99,13 @@ export async function marketSupplyCollateralAndBorrowAction({
     `Confirm ${isSupply ? "Supply" : ""}${isSupply && isBorrow ? " & " : ""}${isBorrow ? "Borrow" : ""}`,
   );
 
-  if (action.status === "success") {
-    return {
-      ...action,
-      positionChange: computeMarketPositionChange(
-        marketId,
-        accountAddress,
-        initialSimulationState,
-        action.finalSimulationState,
-      ),
-    };
-  }
-  return action;
+  return {
+    ...action,
+    positionChange: computeMarketPositionChange(
+      marketId,
+      accountAddress,
+      initialSimulationState,
+      action.finalSimulationState,
+    ),
+  };
 }

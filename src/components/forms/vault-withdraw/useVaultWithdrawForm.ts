@@ -1,11 +1,12 @@
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { useModal } from "connectkit";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { type UseFormReturn, useForm } from "react-hook-form";
 import { useDebounce } from "use-debounce";
 import { getAddress, maxUint256 } from "viem";
 import { useAccount, usePublicClient } from "wagmi";
-import { type SuccessfulVaultAction, vaultWithdrawAction } from "@/actions";
+import { UserFacingError, type VaultAction } from "@/actions";
+import { erc4626WithdrawAction } from "@/actions/erc4626/withdraw/erc4626WithdrawAction";
 import type { SupportedChainId } from "@/config/types";
 import type { Vault } from "@/data/whisk/getVault";
 import type { VaultPosition } from "@/data/whisk/getVaultPositions";
@@ -13,6 +14,7 @@ import { useVaultPosition } from "@/hooks/useVaultPositions";
 import { DEBOUNCE_TIME_MS } from "@/utils/constants";
 import { computeVaultPositionChange } from "@/utils/math";
 import { parseOnchainAmount } from "@/utils/schemas";
+import { tryCatch } from "@/utils/tryCatch";
 import {
   createVaultWithdrawFormSchema,
   type VaultWithdrawFormSchemaInput,
@@ -21,13 +23,14 @@ import {
 
 interface UseVaultWithdrawFormParamters {
   vault: Vault;
-  onSuccessfulActionSimulation: (action: SuccessfulVaultAction) => void;
+  onSuccessfulActionSimulation: (action: VaultAction) => void;
 }
 
 export function useVaultWithdrawForm({ vault, onSuccessfulActionSimulation }: UseVaultWithdrawFormParamters) {
   const { address } = useAccount();
   const publicClient = usePublicClient({ chainId: vault.chain.id });
   const { setOpen: setConnectKitOpen } = useModal();
+  const [submitErrorMsg, setSubmitErrorMsg] = useState<string | null>(null);
 
   const { data: position, isLoading: isPositionLoading } = useVaultPosition(
     vault.chain.id as SupportedChainId,
@@ -53,7 +56,7 @@ export function useVaultWithdrawForm({ vault, onSuccessfulActionSimulation }: Us
   const handleSubmit = useCallback(
     async (submittedValues: VaultWithdrawFormSchemaOutput) => {
       // Clear any root errors we set in the previous submit
-      form.clearErrors("root");
+      setSubmitErrorMsg(null);
 
       if (!address) {
         setConnectKitOpen(true);
@@ -61,24 +64,26 @@ export function useVaultWithdrawForm({ vault, onSuccessfulActionSimulation }: Us
       }
 
       if (!publicClient) {
-        form.setError("root", { message: `Missing client for chain ${vault.chain.id}` });
+        setSubmitErrorMsg(`Missing client for chain ${vault.chain.id}`);
         return;
       }
 
-      const action = await vaultWithdrawAction({
-        publicClient,
-        vaultAddress: getAddress(vault.vaultAddress),
-        accountAddress: address,
-        withdrawAmount: submittedValues.isMaxWithdraw ? maxUint256 : submittedValues.withdrawAmount,
-      });
+      const { data: action, error } = await tryCatch(
+        erc4626WithdrawAction({
+          client: publicClient,
+          vaultAddress: getAddress(vault.vaultAddress),
+          accountAddress: address,
+          withdrawAmount: submittedValues.isMaxWithdraw ? maxUint256 : submittedValues.withdrawAmount,
+        }),
+      );
 
-      if (action.status === "success") {
-        onSuccessfulActionSimulation(action);
+      if (error) {
+        setSubmitErrorMsg(error instanceof UserFacingError ? error.message : "An unknown error occurred");
       } else {
-        form.setError("root", { message: action.message });
+        onSuccessfulActionSimulation(action);
       }
     },
-    [address, setConnectKitOpen, publicClient, vault, onSuccessfulActionSimulation, form.setError, form.clearErrors],
+    [address, setConnectKitOpen, publicClient, vault, onSuccessfulActionSimulation],
   );
 
   const derivedFormValues = useDerivedFormValues({ vault, position, form });
@@ -104,6 +109,7 @@ export function useVaultWithdrawForm({ vault, onSuccessfulActionSimulation }: Us
     handleSubmit,
     position,
     isPositionLoading,
+    submitErrorMsg,
   };
 }
 

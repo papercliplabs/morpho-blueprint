@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 
-import type { SuccessfulVaultAction } from "@/actions";
+import type { VaultAction } from "@/actions";
 import { VaultActionFlow } from "@/components/ActionFlow/VaultActionFlow";
 import { VaultWithdrawForm } from "@/components/forms/vault-withdraw/VaultWithdrawForm";
 import type { Vault } from "@/data/whisk/getVault";
@@ -14,7 +14,7 @@ export default function VaultWithdraw({
   vault: Vault;
   onFlowClosed?: (success: boolean) => void;
 }) {
-  const [action, setAction] = useState<SuccessfulVaultAction | null>(null);
+  const [action, setAction] = useState<VaultAction | null>(null);
   const [flowOpen, setFlowOpen] = useState(false);
   const [success, setSuccess] = useState(false);
 

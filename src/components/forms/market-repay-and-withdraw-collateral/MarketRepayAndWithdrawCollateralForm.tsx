@@ -3,7 +3,7 @@
 import { MathLib } from "@morpho-org/blue-sdk";
 import { forwardRef, useImperativeHandle } from "react";
 import { maxUint256 } from "viem";
-import type { SuccessfulMarketAction } from "@/actions";
+import type { MarketAction } from "@/actions";
 import type { MarketNonIdle } from "@/data/whisk/getMarket";
 import { MarketActionSimulationMetrics } from "../../ActionFlow/MarketActionFlow";
 import { Button } from "../../ui/button";
@@ -15,14 +15,14 @@ import { useMarketRepayAndWithdrawCollateralForm } from "./useMarketRepayAndWith
 
 interface MarketRepayAndWithdrawCollateralFormProps {
   market: MarketNonIdle;
-  onSuccessfulActionSimulation: (action: SuccessfulMarketAction) => void;
+  onSuccessfulActionSimulation: (action: MarketAction) => void;
 }
 
 export const MarketRepayAndWithdrawCollateralForm = forwardRef<
   { reset: () => void },
   MarketRepayAndWithdrawCollateralFormProps
 >(({ market, onSuccessfulActionSimulation }, ref) => {
-  const { form, handleSubmit, position, isPositionLoading, derivedFormValues } =
+  const { form, handleSubmit, position, isPositionLoading, derivedFormValues, submitErrorMsg } =
     useMarketRepayAndWithdrawCollateralForm({
       market,
       onSuccessfulActionSimulation,
@@ -96,7 +96,7 @@ export const MarketRepayAndWithdrawCollateralForm = forwardRef<
               >
                 {derivedFormValues.missingAmount ? "Enter an amount" : "Review"}
               </Button>
-              <ErrorMessage message={form.formState.errors.root?.message} />
+              <ErrorMessage message={submitErrorMsg} />
             </div>
           </div>
         </fieldset>

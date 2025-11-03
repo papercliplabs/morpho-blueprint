@@ -38,7 +38,7 @@ function getTrackingPayload(vault: Vault, action: VaultAction | null, tag: strin
     vaultAddress: vault.vaultAddress,
   };
 
-  if (!action || action.status !== "success") {
+  if (!action) {
     return basePayload;
   }
 

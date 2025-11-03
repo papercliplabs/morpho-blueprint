@@ -2,7 +2,7 @@
 
 import { forwardRef, useImperativeHandle } from "react";
 
-import type { SuccessfulMarketAction } from "@/actions";
+import type { MarketAction } from "@/actions";
 import type { MarketNonIdle } from "@/data/whisk/getMarket";
 import { MarketActionSimulationMetrics } from "../../ActionFlow/MarketActionFlow";
 import { Button } from "../../ui/button";
@@ -14,16 +14,15 @@ import { useMarketSupplyCollateralAndBorrowForm } from "./useMarketSupplyCollate
 
 interface MarketSupplyCollateralAndBorrowFormProps {
   market: MarketNonIdle;
-  onSuccessfulActionSimulation: (action: SuccessfulMarketAction) => void;
+  onSuccessfulActionSimulation: (action: MarketAction) => void;
 }
 
 export const MarketSupplyCollateralAndBorrowForm = forwardRef<
   { reset: () => void },
   MarketSupplyCollateralAndBorrowFormProps
 >(({ market, onSuccessfulActionSimulation }, ref) => {
-  const { form, handleSubmit, position, isPositionLoading, derivedFormValues } = useMarketSupplyCollateralAndBorrowForm(
-    { market, onSuccessfulActionSimulation },
-  );
+  const { form, handleSubmit, position, isPositionLoading, derivedFormValues, submitErrorMsg } =
+    useMarketSupplyCollateralAndBorrowForm({ market, onSuccessfulActionSimulation });
 
   // Expose reset method to parent
   useImperativeHandle(ref, () => ({
@@ -77,7 +76,7 @@ export const MarketSupplyCollateralAndBorrowForm = forwardRef<
               >
                 {derivedFormValues.missingAmount ? "Enter an amount" : "Review"}
               </Button>
-              <ErrorMessage message={form.formState.errors.root?.message} />
+              <ErrorMessage message={submitErrorMsg} />
             </div>
           </div>
         </fieldset>
