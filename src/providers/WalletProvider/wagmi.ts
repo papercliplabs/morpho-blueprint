@@ -10,8 +10,9 @@ export const wagmiConfig = createConfig(
     chains: Object.values(APP_CONFIG.chainConfig).map(({ chain }) => chain) as [Chain, ...Chain[]],
     transports: Object.values(APP_CONFIG.chainConfig).reduce(
       (acc, { chain }) => {
-        // RPCs use proxy route
-        acc[chain.id] = http(`/api/rpc/${chain.id}`, {
+        // RPCs use proxy route - use absolute URL for WalletConnect compatibility
+        const rpcUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/api/rpc/${chain.id}`;
+        acc[chain.id] = http(rpcUrl, {
           batch: {
             batchSize: APP_CONFIG.maxRpcBatchSize,
             wait: 16,
