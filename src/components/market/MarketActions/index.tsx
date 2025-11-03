@@ -1,13 +1,14 @@
 "use client";
 
+import clsx from "clsx";
 import { useEffect, useMemo, useState } from "react";
 import type { Hex } from "viem";
-
 import { PoweredByMorpho } from "@/components/PoweredByMorpho";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Drawer, DrawerContent, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { SupportedChainId } from "@/config/types";
 import type { MarketNonIdle } from "@/data/whisk/getMarket";
 import { useMarketPosition } from "@/hooks/useMarketPositions";
@@ -24,7 +25,10 @@ export default function MarketActions({ market }: MarketActionsProps) {
   const { isDesktop } = useResponsiveContext();
 
   const hasBorrowPosition = useMemo(() => {
-    return BigInt(userMarketPosition?.borrowAmount.raw ?? 0n) > BigInt(0);
+    return (
+      BigInt(userMarketPosition?.borrowAmount.raw ?? 0n) > BigInt(0) ||
+      BigInt(userMarketPosition?.collateralAmount?.raw ?? 0n) > BigInt(0)
+    );
   }, [userMarketPosition]);
 
   return (
@@ -47,13 +51,30 @@ function MarketActionsDesktop({ market, hasBorrowPosition }: { hasBorrowPosition
     }
   }, [hasBorrowPosition]);
 
+  const disableRepayTab = !hadBorrowPosition;
+
   return (
     <Card className="w-[364px]">
       <Tabs defaultValue="borrow" variant="underline" className="flex flex-col gap-6">
         <div className="w-full border-b">
           <TabsList className="w-fit">
             <TabsTrigger value="borrow">Borrow</TabsTrigger>
-            {hadBorrowPosition && <TabsTrigger value="repay">Repay</TabsTrigger>}
+            <Tooltip>
+              <TooltipTrigger>
+                <TabsTrigger
+                  value="repay"
+                  disabled={disableRepayTab}
+                  className={clsx(disableRepayTab && "!cursor-not-allowed")}
+                >
+                  Repay
+                </TabsTrigger>
+              </TooltipTrigger>
+              {disableRepayTab && (
+                <TooltipContent>
+                  <p>You need to open a borrow position before you can repay.</p>
+                </TooltipContent>
+              )}
+            </Tooltip>
           </TabsList>
         </div>
         <TabsContent value="borrow" className="flex flex-col gap-6">

@@ -102,13 +102,18 @@ export function ActionFlowProvider({
         return;
       }
 
+      const remainingSignatureRequests = action.signatureRequests.slice(activeStep);
+      const remainingTransactionRequests = action.transactionRequests.slice(
+        Math.max(activeStep - action.signatureRequests.length, 0),
+      );
+
       try {
-        for (const step of action.signatureRequests) {
+        for (const step of remainingSignatureRequests) {
           await step.sign(client);
-          setActiveStep((step) => step + 1);
+          setActiveStep((prev) => prev + 1);
         }
 
-        for (const step of action.transactionRequests) {
+        for (const step of remainingTransactionRequests) {
           setActionState("pending-wallet");
 
           const txReq = step.tx();
@@ -147,7 +152,7 @@ export function ActionFlowProvider({
               ...trackingPayload,
             });
             await new Promise((resolve) => setTimeout(resolve, 2000)); // Delay to let rpc data propogate (ex approval on prev tx)
-            setActiveStep((step) => step + 1);
+            setActiveStep((prev) => prev + 1);
           } else {
             void trackEvent("tx-revert", {
               accountAddress,
@@ -198,6 +203,7 @@ export function ActionFlowProvider({
     setConnectKitOpen,
     accountChainId,
     trackingPayload,
+    activeStep,
   ]);
 
   return (
