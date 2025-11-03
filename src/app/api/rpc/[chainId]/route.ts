@@ -16,8 +16,6 @@ const ALLOWED_RPC_METHODS = [
   "eth_getTransactionReceipt",
   "eth_getTransactionByHash",
   "eth_getCode",
-  "eth_createAccessList",
-  "eth_simulateV1",
 ] as const;
 
 type AllowedRpcMethodName = (typeof ALLOWED_RPC_METHODS)[number];

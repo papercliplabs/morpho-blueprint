@@ -24,21 +24,21 @@ export async function erc4626WithdrawActionDirect({
   validateErc4626ActionParameters({ vaultAddress, accountAddress, amount: withdrawAmount });
 
   const { data, error } = await tryCatch(
-    // Spender is vault address since we are calling deposit on the vault directly
+    // Spender is vault address since we are calling withdraw on the vault directly
     fetchErc4626WithdrawData({ client, vaultAddress, accountAddress, withdrawAmount }),
   );
   if (error) {
     throw new UserFacingError("Unable to load vault data.", { cause: error });
   }
 
-  const { maxWithdraw, initialPosition, maxRedeem } = data;
+  const { maxWithdraw, initialPosition, maxRedeem, quotedSharesRedeemed } = data;
 
   const isFullWithdraw = withdrawAmount === maxUint256;
 
   if (isFullWithdraw) {
     // Just sanity check for disabled vaults for maxRedeem since actual value can be an underestimate due to rounding and can cause false negatives
     if (maxRedeem === 0n) {
-      throw new UserFacingError("Vault does not support full withdraw.");
+      throw new UserFacingError("Vault is currently preventing redemptions. This could be due to low liquidity.");
     }
   } else {
     if (maxWithdraw < withdrawAmount) {
@@ -47,6 +47,9 @@ export async function erc4626WithdrawActionDirect({
     if (initialPosition.assets < withdrawAmount) {
       throw new UserFacingError("Withdraw amount exceeds account balance.");
     }
+  }
+  if (quotedSharesRedeemed === 0n) {
+    throw new UserFacingError("Vault quoted 0 shares redeemed. Try to increase the withdraw amount.");
   }
 
   const transactionRequests: TransactionRequest[] = [];

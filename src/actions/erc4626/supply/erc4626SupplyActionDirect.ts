@@ -32,13 +32,23 @@ export async function erc4626SupplyActionDirect({
     throw new UserFacingError("Unable to load vault data.", { cause: error });
   }
 
-  const { underlyingAssetAddress, accountUnderlyingAssetBalance, maxDeposit, allowance, initialPosition } = data;
+  const {
+    underlyingAssetAddress,
+    accountUnderlyingAssetBalance,
+    maxDeposit,
+    quotedShares,
+    allowance,
+    initialPosition,
+  } = data;
 
   if (maxDeposit < supplyAmount) {
     throw new UserFacingError("Supply amount exceeds the max deposit allowed by the vault.");
   }
   if (accountUnderlyingAssetBalance < supplyAmount) {
     throw new UserFacingError("Supply amount exceeds the account balance.");
+  }
+  if (quotedShares === 0n) {
+    throw new UserFacingError("Vault quoted 0 shares. Try to increase the supply amount.");
   }
 
   const requiresApproval = allowance < supplyAmount;

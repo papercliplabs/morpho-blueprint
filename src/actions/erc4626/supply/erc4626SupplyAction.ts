@@ -14,7 +14,7 @@ export async function erc4626SupplyAction({
   vaultAddress,
   accountAddress,
   supplyAmount,
-}: Erc4626SupplyActionParameters & { enableSlippageProtection?: boolean }): Promise<VaultAction> {
+}: Erc4626SupplyActionParameters): Promise<VaultAction> {
   if (APP_CONFIG.actionParameters.bundler3Config.enabled) {
     return erc4626SupplyViaBundler3Action({ client, vaultAddress, accountAddress, supplyAmount });
   }

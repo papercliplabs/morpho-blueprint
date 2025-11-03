@@ -79,7 +79,6 @@ export function useVaultWithdrawForm({ vault, onSuccessfulActionSimulation }: Us
 
       if (error) {
         setSubmitErrorMsg(error instanceof UserFacingError ? error.message : "An unknown error occurred");
-        console.error(error);
       } else {
         onSuccessfulActionSimulation(action);
       }

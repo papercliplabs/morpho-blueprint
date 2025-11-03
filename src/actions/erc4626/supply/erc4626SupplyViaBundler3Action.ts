@@ -1,7 +1,6 @@
 import { getChainAddresses, MathLib } from "@morpho-org/blue-sdk";
 import { BundlerAction } from "@morpho-org/bundler-sdk-viem";
 import { encodeFunctionData, erc20Abi } from "viem";
-import { MAX_ABSOLUTE_SHARE_PRICE_RAY } from "@/actions/constants";
 import { APP_CONFIG } from "@/config";
 import { tryCatch } from "@/utils/tryCatch";
 import {
@@ -56,6 +55,9 @@ export async function erc4626SupplyViaBundler3Action({
   if (accountUnderlyingAssetBalance < supplyAmount) {
     throw new UserFacingError("Supply amount exceeds the account balance.");
   }
+  if (quotedShares === 0n) {
+    throw new UserFacingError("Vault quoted 0 shares. Try to increase the supply amount.");
+  }
 
   const requiresApproval = allowance < supplyAmount;
 
@@ -92,13 +94,10 @@ export async function erc4626SupplyViaBundler3Action({
   }
 
   // Slippage calculation, this is the amount of assets to pay to get 1 share, scaled by RAY (1e27)
-  const maxSharePriceRay = MathLib.min(
-    MathLib.mulDivDown(
-      supplyAmount,
-      MathLib.wToRay(MathLib.WAD + APP_CONFIG.actionParameters.bundler3Config.slippageToleranceWad),
-      quotedShares,
-    ),
-    MAX_ABSOLUTE_SHARE_PRICE_RAY,
+  const maxSharePriceRay = MathLib.mulDivDown(
+    supplyAmount,
+    MathLib.wToRay(MathLib.WAD + APP_CONFIG.actionParameters.bundler3Config.slippageToleranceWad),
+    quotedShares,
   );
 
   // Supply to vault via bundler3 with slippage protection

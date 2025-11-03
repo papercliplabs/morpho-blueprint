@@ -48,15 +48,18 @@ export async function erc4626WithdrawViaBundler3Action({
   if (isFullWithdraw) {
     // Just sanity check for disabled vaults for maxRedeem since actual value can be an underestimate due to rounding and can cause false negatives
     if (maxRedeem === 0n) {
-      throw new UserFacingError("Vault does not support full withdraw.");
+      throw new UserFacingError("Vault is currently preventing redemptions. This could be due to low liquidity.");
     }
   } else {
     if (maxWithdraw < withdrawAmount) {
       throw new UserFacingError("Insufficient liquidity to withdraw requested amount.");
     }
-    if (initialPosition.assets < withdrawAmount) {
+    if (initialPosition.assets < withdrawAmount || initialPosition.shares === 0n) {
       throw new UserFacingError("Withdraw amount exceeds account balance.");
     }
+  }
+  if (quotedSharesRedeemed === 0n) {
+    throw new UserFacingError("Vault quoted 0 shares redeemed. Try to increase the withdraw amount.");
   }
 
   // Build transaction requests based on withdraw type
@@ -132,7 +135,7 @@ function buildErc4626RedeemTransactionRequests({
   vaultAddress,
   accountAddress,
   generalAdapter1Address,
-  exactInputShares,
+  exactInputShares, // Assumed non-zero (sanitized before calling)
   quotedOutputAssets,
   allowance,
 }: {
@@ -187,7 +190,7 @@ function buildErc4626WithdrawTransactionRequests({
   vaultAddress,
   accountAddress,
   generalAdapter1Address,
-  quotedInputShares,
+  quotedInputShares, // Assumed non-zero (sanitized before calling)
   exactOutputAssets,
   positionShares,
   allowance,
@@ -209,6 +212,7 @@ function buildErc4626WithdrawTransactionRequests({
   );
 
   // Max shares needed for worst-case slippage, clamped to position size
+  // Note this will likely leave a dust share approval for GA1 (which is fine)
   const maxInputShares = MathLib.min(
     MathLib.mulDivUp(exactOutputAssets, MathLib.RAY, minSharePriceRay),
     positionShares,
