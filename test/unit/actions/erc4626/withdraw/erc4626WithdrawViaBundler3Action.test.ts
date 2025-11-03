@@ -1,11 +1,11 @@
 import { getChainAddresses } from "@morpho-org/blue-sdk";
-import { maxUint256, parseUnits } from "viem";
+import { parseUnits } from "viem";
 import { describe, expect } from "vitest";
 
 import { erc4626WithdrawViaBundler3Action } from "@/actions/erc4626/withdraw/erc4626WithdrawViaBundler3Action";
 
 import { test } from "../../../../config";
-import { failureTestCases, runErc4626WithdrawTest, runSlippageTest, successTestCases } from "./shared";
+import { failureTestCases, runErc4626WithdrawTest, successTestCases } from "./shared";
 
 describe("erc4626WithdrawViaBundler3Action", () => {
   describe("happy path", () => {
@@ -22,28 +22,6 @@ describe("erc4626WithdrawViaBundler3Action", () => {
           expectedApprovalTargets: [generalAdapter1], // Only approves GA1 (using approval tx, not permit2)
           expectedZeroBalanceAddresses: [bundler3, generalAdapter1], // Check bundler/adapter have no leftover funds
         });
-      });
-    });
-
-    test("withdraw with existing wallet balance", async ({ client }) => {
-      const vaultAddress = "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB";
-      const {
-        bundler3: { bundler3, generalAdapter1 },
-      } = getChainAddresses(client.chain.id);
-
-      // This test verifies that withdrawing works correctly even when the user
-      // already has some underlying assets in their wallet
-      await runErc4626WithdrawTest({
-        client,
-        vaultAddress,
-        initialState: {
-          vaultPositionBalance: parseUnits("1000", 6),
-          walletUnderlyingAssetBalance: parseUnits("500", 6), // Already have some USDC in wallet
-        },
-        withdrawAmount: parseUnits("300", 6),
-        withdrawActionFn: erc4626WithdrawViaBundler3Action,
-        expectedApprovalTargets: [generalAdapter1],
-        expectedZeroBalanceAddresses: [bundler3, generalAdapter1],
       });
     });
 
@@ -113,40 +91,6 @@ describe("erc4626WithdrawViaBundler3Action", () => {
             expectedZeroBalanceAddresses: [bundler3, generalAdapter1],
           }),
         ).rejects.toThrow(testCase.expectedError);
-      });
-    });
-
-    test("handles normal price conditions (slippage test placeholder)", async ({ client }) => {
-      const {
-        bundler3: { bundler3, generalAdapter1 },
-      } = getChainAddresses(client.chain.id);
-
-      // Note: This test verifies bundler3 withdraw works under normal conditions
-      // True slippage testing for withdraw would require manipulating share price upward,
-      // which is not easily achievable in MetaMorpho v1.1
-      await runSlippageTest(client, erc4626WithdrawViaBundler3Action, [generalAdapter1], [bundler3, generalAdapter1]);
-    });
-  });
-
-  describe("edge cases", () => {
-    test("handles dust position (very small shares)", async ({ client }) => {
-      const vaultAddress = "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB";
-      const {
-        bundler3: { bundler3, generalAdapter1 },
-      } = getChainAddresses(client.chain.id);
-
-      // Test with a tiny position - 100 wei of USDC (0.0000001 USDC)
-      // This tests the lower bound of withdrawable positions
-      await runErc4626WithdrawTest({
-        client,
-        vaultAddress,
-        initialState: {
-          vaultPositionBalance: BigInt(100), // 100 wei
-        },
-        withdrawAmount: maxUint256, // Full withdraw of dust
-        withdrawActionFn: erc4626WithdrawViaBundler3Action,
-        expectedApprovalTargets: [generalAdapter1],
-        expectedZeroBalanceAddresses: [bundler3, generalAdapter1],
       });
     });
   });

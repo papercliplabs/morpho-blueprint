@@ -94,8 +94,8 @@ export interface AppConfig {
     readonly publicAllocatorSupplyTargetUtilizationWad: bigint; // Scaled by WAD
 
     // Configuration for bundler3 support.
-    // NOTE: currently this only controls vault actions, market actions use bundler3 and a default slippage.
-    //       in the future this will control both vault and market actions.
+    // NOTE: currently `enable` only controls vault actions, market actions always use bundler3.
+    //       in the future `enable` will control both vault and market actions (but not bundler3 actions are not yet implemented).
     readonly bundler3Config: {
       readonly enabled: boolean;
       readonly slippageToleranceWad: bigint;

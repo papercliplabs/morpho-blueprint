@@ -62,8 +62,20 @@ export async function erc4626SupplyViaBundler3Action({
   const transactionRequests: TransactionRequest[] = [];
 
   if (requiresApproval) {
-    // We do not need to revoke existing approval since we are approving GA1.
-    // GA1 is a known contract and doesn't have an approval frontrunning attack vulnerability
+    // Technically, we do not need to revoke existing approval since we are approving GA1 which is an immutable contract without approval frontrunning vulnerabilities.
+    // BUT, some tokens like USDT are non ERC-20 compliant, requiring zeroing of the allowance before setting a new value:
+    // https://zokyo-auditing-tutorials.gitbook.io/zokyo-tutorials/tutorials/tutorial-3-approvals-and-safe-approvals/vulnerability-examples/erc20-approval-reset-requirement
+    // For this reason, we will still revoke the existing approval if it exists. It is a rare case this is needed since supply actions do not leave any "dust" approvals (always exact input).
+    // If it is known all underlying tokens being interacted with are ERC-20 compliant, this can be removed.
+    if (allowance > 0n) {
+      transactionRequests.push({
+        name: "Revoke existing approval",
+        tx: () => ({
+          to: underlyingAssetAddress,
+          data: encodeFunctionData({ abi: erc20Abi, functionName: "approve", args: [generalAdapter1Address, 0n] }),
+        }),
+      });
+    }
 
     // Approve GA1 to spend supplyAmount of underlying assets
     transactionRequests.push({
@@ -81,7 +93,7 @@ export async function erc4626SupplyViaBundler3Action({
 
   // Slippage calculation, this is the amount of assets to pay to get 1 share, scaled by RAY (1e27)
   const maxSharePriceRay = MathLib.min(
-    MathLib.mulDivUp(
+    MathLib.mulDivDown(
       supplyAmount,
       MathLib.wToRay(MathLib.WAD + APP_CONFIG.actionParameters.bundler3Config.slippageToleranceWad),
       quotedShares,

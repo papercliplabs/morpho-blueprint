@@ -47,9 +47,11 @@ export async function erc4626SupplyActionDirect({
 
   if (requiresApproval) {
     if (allowance > 0n) {
-      // Revoke approval before setting new to avoid approval frontrunning attack
-      // This can only occur if the vault has code which allows for someone to execute an action on the users behalf (we don't necessairly know the vaults implementation)
-      // Note that USDT requires this as it will revert otherwise (frontrunning prevention built into the contract)
+      // We do not need to revoke existing approval if our trust assumption is that the vault is not malicious, and doesn't have an approval frontrunning vulnerability.
+      // BUT, some tokens like USDT are non ERC-20 compliant, requiring zeroing of the allowance before setting a new value:
+      // https://zokyo-auditing-tutorials.gitbook.io/zokyo-tutorials/tutorials/tutorial-3-approvals-and-safe-approvals/vulnerability-examples/erc20-approval-reset-requirement
+      // For this reason, we will still revoke the existing approval if it exists. It is a rare case this is needed since supply actions do not leave any "dust" approvals (always exact input).
+      // If it is known all underlying tokens being interacted with are ERC-20 compliant, and all vault have no approval frontrunning vulnerabilities, this can be removed.
       transactionRequests.push({
         name: "Revoke existing approval",
         tx: () => ({

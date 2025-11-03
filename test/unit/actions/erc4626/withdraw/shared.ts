@@ -1,6 +1,6 @@
 import { fetchVaultConfig } from "@morpho-org/blue-sdk-viem";
 import type { AnvilTestClient } from "@morpho-org/test";
-import { type Address, maxUint256, parseEther, parseUnits, zeroAddress } from "viem";
+import { type Address, type Log, maxUint256, parseEther, parseUnits, zeroAddress } from "viem";
 import { expect } from "vitest";
 
 import type { Erc4626WithdrawActionParameters, VaultAction } from "@/actions/types";
@@ -41,7 +41,7 @@ export async function runErc4626WithdrawTest({
   withdrawActionFn,
   expectedApprovalTargets,
   expectedZeroBalanceAddresses,
-}: Erc4626WithdrawTestParameters): Promise<void> {
+}: Erc4626WithdrawTestParameters): Promise<Log[]> {
   ////
   // Arrange
   ////
@@ -121,13 +121,15 @@ export async function runErc4626WithdrawTest({
     await expectZeroErc20Balances(client, expectedZeroBalanceAddresses, assetAddress);
     await expectZeroErc20Balances(client, expectedZeroBalanceAddresses, vaultAddress);
   }
+
+  return logs;
 }
 
 // Shared test cases
 export const successTestCases: Array<{
   name: string;
   vaultAddress: Address;
-  initialState: { vaultPositionBalance: bigint };
+  initialState: { vaultPositionBalance: bigint; walletUnderlyingAssetBalance?: bigint };
   withdrawAmount: bigint;
   beforeExecutionCb?: (client: AnvilTestClient) => Promise<void>;
 }> = [
@@ -138,6 +140,15 @@ export const successTestCases: Array<{
       vaultPositionBalance: parseUnits("2000", 6),
     },
     withdrawAmount: parseUnits("1000", 6),
+  },
+  {
+    name: "Partial withdraw with existing wallet balance",
+    vaultAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+    initialState: {
+      vaultPositionBalance: parseUnits("5000", 6),
+      walletUnderlyingAssetBalance: parseUnits("1000", 6), // Existing 1000 USDC in wallet
+    },
+    withdrawAmount: parseUnits("2000", 6), // Withdraw 2000 USDC from vault
   },
   {
     name: "Partial withdraw (10%)",
@@ -156,12 +167,33 @@ export const successTestCases: Array<{
     withdrawAmount: maxUint256,
   },
   {
+    name: "Full withdraw with existing wallet balance",
+    vaultAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+    initialState: {
+      vaultPositionBalance: parseUnits("5000", 6),
+      walletUnderlyingAssetBalance: parseUnits("1000", 6), // Existing 1000 USDC in wallet
+    },
+    withdrawAmount: maxUint256,
+  },
+  {
     name: "Full withdraw after interest accrual",
     vaultAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
     initialState: {
       vaultPositionBalance: parseUnits("10000", 6),
     },
     withdrawAmount: maxUint256,
+    beforeExecutionCb: async (client) => {
+      // Mine blocks to accrue interest
+      await client.mine({ blocks: 1000 });
+    },
+  },
+  {
+    name: "Partial withdraw after interest accrual",
+    vaultAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+    initialState: {
+      vaultPositionBalance: parseUnits("10000", 6),
+    },
+    withdrawAmount: parseUnits("500", 6),
     beforeExecutionCb: async (client) => {
       // Mine blocks to accrue interest
       await client.mine({ blocks: 1000 });
@@ -261,33 +293,31 @@ export const failureTestCases: Array<{
 ];
 
 // Shared slippage test for bundler3
-// Note: For withdraw, we can't easily simulate slippage in the same way as supply
-// because decreasing share price during withdraw would actually benefit the user (fewer shares burned)
-// Slippage protection on withdraw protects against share price INCREASING (more shares needed)
-export async function runSlippageTest(
-  client: AnvilTestClient,
-  withdrawActionFn: (params: Erc4626WithdrawActionParameters) => Promise<VaultAction>,
-  expectedApprovalTargets: Address[],
-  expectedZeroBalanceAddresses: Address[],
-) {
-  const vaultAddress = "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB";
+// For withdrawal slippage test, we would need to DECREASE the share price
+// However, in MetaMorpho v1.1, share price can't easily be manipulated downward
+// export async function runSlippageTest(
+//   client: AnvilTestClient,
+//   withdrawActionFn: (params: Erc4626WithdrawActionParameters) => Promise<VaultAction>,
+//   expectedApprovalTargets: Address[],
+//   expectedZeroBalanceAddresses: Address[],
+// ) {
+//   const vaultAddress = "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB";
 
-  return runErc4626WithdrawTest({
-    client,
-    vaultAddress,
-    initialState: {
-      vaultPositionBalance: parseUnits("100000", 6),
-    },
-    withdrawAmount: parseUnits("10000", 6),
-    beforeExecutionCb: async () => {
-      // For withdrawal slippage test, we would need to INCREASE the share price
-      // (make shares more valuable, so we need to burn more shares to get same assets)
-      // However, in MetaMorpho v1.1, share price can't easily be manipulated upward during a withdraw
-      // This test verifies that the transaction succeeds under normal conditions
-      await client.mine({ blocks: 10 });
-    },
-    withdrawActionFn,
-    expectedApprovalTargets,
-    expectedZeroBalanceAddresses,
-  });
-}
+//   return runErc4626WithdrawTest({
+//     client,
+//     vaultAddress,
+//     initialState: {
+//       vaultPositionBalance: parseUnits("100000", 6),
+//     },
+//     withdrawAmount: parseUnits("10000", 6),
+//     beforeExecutionCb: async () => {
+//       // For withdrawal slippage test, we would need to DECREASE the share price
+//       // However, in MetaMorpho v1.1, share price can't easily be manipulated downward
+//       // This test verifies that the transaction succeeds under normal conditions
+//       await client.mine({ blocks: 10 });
+//     },
+//     withdrawActionFn,
+//     expectedApprovalTargets,
+//     expectedZeroBalanceAddresses,
+//   });
+// }

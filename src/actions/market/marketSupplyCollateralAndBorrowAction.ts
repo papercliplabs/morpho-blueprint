@@ -1,9 +1,9 @@
-import { DEFAULT_SLIPPAGE_TOLERANCE, getChainAddresses, type MarketId } from "@morpho-org/blue-sdk";
+import { getChainAddresses, type MarketId } from "@morpho-org/blue-sdk";
 import type { InputBundlerOperation } from "@morpho-org/bundler-sdk-viem";
 import { type Address, maxUint256 } from "viem";
 
 import { getIsContract } from "@/actions/data/rpc/getIsContract";
-
+import { APP_CONFIG } from "@/config";
 import { getMarketSimulationStateAccountingForPublicReallocation } from "../data/rpc/getSimulationState";
 import { type ClientWithChain, type MarketAction, UserFacingError } from "../types";
 import { actionFromInputOps } from "../utils/actionFromInputOps";
@@ -87,7 +87,7 @@ export async function marketSupplyCollateralAndBorrowAction({
                 onBehalf: accountAddress,
                 receiver: accountAddress,
                 assets: borrowAmount,
-                slippage: DEFAULT_SLIPPAGE_TOLERANCE,
+                slippage: APP_CONFIG.actionParameters.bundler3Config.slippageToleranceWad,
               },
             } as InputBundlerOperation,
           ]

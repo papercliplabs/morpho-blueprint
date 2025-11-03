@@ -1,7 +1,7 @@
 import { MathLib } from "@morpho-org/blue-sdk";
 import { fetchVaultConfig, metaMorphoAbi } from "@morpho-org/blue-sdk-viem";
 import type { AnvilTestClient } from "@morpho-org/test";
-import { type Address, parseEther, parseUnits } from "viem";
+import { type Address, erc20Abi, getAddress, type Log, parseEther, parseUnits } from "viem";
 import { readContract } from "viem/actions";
 import { expect } from "vitest";
 
@@ -10,7 +10,7 @@ import type { Erc4626SupplyActionParameters, VaultAction } from "@/actions/types
 import { RANDOM_ADDRESS } from "../../../../helpers/constants";
 import { expectZeroErc20Balances, getErc20BalanceOf } from "../../../../helpers/erc20";
 import { executeAction } from "../../../../helpers/executeAction";
-import { expectOnlyAllowedApprovals } from "../../../../helpers/logs";
+import { expectOnlyAllowedApprovals, extractApprovalEvents } from "../../../../helpers/logs";
 import { createVaultPosition, getMorphoVaultPosition, seedMarketLiquidity } from "../../../../helpers/morpho";
 
 export interface Erc4626SupplyTestParameters {
@@ -43,7 +43,7 @@ export async function runErc4626SupplyTest({
   supplyActionFn,
   expectedApprovalTargets,
   expectedZeroBalanceAddresses,
-}: Erc4626SupplyTestParameters): Promise<void> {
+}: Erc4626SupplyTestParameters): Promise<Log[]> {
   ////
   // Arrange
   ////
@@ -105,6 +105,8 @@ export async function runErc4626SupplyTest({
     await expectZeroErc20Balances(client, expectedZeroBalanceAddresses, assetAddress);
     await expectZeroErc20Balances(client, expectedZeroBalanceAddresses, vaultAddress);
   }
+
+  return logs;
 }
 
 // Shared test cases
@@ -148,7 +150,7 @@ export const successTestCases: Array<{
     supplyAmount: BigInt(1),
   },
   {
-    name: "Very large supply amount",
+    name: "Large supply amount",
     vaultAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
     initialState: {
       walletUnderlyingAssetBalance: parseUnits("1000000", 6), // 1M USDC
@@ -211,7 +213,7 @@ export const failureTestCases: Array<{
       walletUnderlyingAssetBalance: parseUnits("100", 6),
     },
     supplyAmount: 0n,
-    expectedError: "Invalid input: Supply amount must be greater than 0.",
+    expectedError: "Invalid input: Amount must be greater than 0.",
   },
   {
     name: "negative supply amount",
@@ -220,7 +222,7 @@ export const failureTestCases: Array<{
       walletUnderlyingAssetBalance: parseUnits("100", 6),
     },
     supplyAmount: -1n,
-    expectedError: "Invalid input: Supply amount must be greater than 0.",
+    expectedError: "Invalid input: Amount must be greater than 0.",
   },
 ];
 
@@ -266,4 +268,60 @@ export async function runSlippageTest(
     expectedApprovalTargets,
     expectedZeroBalanceAddresses,
   });
+}
+
+export async function runErc4626SupplyRevokeApprovalTest(
+  client: AnvilTestClient,
+  supplyActionFn: (params: Erc4626SupplyActionParameters) => Promise<VaultAction>,
+  expectedSpender: "vault" | Address,
+) {
+  const vaultAddress = "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB";
+
+  const expectedSpenderAddress = expectedSpender === "vault" ? vaultAddress : expectedSpender;
+
+  // Set up initial state with wallet balance
+  const assetAddress = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"; // USDC
+  await client.deal({
+    erc20: assetAddress,
+    amount: parseUnits("2000", 6),
+  });
+
+  // Create an existing insufficient approval (simulates USDT case)
+  await client.writeContract({
+    address: assetAddress,
+    abi: erc20Abi,
+    functionName: "approve",
+    args: [expectedSpenderAddress, parseUnits("500", 6)],
+  });
+
+  // Now run the supply test - it should handle the revoke + approve + deposit
+  const logs = await runErc4626SupplyTest({
+    client,
+    vaultAddress,
+    initialState: {
+      walletUnderlyingAssetBalance: parseUnits("2000", 6),
+    },
+    supplyAmount: parseUnits("1000", 6),
+    supplyActionFn,
+    expectedApprovalTargets: [expectedSpenderAddress],
+  });
+
+  const erc20Approvals = await extractApprovalEvents(logs, client.account.address);
+  expect(erc20Approvals).toHaveLength(2);
+
+  if (erc20Approvals.length === 2) {
+    // Test fails if this is not true
+    const firstApproval = erc20Approvals[0]!;
+    const secondApproval = erc20Approvals[1]!;
+
+    // First apporval revokes the existing allowance
+    expect(getAddress(firstApproval.asset)).toBe(getAddress(assetAddress));
+    expect(getAddress(firstApproval.spender)).toBe(getAddress(expectedSpenderAddress));
+    expect(firstApproval.amount).toBe(0n);
+
+    // Second approval sets the new allowance
+    expect(getAddress(secondApproval.asset)).toBe(getAddress(assetAddress));
+    expect(getAddress(secondApproval.spender)).toBe(getAddress(expectedSpenderAddress));
+    expect(secondApproval.amount).toBe(parseUnits("1000", 6));
+  }
 }

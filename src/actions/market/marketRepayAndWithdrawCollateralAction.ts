@@ -1,10 +1,10 @@
-import { DEFAULT_SLIPPAGE_TOLERANCE, getChainAddresses, type MarketId } from "@morpho-org/blue-sdk";
+import { getChainAddresses, type MarketId } from "@morpho-org/blue-sdk";
 import type { InputBundlerOperation } from "@morpho-org/bundler-sdk-viem";
 import { type Address, maxUint256 } from "viem";
 
 import { getIsContract } from "@/actions/data/rpc/getIsContract";
 import { getSimulationState } from "@/actions/data/rpc/getSimulationState";
-
+import { APP_CONFIG } from "@/config";
 import { type ClientWithChain, type MarketAction, UserFacingError } from "../types";
 import { actionFromInputOps } from "../utils/actionFromInputOps";
 import { computeMarketPositionChange } from "../utils/positionChange";
@@ -66,7 +66,7 @@ export async function marketRepayAndWithdrawCollateralAction({
                 onBehalf: accountAddress,
                 // Use shares if a max repay to ensure fully closed position
                 ...(isMaxRepay ? { shares: userPosition.borrowShares } : { assets: repayAmount }),
-                slippage: DEFAULT_SLIPPAGE_TOLERANCE,
+                slippage: APP_CONFIG.actionParameters.bundler3Config.slippageToleranceWad,
               },
             } as InputBundlerOperation,
           ]

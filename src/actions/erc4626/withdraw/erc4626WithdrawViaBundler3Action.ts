@@ -95,7 +95,7 @@ export async function erc4626WithdrawViaBundler3Action({
 
 /**
  * Creates an approval transaction if needed for vault share spending.
- * GA1 is a known contract without approval frontrunning vulnerabilities, so we don't revoke existing approvals.
+ * GA1 is a known and immutable contract without approval frontrunning vulnerabilities, so we don't revoke existing approvals.
  */
 function buildApprovalTransactionIfNeeded({
   vaultAddress,
@@ -157,7 +157,7 @@ function buildErc4626RedeemTransactionRequests({
   );
 
   // Slippage calculation: minimum amount of assets to receive per share, scaled by RAY (1e27)
-  const minSharePriceRay = MathLib.mulDivDown(
+  const minSharePriceRay = MathLib.mulDivUp(
     quotedOutputAssets,
     MathLib.wToRay(MathLib.WAD - APP_CONFIG.actionParameters.bundler3Config.slippageToleranceWad),
     exactInputShares,
@@ -202,7 +202,7 @@ function buildErc4626WithdrawTransactionRequests({
   allowance: bigint;
 }) {
   // Slippage calculation: minimum amount of assets to receive per share, scaled by RAY (1e27)
-  const minSharePriceRay = MathLib.mulDivDown(
+  const minSharePriceRay = MathLib.mulDivUp(
     exactOutputAssets,
     MathLib.wToRay(MathLib.WAD - APP_CONFIG.actionParameters.bundler3Config.slippageToleranceWad),
     quotedInputShares,

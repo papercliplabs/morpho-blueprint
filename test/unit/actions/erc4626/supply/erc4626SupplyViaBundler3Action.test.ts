@@ -4,7 +4,13 @@ import { describe, expect } from "vitest";
 import { erc4626SupplyViaBundler3Action } from "@/actions/erc4626/supply/erc4626SupplyViaBundler3Action";
 
 import { test } from "../../../../config";
-import { failureTestCases, runErc4626SupplyTest, runSlippageTest, successTestCases } from "./shared";
+import {
+  failureTestCases,
+  runErc4626SupplyRevokeApprovalTest,
+  runErc4626SupplyTest,
+  runSlippageTest,
+  successTestCases,
+} from "./shared";
 
 describe("erc4626SupplyViaBundler3Action", () => {
   describe("happy path", () => {
@@ -22,6 +28,13 @@ describe("erc4626SupplyViaBundler3Action", () => {
           expectedZeroBalanceAddresses: [bundler3, generalAdapter1], // Check bundler/adapter have no leftover funds
         });
       });
+    });
+
+    test("handles existing non-zero allowance with revoke before approve", async ({ client }) => {
+      const {
+        bundler3: { generalAdapter1 },
+      } = getChainAddresses(client.chain.id);
+      await runErc4626SupplyRevokeApprovalTest(client, erc4626SupplyViaBundler3Action, generalAdapter1);
     });
   });
 
