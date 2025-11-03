@@ -92,7 +92,12 @@ const FormLabel = React.forwardRef<
   const showError = !!error && isDirty;
 
   return (
-    <Label ref={ref} className={clsx(showError && "text-destructive", className)} htmlFor={formItemId} {...props} />
+    <Label
+      ref={ref}
+      className={clsx(showError && "text-destructive-foreground", className)}
+      htmlFor={formItemId}
+      {...props}
+    />
   );
 });
 FormLabel.displayName = "FormLabel";

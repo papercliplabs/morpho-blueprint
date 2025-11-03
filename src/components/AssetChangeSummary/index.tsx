@@ -25,7 +25,7 @@ function AssetChangeSummary({
 }: AssetChangeSummaryProps) {
   return (
     <div
-      className={cn("flex w-full items-center justify-between gap-3 rounded-sm bg-muted px-4 py-3", className)}
+      className={cn("flex w-full items-center justify-between gap-3 rounded-md bg-muted px-4 py-3", className)}
       {...props}
     >
       <Avatar
