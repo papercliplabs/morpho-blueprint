@@ -1,13 +1,14 @@
 "use client";
 
+import clsx from "clsx";
 import { useEffect, useMemo, useState } from "react";
 import { getAddress } from "viem";
-
 import { PoweredByMorpho } from "@/components/PoweredByMorpho";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Drawer, DrawerContent, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { SupportedChainId } from "@/config/types";
 import type { Vault } from "@/data/whisk/getVault";
 import { useVaultPosition } from "@/hooks/useVaultPositions";
@@ -61,13 +62,30 @@ function VaultActionsDesktop({ vault, hasSupplyPosition }: { hasSupplyPosition: 
     }
   }, [hasSupplyPosition]);
 
+  const disableWithdrawTab = !hadSupplyPosition;
+
   return (
     <Card className="h-fit w-[364px] shrink-0">
       <Tabs defaultValue="supply" variant="underline" className="flex flex-col gap-6">
         <div className="w-full border-b">
           <TabsList className="w-fit">
             <TabsTrigger value="supply">Supply</TabsTrigger>
-            {hadSupplyPosition && <TabsTrigger value="withdraw">Withdraw</TabsTrigger>}
+            <Tooltip>
+              <TooltipTrigger>
+                <TabsTrigger
+                  value="withdraw"
+                  disabled={disableWithdrawTab}
+                  className={clsx(disableWithdrawTab && "!cursor-not-allowed")}
+                >
+                  Withdraw
+                </TabsTrigger>
+              </TooltipTrigger>
+              {disableWithdrawTab && (
+                <TooltipContent>
+                  <p>You need to open a supply position before you can withdraw.</p>
+                </TooltipContent>
+              )}
+            </Tooltip>
           </TabsList>
         </div>
         <TabsContent value="supply" className="flex flex-col gap-6">
