@@ -7,8 +7,8 @@ import { Table } from "@/components/ui/table";
 import { APP_CONFIG } from "@/config";
 import type { Market } from "@/data/whisk/getMarket";
 
-import AvatarGroup from "../AvatarGroup";
 import { TotalSupplyTooltip } from "../Tooltips/TotalSupplyTooltip";
+import { Avatar } from "../ui/avatar";
 import NumberFlow from "../ui/number-flow";
 import { VaultName } from "../vault/VaultName";
 
@@ -32,23 +32,15 @@ const columns: Column[] = [
     ? [
         {
           id: "curator",
-          accessorFn: (row) => row.vault.metadata?.curators[0]?.name ?? "",
+          accessorFn: (row) => row.vault.metadata?.curator?.name ?? "",
           header: "Curator",
           cell: ({ row }) => {
             const { vault } = row.original;
-            const curators = vault.metadata?.curators ?? [];
-            return curators.length > 0 ? (
-              <AvatarGroup
-                avatars={curators.map((curator) => ({
-                  src: curator.image,
-                }))}
-                max={2}
-                size="sm"
-                className="rounded-full"
-                avatarClassName="border-[var(--row-color)]"
-              />
+            const curator = vault.metadata?.curator;
+            return curator ? (
+              <Avatar src={curator.image} alt={curator.name} size="sm" className="rounded-full border" />
             ) : (
-              "None"
+              "Unknown"
             );
           },
           minSize: 130,

@@ -10,6 +10,7 @@ import { sortTableAssetAmount } from "@/utils/sort";
 import { extractVaultSupplyApy, getVaultTagData } from "@/utils/vault";
 import AvatarGroup from "../AvatarGroup";
 import { ApyTooltip } from "../Tooltips/ApyToolip";
+import { Avatar } from "../ui/avatar";
 import { Badge } from "../ui/badge";
 import { VaultName } from "../vault/VaultName";
 import { TableAssetAmount } from "./Elements/TableAssetAmount";
@@ -139,24 +140,15 @@ function getColumns(isPositionLoading: boolean): Column[] {
       ? [
           {
             id: "curator",
-            accessorFn: (row) => row.vaultSummary.metadata?.curators[0]?.name ?? "",
+            accessorFn: (row) => row.vaultSummary.metadata?.curator?.name ?? "",
             header: "Curator",
             cell: ({ row }) => {
               const { vaultSummary } = row.original;
-              const curators = vaultSummary.metadata?.curators ?? [];
-              return curators.length > 0 ? (
-                <AvatarGroup
-                  avatars={curators.map((curator) => ({
-                    src: curator.image,
-                    fallback: curator.name,
-                  }))}
-                  max={2}
-                  size="sm"
-                  className="rounded-full border"
-                  avatarClassName="border-[var(--row-color)]"
-                />
+              const curator = vaultSummary.metadata?.curator;
+              return curator ? (
+                <Avatar src={curator.image} alt={curator.name} size="sm" className="rounded-full border" />
               ) : (
-                "None"
+                "Unknown"
               );
             },
             minSize: 120,

@@ -239,7 +239,7 @@ export const APP_CONFIG: AppConfig = {
 
   featureFlags: {
     enableDarkModeToggle: true,
-    hideCurator: true, // Curator data currently missing from Whisk (ticket to fix)
+    hideCurator: false,
   },
 
   analytics: {

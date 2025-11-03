@@ -40,7 +40,7 @@ export function MarketInfo({ market }: MarketInfoProps) {
             {market.collateralAsset.symbol}
           </LinkExternalBlockExplorer>
         ) : (
-          "None"
+          "Unknown"
         )
       }
       loanAsset={
