@@ -32,7 +32,7 @@ function getColumns(isPositionLoading: boolean): ColumnDef<MarketTableDataEntry>
               size="md"
               chainClassName="border-[var(--row-color)]"
             />
-            <span className="body-medium-plus">{marketSummary.collateralAsset.symbol}</span>
+            <span className="body-medium-plus max-w-20 truncate">{marketSummary.collateralAsset.symbol}</span>
           </div>
         ) : (
           "N/A"
@@ -54,7 +54,7 @@ function getColumns(isPositionLoading: boolean): ColumnDef<MarketTableDataEntry>
               size="md"
               chainClassName="border-[var(--row-color)]"
             />
-            <span className="body-medium-plus">{marketSummary.loanAsset.symbol}</span>
+            <span className="body-medium-plus max-w-20 truncate">{marketSummary.loanAsset.symbol}</span>
           </div>
         );
       },

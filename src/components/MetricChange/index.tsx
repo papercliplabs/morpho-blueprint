@@ -16,7 +16,7 @@ interface MetricChangeProps extends React.ComponentProps<"div"> {
 export function MetricChange({ name, initialValue, finalValue, className, ...props }: MetricChangeProps) {
   return (
     <div className={cn("flex items-center justify-between overflow-hidden text-muted", className)} {...props}>
-      <span className="body-medium text-muted-foreground">{name}</span>
+      <span className="body-medium truncate text-muted-foreground">{name}</span>
       <MetricChangeValues initialValue={initialValue} finalValue={finalValue} />
     </div>
   );

@@ -104,6 +104,7 @@ export function MarketActionSimulationMetrics({
       {market.collateralAsset && (
         <MetricChange
           name={`Collateral (${market.collateralAsset?.symbol})`}
+          className="gap-1"
           initialValue={
             <NumberFlowWithLoading
               value={positionChange.collateral.before}
@@ -124,6 +125,7 @@ export function MarketActionSimulationMetrics({
       )}
       <MetricChange
         name={`Loan (${market.loanAsset?.symbol})`}
+        className="gap-1"
         initialValue={
           <NumberFlowWithLoading
             value={positionChange.loan.before}
