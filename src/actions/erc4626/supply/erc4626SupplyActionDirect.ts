@@ -1,4 +1,5 @@
 import { encodeFunctionData, erc20Abi, erc4626Abi } from "viem";
+import { TOKENS_REQUIRING_APPROVAL_REVOCATION } from "@/actions/constants";
 import { tryCatch } from "@/utils/tryCatch";
 import {
   type Erc4626SupplyActionParameters,
@@ -10,7 +11,9 @@ import { fetchErc4626SupplyData, validateErc4626ActionParameters } from "../help
 
 /**
  * Action to supply directly to an ERC4626 vault.
- * It is assumed the vault correctly implements the ERC-4626 specification: https://eips.ethereum.org/EIPS/eip-4626
+ * It is assumed the vault correctly implements the ERC-4626 specification, and does not expose approval frontrunning vulnerabilities:
+ * - https://eips.ethereum.org/EIPS/eip-4626
+ * - https://zokyo-auditing-tutorials.gitbook.io/zokyo-tutorials/tutorials/tutorial-3-approvals-and-safe-approvals/vulnerability-examples/erc20-approval-reset-requirement
  *
  * Note this has no slippage protection, meaning the supply is susceptible to share price inflation.
  * In practice, vaults generally protect against this (or against subsequent deflation after it occurs).
@@ -56,12 +59,8 @@ export async function erc4626SupplyActionDirect({
   const transactionRequests: TransactionRequest[] = [];
 
   if (requiresApproval) {
-    if (allowance > 0n) {
-      // We do not need to revoke existing approval if our trust assumption is that the vault is not malicious, and doesn't have an approval frontrunning vulnerability.
-      // BUT, some tokens like USDT are non ERC-20 compliant, requiring zeroing of the allowance before setting a new value:
-      // https://zokyo-auditing-tutorials.gitbook.io/zokyo-tutorials/tutorials/tutorial-3-approvals-and-safe-approvals/vulnerability-examples/erc20-approval-reset-requirement
-      // For this reason, we will still revoke the existing approval if it exists. It is a rare case this is needed since supply actions do not leave any "dust" approvals (always exact input).
-      // If it is known all underlying tokens being interacted with are ERC-20 compliant, and all vault have no approval frontrunning vulnerabilities, this can be removed.
+    // Revoke existing approval if needed
+    if (allowance > 0n && TOKENS_REQUIRING_APPROVAL_REVOCATION[client.chain.id]?.[underlyingAssetAddress]) {
       transactionRequests.push({
         name: "Revoke existing approval",
         tx: () => ({

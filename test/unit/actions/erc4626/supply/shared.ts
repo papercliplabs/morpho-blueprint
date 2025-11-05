@@ -270,23 +270,19 @@ export async function runSlippageTest(
   });
 }
 
-export async function runErc4626SupplyRevokeApprovalTest(
+// Test that tokens requiring approval revocation (like USDT) properly revoke before re-approving
+export async function runErc4626SupplyRevokeApprovalRequiredTest(
   client: AnvilTestClient,
   supplyActionFn: (params: Erc4626SupplyActionParameters) => Promise<VaultAction>,
   expectedSpender: "vault" | Address,
 ) {
-  const vaultAddress = "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB";
+  // USDT vault on mainnet - requires approval revocation
+  const vaultAddress = "0x79FD640000F8563A866322483524a4b48f1Ed702"; // Gauntlet USDT vault
+  const assetAddress = "0xdAC17F958D2ee523a2206206994597C13D831ec7"; // USDT
 
   const expectedSpenderAddress = expectedSpender === "vault" ? vaultAddress : expectedSpender;
 
-  // Set up initial state with wallet balance
-  const assetAddress = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"; // USDC
-  await client.deal({
-    erc20: assetAddress,
-    amount: parseUnits("2000", 6),
-  });
-
-  // Create an existing insufficient approval (simulates USDT case)
+  // Create an existing insufficient approval (simulates existing allowance)
   await client.writeContract({
     address: assetAddress,
     abi: erc20Abi,
@@ -307,14 +303,15 @@ export async function runErc4626SupplyRevokeApprovalTest(
   });
 
   const erc20Approvals = await extractApprovalEvents(logs, client.account.address);
+
+  // Should have 2 approvals: revoke (0) + new approval
   expect(erc20Approvals).toHaveLength(2);
 
   if (erc20Approvals.length === 2) {
-    // Test fails if this is not true
     const firstApproval = erc20Approvals[0]!;
     const secondApproval = erc20Approvals[1]!;
 
-    // First apporval revokes the existing allowance
+    // First approval revokes the existing allowance
     expect(getAddress(firstApproval.asset)).toBe(getAddress(assetAddress));
     expect(getAddress(firstApproval.spender)).toBe(getAddress(expectedSpenderAddress));
     expect(firstApproval.amount).toBe(0n);
@@ -324,4 +321,80 @@ export async function runErc4626SupplyRevokeApprovalTest(
     expect(getAddress(secondApproval.spender)).toBe(getAddress(expectedSpenderAddress));
     expect(secondApproval.amount).toBe(parseUnits("1000", 6));
   }
+}
+
+// Test that tokens NOT requiring approval revocation (like USDC) skip the revoke step
+export async function runErc4626SupplyRevokeApprovalNotRequiredTest(
+  client: AnvilTestClient,
+  supplyActionFn: (params: Erc4626SupplyActionParameters) => Promise<VaultAction>,
+  expectedSpender: "vault" | Address,
+) {
+  // USDC vault on mainnet - does NOT require approval revocation
+  const vaultAddress = "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB"; // Steakhouse USDC vault
+  const assetAddress = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"; // USDC
+
+  const expectedSpenderAddress = expectedSpender === "vault" ? vaultAddress : expectedSpender;
+
+  // Create an existing insufficient approval (simulates existing allowance)
+  await client.writeContract({
+    address: assetAddress,
+    abi: erc20Abi,
+    functionName: "approve",
+    args: [expectedSpenderAddress, parseUnits("500", 6)],
+  });
+
+  // Now run the supply test - it should only do approve + deposit (NO revoke)
+  const logs = await runErc4626SupplyTest({
+    client,
+    vaultAddress,
+    initialState: {
+      walletUnderlyingAssetBalance: parseUnits("2000", 6),
+    },
+    supplyAmount: parseUnits("1000", 6),
+    supplyActionFn,
+    expectedApprovalTargets: [expectedSpenderAddress],
+  });
+
+  const erc20Approvals = await extractApprovalEvents(logs, client.account.address);
+
+  // Should have only 1 approval: new approval (no revoke!)
+  expect(erc20Approvals).toHaveLength(1);
+}
+
+// Test that when sufficient allowance already exists, no approval transactions are created
+export async function runErc4626SupplySufficientAllowanceTest(
+  client: AnvilTestClient,
+  supplyActionFn: (params: Erc4626SupplyActionParameters) => Promise<VaultAction>,
+  expectedSpender: "vault" | Address,
+) {
+  // USDT vault on mainnet - using USDT to verify even tokens requiring revocation skip approvals when allowance is sufficient
+  const vaultAddress = "0x79FD640000F8563A866322483524a4b48f1Ed702"; // Gauntlet USDT vault
+  const assetAddress = "0xdAC17F958D2ee523a2206206994597C13D831ec7"; // USDT
+
+  const expectedSpenderAddress = expectedSpender === "vault" ? vaultAddress : expectedSpender;
+
+  // Create an existing SUFFICIENT approval (more than supply amount)
+  await client.writeContract({
+    address: assetAddress,
+    abi: erc20Abi,
+    functionName: "approve",
+    args: [expectedSpenderAddress, parseUnits("5000", 6)], // Much more than the 1000 we'll supply
+  });
+
+  // Now run the supply test - it should NOT create any approval transactions
+  const logs = await runErc4626SupplyTest({
+    client,
+    vaultAddress,
+    initialState: {
+      walletUnderlyingAssetBalance: parseUnits("2000", 6),
+    },
+    supplyAmount: parseUnits("1000", 6),
+    supplyActionFn,
+    expectedApprovalTargets: [expectedSpenderAddress],
+  });
+
+  const erc20Approvals = await extractApprovalEvents(logs, client.account.address);
+
+  // Should have 0 approvals since sufficient allowance already exists
+  expect(erc20Approvals).toHaveLength(0);
 }

@@ -1,6 +1,7 @@
 import { getChainAddresses, MathLib } from "@morpho-org/blue-sdk";
 import { BundlerAction } from "@morpho-org/bundler-sdk-viem";
 import { encodeFunctionData, erc20Abi } from "viem";
+import { TOKENS_REQUIRING_APPROVAL_REVOCATION } from "@/actions/constants";
 import { APP_CONFIG } from "@/config";
 import { tryCatch } from "@/utils/tryCatch";
 import {
@@ -14,7 +15,9 @@ import { fetchErc4626SupplyData, validateErc4626ActionParameters } from "../help
 /**
  * Action to supply to an ERC4626 vault via Bundler3.
  * The benefit of this over direct supply is slippage protection.
- * It is assumed the vault correctly implements the ERC-4626 specification: https://eips.ethereum.org/EIPS/eip-4626
+ * It is assumed the vault correctly implements the ERC-4626 specification, and does not expose approval frontrunning vulnerabilities:
+ * - https://eips.ethereum.org/EIPS/eip-4626
+ * - https://zokyo-auditing-tutorials.gitbook.io/zokyo-tutorials/tutorials/tutorial-3-approvals-and-safe-approvals/vulnerability-examples/erc20-approval-reset-requirement
  *
  * Note that while bundler3 also enables the use of permit2, this action uses explicit approval transactions.
  * This is to reduce complexity, and lends itself to a better UX for wallets with atomic batching capabilities (EIP-5792).
@@ -64,12 +67,8 @@ export async function erc4626SupplyViaBundler3Action({
   const transactionRequests: TransactionRequest[] = [];
 
   if (requiresApproval) {
-    // Technically, we do not need to revoke existing approval since we are approving GA1 which is an immutable contract without approval frontrunning vulnerabilities.
-    // BUT, some tokens like USDT are non ERC-20 compliant, requiring zeroing of the allowance before setting a new value:
-    // https://zokyo-auditing-tutorials.gitbook.io/zokyo-tutorials/tutorials/tutorial-3-approvals-and-safe-approvals/vulnerability-examples/erc20-approval-reset-requirement
-    // For this reason, we will still revoke the existing approval if it exists. It is a rare case this is needed since supply actions do not leave any "dust" approvals (always exact input).
-    // If it is known all underlying tokens being interacted with are ERC-20 compliant, this can be removed.
-    if (allowance > 0n) {
+    // Revoke existing approval if needed
+    if (allowance > 0n && TOKENS_REQUIRING_APPROVAL_REVOCATION[client.chain.id]?.[underlyingAssetAddress]) {
       transactionRequests.push({
         name: "Revoke existing approval",
         tx: () => ({
