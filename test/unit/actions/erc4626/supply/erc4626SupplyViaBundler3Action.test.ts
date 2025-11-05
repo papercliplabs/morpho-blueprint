@@ -6,7 +6,9 @@ import { erc4626SupplyViaBundler3Action } from "@/actions/erc4626/supply/erc4626
 import { test } from "../../../../config";
 import {
   failureTestCases,
-  runErc4626SupplyRevokeApprovalTest,
+  runErc4626SupplyRevokeApprovalNotRequiredTest,
+  runErc4626SupplyRevokeApprovalRequiredTest,
+  runErc4626SupplySufficientAllowanceTest,
   runErc4626SupplyTest,
   runSlippageTest,
   successTestCases,
@@ -30,11 +32,29 @@ describe("erc4626SupplyViaBundler3Action", () => {
       });
     });
 
-    test("handles existing non-zero allowance with revoke before approve", async ({ client }) => {
+    test("revokes approval for tokens requiring it (USDT) when existing allowance is insufficient", async ({
+      client,
+    }) => {
       const {
         bundler3: { generalAdapter1 },
       } = getChainAddresses(client.chain.id);
-      await runErc4626SupplyRevokeApprovalTest(client, erc4626SupplyViaBundler3Action, generalAdapter1);
+      await runErc4626SupplyRevokeApprovalRequiredTest(client, erc4626SupplyViaBundler3Action, generalAdapter1);
+    });
+
+    test("does NOT revoke approval for tokens not requiring it (USDC) when existing allowance is insufficient", async ({
+      client,
+    }) => {
+      const {
+        bundler3: { generalAdapter1 },
+      } = getChainAddresses(client.chain.id);
+      await runErc4626SupplyRevokeApprovalNotRequiredTest(client, erc4626SupplyViaBundler3Action, generalAdapter1);
+    });
+
+    test("skips approval entirely when sufficient allowance already exists", async ({ client }) => {
+      const {
+        bundler3: { generalAdapter1 },
+      } = getChainAddresses(client.chain.id);
+      await runErc4626SupplySufficientAllowanceTest(client, erc4626SupplyViaBundler3Action, generalAdapter1);
     });
   });
 

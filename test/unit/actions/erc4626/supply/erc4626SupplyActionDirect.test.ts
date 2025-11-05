@@ -5,7 +5,9 @@ import { erc4626SupplyActionDirect } from "@/actions/erc4626/supply/erc4626Suppl
 import { test } from "../../../../config";
 import {
   failureTestCases,
-  runErc4626SupplyRevokeApprovalTest,
+  runErc4626SupplyRevokeApprovalNotRequiredTest,
+  runErc4626SupplyRevokeApprovalRequiredTest,
+  runErc4626SupplySufficientAllowanceTest,
   runErc4626SupplyTest,
   runSlippageTest,
   successTestCases,
@@ -25,8 +27,20 @@ describe("erc4626SupplyActionDirect", () => {
       });
     });
 
-    test("handles existing non-zero allowance with revoke before approve", async ({ client }) => {
-      await runErc4626SupplyRevokeApprovalTest(client, erc4626SupplyActionDirect, "vault");
+    test("revokes approval for tokens requiring it (USDT) when existing allowance is insufficient", async ({
+      client,
+    }) => {
+      await runErc4626SupplyRevokeApprovalRequiredTest(client, erc4626SupplyActionDirect, "vault");
+    });
+
+    test("does NOT revoke approval for tokens not requiring it (USDC) when existing allowance is insufficient", async ({
+      client,
+    }) => {
+      await runErc4626SupplyRevokeApprovalNotRequiredTest(client, erc4626SupplyActionDirect, "vault");
+    });
+
+    test("skips approval entirely when sufficient allowance already exists", async ({ client }) => {
+      await runErc4626SupplySufficientAllowanceTest(client, erc4626SupplyActionDirect, "vault");
     });
   });
 
