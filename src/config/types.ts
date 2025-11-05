@@ -25,6 +25,7 @@ export interface VaultConfig {
   // Optional tag which is used for sorting on the earn page, and a badge on the vault page.
   readonly tag?: VaultTag;
   // Optional flag to hide the vault from within the app, while still using the vault to compute TVL.
+  // Note that this vault is still directly accessible via the URL, and will display if the user has a balance (allowing withdrawals).
   readonly isHidden?: boolean;
 }
 
