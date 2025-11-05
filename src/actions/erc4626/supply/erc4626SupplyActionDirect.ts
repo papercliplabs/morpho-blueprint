@@ -1,6 +1,5 @@
 import { encodeFunctionData, erc20Abi, erc4626Abi } from "viem";
 import { TOKENS_REQUIRING_APPROVAL_REVOCATION } from "@/actions/constants";
-import type { SupportedChainId } from "@/config/types";
 import { tryCatch } from "@/utils/tryCatch";
 import {
   type Erc4626SupplyActionParameters,

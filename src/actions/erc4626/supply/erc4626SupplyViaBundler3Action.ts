@@ -3,7 +3,6 @@ import { BundlerAction } from "@morpho-org/bundler-sdk-viem";
 import { encodeFunctionData, erc20Abi } from "viem";
 import { TOKENS_REQUIRING_APPROVAL_REVOCATION } from "@/actions/constants";
 import { APP_CONFIG } from "@/config";
-import type { SupportedChainId } from "@/config/types";
 import { tryCatch } from "@/utils/tryCatch";
 import {
   type Erc4626SupplyActionParameters,
