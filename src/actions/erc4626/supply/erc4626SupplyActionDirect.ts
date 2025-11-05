@@ -61,10 +61,7 @@ export async function erc4626SupplyActionDirect({
 
   if (requiresApproval) {
     // Revoke existing approval if needed
-    if (
-      allowance > 0n &&
-      TOKENS_REQUIRING_APPROVAL_REVOCATION[client.chain.id as SupportedChainId]?.[underlyingAssetAddress]
-    ) {
+    if (allowance > 0n && TOKENS_REQUIRING_APPROVAL_REVOCATION[client.chain.id]?.[underlyingAssetAddress]) {
       transactionRequests.push({
         name: "Revoke existing approval",
         tx: () => ({
