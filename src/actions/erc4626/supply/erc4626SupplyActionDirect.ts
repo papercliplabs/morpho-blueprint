@@ -1,4 +1,6 @@
-import { encodeFunctionData, erc20Abi, erc4626Abi } from "viem";
+import { getChainAddresses, MathLib } from "@morpho-org/blue-sdk";
+import { encodeFunctionData, erc20Abi, erc4626Abi, isAddressEqual } from "viem";
+import { wrappedNativeAssetAbi } from "@/abis/wrappedNativeAssetAbi";
 import { TOKENS_REQUIRING_APPROVAL_REVOCATION } from "@/actions/constants";
 import { tryCatch } from "@/utils/tryCatch";
 import {
@@ -24,6 +26,7 @@ export async function erc4626SupplyActionDirect({
   vaultAddress,
   accountAddress,
   supplyAmount,
+  allowNativeAssetWrapping,
 }: Erc4626SupplyActionParameters): Promise<VaultAction> {
   validateErc4626ActionParameters({ vaultAddress, accountAddress, amount: supplyAmount });
 
@@ -36,6 +39,7 @@ export async function erc4626SupplyActionDirect({
   }
 
   const {
+    accountNativeAssetBalance,
     underlyingAssetAddress,
     accountUnderlyingAssetBalance,
     maxDeposit,
@@ -44,22 +48,49 @@ export async function erc4626SupplyActionDirect({
     initialPosition,
   } = data;
 
+  // Determine if we can/should wrap native assets
+  const { wNative: wrappedNativeAssetAddress } = getChainAddresses(client.chain.id);
+  if (!wrappedNativeAssetAddress) {
+    throw new UserFacingError(`Unknown wrapped native asset address for chain ${client.chain.id}.`);
+  }
+  const isUnderlyingAssetWrappedNativeAsset = isAddressEqual(underlyingAssetAddress, wrappedNativeAssetAddress);
+  const canWrapNativeAssets = allowNativeAssetWrapping && isUnderlyingAssetWrappedNativeAsset;
+
+  // Calculate wrap amount if applicable
+  const shortfall = MathLib.zeroFloorSub(supplyAmount, accountUnderlyingAssetBalance);
+  const nativeAssetWrapAmount =
+    canWrapNativeAssets && shortfall > 0n ? MathLib.min(shortfall, accountNativeAssetBalance) : 0n;
+
+  // Perform checks which if not met will cause the transaction to revert
   if (maxDeposit < supplyAmount) {
     throw new UserFacingError("Supply amount exceeds the max deposit allowed by the vault.");
   }
-  if (accountUnderlyingAssetBalance < supplyAmount) {
+  if (accountUnderlyingAssetBalance + nativeAssetWrapAmount < supplyAmount) {
     throw new UserFacingError("Supply amount exceeds the account balance.");
   }
   if (quotedShares === 0n) {
     throw new UserFacingError("Vault quoted 0 shares. Try to increase the supply amount.");
   }
 
-  const requiresApproval = allowance < supplyAmount;
-
   const transactionRequests: TransactionRequest[] = [];
 
-  if (requiresApproval) {
-    // Revoke existing approval if needed
+  if (nativeAssetWrapAmount > 0n) {
+    // Wrap native assets
+    transactionRequests.push({
+      name: "Wrap native assets",
+      tx: () => ({
+        to: wrappedNativeAssetAddress,
+        data: encodeFunctionData({
+          abi: wrappedNativeAssetAbi,
+          functionName: "deposit",
+        }),
+        value: nativeAssetWrapAmount,
+      }),
+    });
+  }
+
+  if (allowance < supplyAmount) {
+    // Revoke existing approval if required
     if (allowance > 0n && TOKENS_REQUIRING_APPROVAL_REVOCATION[client.chain.id]?.[underlyingAssetAddress]) {
       transactionRequests.push({
         name: "Revoke existing approval",

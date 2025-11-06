@@ -1,6 +1,6 @@
 import { getChainAddresses, MathLib } from "@morpho-org/blue-sdk";
-import { BundlerAction } from "@morpho-org/bundler-sdk-viem";
-import { encodeFunctionData, erc20Abi } from "viem";
+import { type Action, BundlerAction } from "@morpho-org/bundler-sdk-viem";
+import { encodeFunctionData, erc20Abi, isAddressEqual } from "viem";
 import { TOKENS_REQUIRING_APPROVAL_REVOCATION } from "@/actions/constants";
 import { APP_CONFIG } from "@/config";
 import { tryCatch } from "@/utils/tryCatch";
@@ -27,13 +27,18 @@ export async function erc4626SupplyViaBundler3Action({
   vaultAddress,
   accountAddress,
   supplyAmount,
+  allowNativeAssetWrapping,
 }: Erc4626SupplyActionParameters): Promise<VaultAction> {
   validateErc4626ActionParameters({ vaultAddress, accountAddress, amount: supplyAmount });
 
   // Will throw if unsupported chainId
   const {
     bundler3: { generalAdapter1: generalAdapter1Address },
+    wNative: wrappedNativeAssetAddress,
   } = getChainAddresses(client.chain.id);
+  if (!wrappedNativeAssetAddress) {
+    throw new UserFacingError(`Unknown wrapped native asset address for chain ${client.chain.id}.`);
+  }
 
   const { data, error } = await tryCatch(
     // Spender is general adapter 1 since this is where we are routing the supply through
@@ -44,6 +49,7 @@ export async function erc4626SupplyViaBundler3Action({
   }
 
   const {
+    accountNativeAssetBalance,
     underlyingAssetAddress,
     accountUnderlyingAssetBalance,
     quotedShares,
@@ -52,22 +58,30 @@ export async function erc4626SupplyViaBundler3Action({
     initialPosition,
   } = data;
 
+  const isUnderlyingAssetWrappedNativeAsset = isAddressEqual(underlyingAssetAddress, wrappedNativeAssetAddress);
+  const canWrapNativeAssets = allowNativeAssetWrapping && isUnderlyingAssetWrappedNativeAsset;
+
+  // Calculate wrap amount if applicable
+  const shortfall = MathLib.zeroFloorSub(supplyAmount, accountUnderlyingAssetBalance);
+  const nativeAssetWrapAmount =
+    canWrapNativeAssets && shortfall > 0n ? MathLib.min(shortfall, accountNativeAssetBalance) : 0n;
+  const underlyingAssetTransferAmount = supplyAmount - nativeAssetWrapAmount;
+
   if (maxDeposit < supplyAmount) {
     throw new UserFacingError("Supply amount exceeds the max deposit allowed by the vault.");
   }
-  if (accountUnderlyingAssetBalance < supplyAmount) {
+  if (accountUnderlyingAssetBalance + nativeAssetWrapAmount < supplyAmount) {
     throw new UserFacingError("Supply amount exceeds the account balance.");
   }
   if (quotedShares === 0n) {
     throw new UserFacingError("Vault quoted 0 shares. Try to increase the supply amount.");
   }
 
-  const requiresApproval = allowance < supplyAmount;
-
   const transactionRequests: TransactionRequest[] = [];
 
-  if (requiresApproval) {
-    // Revoke existing approval if needed
+  // Only need to approve the difference between supplyAmount and nativeAssetWrapAmount since we wrap inside bundler3
+  if (allowance < underlyingAssetTransferAmount) {
+    // Revoke existing approval if required
     if (allowance > 0n && TOKENS_REQUIRING_APPROVAL_REVOCATION[client.chain.id]?.[underlyingAssetAddress]) {
       transactionRequests.push({
         name: "Revoke existing approval",
@@ -78,7 +92,7 @@ export async function erc4626SupplyViaBundler3Action({
       });
     }
 
-    // Approve GA1 to spend supplyAmount of underlying assets
+    // Approve GA1 to spend underlying assets
     transactionRequests.push({
       name: "Approve supply amount",
       tx: () => ({
@@ -86,7 +100,7 @@ export async function erc4626SupplyViaBundler3Action({
         data: encodeFunctionData({
           abi: erc20Abi,
           functionName: "approve",
-          args: [generalAdapter1Address, supplyAmount],
+          args: [generalAdapter1Address, underlyingAssetTransferAmount],
         }),
       }),
     });
@@ -100,22 +114,34 @@ export async function erc4626SupplyViaBundler3Action({
   );
 
   // Supply to vault via bundler3 with slippage protection
+  // Note GA1 requires assets are in adapter for ERC-4626 deposit
   // Asset flow:
-  //  - assets: account -> GA1 -> vault
+  //  - native asset (if application): account -> GA1 -> wrap to GA1 -> vault
+  //  - underlying assets: account -> GA1 -> vault
   //  - shares: vault -> account (minted)
   transactionRequests.push({
     name: "Supply to vault",
     tx: () =>
       BundlerAction.encodeBundle(client.chain.id, [
+        ...(nativeAssetWrapAmount > 0n
+          ? [
+              // Wrap native sent with this tx to GA1 as recipient
+              // These will be combined with the underlying assets transfered to GA1 (next tx) before depositing into the vault
+              {
+                type: "wrapNative",
+                args: [nativeAssetWrapAmount, generalAdapter1Address],
+                value: nativeAssetWrapAmount,
+              } as Action,
+            ]
+          : []),
         {
-          // Transfer supplyAmount of underlying assets from account into GA1 (uses approval from above)
-          // Note GA1 requires assets are in adapter for ERC-4626 deposit
+          // Transfer underlyingAssetTransferAmount of underlying assets from account into GA1 (uses approval from above)
           type: "erc20TransferFrom",
-          args: [underlyingAssetAddress, supplyAmount, generalAdapter1Address],
+          args: [underlyingAssetAddress, underlyingAssetTransferAmount, generalAdapter1Address],
         },
         {
           // Supply supplyAmount of underlying assets to the vault on behalf of the account
-          // Note there will be no dust left since exact input
+          // Note there will be no dust left since exact input (supplyAmount = underlyingAssetTransferAmount + nativeAssetWrapAmount)
           type: "erc4626Deposit",
           args: [vaultAddress, supplyAmount, maxSharePriceRay, accountAddress],
         },

@@ -1,11 +1,13 @@
 import { type Address, erc20Abi, erc4626Abi, isAddressEqual, maxUint256, zeroAddress } from "viem";
-import { multicall, readContract } from "viem/actions";
+import { estimateFeesPerGas, getBalance, multicall, readContract } from "viem/actions";
 import {
+  type ClientWithChain,
   type Erc4626SupplyActionParameters,
   type Erc4626WithdrawActionParameters,
   type Position,
   UserFacingError,
 } from "@/actions/types";
+import { NATIVE_ASSET_GAS_RESERVE_UNITS } from "../constants";
 
 export function validateErc4626ActionParameters({
   vaultAddress,
@@ -40,7 +42,7 @@ export async function fetchErc4626SupplyData({
   accountAddress,
   supplyAmount,
   spender,
-}: Erc4626SupplyActionParameters & {
+}: Omit<Erc4626SupplyActionParameters, "allowNativeAssetWrapping"> & {
   spender: Address;
 }) {
   const [underlyingAssetAddress, maxDeposit, quotedShares, initialPositionShares] = await multicall(client, {
@@ -97,7 +99,10 @@ export async function fetchErc4626SupplyData({
     allowFailure: false,
   });
 
+  const accountNativeAssetBalance = await getBalance(client, { address: accountAddress });
+
   return {
+    accountNativeAssetBalance,
     underlyingAssetAddress,
     maxDeposit,
     quotedShares,
@@ -196,4 +201,9 @@ export async function fetchErc4626WithdrawData({
       assets: initialPositionAssets,
     } satisfies Position,
   };
+}
+
+export async function getNativeAssetGasFeeReserveWei({ client }: { client: ClientWithChain }) {
+  const { maxFeePerGas } = await estimateFeesPerGas(client);
+  return NATIVE_ASSET_GAS_RESERVE_UNITS * maxFeePerGas;
 }
