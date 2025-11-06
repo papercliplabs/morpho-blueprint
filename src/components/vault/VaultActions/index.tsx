@@ -113,18 +113,22 @@ function VaultActionsMobile({ vault, hasSupplyPosition }: { hasSupplyPosition: b
             Supply
           </Button>
         </DrawerTrigger>
-        <DrawerContent className="flex flex-col gap-6">
-          <DrawerTitle>Supply</DrawerTitle>
-          <VaultSupply
-            vault={vault}
-            onFlowClosed={(success) => {
-              if (success) {
-                // Automically close parent drawer when true (better UX with nested drawers)
-                setSupplyOpen(false);
-              }
-            }}
-          />
-          <PoweredByMorpho className="mx-auto text-muted-foreground" />
+        <DrawerContent className="flex flex-col p-0">
+          <div className="p-6">
+            <DrawerTitle>Supply</DrawerTitle>
+          </div>
+          <div className="flex flex-col gap-6 overflow-y-auto px-6 pb-6">
+            <VaultSupply
+              vault={vault}
+              onFlowClosed={(success) => {
+                if (success) {
+                  // Automically close parent drawer when true (better UX with nested drawers)
+                  setSupplyOpen(false);
+                }
+              }}
+            />
+            <PoweredByMorpho className="mx-auto text-muted-foreground" />
+          </div>
         </DrawerContent>
       </Drawer>
 
@@ -134,18 +138,22 @@ function VaultActionsMobile({ vault, hasSupplyPosition }: { hasSupplyPosition: b
             Withdraw
           </Button>
         </DrawerTrigger>
-        <DrawerContent className="flex flex-col gap-6">
-          <DrawerTitle>Withdraw</DrawerTitle>
-          <VaultWithdraw
-            vault={vault}
-            onFlowClosed={(success) => {
-              if (success) {
-                // Automically close parent drawer when true (better UX with nested drawers)
-                setWithdrawOpen(false);
-              }
-            }}
-          />
-          <PoweredByMorpho className="mx-auto text-muted-foreground" />
+        <DrawerContent className="flex flex-col p-0">
+          <div className="p-6">
+            <DrawerTitle>Withdraw</DrawerTitle>
+          </div>
+          <div className="flex flex-col gap-6 overflow-y-auto px-6 pb-6">
+            <VaultWithdraw
+              vault={vault}
+              onFlowClosed={(success) => {
+                if (success) {
+                  // Automically close parent drawer when true (better UX with nested drawers)
+                  setWithdrawOpen(false);
+                }
+              }}
+            />
+            <PoweredByMorpho className="mx-auto text-muted-foreground" />
+          </div>
         </DrawerContent>
       </Drawer>
     </div>

@@ -26,8 +26,20 @@ export function ActionFlowSteps() {
             : i < activeStep
               ? "complete"
               : "upcoming";
-        const labelPostfix = status === "active" ? " In wallet" : status === "pending" ? " Pending..." : "";
-        return <Step number={i + 1} status={status} label={metadata.name + labelPostfix} key={metadata.name} />;
+        const labelPostfix =
+          status === "active" ? "(pending wallet)" : status === "pending" ? "(pending transaction)" : "";
+        return (
+          <Step
+            number={i + 1}
+            status={status}
+            label={
+              <>
+                {metadata.name} <span className="body-small text-muted-foreground">{labelPostfix}</span>
+              </>
+            }
+            key={metadata.name}
+          />
+        );
       })}
     </div>
   );

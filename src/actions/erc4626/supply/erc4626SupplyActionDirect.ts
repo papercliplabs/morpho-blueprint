@@ -21,7 +21,7 @@ import { fetchErc4626SupplyData, validateErc4626ActionParameters } from "../help
  * - This has no slippage protection, meaning the supply is susceptible to share price inflation.
  *   In practice, vaults generally protect against this (or against subsequent deflation after it occurs).
  *   See more on ERC-4626 inflation attacks here: https://docs.openzeppelin.com/contracts/5.x/erc4626
- * - When wrapping native assets, no gas reserve is enforced (can supply up to max native asset balance).
+ * - When wrapping native assets, no gas reserve is enforced (can supply up to max native asset balance), which allows gas sponsored txs to use full balance.
  *   This is to support functionality with sponsored tx. The UI is expected to enforce the margin itself if required.
  */
 export async function erc4626SupplyActionDirect({
@@ -61,8 +61,7 @@ export async function erc4626SupplyActionDirect({
 
   // Calculate wrap amount if applicable
   const shortfall = MathLib.zeroFloorSub(supplyAmount, accountUnderlyingAssetBalance);
-  const nativeAssetWrapAmount =
-    canWrapNativeAssets && shortfall > 0n ? MathLib.min(shortfall, accountNativeAssetBalance) : 0n;
+  const nativeAssetWrapAmount = canWrapNativeAssets ? MathLib.min(shortfall, accountNativeAssetBalance) : 0n;
 
   // Perform checks which if not met will cause the transaction to revert
   if (maxDeposit < supplyAmount) {

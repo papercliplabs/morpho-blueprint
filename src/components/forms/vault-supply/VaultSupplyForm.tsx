@@ -1,6 +1,5 @@
 "use client";
 
-import { TriangleAlert } from "lucide-react";
 import { forwardRef, useImperativeHandle } from "react";
 import type { VaultAction } from "@/actions";
 import { Card } from "@/components/ui/card";
@@ -68,8 +67,7 @@ export const VaultSupplyForm = forwardRef<{ reset: () => void }, VaultSupplyForm
               </div>
 
               {derivedFormValues.supplyWillLeaveLowNativeAssetBalance && (
-                <Card className="body-small-plus flex gap-2 border-none bg-secondary text-secondary-foreground shadow-none">
-                  <TriangleAlert className="mt-1 size-6 shrink-0 stroke-destructive" />
+                <Card className="flex gap-2 border-destructive bg-transparent p-4 text-destructive shadow-none">
                   <span>
                     This transaction will use most of your network tokens, which may leave you with insufficient balance
                     to cover future transaction fees.

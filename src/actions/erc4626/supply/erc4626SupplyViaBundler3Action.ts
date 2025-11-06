@@ -22,7 +22,7 @@ import { fetchErc4626SupplyData, validateErc4626ActionParameters } from "../help
  * Notes:
  * - While bundler3 also enables the use of permit2, this action uses explicit approval transactions.
  *   This is to reduce complexity, and lends itself to a better UX for wallets with atomic batching capabilities (EIP-5792).
- * - When wrapping native assets, no gas reserve is enforced (can supply up to max native asset balance).
+ * - When wrapping native assets, no gas reserve is enforced (can supply up to max native asset balance), which allows gas sponsored txs to use full balance.
  *   The UI is expected to enforce the margin itself if required.
  */
 export async function erc4626SupplyViaBundler3Action({
@@ -66,9 +66,8 @@ export async function erc4626SupplyViaBundler3Action({
 
   // Calculate wrap amount if applicable
   const shortfall = MathLib.zeroFloorSub(supplyAmount, accountUnderlyingAssetBalance);
-  const nativeAssetWrapAmount =
-    canWrapNativeAssets && shortfall > 0n ? MathLib.min(shortfall, accountNativeAssetBalance) : 0n;
-  const underlyingAssetTransferAmount = supplyAmount - nativeAssetWrapAmount;
+  const nativeAssetWrapAmount = canWrapNativeAssets ? MathLib.min(shortfall, accountNativeAssetBalance) : 0n;
+  const underlyingAssetTransferAmount = supplyAmount - nativeAssetWrapAmount; // Wrapping happens inside GA1, so only need to transfer the diff required for the supply
 
   if (maxDeposit < supplyAmount) {
     throw new UserFacingError("Supply amount exceeds the max deposit allowed by the vault.");
@@ -95,7 +94,7 @@ export async function erc4626SupplyViaBundler3Action({
       });
     }
 
-    // Approve GA1 to spend underlyingAssetTransferAmount of underlying assets. This is the amount that
+    // Approve GA1 to spend underlyingAssetTransferAmount of underlying assets
     transactionRequests.push({
       name: "Approve supply amount",
       tx: () => ({
