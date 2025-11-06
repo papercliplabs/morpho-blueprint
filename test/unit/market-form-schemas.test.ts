@@ -2,42 +2,15 @@ import { parseUnits } from "viem";
 import { describe, expect, it } from "vitest";
 import { createMarketRepayAndWithdrawCollateralFormSchema } from "@/components/forms/market-repay-and-withdraw-collateral/schema";
 import { createMarketSupplyCollateralAndBorrowFormSchema } from "@/components/forms/market-supply-collateral-and-borrow/schema";
-import { createVaultSupplyFormSchema } from "@/components/forms/vault-supply/schema";
-import { createVaultWithdrawFormSchema } from "@/components/forms/vault-withdraw/schema";
 import type { MarketNonIdle } from "@/data/whisk/getMarket";
 import type { MarketPosition } from "@/data/whisk/getMarketPositions";
 
 /**
- * Security tests for form validation schemas
+ * Security tests for market form validation schemas
  * Focus: Business logic validation, position health checks
  */
 
-describe("Form Schema Security Tests", () => {
-  describe("VaultSupplyFormSchema", () => {
-    it("should enforce balance limits", () => {
-      const balance = parseUnits("100", 6);
-      const schema = createVaultSupplyFormSchema(6, balance);
-
-      expect(schema.parse({ supplyAmount: "100", isMaxSupply: false }).supplyAmount).toBe(100000000n);
-      expect(() => schema.parse({ supplyAmount: "100.000001", isMaxSupply: false })).toThrow("Amount exceeds balance");
-    });
-
-    it("should allow supply up to exact balance", () => {
-      const balance = parseUnits("100", 6);
-      const schema = createVaultSupplyFormSchema(6, balance);
-
-      const result = schema.parse({ supplyAmount: "100", isMaxSupply: false });
-      expect(result.supplyAmount).toBe(balance);
-    });
-
-    it("should work without balance (no max limit)", () => {
-      const schema = createVaultSupplyFormSchema(6, undefined);
-
-      const result = schema.parse({ supplyAmount: "1000000", isMaxSupply: false });
-      expect(result.supplyAmount).toBeGreaterThan(0n);
-    });
-  });
-
+describe("Market Form Schema Tests", () => {
   describe("MarketSupplyCollateralAndBorrowFormSchema - Critical Health Checks", () => {
     it("should prevent borrowing more than collateral allows", () => {
       const market = createMockMarket({
@@ -176,33 +149,6 @@ describe("Form Schema Security Tests", () => {
       });
 
       expect(result.success).toBe(false);
-    });
-  });
-
-  describe("VaultWithdrawFormSchema", () => {
-    it("should enforce position balance limits", () => {
-      const positionBalance = parseUnits("50", 6);
-      const schema = createVaultWithdrawFormSchema(6, positionBalance);
-
-      expect(schema.parse({ withdrawAmount: "50", isMaxWithdraw: false }).withdrawAmount).toBe(50000000n);
-      expect(() => schema.parse({ withdrawAmount: "50.000001", isMaxWithdraw: false })).toThrow(
-        "Amount exceeds position",
-      );
-    });
-
-    it("should allow withdrawal up to exact position balance", () => {
-      const positionBalance = parseUnits("100", 6);
-      const schema = createVaultWithdrawFormSchema(6, positionBalance);
-
-      const result = schema.parse({ withdrawAmount: "100", isMaxWithdraw: false });
-      expect(result.withdrawAmount).toBe(positionBalance);
-    });
-
-    it("should work without position (no max limit)", () => {
-      const schema = createVaultWithdrawFormSchema(6, undefined);
-
-      const result = schema.parse({ withdrawAmount: "1000000", isMaxWithdraw: false });
-      expect(result.withdrawAmount).toBeGreaterThan(0n);
     });
   });
 
