@@ -23,12 +23,13 @@ export function computeAvailableBalance({
   maxFeePerGas?: bigint;
   includeNativeAssetWrapping: boolean;
 }) {
-  if (!includeNativeAssetWrapping) {
-    return accountLoanTokenBalance;
+  if (accountLoanTokenBalance === undefined) {
+    return undefined;
   }
 
-  if (maxFeePerGas === undefined || accountLoanTokenBalance === undefined || accountNativeAssetBalance === undefined) {
-    return undefined;
+  // Fallback to accountLoanTokenBalance when wrapping disabled, or missing data to compute the available native balance
+  if (!includeNativeAssetWrapping || accountNativeAssetBalance === undefined || maxFeePerGas === undefined) {
+    return accountLoanTokenBalance;
   }
 
   const gasFeeReserveWei = NATIVE_ASSET_GAS_RESERVE_UNITS * maxFeePerGas;

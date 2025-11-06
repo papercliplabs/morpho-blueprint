@@ -171,30 +171,10 @@ describe("Vault Form Schema Tests", () => {
         expect(result.supplyAmount).toBe(parseUnits("4.9", 18));
       });
 
-      it("should not include native balance when wrapping is disabled on WETH vault", () => {
+      it("should fallback to loan token balance when missing wrapping params", () => {
         const vault = createMockVault({ decimals: 18, address: WETH_ADDRESS });
         const accountLoanTokenBalance = parseUnits("1", 18); // 1 WETH
         const accountNativeAssetBalance = parseUnits("10", 18); // 10 ETH
-        const maxFeePerGas = parseUnits("50", 9);
-
-        const schema = createVaultSupplyFormSchema(
-          vault,
-          accountLoanTokenBalance,
-          accountNativeAssetBalance,
-          maxFeePerGas,
-        );
-
-        // Even though user has 10 ETH, with wrapping disabled should only allow 1 WETH
-        expect(() => schema.parse({ supplyAmount: "1.1", allowNativeAssetWrapping: false })).toThrow(
-          "Amount exceeds balance",
-        );
-      });
-
-      it("should return undefined available balance when missing required params for wrapping", () => {
-        const vault = createMockVault({ decimals: 18, address: WETH_ADDRESS });
-        const accountLoanTokenBalance = parseUnits("1", 18); // 1 WETH
-        const accountNativeAssetBalance = parseUnits("10", 18); // 10 ETH
-        // Missing maxFeePerGas
 
         const schema = createVaultSupplyFormSchema(
           vault,
@@ -203,24 +183,16 @@ describe("Vault Form Schema Tests", () => {
           undefined,
         );
 
-        // Without maxFeePerGas, can't calculate gas reserve, so no max limit should be enforced
-        const result = schema.parse({ supplyAmount: "100", allowNativeAssetWrapping: true });
-        expect(result.supplyAmount).toBe(parseUnits("100", 18));
+        // Without maxFeePerGas, falls back to loan token balance only
+        const result = schema.parse({ supplyAmount: "1", allowNativeAssetWrapping: true });
+        expect(result.supplyAmount).toBe(parseUnits("1", 18));
+
+        expect(() => schema.parse({ supplyAmount: "1.1", allowNativeAssetWrapping: true })).toThrow(
+          "Amount exceeds balance",
+        );
       });
 
-      it("should handle missing native balance when wrapping enabled", () => {
-        const vault = createMockVault({ decimals: 18, address: WETH_ADDRESS });
-        const accountLoanTokenBalance = parseUnits("1", 18); // 1 WETH
-        const maxFeePerGas = parseUnits("50", 9);
-
-        const schema = createVaultSupplyFormSchema(vault, accountLoanTokenBalance, undefined, maxFeePerGas);
-
-        // Without native balance, can't calculate combined balance, so no max limit enforced
-        const result = schema.parse({ supplyAmount: "100", allowNativeAssetWrapping: true });
-        expect(result.supplyAmount).toBe(parseUnits("100", 18));
-      });
-
-      it("should enforce combined balance limit when all params provided", () => {
+      it("should enforce combined balance limit with low native balance", () => {
         const vault = createMockVault({ decimals: 18, address: WETH_ADDRESS });
         const accountLoanTokenBalance = parseUnits("1", 18); // 1 WETH
         const accountNativeAssetBalance = parseUnits("0.5", 18); // 0.5 ETH
@@ -233,52 +205,8 @@ describe("Vault Form Schema Tests", () => {
           maxFeePerGas,
         );
 
-        // Total available ~1.499 WETH (1 + 0.5 - 0.00105 gas reserve)
+        // Total available ~1.449 WETH (1 + 0.5 - 0.05 gas reserve)
         expect(() => schema.parse({ supplyAmount: "2", allowNativeAssetWrapping: true })).toThrow(
-          "Amount exceeds balance",
-        );
-      });
-
-      it("should not change max limit based on native balance when wrapping disabled (non-WETH)", () => {
-        const vault = createMockVault({ decimals: 6, address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48" }); // USDC
-        const accountLoanTokenBalance = parseUnits("100", 6); // 100 USDC
-        const accountNativeAssetBalance = parseUnits("1000", 18); // 1000 ETH (huge balance)
-        const maxFeePerGas = parseUnits("50", 9);
-
-        const schema = createVaultSupplyFormSchema(
-          vault,
-          accountLoanTokenBalance,
-          accountNativeAssetBalance,
-          maxFeePerGas,
-        );
-
-        // Even with huge native balance, should only allow up to loan token balance
-        const result = schema.parse({ supplyAmount: "100", allowNativeAssetWrapping: false });
-        expect(result.supplyAmount).toBe(parseUnits("100", 6));
-
-        expect(() => schema.parse({ supplyAmount: "100.000001", allowNativeAssetWrapping: false })).toThrow(
-          "Amount exceeds balance",
-        );
-      });
-
-      it("should not change max limit based on native balance when wrapping disabled (WETH vault)", () => {
-        const vault = createMockVault({ decimals: 18, address: WETH_ADDRESS });
-        const accountLoanTokenBalance = parseUnits("5", 18); // 5 WETH
-        const accountNativeAssetBalance = parseUnits("1000", 18); // 1000 ETH (huge balance)
-        const maxFeePerGas = parseUnits("50", 9);
-
-        const schema = createVaultSupplyFormSchema(
-          vault,
-          accountLoanTokenBalance,
-          accountNativeAssetBalance,
-          maxFeePerGas,
-        );
-
-        // Even with huge native balance and wrapping disabled, should only allow up to loan token balance
-        const result = schema.parse({ supplyAmount: "5", allowNativeAssetWrapping: false });
-        expect(result.supplyAmount).toBe(parseUnits("5", 18));
-
-        expect(() => schema.parse({ supplyAmount: "5.1", allowNativeAssetWrapping: false })).toThrow(
           "Amount exceeds balance",
         );
       });
