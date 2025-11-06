@@ -21,6 +21,7 @@ import { Analytics } from "./components/Analytics";
 import { LogoDesktop, LogoMobile } from "./components/Logo";
 import { PrivacyPolicy } from "./components/PrivacyPolicy";
 import { TermsOfUse } from "./components/TermsOfUse";
+import { hyperevm } from "./custom-chains/hyperevm";
 import type { AppConfig } from "./types";
 
 // Specify all chains your app supports
@@ -39,6 +40,7 @@ export const SUPPORTED_CHAIN_IDS = [
   worldchain.id,
   corn.id,
   berachain.id,
+  hyperevm.id,
 ] as const;
 
 // Custom tags for your vaults which can be used within the VaultConfig
@@ -160,6 +162,10 @@ export const APP_CONFIG: AppConfig = {
       chain: berachain,
       rpcUrls: [process.env.BERACHAIN_RPC_URL_1!, process.env.BERACHAIN_RPC_URL_2!],
     },
+    [hyperevm.id]: {
+      chain: hyperevm,
+      rpcUrls: [process.env.HYPEREVM_RPC_URL_1!, process.env.HYPEREVM_RPC_URL_2!],
+    },
   },
   maxRpcBatchSize: 32,
 
@@ -224,13 +230,18 @@ export const APP_CONFIG: AppConfig = {
     [berachain.id]: [
       { address: getAddress("0x30BbA9CD9Eb8c95824aa42Faa1Bb397b07545bc1") }, // Re7 HONEY
     ],
+    [hyperevm.id]: [
+      { address: getAddress("0x4346C98E690c17eFbB999aE8e1dA96B089bE320b") }, // Relend rUSDC
+      { address: getAddress("0x92B518e1cD76dD70D3E20624AEdd7D107F332Cff") }, // Hyperithm HYPE
+      { address: getAddress("0xe5ADd96840F0B908ddeB3Bd144C0283Ac5ca7cA0") }, // Hyperithm USDT
+    ],
   },
 
   actionParameters: {
     maxBorrowLtvMarginWad: parseUnits("0.05", 18), // 5% below LLTV
     publicAllocatorSupplyTargetUtilizationWad: BigInt(90_0000000000000000),
     bundler3Config: {
-      enabled: false,
+      enabled: true,
       slippageToleranceWad: parseUnits("0.0003", 18), // 0.03% slippage
     },
   },
