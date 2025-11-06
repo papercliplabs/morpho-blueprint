@@ -17,9 +17,12 @@ import { fetchErc4626SupplyData, validateErc4626ActionParameters } from "../help
  * - https://eips.ethereum.org/EIPS/eip-4626
  * - https://zokyo-auditing-tutorials.gitbook.io/zokyo-tutorials/tutorials/tutorial-3-approvals-and-safe-approvals/vulnerability-examples/erc20-approval-reset-requirement
  *
- * Note this has no slippage protection, meaning the supply is susceptible to share price inflation.
- * In practice, vaults generally protect against this (or against subsequent deflation after it occurs).
- * See more on ERC-4626 inflation attacks here: https://docs.openzeppelin.com/contracts/5.x/erc4626
+ * Note:
+ * - This has no slippage protection, meaning the supply is susceptible to share price inflation.
+ *   In practice, vaults generally protect against this (or against subsequent deflation after it occurs).
+ *   See more on ERC-4626 inflation attacks here: https://docs.openzeppelin.com/contracts/5.x/erc4626
+ * - When wrapping native assets, no gas reserve is enforced (can supply up to max native asset balance).
+ *   This is to support functionality with sponsored tx. The UI is expected to enforce the margin itself if required.
  */
 export async function erc4626SupplyActionDirect({
   client,

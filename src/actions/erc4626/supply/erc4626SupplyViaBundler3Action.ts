@@ -19,8 +19,11 @@ import { fetchErc4626SupplyData, validateErc4626ActionParameters } from "../help
  * - https://eips.ethereum.org/EIPS/eip-4626
  * - https://zokyo-auditing-tutorials.gitbook.io/zokyo-tutorials/tutorials/tutorial-3-approvals-and-safe-approvals/vulnerability-examples/erc20-approval-reset-requirement
  *
- * Note that while bundler3 also enables the use of permit2, this action uses explicit approval transactions.
- * This is to reduce complexity, and lends itself to a better UX for wallets with atomic batching capabilities (EIP-5792).
+ * Notes:
+ * - While bundler3 also enables the use of permit2, this action uses explicit approval transactions.
+ *   This is to reduce complexity, and lends itself to a better UX for wallets with atomic batching capabilities (EIP-5792).
+ * - When wrapping native assets, no gas reserve is enforced (can supply up to max native asset balance).
+ *   The UI is expected to enforce the margin itself if required.
  */
 export async function erc4626SupplyViaBundler3Action({
   client,
@@ -92,7 +95,7 @@ export async function erc4626SupplyViaBundler3Action({
       });
     }
 
-    // Approve GA1 to spend underlying assets
+    // Approve GA1 to spend underlyingAssetTransferAmount of underlying assets. This is the amount that
     transactionRequests.push({
       name: "Approve supply amount",
       tx: () => ({
