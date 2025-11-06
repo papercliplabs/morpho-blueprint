@@ -68,10 +68,8 @@ export const VaultSupplyForm = forwardRef<{ reset: () => void }, VaultSupplyForm
 
               {derivedFormValues.supplyWillLeaveLowNativeAssetBalance && (
                 <Card className="flex gap-2 border-destructive bg-transparent p-4 text-destructive shadow-none">
-                  <span>
-                    This transaction will use most of your network tokens, which may leave you with insufficient balance
-                    to cover future transaction fees.
-                  </span>
+                  This transaction will use most of your network tokens, which may leave you with insufficient balance
+                  to cover future transaction fees.
                 </Card>
               )}
 
