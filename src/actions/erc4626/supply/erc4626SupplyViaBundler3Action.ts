@@ -119,33 +119,43 @@ export async function erc4626SupplyViaBundler3Action({
   //  - native asset (if application): account -> GA1 -> wrap to GA1 -> vault
   //  - underlying assets: account -> GA1 -> vault
   //  - shares: vault -> account (minted)
+  const actions: Action[] = [];
+
+  if (nativeAssetWrapAmount > 0n) {
+    // Transfer nativeAssetWrapAmount to GA1 with this tx
+    // Note, this is not actually a call it's just how Morpho SDK specifies value: https://github.com/morpho-org/sdks/blob/main/packages/bundler-sdk-viem/src/BundlerAction.ts#L69-L80
+    actions.push({
+      type: "nativeTransfer",
+      args: [accountAddress, generalAdapter1Address, nativeAssetWrapAmount],
+    } satisfies Action);
+
+    // Wrap native sent with this tx to GA1 as recipient
+    // These will be combined with the underlying assets transfered to GA1 (next tx) before depositing into the vault
+    actions.push({
+      type: "wrapNative",
+      args: [nativeAssetWrapAmount, generalAdapter1Address],
+    } satisfies Action);
+  }
+
+  // Transfer underlyingAssetTransferAmount of underlying assets from account into GA1 (uses approval from above)
+  if (underlyingAssetTransferAmount > 0n) {
+    actions.push({
+      type: "erc20TransferFrom",
+      args: [underlyingAssetAddress, underlyingAssetTransferAmount, generalAdapter1Address],
+    } satisfies Action);
+  }
+
+  // Supply supplyAmount of underlying assets to the vault on behalf of the account
+  // Note there will be no dust left since exact input (supplyAmount = underlyingAssetTransferAmount + nativeAssetWrapAmount)
+  actions.push({
+    type: "erc4626Deposit",
+    args: [vaultAddress, supplyAmount, maxSharePriceRay, accountAddress],
+  } satisfies Action);
+
+  // Encode actions for bundler3 call
   transactionRequests.push({
     name: "Supply to vault",
-    tx: () =>
-      BundlerAction.encodeBundle(client.chain.id, [
-        ...(nativeAssetWrapAmount > 0n
-          ? [
-              // Wrap native sent with this tx to GA1 as recipient
-              // These will be combined with the underlying assets transfered to GA1 (next tx) before depositing into the vault
-              {
-                type: "wrapNative",
-                args: [nativeAssetWrapAmount, generalAdapter1Address],
-                value: nativeAssetWrapAmount,
-              } as Action,
-            ]
-          : []),
-        {
-          // Transfer underlyingAssetTransferAmount of underlying assets from account into GA1 (uses approval from above)
-          type: "erc20TransferFrom",
-          args: [underlyingAssetAddress, underlyingAssetTransferAmount, generalAdapter1Address],
-        },
-        {
-          // Supply supplyAmount of underlying assets to the vault on behalf of the account
-          // Note there will be no dust left since exact input (supplyAmount = underlyingAssetTransferAmount + nativeAssetWrapAmount)
-          type: "erc4626Deposit",
-          args: [vaultAddress, supplyAmount, maxSharePriceRay, accountAddress],
-        },
-      ]),
+    tx: () => BundlerAction.encodeBundle(client.chain.id, actions),
   });
 
   return {

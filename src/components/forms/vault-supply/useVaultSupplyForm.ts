@@ -75,6 +75,7 @@ export function useVaultSupplyForm({ vault, onSuccessfulActionSimulation }: UseV
           vaultAddress: getAddress(vault.vaultAddress),
           accountAddress: address,
           supplyAmount: submittedValues.supplyAmount,
+          allowNativeAssetWrapping: false, // TODO: control with switch
         }),
       );
 
