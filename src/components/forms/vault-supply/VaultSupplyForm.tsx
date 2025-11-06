@@ -1,7 +1,9 @@
 "use client";
 
+import { TriangleAlert } from "lucide-react";
 import { forwardRef, useImperativeHandle } from "react";
 import type { VaultAction } from "@/actions";
+import { Card } from "@/components/ui/card";
 import { TooltipPopover, TooltipPopoverContent, TooltipPopoverTrigger } from "@/components/ui/tooltip-popover";
 import type { Vault } from "@/data/whisk/getVault";
 import { VaultActionSimulationMetrics } from "../../ActionFlow/VaultActionFlow";
@@ -56,12 +58,24 @@ export const VaultSupplyForm = forwardRef<{ reset: () => void }, VaultSupplyForm
                         <TooltipPopoverTrigger className="body-small-plus w-fit whitespace-nowrap text-muted-foreground underline decoration-dashed underline-offset-3">
                           Allow wrapping
                         </TooltipPopoverTrigger>
-                        <TooltipPopoverContent>Allow supply by wrapping native assets.</TooltipPopoverContent>
+                        <TooltipPopoverContent>
+                          Allow wrapping your network tokens when supplying to the vault.
+                        </TooltipPopoverContent>
                       </TooltipPopover>
                     }
                   />
                 )}
               </div>
+
+              {derivedFormValues.supplyWillLeaveLowNativeAssetBalance && (
+                <Card className="body-small-plus flex gap-2 border-none bg-secondary text-secondary-foreground shadow-none">
+                  <TriangleAlert className="mt-1 size-6 shrink-0 stroke-destructive" />
+                  <span>
+                    This transaction will use most of your network tokens, which may leave you with insufficient balance
+                    to cover future transaction fees.
+                  </span>
+                </Card>
+              )}
 
               <div className="h-[1px] bg-border" />
 

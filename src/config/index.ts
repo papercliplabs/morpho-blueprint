@@ -184,6 +184,7 @@ export const APP_CONFIG: AppConfig = {
       { address: getAddress("0xF5C81d25ee174d83f1FD202cA94AE6070d073cCF") }, // Compound WETH
       { address: getAddress("0x781FB7F6d845E3bE129289833b04d43Aa8558c42") }, // Compound USDC
       { address: getAddress("0xfD06859A671C21497a2EB8C5E3fEA48De924D6c8") }, // Compound USDT
+      { address: getAddress("0x3F33F9f7e2D7cfBCBDf8ea8b870a6E3d449664c2") }, // Compound POL
     ],
     [unichain.id]: [
       { address: getAddress("0xfA355999c12C63c465c591daf9C462e14ACf470b") }, // K3 Capital ETH Maxi

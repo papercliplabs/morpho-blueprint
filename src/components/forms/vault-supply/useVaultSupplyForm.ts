@@ -5,7 +5,7 @@ import { useModal } from "connectkit";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { type UseFormReturn, useForm } from "react-hook-form";
 import { useDebounce } from "use-debounce";
-import { getAddress } from "viem";
+import { getAddress, parseUnits } from "viem";
 import { useAccount, useBalance, useEstimateFeesPerGas, usePublicClient } from "wagmi";
 import { UserFacingError, type VaultAction } from "@/actions";
 import { erc4626SupplyAction } from "@/actions/erc4626/supply/erc4626SupplyAction";
@@ -22,7 +22,10 @@ import {
   type VaultSupplyFormSchemaInput,
   type VaultSupplyFormSchemaOutput,
 } from "./schema";
-import { computeAvailableBalance } from "./utils";
+import { computeAvailableBalance, isVaultUnderlyingAssetWrappedNativeAsset } from "./utils";
+
+// Buffer to account for gas price fluctuations
+const LOW_NATIVE_ASSET_BALANCE_TOLERANCE = parseUnits("0.001", 18);
 
 interface UseVaultSupplyFormParamters {
   vault: Vault;
@@ -162,6 +165,10 @@ function useDerivedFormValues({
     });
   }, [supplyAmount, position]);
 
+  const includeNativeAssetWrapping = useMemo(() => {
+    return formInputAllowNativeAssetWrapping && isVaultUnderlyingAssetWrappedNativeAsset(vault);
+  }, [formInputAllowNativeAssetWrapping, vault]);
+
   const maxSupplyAmount = useMemo(() => {
     const accountLoanTokenBalance =
       position?.walletUnderlyingAssetHolding?.balance.raw != null
@@ -171,13 +178,21 @@ function useDerivedFormValues({
       accountLoanTokenBalance,
       accountNativeAssetBalance: nativeAssetBalance,
       maxFeePerGas: gasFeeEstimate,
-      includeNativeAssetWrapping: formInputAllowNativeAssetWrapping,
+      includeNativeAssetWrapping,
     });
-  }, [nativeAssetBalance, formInputAllowNativeAssetWrapping, gasFeeEstimate, position]);
+  }, [nativeAssetBalance, gasFeeEstimate, position, includeNativeAssetWrapping]);
+
+  const supplyWillLeaveLowNativeAssetBalance = useMemo(() => {
+    if (!includeNativeAssetWrapping || maxSupplyAmount === undefined || supplyAmount === undefined) {
+      return false;
+    }
+    return supplyAmount > maxSupplyAmount - LOW_NATIVE_ASSET_BALANCE_TOLERANCE;
+  }, [includeNativeAssetWrapping, maxSupplyAmount, supplyAmount]);
 
   return {
     positionChange,
     missingAmount: supplyAmount === 0n,
     maxSupplyAmount,
+    supplyWillLeaveLowNativeAssetBalance,
   };
 }

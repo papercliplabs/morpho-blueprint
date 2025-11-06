@@ -192,6 +192,53 @@ describe("Vault Form Schema Tests", () => {
         );
       });
 
+      it("should fallback to loan token balance when native balance is unavailable", () => {
+        const vault = createMockVault({ decimals: 18, address: WETH_ADDRESS });
+        const accountLoanTokenBalance = parseUnits("1", 18); // 1 WETH
+        const maxFeePerGas = parseUnits("50", 9);
+
+        const schema = createVaultSupplyFormSchema(vault, accountLoanTokenBalance, undefined, maxFeePerGas);
+
+        const result = schema.parse({ supplyAmount: "1", allowNativeAssetWrapping: true });
+        expect(result.supplyAmount).toBe(parseUnits("1", 18));
+
+        expect(() => schema.parse({ supplyAmount: "1.1", allowNativeAssetWrapping: true })).toThrow(
+          "Amount exceeds balance",
+        );
+      });
+
+      it("should clamp native contribution when balance is below the gas reserve", () => {
+        const vault = createMockVault({ decimals: 18, address: WETH_ADDRESS });
+        const accountLoanTokenBalance = parseUnits("1", 18); // 1 WETH
+        const accountNativeAssetBalance = parseUnits("0.04", 18); // 0.04 ETH
+        const maxFeePerGas = parseUnits("50", 9); // 50 gwei => 0.05 ETH reserve
+
+        const schema = createVaultSupplyFormSchema(
+          vault,
+          accountLoanTokenBalance,
+          accountNativeAssetBalance,
+          maxFeePerGas,
+        );
+
+        const withinLimit = schema.parse({ supplyAmount: "1", allowNativeAssetWrapping: true });
+        expect(withinLimit.supplyAmount).toBe(parseUnits("1", 18));
+
+        expect(() => schema.parse({ supplyAmount: "1.000000000000000001", allowNativeAssetWrapping: true })).toThrow(
+          "Amount exceeds balance",
+        );
+      });
+
+      it("should not enforce balance limit when loan token balance is unknown", () => {
+        const vault = createMockVault({ decimals: 18, address: WETH_ADDRESS });
+        const accountNativeAssetBalance = parseUnits("2", 18); // 2 ETH
+        const maxFeePerGas = parseUnits("50", 9); // 50 gwei => 0.05 ETH reserve
+
+        const schema = createVaultSupplyFormSchema(vault, undefined, accountNativeAssetBalance, maxFeePerGas);
+
+        const result = schema.parse({ supplyAmount: "100", allowNativeAssetWrapping: true });
+        expect(result.supplyAmount).toBe(parseUnits("100", 18));
+      });
+
       it("should enforce combined balance limit with low native balance", () => {
         const vault = createMockVault({ decimals: 18, address: WETH_ADDRESS });
         const accountLoanTokenBalance = parseUnits("1", 18); // 1 WETH
