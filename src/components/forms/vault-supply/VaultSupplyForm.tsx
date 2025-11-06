@@ -2,13 +2,16 @@
 
 import { forwardRef, useImperativeHandle } from "react";
 import type { VaultAction } from "@/actions";
+import { TooltipPopover, TooltipPopoverContent, TooltipPopoverTrigger } from "@/components/ui/tooltip-popover";
 import type { Vault } from "@/data/whisk/getVault";
 import { VaultActionSimulationMetrics } from "../../ActionFlow/VaultActionFlow";
 import { Button } from "../../ui/button";
 import { ErrorMessage } from "../../ui/error-message";
 import { Form } from "../../ui/form";
 import { AssetInputFormField } from "../FormFields/AssetInputFormField";
+import SwitchFormField from "../FormFields/SwitchFormField";
 import { useVaultSupplyForm } from "./useVaultSupplyForm";
+import { isVaultUnderlyingAssetWrappedNativeAsset } from "./utils";
 
 interface VaultSupplyFormProps {
   vault: Vault;
@@ -17,7 +20,7 @@ interface VaultSupplyFormProps {
 
 export const VaultSupplyForm = forwardRef<{ reset: () => void }, VaultSupplyFormProps>(
   ({ vault, onSuccessfulActionSimulation }, ref) => {
-    const { form, handleSubmit, position, isPositionLoading, derivedFormValues, submitErrorMsg } = useVaultSupplyForm({
+    const { form, handleSubmit, isPositionLoading, derivedFormValues, submitErrorMsg } = useVaultSupplyForm({
       vault,
       onSuccessfulActionSimulation,
     });
@@ -34,18 +37,31 @@ export const VaultSupplyForm = forwardRef<{ reset: () => void }, VaultSupplyForm
         <form onSubmit={form.handleSubmit(handleSubmit)}>
           <fieldset disabled={form.formState.isSubmitting} style={{ all: "unset", width: "100%" }}>
             <div className="flex flex-col gap-6">
-              <AssetInputFormField
-                control={form.control}
-                name="supplyAmount"
-                header={`Supply ${vault.asset.symbol}`}
-                chain={vault.chain}
-                asset={vault.asset}
-                maxValue={
-                  position?.walletUnderlyingAssetHolding
-                    ? BigInt(position.walletUnderlyingAssetHolding.balance.raw)
-                    : undefined
-                }
-              />
+              <div className="space-y-1">
+                <AssetInputFormField
+                  control={form.control}
+                  name="supplyAmount"
+                  header={`Supply ${vault.asset.symbol}`}
+                  chain={vault.chain}
+                  asset={vault.asset}
+                  maxValue={derivedFormValues.maxSupplyAmount}
+                />
+
+                {isVaultUnderlyingAssetWrappedNativeAsset(vault) && (
+                  <SwitchFormField
+                    control={form.control}
+                    name="allowNativeAssetWrapping"
+                    labelContent={
+                      <TooltipPopover>
+                        <TooltipPopoverTrigger className="body-small-plus w-fit whitespace-nowrap text-muted-foreground underline decoration-dashed underline-offset-3">
+                          Allow wrapping
+                        </TooltipPopoverTrigger>
+                        <TooltipPopoverContent>Allow supply by wrapping native assets.</TooltipPopoverContent>
+                      </TooltipPopover>
+                    }
+                  />
+                )}
+              </div>
 
               <div className="h-[1px] bg-border" />
 

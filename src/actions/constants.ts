@@ -9,8 +9,3 @@ export const TOKENS_REQUIRING_APPROVAL_REVOCATION: Partial<Record<number, Record
     [getAddress("0xD533a949740bb3306d119CC777fa900bA034cd52")]: true, // CRV
   },
 };
-
-// When using native assets will leave enough balance to cover this amount of gas
-// Note the acutal amount of native assets left is NATIVE_ASSET_GAS_MARGIN * currentGasPrice
-// This should be above the gas used by all actions which will use native assets.
-export const NATIVE_ASSET_GAS_RESERVE_UNITS = 500_000n;

@@ -1,13 +1,11 @@
 import { type Address, erc20Abi, erc4626Abi, isAddressEqual, maxUint256, zeroAddress } from "viem";
-import { estimateFeesPerGas, getBalance, multicall, readContract } from "viem/actions";
+import { getBalance, multicall, readContract } from "viem/actions";
 import {
-  type ClientWithChain,
   type Erc4626SupplyActionParameters,
   type Erc4626WithdrawActionParameters,
   type Position,
   UserFacingError,
 } from "@/actions/types";
-import { NATIVE_ASSET_GAS_RESERVE_UNITS } from "../constants";
 
 export function validateErc4626ActionParameters({
   vaultAddress,
@@ -201,9 +199,4 @@ export async function fetchErc4626WithdrawData({
       assets: initialPositionAssets,
     } satisfies Position,
   };
-}
-
-export async function getNativeAssetGasFeeReserveWei({ client }: { client: ClientWithChain }) {
-  const { maxFeePerGas } = await estimateFeesPerGas(client);
-  return NATIVE_ASSET_GAS_RESERVE_UNITS * maxFeePerGas;
 }
