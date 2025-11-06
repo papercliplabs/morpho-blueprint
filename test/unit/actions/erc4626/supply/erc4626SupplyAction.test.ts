@@ -38,6 +38,7 @@ describe("erc4626SupplyAction (wrapper)", () => {
         vaultAddress,
         accountAddress: client.account.address,
         supplyAmount,
+        allowNativeAssetWrapping: false,
       });
 
       // Verify bundler3 implementation was called
@@ -46,6 +47,7 @@ describe("erc4626SupplyAction (wrapper)", () => {
         vaultAddress,
         accountAddress: client.account.address,
         supplyAmount,
+        allowNativeAssetWrapping: false,
       });
       expect(erc4626SupplyActionDirect).not.toHaveBeenCalled();
     } finally {
@@ -78,6 +80,7 @@ describe("erc4626SupplyAction (wrapper)", () => {
         vaultAddress,
         accountAddress: client.account.address,
         supplyAmount,
+        allowNativeAssetWrapping: true,
       });
 
       // Verify direct implementation was called
@@ -86,6 +89,7 @@ describe("erc4626SupplyAction (wrapper)", () => {
         vaultAddress,
         accountAddress: client.account.address,
         supplyAmount,
+        allowNativeAssetWrapping: true,
       });
       expect(erc4626SupplyViaBundler3Action).not.toHaveBeenCalled();
     } finally {

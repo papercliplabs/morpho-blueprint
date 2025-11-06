@@ -70,8 +70,7 @@ describe("erc4626SupplyActionDirect", () => {
         [], // No bundler/adapter to check
       );
 
-      // If we reach here, the transaction succeeded despite price manipulation
-      // This demonstrates the lack of slippage protection in direct supply
+      // The transaction succeeded despite price manipulation, demonstrating the lack of slippage protection in direct supply
     });
   });
 });

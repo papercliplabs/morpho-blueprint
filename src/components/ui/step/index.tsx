@@ -8,7 +8,7 @@ type StepStatus = "active" | "pending" | "complete" | "upcoming";
 type StepProps = {
   number: number;
   status: StepStatus;
-  label: string;
+  label: ReactNode;
   icon?: ReactNode;
 } & React.ComponentProps<"div">;
 

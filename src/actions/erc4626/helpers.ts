@@ -1,5 +1,5 @@
 import { type Address, erc20Abi, erc4626Abi, isAddressEqual, maxUint256, zeroAddress } from "viem";
-import { multicall, readContract } from "viem/actions";
+import { getBalance, multicall, readContract } from "viem/actions";
 import {
   type Erc4626SupplyActionParameters,
   type Erc4626WithdrawActionParameters,
@@ -40,7 +40,7 @@ export async function fetchErc4626SupplyData({
   accountAddress,
   supplyAmount,
   spender,
-}: Erc4626SupplyActionParameters & {
+}: Omit<Erc4626SupplyActionParameters, "allowNativeAssetWrapping"> & {
   spender: Address;
 }) {
   const [underlyingAssetAddress, maxDeposit, quotedShares, initialPositionShares] = await multicall(client, {
@@ -97,7 +97,10 @@ export async function fetchErc4626SupplyData({
     allowFailure: false,
   });
 
+  const accountNativeAssetBalance = await getBalance(client, { address: accountAddress });
+
   return {
+    accountNativeAssetBalance,
     underlyingAssetAddress,
     maxDeposit,
     quotedShares,

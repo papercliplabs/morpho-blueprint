@@ -1,6 +1,6 @@
 import type { AnvilTestClient } from "@morpho-org/test";
 import { type Address, type Client, erc20Abi } from "viem";
-import { multicall } from "viem/actions";
+import { getBalance, multicall } from "viem/actions";
 import { expect } from "vitest";
 
 export async function getErc20BalanceOf(client: AnvilTestClient, tokenAddress: Address, address: Address) {
@@ -24,6 +24,18 @@ export async function expectZeroErc20Balances(client: Client, accountAddresses: 
     })),
     allowFailure: false,
   });
+
+  balances.forEach((balance) => {
+    expect(balance).toEqual(BigInt(0));
+  });
+}
+
+export async function expectZeroNativeAssetBalances(client: Client, accountAddresses: Address[]) {
+  const balances = await Promise.all(
+    accountAddresses.map(async (address) => {
+      return await getBalance(client, { address });
+    }),
+  );
 
   balances.forEach((balance) => {
     expect(balance).toEqual(BigInt(0));

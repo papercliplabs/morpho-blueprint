@@ -9,15 +9,10 @@ import { erc4626WithdrawViaBundler3Action } from "./erc4626WithdrawViaBundler3Ac
  *
  * See the docstring for each action for more details.
  */
-export async function erc4626WithdrawAction({
-  client,
-  vaultAddress,
-  accountAddress,
-  withdrawAmount,
-}: Erc4626WithdrawActionParameters): Promise<VaultAction> {
+export async function erc4626WithdrawAction(params: Erc4626WithdrawActionParameters): Promise<VaultAction> {
   if (APP_CONFIG.actionParameters.bundler3Config.enabled) {
-    return erc4626WithdrawViaBundler3Action({ client, vaultAddress, accountAddress, withdrawAmount });
+    return erc4626WithdrawViaBundler3Action(params);
   }
 
-  return erc4626WithdrawActionDirect({ client, vaultAddress, accountAddress, withdrawAmount });
+  return erc4626WithdrawActionDirect(params);
 }

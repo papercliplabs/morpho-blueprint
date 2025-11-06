@@ -21,6 +21,7 @@ import { Analytics } from "./components/Analytics";
 import { LogoDesktop, LogoMobile } from "./components/Logo";
 import { PrivacyPolicy } from "./components/PrivacyPolicy";
 import { TermsOfUse } from "./components/TermsOfUse";
+import { hyperevm } from "./custom-chains/hyperevm";
 import type { AppConfig } from "./types";
 
 // Specify all chains your app supports
@@ -39,6 +40,7 @@ export const SUPPORTED_CHAIN_IDS = [
   worldchain.id,
   corn.id,
   berachain.id,
+  hyperevm.id,
 ] as const;
 
 // Custom tags for your vaults which can be used within the VaultConfig
@@ -160,6 +162,10 @@ export const APP_CONFIG: AppConfig = {
       chain: berachain,
       rpcUrls: [process.env.BERACHAIN_RPC_URL_1!, process.env.BERACHAIN_RPC_URL_2!],
     },
+    [hyperevm.id]: {
+      chain: hyperevm,
+      rpcUrls: [process.env.HYPEREVM_RPC_URL_1!, process.env.HYPEREVM_RPC_URL_2!],
+    },
   },
   maxRpcBatchSize: 32,
 
@@ -178,6 +184,7 @@ export const APP_CONFIG: AppConfig = {
       { address: getAddress("0xF5C81d25ee174d83f1FD202cA94AE6070d073cCF") }, // Compound WETH
       { address: getAddress("0x781FB7F6d845E3bE129289833b04d43Aa8558c42") }, // Compound USDC
       { address: getAddress("0xfD06859A671C21497a2EB8C5E3fEA48De924D6c8") }, // Compound USDT
+      { address: getAddress("0x3F33F9f7e2D7cfBCBDf8ea8b870a6E3d449664c2") }, // Compound POL
     ],
     [unichain.id]: [
       { address: getAddress("0xfA355999c12C63c465c591daf9C462e14ACf470b") }, // K3 Capital ETH Maxi
@@ -223,6 +230,11 @@ export const APP_CONFIG: AppConfig = {
     ],
     [berachain.id]: [
       { address: getAddress("0x30BbA9CD9Eb8c95824aa42Faa1Bb397b07545bc1") }, // Re7 HONEY
+    ],
+    [hyperevm.id]: [
+      { address: getAddress("0x4346C98E690c17eFbB999aE8e1dA96B089bE320b") }, // Relend rUSDC
+      { address: getAddress("0x92B518e1cD76dD70D3E20624AEdd7D107F332Cff") }, // Hyperithm HYPE
+      { address: getAddress("0xe5ADd96840F0B908ddeB3Bd144C0283Ac5ca7cA0") }, // Hyperithm USDT
     ],
   },
 

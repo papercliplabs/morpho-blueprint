@@ -9,15 +9,10 @@ import { erc4626SupplyViaBundler3Action } from "./erc4626SupplyViaBundler3Action
  *
  * See the docstring for each action for more details.
  */
-export async function erc4626SupplyAction({
-  client,
-  vaultAddress,
-  accountAddress,
-  supplyAmount,
-}: Erc4626SupplyActionParameters): Promise<VaultAction> {
+export async function erc4626SupplyAction(params: Erc4626SupplyActionParameters): Promise<VaultAction> {
   if (APP_CONFIG.actionParameters.bundler3Config.enabled) {
-    return erc4626SupplyViaBundler3Action({ client, vaultAddress, accountAddress, supplyAmount });
+    return erc4626SupplyViaBundler3Action(params);
   }
 
-  return erc4626SupplyActionDirect({ client, vaultAddress, accountAddress, supplyAmount });
+  return erc4626SupplyActionDirect(params);
 }

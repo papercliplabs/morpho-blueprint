@@ -1,4 +1,6 @@
-import { encodeFunctionData, erc20Abi, erc4626Abi } from "viem";
+import { getChainAddresses, MathLib } from "@morpho-org/blue-sdk";
+import { encodeFunctionData, erc20Abi, erc4626Abi, isAddressEqual } from "viem";
+import { wrappedNativeAssetAbi } from "@/abis/wrappedNativeAssetAbi";
 import { TOKENS_REQUIRING_APPROVAL_REVOCATION } from "@/actions/constants";
 import { tryCatch } from "@/utils/tryCatch";
 import {
@@ -15,15 +17,19 @@ import { fetchErc4626SupplyData, validateErc4626ActionParameters } from "../help
  * - https://eips.ethereum.org/EIPS/eip-4626
  * - https://zokyo-auditing-tutorials.gitbook.io/zokyo-tutorials/tutorials/tutorial-3-approvals-and-safe-approvals/vulnerability-examples/erc20-approval-reset-requirement
  *
- * Note this has no slippage protection, meaning the supply is susceptible to share price inflation.
- * In practice, vaults generally protect against this (or against subsequent deflation after it occurs).
- * See more on ERC-4626 inflation attacks here: https://docs.openzeppelin.com/contracts/5.x/erc4626
+ * Note:
+ * - This has no slippage protection, meaning the supply is susceptible to share price inflation.
+ *   In practice, vaults generally protect against this (or against subsequent deflation after it occurs).
+ *   See more on ERC-4626 inflation attacks here: https://docs.openzeppelin.com/contracts/5.x/erc4626
+ * - When wrapping native assets, no gas reserve is enforced (can supply up to max native asset balance), which allows gas sponsored txs to use full balance.
+ *   This is to support functionality with sponsored tx. The UI is expected to enforce the margin itself if required.
  */
 export async function erc4626SupplyActionDirect({
   client,
   vaultAddress,
   accountAddress,
   supplyAmount,
+  allowNativeAssetWrapping,
 }: Erc4626SupplyActionParameters): Promise<VaultAction> {
   validateErc4626ActionParameters({ vaultAddress, accountAddress, amount: supplyAmount });
 
@@ -36,6 +42,7 @@ export async function erc4626SupplyActionDirect({
   }
 
   const {
+    accountNativeAssetBalance,
     underlyingAssetAddress,
     accountUnderlyingAssetBalance,
     maxDeposit,
@@ -44,22 +51,48 @@ export async function erc4626SupplyActionDirect({
     initialPosition,
   } = data;
 
+  // Determine if we can/should wrap native assets
+  const { wNative: wrappedNativeAssetAddress } = getChainAddresses(client.chain.id);
+  if (!wrappedNativeAssetAddress) {
+    throw new UserFacingError(`Unknown wrapped native asset address for chain ${client.chain.id}.`);
+  }
+  const isUnderlyingAssetWrappedNativeAsset = isAddressEqual(underlyingAssetAddress, wrappedNativeAssetAddress);
+  const canWrapNativeAssets = allowNativeAssetWrapping && isUnderlyingAssetWrappedNativeAsset;
+
+  // Calculate wrap amount if applicable
+  const shortfall = MathLib.zeroFloorSub(supplyAmount, accountUnderlyingAssetBalance);
+  const nativeAssetWrapAmount = canWrapNativeAssets ? MathLib.min(shortfall, accountNativeAssetBalance) : 0n;
+
+  // Perform checks which if not met will cause the transaction to revert
   if (maxDeposit < supplyAmount) {
     throw new UserFacingError("Supply amount exceeds the max deposit allowed by the vault.");
   }
-  if (accountUnderlyingAssetBalance < supplyAmount) {
+  if (accountUnderlyingAssetBalance + nativeAssetWrapAmount < supplyAmount) {
     throw new UserFacingError("Supply amount exceeds the account balance.");
   }
   if (quotedShares === 0n) {
     throw new UserFacingError("Vault quoted 0 shares. Try to increase the supply amount.");
   }
 
-  const requiresApproval = allowance < supplyAmount;
-
   const transactionRequests: TransactionRequest[] = [];
 
-  if (requiresApproval) {
-    // Revoke existing approval if needed
+  if (nativeAssetWrapAmount > 0n) {
+    // Wrap native assets
+    transactionRequests.push({
+      name: "Wrap native assets",
+      tx: () => ({
+        to: wrappedNativeAssetAddress,
+        data: encodeFunctionData({
+          abi: wrappedNativeAssetAbi,
+          functionName: "deposit",
+        }),
+        value: nativeAssetWrapAmount,
+      }),
+    });
+  }
+
+  if (allowance < supplyAmount) {
+    // Revoke existing approval if required
     if (allowance > 0n && TOKENS_REQUIRING_APPROVAL_REVOCATION[client.chain.id]?.[underlyingAssetAddress]) {
       transactionRequests.push({
         name: "Revoke existing approval",

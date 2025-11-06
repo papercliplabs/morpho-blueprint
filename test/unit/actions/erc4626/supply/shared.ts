@@ -8,7 +8,7 @@ import { expect } from "vitest";
 import type { Erc4626SupplyActionParameters, VaultAction } from "@/actions/types";
 
 import { RANDOM_ADDRESS } from "../../../../helpers/constants";
-import { expectZeroErc20Balances, getErc20BalanceOf } from "../../../../helpers/erc20";
+import { expectZeroErc20Balances, expectZeroNativeAssetBalances, getErc20BalanceOf } from "../../../../helpers/erc20";
 import { executeAction } from "../../../../helpers/executeAction";
 import { expectOnlyAllowedApprovals, extractApprovalEvents } from "../../../../helpers/logs";
 import { createVaultPosition, getMorphoVaultPosition, seedMarketLiquidity } from "../../../../helpers/morpho";
@@ -21,9 +21,11 @@ export interface Erc4626SupplyTestParameters {
   initialState: {
     walletUnderlyingAssetBalance: bigint;
     vaultPositionBalance?: bigint; // Optional existing vault position
+    walletNativeAssetBalance?: bigint; // Optional native asset balance (defaults to 1000 ETH for gas)
   };
 
   supplyAmount: bigint;
+  allowNativeAssetWrapping?: boolean; // Optional, defaults to false
 
   beforeExecutionCb?: (client: AnvilTestClient) => Promise<void>; // Runs after action creation, before execution (e.g., manipulate price)
 
@@ -39,6 +41,7 @@ export async function runErc4626SupplyTest({
   accountAddress,
   initialState,
   supplyAmount,
+  allowNativeAssetWrapping = false,
   beforeExecutionCb,
   supplyActionFn,
   expectedApprovalTargets,
@@ -51,8 +54,11 @@ export async function runErc4626SupplyTest({
   const vaultConfig = await fetchVaultConfig(vaultAddress, client);
   const assetAddress = vaultConfig.asset;
 
-  // Provide gas
-  await client.setBalance({ address: client.account.address, value: parseEther("1000") });
+  // Provide native balance for wrap tests
+  await client.setBalance({
+    address: client.account.address,
+    value: initialState.walletNativeAssetBalance ?? parseEther("1000"),
+  });
 
   // Set up existing vault position if specified (this calls deal internally)
   if (initialState.vaultPositionBalance && initialState.vaultPositionBalance > 0n) {
@@ -67,6 +73,9 @@ export async function runErc4626SupplyTest({
     await client.deal({ erc20: assetAddress, amount: initialState.walletUnderlyingAssetBalance });
   }
 
+  // Track initial native balance for wrap validation
+  const initialNativeBalance = await client.getBalance({ address: testAccountAddress });
+
   ////
   // Act
   ////
@@ -75,6 +84,7 @@ export async function runErc4626SupplyTest({
     vaultAddress,
     accountAddress: testAccountAddress,
     supplyAmount,
+    allowNativeAssetWrapping,
   });
 
   await beforeExecutionCb?.(client);
@@ -93,17 +103,28 @@ export async function runErc4626SupplyTest({
   );
 
   const vaultPosition = await getMorphoVaultPosition(client, vaultAddress, testAccountAddress);
-  const userWalletBalance = await getErc20BalanceOf(client, assetAddress, testAccountAddress);
+  const userWalletUnderlyingAssetBalance = await getErc20BalanceOf(client, assetAddress, testAccountAddress);
+  const userWalletNativeAssetBalance = await client.getBalance({ address: testAccountAddress });
 
-  // Partial supply - position should include both initial position and new supply
   const expectedPosition = (initialState.vaultPositionBalance ?? 0n) + supplyAmount;
-  expect(vaultPosition).toBeWithinRange(expectedPosition - BigInt(1), expectedPosition);
-  expect(userWalletBalance).toEqual(initialState.walletUnderlyingAssetBalance - supplyAmount);
+  const expectedUserWalletUnderlyingBalance = MathLib.zeroFloorSub(
+    initialState.walletUnderlyingAssetBalance,
+    supplyAmount,
+  );
+
+  const shortfall = MathLib.zeroFloorSub(supplyAmount, initialState.walletUnderlyingAssetBalance);
+  const expectedUserNativeBalance = initialNativeBalance - shortfall;
+
+  // Allow small rounding difference due to rounding
+  expect(vaultPosition).toBeWithinRange(expectedPosition - BigInt(10), expectedPosition + BigInt(10));
+  expect(userWalletUnderlyingAssetBalance).toEqual(expectedUserWalletUnderlyingBalance);
+  expect(userWalletNativeAssetBalance).toEqual(expectedUserNativeBalance); // Anvil spends no gas
 
   // Make sure no funds left in addresses which we expect zero (ex. bundler or adapters)
   if (expectedZeroBalanceAddresses) {
     await expectZeroErc20Balances(client, expectedZeroBalanceAddresses, assetAddress);
     await expectZeroErc20Balances(client, expectedZeroBalanceAddresses, vaultAddress);
+    await expectZeroNativeAssetBalances(client, expectedZeroBalanceAddresses);
   }
 
   return logs;
@@ -113,11 +134,16 @@ export async function runErc4626SupplyTest({
 export const successTestCases: Array<{
   name: string;
   vaultAddress: Address;
-  initialState: { walletUnderlyingAssetBalance: bigint; vaultPositionBalance?: bigint };
+  initialState: {
+    walletUnderlyingAssetBalance: bigint;
+    vaultPositionBalance?: bigint;
+    walletNativeAssetBalance?: bigint;
+  };
   supplyAmount: bigint;
+  allowNativeAssetWrapping?: boolean;
 }> = [
   {
-    name: "Partial supply",
+    name: "Partial supply ",
     vaultAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
     initialState: {
       walletUnderlyingAssetBalance: parseUnits("2000", 6),
@@ -157,16 +183,60 @@ export const successTestCases: Array<{
     },
     supplyAmount: parseUnits("1000000", 6),
   },
+  {
+    name: "Supply with partial native asset wrapping (WETH vault)",
+    vaultAddress: "0x9a8bC3B04b7f3D87cfC09ba407dCED575f2d61D8", // MEV Capital WETH vault
+    initialState: {
+      walletUnderlyingAssetBalance: parseEther("1"), // 1 WETH
+      walletNativeAssetBalance: parseEther("5"), // 5 ETH
+    },
+    supplyAmount: parseEther("3"), // Will wrap 2 ETH
+    allowNativeAssetWrapping: true,
+  },
+  {
+    name: "Supply with native asset wrapping only (WETH vault)",
+    vaultAddress: "0x9a8bC3B04b7f3D87cfC09ba407dCED575f2d61D8", // MEV Capital WETH vault
+    initialState: {
+      walletUnderlyingAssetBalance: 0n, // 0 WETH
+      walletNativeAssetBalance: parseEther("5"), // 5 ETH
+    },
+    supplyAmount: parseEther("2"), // Will wrap 2 ETH
+    allowNativeAssetWrapping: true,
+  },
+  {
+    name: "Supply with native asset wrapping near full amount (WETH vault)",
+    vaultAddress: "0x9a8bC3B04b7f3D87cfC09ba407dCED575f2d61D8", // MEV Capital WETH vault
+    initialState: {
+      walletUnderlyingAssetBalance: parseEther("1"), // 0 WETH
+      walletNativeAssetBalance: parseEther("5.01"), // 5 ETH + gas margin...
+    },
+    supplyAmount: parseEther("6"), // Fully consume WETH and ETH
+    allowNativeAssetWrapping: true,
+  },
+  {
+    name: "Supply with native asset wrapping enabled but no shortfall (WETH vault, full wrap)",
+    vaultAddress: "0x9a8bC3B04b7f3D87cfC09ba407dCED575f2d61D8", // MEV Capital WETH vault
+    initialState: {
+      walletUnderlyingAssetBalance: parseEther("10"), // 1 WETH
+      walletNativeAssetBalance: parseEther("5"), // 5 ETH
+    },
+    supplyAmount: parseEther("2"), // Doesn't need to wrap any
+    allowNativeAssetWrapping: true,
+  },
 ];
 
 // Shared failure test cases
 export const failureTestCases: Array<{
   name: string;
   vaultAddress: Address;
-  initialState: { walletUnderlyingAssetBalance: bigint };
+  initialState: {
+    walletUnderlyingAssetBalance: bigint;
+    walletNativeAssetBalance?: bigint;
+  };
   supplyAmount: bigint;
   expectedError: string | RegExp;
   accountAddress?: Address; // Optional override for account address
+  allowNativeAssetWrapping?: boolean;
 }> = [
   {
     name: "throws when vault doesn't exist",
@@ -223,6 +293,39 @@ export const failureTestCases: Array<{
     },
     supplyAmount: -1n,
     expectedError: "Invalid input: Amount must be greater than 0.",
+  },
+  {
+    name: "insufficient total balance even with wrapping (WETH vault)",
+    vaultAddress: "0x9a8bC3B04b7f3D87cfC09ba407dCED575f2d61D8", // MEV Capital WETH vault
+    initialState: {
+      walletUnderlyingAssetBalance: parseEther("1"), // 1 WETH
+      walletNativeAssetBalance: parseEther("0.5"), // 0.5 ETH
+    },
+    supplyAmount: parseEther("2"), // 2 > 1 WETH + 0.5 ETH
+    allowNativeAssetWrapping: true,
+    expectedError: "Supply amount exceeds the account balance.",
+  },
+  {
+    name: "wrapping disabled but user has sufficient native balance (WETH vault)",
+    vaultAddress: "0x9a8bC3B04b7f3D87cfC09ba407dCED575f2d61D8", // MEV Capital WETH vault
+    initialState: {
+      walletUnderlyingAssetBalance: parseEther("1"), // 1 WETH
+      walletNativeAssetBalance: parseEther("10"), // 10 ETH (plenty)
+    },
+    supplyAmount: parseEther("2"), // Trying to supply 2 WETH
+    allowNativeAssetWrapping: false, // But wrapping is disabled
+    expectedError: "Supply amount exceeds the account balance.",
+  },
+  {
+    name: "wrapping on non-WETH vault doesn't allow action to be attempted",
+    vaultAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+    initialState: {
+      walletUnderlyingAssetBalance: parseUnits("100", 6), // 1000 USDC
+      walletNativeAssetBalance: parseUnits("10000", 6), // 10000 USDC (plenty)
+    },
+    supplyAmount: parseUnits("1000", 6), // Don't have enough underlying assets
+    allowNativeAssetWrapping: true, // Should have no effect
+    expectedError: "Supply amount exceeds the account balance.",
   },
 ];
 

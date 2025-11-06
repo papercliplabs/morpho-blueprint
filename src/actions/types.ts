@@ -61,6 +61,11 @@ export interface Erc4626SupplyActionParameters {
   vaultAddress: Address;
   accountAddress: Address;
   supplyAmount: bigint;
+  /**
+   * Allows wrapping native assets to cover underlying asset balance shortfall from supplyAmount.
+   * Only relevant if the vault's underlying asset is the wrapped native asset.
+   */
+  allowNativeAssetWrapping: boolean;
 }
 
 export interface Erc4626WithdrawActionParameters {
