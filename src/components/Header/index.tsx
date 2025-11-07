@@ -2,6 +2,7 @@ import clsx from "clsx";
 import Link from "next/link";
 import { APP_CONFIG } from "@/config";
 import { ConnectButton } from "../ConnectButton";
+import { Rewards } from "../rewards/Rewards";
 import { Nav } from "./Nav";
 
 function Header() {
@@ -15,7 +16,10 @@ function Header() {
           </Link>
           <Nav />
         </div>
-        <ConnectButton />
+        <div className="flex items-center gap-1">
+          <Rewards />
+          <ConnectButton />
+        </div>
       </div>
     </header>
   );

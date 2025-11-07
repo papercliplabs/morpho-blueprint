@@ -1,0 +1,73 @@
+import "server-only";
+
+import { cache } from "react";
+import type { Address } from "viem";
+import { SUPPORTED_CHAIN_IDS } from "@/config";
+import type { SupportedChainId } from "@/config/types";
+import { graphql } from "@/generated/gql/whisk";
+import type { MerklAccountRewardsQuery } from "@/generated/gql/whisk/graphql";
+import { executeWhiskQuery } from "./execute";
+
+const query = graphql(`
+  query MerklAccountRewards($chainId: ChainId!, $accountAddress: Address!) {
+    merklAccountRewards(chainId: $chainId, accountAddress: $accountAddress) {
+        token {
+          ...TokenInfoFragment
+          chain {
+            ...ChainInfoFragment
+          }
+        }
+
+        creditedAmount {
+          raw
+        }
+
+        claimableAmount {
+          raw
+          formatted
+          usd
+        }
+
+        proofs
+
+        distributorAddress
+      }
+  }
+`);
+
+export type MerklAccountReward = NonNullable<MerklAccountRewardsQuery["merklAccountRewards"][number]>;
+export type MerklAccountRewardsMap = Partial<
+  Record<SupportedChainId, { rewards: MerklAccountReward[]; totalUsd: number }>
+>;
+
+export const getAccountRewards = cache(async (accountAddress: Address) => {
+  const responses = await Promise.allSettled(
+    SUPPORTED_CHAIN_IDS.map((chainId) =>
+      executeWhiskQuery(query, {
+        chainId,
+        accountAddress,
+      }),
+    ),
+  );
+
+  const data = {} as MerklAccountRewardsMap;
+  for (const [index, response] of responses.entries()) {
+    const chainId = SUPPORTED_CHAIN_IDS[index]!;
+
+    if (response.status === "rejected") {
+      console.warn(`Failed to fetch account rewards for chain ${chainId}`);
+    } else {
+      const filteredRewards = response.value.merklAccountRewards.filter(
+        (reward) => BigInt(reward.claimableAmount.raw) > 0n,
+      );
+      const totalUsd = filteredRewards.reduce((acc, reward) => acc + (reward.claimableAmount.usd ?? 0), 0);
+      if (totalUsd > 0) {
+        data[chainId] = { rewards: filteredRewards, totalUsd };
+      }
+    }
+  }
+
+  return data;
+});
+
+export type AccountRewards = NonNullable<Awaited<ReturnType<typeof getAccountRewards>>>;

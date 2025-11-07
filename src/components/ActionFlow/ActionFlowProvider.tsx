@@ -36,7 +36,6 @@ type ActionFlowContextType = {
 const ActionFlowContext = createContext<ActionFlowContextType | undefined>(undefined);
 
 interface ActionFlowProviderProps {
-  chainId: number;
   action: Action;
   flowCompletionCb?: () => void;
   children: ReactNode;
@@ -46,24 +45,18 @@ interface ActionFlowProviderProps {
   } & Record<string, string | number>;
 }
 
-export function ActionFlowProvider({
-  chainId,
-  flowCompletionCb,
-  action,
-  trackingPayload,
-  children,
-}: ActionFlowProviderProps) {
+export function ActionFlowProvider({ flowCompletionCb, action, trackingPayload, children }: ActionFlowProviderProps) {
   const [flowState, setFlowState] = useState<ActionFlowState>("review");
   const [activeStep, setActiveStep] = useState<number>(0);
   const [actionState, setActionState] = useState<ActionState>("pending-wallet");
   const [lastTransactionHash, setLastTransactionHash] = useState<Hex | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const { data: client } = useConnectorClient({ chainId, assertChainId: false });
+  const { data: client } = useConnectorClient({ chainId: action.chainId, assertChainId: false });
   const { connector } = useAccount();
   const { setOpen: setConnectKitOpen } = useModal();
 
-  const publicClient = useClient({ chainId });
+  const publicClient = useClient({ chainId: action.chainId });
   const { switchChainAsync } = useSwitchChain();
   const queryClient = useQueryClient();
   const { chainId: accountChainId } = useAccount();
@@ -76,9 +69,9 @@ export function ActionFlowProvider({
     }
 
     // Must be on the correct chain
-    if (accountChainId !== chainId) {
-      const { id } = await switchChainAsync({ chainId });
-      if (id !== chainId) {
+    if (accountChainId !== action.chainId) {
+      const { id } = await switchChainAsync({ chainId: action.chainId });
+      if (id !== action.chainId) {
         throw new Error("Unable to automaitcally switch chains.");
       }
     }
@@ -194,7 +187,7 @@ export function ActionFlowProvider({
     flowState,
     client,
     publicClient,
-    chainId,
+    action.chainId,
     action,
     flowCompletionCb,
     switchChainAsync,
@@ -209,7 +202,7 @@ export function ActionFlowProvider({
   return (
     <ActionFlowContext.Provider
       value={{
-        chainId,
+        chainId: action.chainId,
         flowState,
         activeStep,
         actionState,

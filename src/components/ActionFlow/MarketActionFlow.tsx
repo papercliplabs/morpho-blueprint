@@ -24,7 +24,6 @@ export function MarketActionFlow({
   return (
     <ActionFlow
       action={action}
-      chainId={market.chain.id}
       summary={action && <MarketActionSummary market={market} positionChange={action.positionChange} />}
       metrics={action && <MarketActionSimulationMetrics market={market} positionChange={action.positionChange} />}
       actionName={action ? marketPositionChangeToActionName(action.positionChange) : "Send Transaction"} // Fallback won't occur

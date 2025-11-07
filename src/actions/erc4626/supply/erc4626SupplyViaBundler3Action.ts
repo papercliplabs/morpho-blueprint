@@ -161,6 +161,7 @@ export async function erc4626SupplyViaBundler3Action({
   });
 
   return {
+    chainId: client.chain.id,
     transactionRequests,
     signatureRequests: [], // No signatures since we use approval tx only
     positionChange: {
