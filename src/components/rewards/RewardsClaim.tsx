@@ -10,7 +10,6 @@ interface RewardsClaimProps {
 }
 
 export function RewardsClaim({ action, rewards, clearAction }: RewardsClaimProps) {
-  console.log("action", action);
   return (
     <ActionFlow
       trackingPayload={{ tag: "rewards-claim" }}

@@ -43,7 +43,6 @@ export function Rewards() {
           tokens: rewards.map((reward) => reward.token.address),
           creditedAmounts: rewards.map((reward) => BigInt(reward.creditedAmount.raw)),
           proofs: rewards.map((reward) => reward.proofs),
-          distributorAddress: rewards[0]!.distributorAddress,
         });
         setClaimAction({ action, rewards });
         return { error: null };

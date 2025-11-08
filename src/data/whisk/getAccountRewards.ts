@@ -29,8 +29,6 @@ const query = graphql(`
         }
 
         proofs
-
-        distributorAddress
       }
   }
 `);

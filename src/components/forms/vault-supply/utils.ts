@@ -3,6 +3,8 @@ import { isAddressEqual } from "viem";
 import type { Vault } from "@/data/whisk/getVault";
 import { NATIVE_ASSET_GAS_RESERVE_UNITS } from "@/utils/constants";
 
+import "@/actions/morphoSdkPatch";
+
 export function isVaultUnderlyingAssetWrappedNativeAsset(vault: Vault) {
   const { wNative: wrappedNativeAssetAddress } = getChainAddresses(vault.chain.id);
   if (!wrappedNativeAssetAddress) {

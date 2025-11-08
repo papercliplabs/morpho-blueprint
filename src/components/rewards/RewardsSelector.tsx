@@ -123,7 +123,7 @@ function RewardsSelectorChain({
             <div className="flex flex-col gap-3 ">
               <ul className="flex flex-col gap-2">
                 {rewards.map((reward) => (
-                  <RewardTokenRow key={`${reward.token.address}-${reward.distributorAddress}`} reward={reward} />
+                  <RewardTokenRow key={`${chainId}-${reward.token.address}`} reward={reward} />
                 ))}
               </ul>
             </div>

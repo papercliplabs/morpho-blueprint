@@ -1,5 +1,6 @@
 import { type Address, encodeFunctionData, type Hex } from "viem";
 import { merklDistributorAbi } from "@/abis/merklDistributorAbi";
+import { MERKL_DISTRIBUTOR_ADDRESS } from "./constants";
 import { type Action, UserFacingError } from "./types";
 
 interface BuildClaimMerklRewardsActionParameters {
@@ -8,7 +9,6 @@ interface BuildClaimMerklRewardsActionParameters {
   tokens: Address[];
   creditedAmounts: bigint[];
   proofs: Hex[][];
-  distributorAddress: Address;
 }
 
 export function claimMerklRewardsAction({
@@ -17,7 +17,6 @@ export function claimMerklRewardsAction({
   tokens,
   creditedAmounts,
   proofs,
-  distributorAddress,
 }: BuildClaimMerklRewardsActionParameters): Action {
   const len = tokens.length;
   if (creditedAmounts.length !== len || proofs.length !== len) {
@@ -30,7 +29,7 @@ export function claimMerklRewardsAction({
       {
         name: "Claim rewards",
         tx: () => ({
-          to: distributorAddress,
+          to: MERKL_DISTRIBUTOR_ADDRESS,
           data: encodeFunctionData({
             abi: merklDistributorAbi,
             functionName: "claim",
