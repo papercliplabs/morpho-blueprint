@@ -56,8 +56,10 @@ export const getAccountRewards = async (accountAddress: Address) => {
       const filteredRewards = response.value.merklAccountRewards.filter(
         (reward) => BigInt(reward.claimableAmount.raw) > 0n,
       );
-      const totalUsd = filteredRewards.reduce((acc, reward) => acc + (reward.claimableAmount.usd ?? 0), 0);
-      data[chainId] = { rewards: filteredRewards, totalUsd };
+      if (filteredRewards.length > 0) {
+        const totalUsd = filteredRewards.reduce((acc, reward) => acc + (reward.claimableAmount.usd ?? 0), 0);
+        data[chainId] = { rewards: filteredRewards, totalUsd };
+      }
     }
   }
 

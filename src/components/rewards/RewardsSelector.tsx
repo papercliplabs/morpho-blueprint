@@ -20,7 +20,6 @@ interface RewardsSelectorProps {
 
 export function RewardsSelector({ rewardsMap, onSubmit }: RewardsSelectorProps) {
   const entries = Object.entries(rewardsMap);
-
   if (entries.length === 0) {
     return (
       <Card className="flex h-[80px] w-full items-center justify-center bg-secondary text-center text-secondary-foreground shadow-none">

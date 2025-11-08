@@ -1,11 +1,11 @@
 "use client";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useAccount } from "wagmi";
 import { type Action, UserFacingError } from "@/actions";
 import { claimMerklRewardsAction } from "@/actions/claimMerklRewardsAction";
 import { SUPPORTED_CHAIN_IDS } from "@/config";
 import type { SupportedChainId } from "@/config/types";
-import type { MerklAccountReward } from "@/data/whisk/getAccountRewards";
+import type { MerklAccountReward, MerklAccountRewardsMap } from "@/data/whisk/getAccountRewards";
 import { useAccountRewards } from "@/hooks/useAccountRewards";
 import { Button } from "../ui/button";
 import { DialogDrawer, DialogDrawerContent, DialogDrawerTitle, DialogDrawerTrigger } from "../ui/dialog-drawer";
@@ -17,34 +17,53 @@ import { RewardsClaim } from "./RewardsClaim";
 import { RewardsSelector } from "./RewardsSelector";
 
 export function Rewards() {
+  const [selectOpen, setSelectOpen] = useState(false);
   const [claimAction, setClaimAction] = useState<{ action: Action; rewards: MerklAccountReward[] } | null>(null);
 
   const { isConnected, address } = useAccount();
   const { data: rewardsMap, isLoading } = useAccountRewards();
 
-  // Optimistic rewards map gets updated immediately upon claim
-  const [optimisticRewardsMap, setOptimisticRewardsMap] = useState<typeof rewardsMap>(undefined);
+  // Track claimed chains to optimistically update the rewards map
+  const [claimedChains, setClaimedChains] = useState<SupportedChainId[]>([]);
 
-  // Load rewardsMap into optimisticRewardsMap
-  useEffect(() => {
-    if (rewardsMap) {
-      setOptimisticRewardsMap(rewardsMap);
+  const visibleRewardsMap = useMemo<MerklAccountRewardsMap | undefined>(() => {
+    if (!rewardsMap) {
+      return undefined;
     }
-  }, [rewardsMap]);
+
+    const filtered: MerklAccountRewardsMap = {};
+    for (const [chainIdString, entry] of Object.entries(rewardsMap)) {
+      const chainId = Number(chainIdString) as SupportedChainId;
+      if (!claimedChains.includes(chainId)) {
+        filtered[chainId] = entry;
+      }
+    }
+    return filtered;
+  }, [rewardsMap, claimedChains]);
 
   function handleClaimSuccess(chainId: SupportedChainId) {
-    if (optimisticRewardsMap) {
-      setOptimisticRewardsMap((prev) => {
-        const newMap = { ...prev };
-        delete newMap[chainId];
-        return newMap;
-      });
-    }
+    setClaimedChains((prev) => {
+      if (prev.includes(chainId)) {
+        return prev;
+      }
+
+      const next = [...prev, chainId];
+
+      if (rewardsMap) {
+        // Close select if no more chains are left to claim
+        const hasRemainingChains = Object.keys(rewardsMap).some((id) => !next.includes(Number(id) as SupportedChainId));
+        if (!hasRemainingChains) {
+          setSelectOpen(false);
+        }
+      }
+
+      return next;
+    });
   }
 
   const totalUsdAcrossAllChains = useMemo(() => {
-    return Object.values(optimisticRewardsMap ?? {}).reduce((acc, curr) => acc + curr.totalUsd, 0);
-  }, [optimisticRewardsMap]);
+    return Object.values(visibleRewardsMap ?? {}).reduce((acc, curr) => acc + curr.totalUsd, 0);
+  }, [visibleRewardsMap]);
 
   const handleBuildAction = useCallback(
     (chainId: SupportedChainId, rewards: MerklAccountReward[]): { error: string | null } => {
@@ -77,7 +96,7 @@ export function Rewards() {
     return null;
   }
 
-  if (isLoading || !optimisticRewardsMap) {
+  if (isLoading || visibleRewardsMap === undefined) {
     return (
       <Button asChild variant="secondary" className="w-16" disabled>
         <Skeleton />
@@ -87,7 +106,7 @@ export function Rewards() {
 
   return (
     <>
-      <DialogDrawer>
+      <DialogDrawer open={selectOpen} onOpenChange={setSelectOpen}>
         <DialogDrawerTrigger>
           <Button variant="secondary" className="body-medium-plus gap-1.5">
             <Sparkles className="size-4 fill-primary" />
@@ -100,7 +119,7 @@ export function Rewards() {
           </div>
 
           <div className="flex-1 overflow-y-auto px-6 pt-4">
-            <RewardsSelector rewardsMap={optimisticRewardsMap} onSubmit={handleBuildAction} />
+            <RewardsSelector rewardsMap={visibleRewardsMap} onSubmit={handleBuildAction} />
 
             <div className="flex items-center justify-center py-6">
               <PoweredByMerkl className="h-5" />
