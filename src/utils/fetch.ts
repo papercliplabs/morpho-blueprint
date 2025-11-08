@@ -1,7 +1,8 @@
 import pRetry, { type Options } from "p-retry";
 import { trackEvent } from "@/data/trackEvent";
 
-const DEFAULT_REQUEST_TIMEOUT_MS = 5_000;
+// 8s default timeout (just sanity timeout)
+const DEFAULT_REQUEST_TIMEOUT_MS = 8_000;
 
 export async function promiseWithRetry<T>(
   p: (attemptCount: number) => PromiseLike<T>,
