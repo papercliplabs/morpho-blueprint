@@ -9,3 +9,6 @@ export const TOKENS_REQUIRING_APPROVAL_REVOCATION: Partial<Record<number, Record
     [getAddress("0xD533a949740bb3306d119CC777fa900bA034cd52")]: true, // CRV
   },
 };
+
+// Same across all chains - we have a unit test to verify this contract is present for every chain config
+export const MERKL_DISTRIBUTOR_ADDRESS = getAddress("0x3Ef3D8bA38EBe18DB133cEc108f4D14CE00Dd9Ae");

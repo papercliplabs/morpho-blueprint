@@ -7,6 +7,7 @@ import { encodeBundlerCalls } from "./encodeBundlerCalls";
 // Encode subbundles into an action in the order they are provided
 export function actionFromSubbundles(chainId: ChainId, subbundles: Subbundle[], executeBundleName: string): Action {
   return {
+    chainId,
     signatureRequests: subbundles.flatMap((subbundle) => subbundle.signatureRequirements),
     transactionRequests: [
       ...subbundles.flatMap((subbundle) => subbundle.transactionRequirements),

@@ -83,6 +83,7 @@ export async function erc4626WithdrawActionDirect({
   }
 
   return {
+    chainId: client.chain.id,
     transactionRequests,
     signatureRequests: [], // No signatures since we use approval tx only
     positionChange: {

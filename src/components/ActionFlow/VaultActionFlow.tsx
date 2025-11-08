@@ -22,7 +22,6 @@ export function VaultActionFlow({
   return (
     <ActionFlow
       action={action}
-      chainId={vault.chain.id}
       summary={action && <VaultActionSummary vault={vault} positionChange={action.positionChange} />}
       metrics={action && <VaultActionSimulationMetrics vault={vault} positionChange={action.positionChange} />}
       actionName={action ? vaultPositionChangeToActionName(action.positionChange) : "Send Transaction"} // Fallback won't occur

@@ -26,6 +26,7 @@ export interface TransactionRequest extends ActionMetadata {
 }
 
 export type Action = {
+  chainId: number;
   signatureRequests: SignatureRequest[];
   transactionRequests: TransactionRequest[];
 };

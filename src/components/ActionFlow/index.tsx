@@ -146,7 +146,7 @@ function ActionFlowDialog({ open, onOpenChange, actionName, summary, metrics }: 
 
   return (
     <DialogDrawer open={open} onOpenChange={onOpenChange} dismissible={!preventClose}>
-      <DialogDrawerContent hideCloseButton className="p-0 md:max-w-[420px]">
+      <DialogDrawerContent hideCloseButton className="p-0 lg:max-w-[420px]">
         <motion.div
           animate={{ height: measuredHeight }}
           transition={{ duration: 0.4, type: "spring", bounce: 0 }}

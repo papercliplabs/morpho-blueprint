@@ -2,7 +2,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import Link from "next/link";
 
 const navItemVariants = cva(
-  "text-muted-foreground hover:bg-accent group inline-flex h-9 items-center rounded-sm px-3 transition body-medium",
+  "text-muted-foreground hover:bg-accent group inline-flex h-9 items-center rounded-sm px-2 md:px-3 transition body-medium",
   {
     variants: {
       active: {

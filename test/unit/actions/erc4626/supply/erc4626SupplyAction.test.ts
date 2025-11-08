@@ -26,6 +26,7 @@ describe("erc4626SupplyAction (wrapper)", () => {
 
       // Setup mock
       const mockResult = {
+        chainId: client.chain.id,
         transactionRequests: [],
         signatureRequests: [],
         positionChange: { balance: { before: 0n, after: 0n } },
@@ -68,6 +69,7 @@ describe("erc4626SupplyAction (wrapper)", () => {
 
       // Setup mock
       const mockResult = {
+        chainId: client.chain.id,
         transactionRequests: [],
         signatureRequests: [],
         positionChange: { balance: { before: 0n, after: 0n } },

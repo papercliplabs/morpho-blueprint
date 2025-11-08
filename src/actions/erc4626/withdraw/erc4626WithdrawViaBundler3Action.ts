@@ -85,6 +85,7 @@ export async function erc4626WithdrawViaBundler3Action({
       });
 
   return {
+    chainId: client.chain.id,
     transactionRequests,
     signatureRequests: [],
     positionChange: {

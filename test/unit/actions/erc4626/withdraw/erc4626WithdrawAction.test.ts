@@ -26,6 +26,7 @@ describe("erc4626WithdrawAction (wrapper)", () => {
 
       // Setup mock
       const mockResult = {
+        chainId: client.chain.id,
         transactionRequests: [],
         signatureRequests: [],
         positionChange: { balance: { before: 0n, after: 0n } },
@@ -66,6 +67,7 @@ describe("erc4626WithdrawAction (wrapper)", () => {
 
       // Setup mock
       const mockResult = {
+        chainId: client.chain.id,
         transactionRequests: [],
         signatureRequests: [],
         positionChange: { balance: { before: 0n, after: 0n } },
