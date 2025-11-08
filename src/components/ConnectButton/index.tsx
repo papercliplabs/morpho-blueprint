@@ -11,7 +11,7 @@ export function ConnectButton() {
   const { address } = useAccount();
 
   return (
-    <Button onClick={() => setConnectKitOpen(true)} variant={address ? "secondary" : "default"}>
+    <Button onClick={() => setConnectKitOpen(true)} variant={address ? "secondary" : "default"} size="sm">
       {address ? formatAddress(address) : "Connect"}
     </Button>
   );

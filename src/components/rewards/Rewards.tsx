@@ -98,7 +98,7 @@ export function Rewards() {
 
   if (isLoading || visibleRewardsMap === undefined) {
     return (
-      <Button asChild variant="secondary" className="w-16" disabled>
+      <Button asChild variant="secondary" className="w-16" disabled size="sm">
         <Skeleton />
       </Button>
     );
@@ -107,8 +107,8 @@ export function Rewards() {
   return (
     <>
       <DialogDrawer open={selectOpen} onOpenChange={setSelectOpen}>
-        <DialogDrawerTrigger>
-          <Button variant="secondary" className="body-medium-plus gap-1.5">
+        <DialogDrawerTrigger asChild>
+          <Button variant="secondary" className="body-medium-plus gap-1.5" size="sm">
             <Sparkles className="size-4 fill-primary" />
             <NumberFlow value={totalUsdAcrossAllChains} format={{ currency: "USD" }} />
           </Button>
