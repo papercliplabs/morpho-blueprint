@@ -1,6 +1,5 @@
 import "server-only";
 
-import { cache } from "react";
 import type { Address } from "viem";
 import { SUPPORTED_CHAIN_IDS } from "@/config";
 import type { SupportedChainId } from "@/config/types";
@@ -38,7 +37,7 @@ export type MerklAccountRewardsMap = Partial<
   Record<SupportedChainId, { rewards: MerklAccountReward[]; totalUsd: number }>
 >;
 
-export const getAccountRewards = cache(async (accountAddress: Address) => {
+export const getAccountRewards = async (accountAddress: Address) => {
   const responses = await Promise.allSettled(
     SUPPORTED_CHAIN_IDS.map((chainId) =>
       executeWhiskQuery(query, {
@@ -58,13 +57,11 @@ export const getAccountRewards = cache(async (accountAddress: Address) => {
         (reward) => BigInt(reward.claimableAmount.raw) > 0n,
       );
       const totalUsd = filteredRewards.reduce((acc, reward) => acc + (reward.claimableAmount.usd ?? 0), 0);
-      if (totalUsd > 0) {
-        data[chainId] = { rewards: filteredRewards, totalUsd };
-      }
+      data[chainId] = { rewards: filteredRewards, totalUsd };
     }
   }
 
   return data;
-});
+};
 
 export type AccountRewards = NonNullable<Awaited<ReturnType<typeof getAccountRewards>>>;

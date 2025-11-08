@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAccount } from "wagmi";
 import { type Action, UserFacingError } from "@/actions";
 import { claimMerklRewardsAction } from "@/actions/claimMerklRewardsAction";
@@ -22,9 +22,29 @@ export function Rewards() {
   const { isConnected, address } = useAccount();
   const { data: rewardsMap, isLoading } = useAccountRewards();
 
-  const totalUsdAcrossAllChains = useMemo(() => {
-    return Object.values(rewardsMap ?? {}).reduce((acc, curr) => acc + curr.totalUsd, 0);
+  // Optimistic rewards map gets updated immediately upon claim
+  const [optimisticRewardsMap, setOptimisticRewardsMap] = useState<typeof rewardsMap>(undefined);
+
+  // Load rewardsMap into optimisticRewardsMap
+  useEffect(() => {
+    if (rewardsMap) {
+      setOptimisticRewardsMap(rewardsMap);
+    }
   }, [rewardsMap]);
+
+  function handleClaimSuccess(chainId: SupportedChainId) {
+    if (optimisticRewardsMap) {
+      setOptimisticRewardsMap((prev) => {
+        const newMap = { ...prev };
+        delete newMap[chainId];
+        return newMap;
+      });
+    }
+  }
+
+  const totalUsdAcrossAllChains = useMemo(() => {
+    return Object.values(optimisticRewardsMap ?? {}).reduce((acc, curr) => acc + curr.totalUsd, 0);
+  }, [optimisticRewardsMap]);
 
   const handleBuildAction = useCallback(
     (chainId: SupportedChainId, rewards: MerklAccountReward[]): { error: string | null } => {
@@ -57,7 +77,7 @@ export function Rewards() {
     return null;
   }
 
-  if (isLoading || !rewardsMap) {
+  if (isLoading || !optimisticRewardsMap) {
     return (
       <Button asChild variant="secondary" className="w-16" disabled>
         <Skeleton />
@@ -80,7 +100,7 @@ export function Rewards() {
           </div>
 
           <div className="flex-1 overflow-y-auto px-6 pt-4">
-            <RewardsSelector rewardsMap={rewardsMap} onSubmit={handleBuildAction} />
+            <RewardsSelector rewardsMap={optimisticRewardsMap} onSubmit={handleBuildAction} />
 
             <div className="flex items-center justify-center py-6">
               <PoweredByMerkl className="h-5" />
@@ -93,6 +113,7 @@ export function Rewards() {
         action={claimAction?.action}
         rewards={claimAction?.rewards}
         clearAction={() => setClaimAction(null)}
+        onClaimSuccess={handleClaimSuccess}
       />
     </>
   );

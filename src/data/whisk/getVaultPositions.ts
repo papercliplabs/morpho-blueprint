@@ -1,6 +1,5 @@
 import "server-only";
 
-import { cache } from "react";
 import type { Address, Hex } from "viem";
 
 import { APP_CONFIG } from "@/config";
@@ -47,7 +46,7 @@ const query = graphql(`
 export type VaultPosition = NonNullable<VaultPositionsQuery["morphoVaultPositions"]["items"][number]>;
 export type VaultPositionMap = Record<SupportedChainId, Record<Hex, VaultPosition>>; // ChainId -> VaultAddress -> VaultPosition
 
-export const getVaultPositions = cache(async (accountAddress: Address): Promise<VaultPositionMap> => {
+export const getVaultPositions = async (accountAddress: Address): Promise<VaultPositionMap> => {
   const chainIds = Object.keys(APP_CONFIG.supportedVaults).map((chainId) => Number.parseInt(chainId) as ChainId);
   const vaultAddresses = Object.values(APP_CONFIG.supportedVaults)
     .flat()
@@ -85,4 +84,4 @@ export const getVaultPositions = cache(async (accountAddress: Address): Promise<
   }
 
   return data;
-});
+};
