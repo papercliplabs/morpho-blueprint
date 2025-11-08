@@ -129,7 +129,7 @@ export const getMarket = cache(async (chainId: SupportedChainId, marketId: Hex):
     marketId,
   });
 
-  const market = data.morphoMarkets.items[0];
+  const market = data?.morphoMarkets.items[0];
 
   if (!market) {
     throw new Error(`Market not found: ${chainId}:${marketId}`);

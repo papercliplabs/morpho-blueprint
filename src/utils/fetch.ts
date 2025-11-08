@@ -1,14 +1,15 @@
 import pRetry, { type Options } from "p-retry";
 import { trackEvent } from "@/data/trackEvent";
 
+const DEFAULT_REQUEST_TIMEOUT_MS = 5_000;
+
 export async function promiseWithRetry<T>(
   p: (attemptCount: number) => PromiseLike<T>,
   options: Partial<Options> = {},
 ): Promise<T> {
-  // Default: retry 5 times, 400ms -> 800ms -> 1600ms -> 3200ms -> 6400ms (total time is 15600ms)
   const defaultPRetryOptions: Options = {
-    retries: 5,
-    minTimeout: 400, // [ms]
+    retries: 1, // Single retry covers rare network issues
+    minTimeout: 200, // [ms]
     factor: 2, // Exponential backoff factor
     randomize: true, // Avoid thundering herd effect
     onFailedAttempt: (e) => {
@@ -36,6 +37,7 @@ export async function fetchJsonResponse<T>(url: string | URL, options?: FetchJso
         "Content-Type": "application/json",
         ...(options?.requestOptions?.headers ?? {}),
       },
+      signal: options?.requestOptions?.signal ?? AbortSignal.timeout(DEFAULT_REQUEST_TIMEOUT_MS), // By default we have a timeout on every request
     });
 
     if (!response.ok) {

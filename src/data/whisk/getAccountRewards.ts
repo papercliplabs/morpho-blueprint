@@ -54,9 +54,8 @@ export const getAccountRewards = cache(async (accountAddress: Address) => {
   for (const [index, response] of responses.entries()) {
     const chainId = SUPPORTED_CHAIN_IDS[index]!;
 
-    if (response.status === "rejected") {
-      console.warn(`Failed to fetch account rewards for chain ${chainId}`);
-    } else {
+    // Else the errors are logged at the fetch layer
+    if (response.status === "fulfilled") {
       const filteredRewards = response.value.merklAccountRewards.filter(
         (reward) => BigInt(reward.claimableAmount.raw) > 0n,
       );

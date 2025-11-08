@@ -14,7 +14,7 @@ export function RewardTokenRow({
     claimableAmount: { formatted, usd },
   } = reward;
   return (
-    <li className="flex items-center gap-3 rounded-2xl bg-muted/40 px-4 py-2">
+    <li className="flex items-center gap-3 px-4 py-2">
       <TokenIcon token={token} chain={token.chain} size="md" showChain />
       <div className="flex flex-col text-sm">
         <span className="font-medium text-content-primary">
