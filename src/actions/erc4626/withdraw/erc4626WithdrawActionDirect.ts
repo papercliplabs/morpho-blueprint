@@ -1,27 +1,35 @@
-import { encodeFunctionData, erc4626Abi, maxUint256 } from "viem";
+import { encodeFunctionData, erc4626Abi, isAddressEqual, maxUint256 } from "viem";
+import { wrappedNativeAssetAbi } from "@/abis/wrappedNativeAssetAbi";
 import {
   type Erc4626WithdrawActionParameters,
   type TransactionRequest,
   UserFacingError,
   type VaultAction,
 } from "@/actions/types";
+import { getChainAddressesRequired } from "@/actions/utils/getChainAddressesRequired";
 import { tryCatch } from "@/utils/tryCatch";
-import { fetchErc4626WithdrawData, validateErc4626ActionParameters } from "../helpers";
+import { fetchErc4626WithdrawData, validateErc4626WithdrawParameters } from "./helpers";
 
 /**
  * Action to withdraw directly from an ERC4626 vault.
  * It is assumed the vault correctly implements the ERC-4626 specification: https://eips.ethereum.org/EIPS/eip-4626
  *
- * Note this has no slippage protection, meaning the supply is susceptible to share price deflation.
- * In practice, vaults generally protect against this.
+ * Note:
+ * - This has no slippage protection, meaning the supply is susceptible to share price deflation.
+ *   In practice, vaults generally protect against this.
+ * - When unwrapping native assets during a full withdraw, any interest accrued between action build and execution will be left as dust wrapped native assets in the wallet.
  */
 export async function erc4626WithdrawActionDirect({
   client,
   vaultAddress,
   accountAddress,
   withdrawAmount,
+  unwrapNativeAssets,
 }: Erc4626WithdrawActionParameters): Promise<VaultAction> {
-  validateErc4626ActionParameters({ vaultAddress, accountAddress, amount: withdrawAmount });
+  validateErc4626WithdrawParameters({ vaultAddress, accountAddress, amount: withdrawAmount });
+
+  const isFullWithdraw = withdrawAmount === maxUint256;
+  const { wrappedNativeAssetAddress } = getChainAddressesRequired(client.chain.id);
 
   const { data, error } = await tryCatch(
     // Spender is vault address since we are calling withdraw on the vault directly
@@ -31,9 +39,7 @@ export async function erc4626WithdrawActionDirect({
     throw new UserFacingError("Unable to load vault data.", { cause: error });
   }
 
-  const { maxWithdraw, initialPosition, maxRedeem, quotedSharesRedeemed } = data;
-
-  const isFullWithdraw = withdrawAmount === maxUint256;
+  const { underlyingAssetAddress, maxWithdraw, initialPosition, maxRedeem, quotedSharesRedeemed } = data;
 
   if (isFullWithdraw) {
     // Just sanity check for disabled vaults for maxRedeem since actual value can be an underestimate due to rounding and can cause false negatives
@@ -51,6 +57,8 @@ export async function erc4626WithdrawActionDirect({
   if (quotedSharesRedeemed === 0n) {
     throw new UserFacingError("Vault quoted 0 shares redeemed. Try to increase the withdraw amount.");
   }
+
+  const shouldUnwrap = isAddressEqual(underlyingAssetAddress, wrappedNativeAssetAddress) && unwrapNativeAssets;
 
   const transactionRequests: TransactionRequest[] = [];
 
@@ -82,10 +90,26 @@ export async function erc4626WithdrawActionDirect({
     });
   }
 
+  if (shouldUnwrap) {
+    // For full withdraws, this will leave any interest accrued between action build and execution as dust wrapped native assets within the wallet
+    // Note: wNative.withdraw uses msg.sender.transfer, which will revert if the caller is a contract without a payable fallback function
+    transactionRequests.push({
+      name: "Unwrap native asset",
+      tx: () => ({
+        to: wrappedNativeAssetAddress,
+        data: encodeFunctionData({
+          abi: wrappedNativeAssetAbi,
+          functionName: "withdraw",
+          args: [isFullWithdraw ? initialPosition.assets : withdrawAmount],
+        }),
+      }),
+    });
+  }
+
   return {
     chainId: client.chain.id,
     transactionRequests,
-    signatureRequests: [], // No signatures since we use approval tx only
+    signatureRequests: [],
     positionChange: {
       balance: {
         before: initialPosition.assets,

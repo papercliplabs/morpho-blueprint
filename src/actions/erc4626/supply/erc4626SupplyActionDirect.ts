@@ -1,7 +1,8 @@
-import { getChainAddresses, MathLib } from "@morpho-org/blue-sdk";
-import { encodeFunctionData, erc20Abi, erc4626Abi, isAddressEqual } from "viem";
+import { MathLib } from "@morpho-org/blue-sdk";
+import { encodeFunctionData, erc4626Abi, isAddressEqual } from "viem";
 import { wrappedNativeAssetAbi } from "@/abis/wrappedNativeAssetAbi";
-import { TOKENS_REQUIRING_APPROVAL_REVOCATION } from "@/actions/constants";
+import { requiredApprovalTransactionRequests } from "@/actions/subbundles/requiredApprovalTransactionRequests";
+import { getChainAddressesRequired } from "@/actions/utils/getChainAddressesRequired";
 import { tryCatch } from "@/utils/tryCatch";
 import {
   type Erc4626SupplyActionParameters,
@@ -9,7 +10,7 @@ import {
   UserFacingError,
   type VaultAction,
 } from "../../types";
-import { fetchErc4626SupplyData, validateErc4626ActionParameters } from "../helpers";
+import { fetchErc4626SupplyData, validateErc4626SupplyParameters } from "./helpers";
 
 /**
  * Action to supply directly to an ERC4626 vault.
@@ -21,7 +22,7 @@ import { fetchErc4626SupplyData, validateErc4626ActionParameters } from "../help
  * - This has no slippage protection, meaning the supply is susceptible to share price inflation.
  *   In practice, vaults generally protect against this (or against subsequent deflation after it occurs).
  *   See more on ERC-4626 inflation attacks here: https://docs.openzeppelin.com/contracts/5.x/erc4626
- * - When wrapping native assets, no gas reserve is enforced (can supply up to max native asset balance), which allows gas sponsored txs to use full balance.
+ * - When wrapping native assets, no gas reserve is enforced (can supply up to max native asset balance).
  *   This is to support functionality with sponsored tx. The UI is expected to enforce the margin itself if required.
  */
 export async function erc4626SupplyActionDirect({
@@ -31,7 +32,9 @@ export async function erc4626SupplyActionDirect({
   supplyAmount,
   allowNativeAssetWrapping,
 }: Erc4626SupplyActionParameters): Promise<VaultAction> {
-  validateErc4626ActionParameters({ vaultAddress, accountAddress, amount: supplyAmount });
+  validateErc4626SupplyParameters({ vaultAddress, accountAddress, amount: supplyAmount });
+
+  const { wrappedNativeAssetAddress } = getChainAddressesRequired(client.chain.id);
 
   const { data, error } = await tryCatch(
     // Spender is vault address since we are calling deposit on the vault directly
@@ -52,14 +55,9 @@ export async function erc4626SupplyActionDirect({
   } = data;
 
   // Determine if we can/should wrap native assets
-  const { wNative: wrappedNativeAssetAddress } = getChainAddresses(client.chain.id);
-  if (!wrappedNativeAssetAddress) {
-    throw new UserFacingError(`Unknown wrapped native asset address for chain ${client.chain.id}.`);
-  }
   const isUnderlyingAssetWrappedNativeAsset = isAddressEqual(underlyingAssetAddress, wrappedNativeAssetAddress);
   const canWrapNativeAssets = allowNativeAssetWrapping && isUnderlyingAssetWrappedNativeAsset;
 
-  // Calculate wrap amount if applicable
   const shortfall = MathLib.zeroFloorSub(supplyAmount, accountUnderlyingAssetBalance);
   const nativeAssetWrapAmount = canWrapNativeAssets ? MathLib.min(shortfall, accountNativeAssetBalance) : 0n;
 
@@ -91,37 +89,19 @@ export async function erc4626SupplyActionDirect({
     });
   }
 
-  if (allowance < supplyAmount) {
-    // Revoke existing approval if required
-    if (allowance > 0n && TOKENS_REQUIRING_APPROVAL_REVOCATION[client.chain.id]?.[underlyingAssetAddress]) {
-      transactionRequests.push({
-        name: "Revoke existing approval",
-        tx: () => ({
-          to: underlyingAssetAddress,
-          data: encodeFunctionData({
-            abi: erc20Abi,
-            functionName: "approve",
-            args: [vaultAddress, 0n],
-          }),
-        }),
-      });
-    }
+  // Approve vault to spend underlying assets
+  transactionRequests.push(
+    ...requiredApprovalTransactionRequests({
+      approvalTransactionName: "Approve supply amount",
+      chainId: client.chain.id,
+      erc20Address: underlyingAssetAddress,
+      spenderAddress: vaultAddress,
+      currentAllowance: allowance,
+      requiredAllowance: supplyAmount,
+    }),
+  );
 
-    // Approve vault to spend supplyAmount of underlying assets
-    transactionRequests.push({
-      name: "Approve supply amount",
-      tx: () => ({
-        to: underlyingAssetAddress,
-        data: encodeFunctionData({
-          abi: erc20Abi,
-          functionName: "approve",
-          args: [vaultAddress, supplyAmount],
-        }),
-      }),
-    });
-  }
-
-  // Supply to vault directly
+  // Supply directly to vault
   transactionRequests.push({
     name: "Supply to vault",
     tx: () => ({
@@ -137,7 +117,7 @@ export async function erc4626SupplyActionDirect({
   return {
     chainId: client.chain.id,
     transactionRequests,
-    signatureRequests: [], // No signatures since we use approval tx only
+    signatureRequests: [],
     positionChange: {
       balance: {
         before: initialPosition.assets,

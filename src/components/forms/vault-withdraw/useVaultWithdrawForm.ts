@@ -74,6 +74,7 @@ export function useVaultWithdrawForm({ vault, onSuccessfulActionSimulation }: Us
           vaultAddress: getAddress(vault.vaultAddress),
           accountAddress: address,
           withdrawAmount: submittedValues.isMaxWithdraw ? maxUint256 : submittedValues.withdrawAmount,
+          unwrapNativeAssets: false, // TODO: wire this up
         }),
       );
 

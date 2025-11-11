@@ -42,12 +42,15 @@ describe("erc4626WithdrawViaBundler3Action", () => {
 
       const logs = await runErc4626WithdrawTest({
         client,
-        vaultAddress,
         initialState: {
           vaultPositionBalance: parseUnits("10000", 6),
         },
-        accountAddress: client.account.address,
-        withdrawAmount: parseUnits("1000", 6),
+        inputs: {
+          vaultAddress,
+          accountAddress: client.account.address,
+          withdrawAmount: parseUnits("1000", 6),
+          unwrapNativeAssets: false,
+        },
         withdrawActionFn: erc4626WithdrawViaBundler3Action,
         expectedApprovalTargets: [generalAdapter1],
         expectedZeroBalanceAddresses: [bundler3, generalAdapter1],

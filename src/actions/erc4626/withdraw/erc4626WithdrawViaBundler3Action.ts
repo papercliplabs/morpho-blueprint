@@ -1,36 +1,39 @@
-import { getChainAddresses, MathLib } from "@morpho-org/blue-sdk";
+import { MathLib } from "@morpho-org/blue-sdk";
 import { type Action, BundlerAction } from "@morpho-org/bundler-sdk-viem";
-import { type Address, encodeFunctionData, erc4626Abi, maxUint256 } from "viem";
+import { type Address, isAddressEqual, maxUint256 } from "viem";
+import { requiredApprovalTransactionRequests } from "@/actions/subbundles/requiredApprovalTransactionRequests";
+import { skimBundler3Actions } from "@/actions/subbundles/skimBundler3Actions";
 import {
   type Erc4626WithdrawActionParameters,
   type TransactionRequest,
   UserFacingError,
   type VaultAction,
 } from "@/actions/types";
+import { getChainAddressesRequired } from "@/actions/utils/getChainAddressesRequired";
 import { APP_CONFIG } from "@/config";
 import { tryCatch } from "@/utils/tryCatch";
-import { fetchErc4626WithdrawData, validateErc4626ActionParameters } from "../helpers";
+import { fetchErc4626WithdrawData, validateErc4626WithdrawParameters } from "./helpers";
 
 /**
  * Action to withdraw from an ERC4626 vault via Bundler3.
  * The benefit of this over direct withdraw is slippage protection.
  * It is assumed the vault correctly implements the ERC-4626 specification: https://eips.ethereum.org/EIPS/eip-4626
  *
- * Note that while bundler3 also enables the use of permit2, this action uses explicit approval transactions.
- * This is to reduce complexity, and lends itself to a better UX for wallets with atomic batching capabilities (EIP-5792).
+ * Note:
+ * - While bundler3 also enables the use of permit and permit2 approvals, this action uses explicit approval transactions.
+ *   This is to reduce complexity, and lends itself to a better UX for wallets with batching capabilities (EIP-5792).
  */
 export async function erc4626WithdrawViaBundler3Action({
   client,
   vaultAddress,
   accountAddress,
   withdrawAmount,
+  unwrapNativeAssets,
 }: Erc4626WithdrawActionParameters): Promise<VaultAction> {
-  validateErc4626ActionParameters({ vaultAddress, accountAddress, amount: withdrawAmount });
+  validateErc4626WithdrawParameters({ vaultAddress, accountAddress, amount: withdrawAmount });
 
-  // Will throw if unsupported chainId
-  const {
-    bundler3: { generalAdapter1: generalAdapter1Address },
-  } = getChainAddresses(client.chain.id);
+  const isFullWithdraw = withdrawAmount === maxUint256;
+  const { wrappedNativeAssetAddress, generalAdapter1Address } = getChainAddressesRequired(client.chain.id);
 
   const { data, error } = await tryCatch(
     // Spender is general adapter 1 since this is where we are routing the withdraw through
@@ -40,9 +43,7 @@ export async function erc4626WithdrawViaBundler3Action({
     throw new UserFacingError("Unable to load vault data.", { cause: error });
   }
 
-  const { maxWithdraw, initialPosition, allowance, quotedSharesRedeemed, maxRedeem } = data;
-
-  const isFullWithdraw = withdrawAmount === maxUint256;
+  const { underlyingAssetAddress, maxWithdraw, initialPosition, allowance, quotedSharesRedeemed, maxRedeem } = data;
 
   // Validate liquidity and balance based on withdraw type
   if (isFullWithdraw) {
@@ -62,27 +63,54 @@ export async function erc4626WithdrawViaBundler3Action({
     throw new UserFacingError("Vault quoted 0 shares redeemed. Try to increase the withdraw amount.");
   }
 
+  const shouldUnwrap = isAddressEqual(underlyingAssetAddress, wrappedNativeAssetAddress) && unwrapNativeAssets;
+
   // Build transaction requests based on withdraw type
-  const transactionRequests = isFullWithdraw
-    ? buildErc4626RedeemTransactionRequests({
-        chainId: client.chain.id,
+  const { requiredAllowance, actions } = isFullWithdraw
+    ? erc4626RedeemActions({
         vaultAddress,
         accountAddress,
         generalAdapter1Address,
         exactInputShares: initialPosition.shares,
         quotedOutputAssets: initialPosition.assets,
-        allowance,
+        shouldUnwrap,
       })
-    : buildErc4626WithdrawTransactionRequests({
-        chainId: client.chain.id,
+    : erc4626WithdrawActions({
         vaultAddress,
         accountAddress,
         generalAdapter1Address,
         quotedInputShares: quotedSharesRedeemed,
         exactOutputAssets: withdrawAmount,
         positionShares: initialPosition.shares,
-        allowance,
+        shouldUnwrap,
       });
+
+  const transactionRequests: TransactionRequest[] = [];
+
+  transactionRequests.push(
+    ...requiredApprovalTransactionRequests({
+      approvalTransactionName: "Approve withdraw amount",
+      chainId: client.chain.id,
+      erc20Address: vaultAddress, // Vault shares
+      spenderAddress: generalAdapter1Address,
+      currentAllowance: allowance,
+      requiredAllowance: requiredAllowance,
+    }),
+  );
+
+  // Skim any tokens which could touch GA1, including native assets
+  actions.push(
+    ...skimBundler3Actions({
+      adapterAddress: generalAdapter1Address,
+      erc20TokenAddresses: [underlyingAssetAddress, vaultAddress],
+      accountAddress,
+    }),
+  );
+
+  transactionRequests.push({
+    name: "Withdraw from vault",
+    tx: () => BundlerAction.encodeBundle(client.chain.id, actions),
+  });
 
   return {
     chainId: client.chain.id,
@@ -97,69 +125,21 @@ export async function erc4626WithdrawViaBundler3Action({
   };
 }
 
-/**
- * Creates an approval transaction if needed for vault share spending.
- * GA1 is a known and immutable contract without approval frontrunning vulnerabilities, so we don't revoke existing approvals.
- */
-function buildApprovalTransactionIfNeeded({
-  vaultAddress,
-  generalAdapter1Address,
-  sharesToApprove,
-  currentAllowance,
-}: {
-  vaultAddress: Address;
-  generalAdapter1Address: Address;
-  sharesToApprove: bigint;
-  currentAllowance: bigint;
-}): TransactionRequest[] {
-  if (currentAllowance >= sharesToApprove) {
-    return [];
-  }
-
-  return [
-    {
-      name: "Approve withdraw amount",
-      tx: () => ({
-        to: vaultAddress,
-        data: encodeFunctionData({
-          abi: erc4626Abi,
-          functionName: "approve",
-          args: [generalAdapter1Address, sharesToApprove],
-        }),
-      }),
-    },
-  ];
-}
-
-function buildErc4626RedeemTransactionRequests({
-  chainId,
+function erc4626RedeemActions({
   vaultAddress,
   accountAddress,
   generalAdapter1Address,
   exactInputShares, // Assumed non-zero (sanitized before calling)
   quotedOutputAssets,
-  allowance,
+  shouldUnwrap, // If true, assumes underlyingAssetAddress is the wrapped native asset (validated before calling)
 }: {
-  chainId: number;
   vaultAddress: Address;
   accountAddress: Address;
   generalAdapter1Address: Address;
   exactInputShares: bigint;
   quotedOutputAssets: bigint;
-  allowance: bigint;
-}) {
-  const transactionRequests: TransactionRequest[] = [];
-
-  // Add approval if needed
-  transactionRequests.push(
-    ...buildApprovalTransactionIfNeeded({
-      vaultAddress,
-      generalAdapter1Address,
-      sharesToApprove: exactInputShares,
-      currentAllowance: allowance,
-    }),
-  );
-
+  shouldUnwrap: boolean;
+}): { requiredAllowance: bigint; actions: Action[] } {
   // Slippage calculation: minimum amount of assets to receive per share, scaled by RAY (1e27)
   const minSharePriceRay = MathLib.mulDivUp(
     quotedOutputAssets,
@@ -167,43 +147,51 @@ function buildErc4626RedeemTransactionRequests({
     exactInputShares,
   );
 
-  // Withdraw from vault via bundler3 with slippage protection
-  // Asset flow:
-  //  - shares: account -> vault (burned)
-  //  - assets: vault -> account (received)
-  transactionRequests.push({
-    name: "Withdraw from vault",
-    tx: () =>
-      BundlerAction.encodeBundle(chainId, [
+  const actions: Action[] = shouldUnwrap
+    ? [
+        // Asset flow:
+        //  - shares: account -> vault (burned)
+        //  - assets: vault -> GA1 -> unwrap -> account
         {
-          // Redeem exact amount of inputShares on behalf of accountAddress (uses share approval from above)
+          // Redeem exact amount of inputShares on behalf of accountAddress, sending to GA1 as recipient
+          type: "erc4626Redeem",
+          args: [vaultAddress, exactInputShares, minSharePriceRay, generalAdapter1Address, accountAddress],
+        },
+        {
+          // Unwrap all wrapped native assets within GA1, sending to account as recipient
+          type: "unwrapNative",
+          args: [maxUint256, accountAddress],
+        },
+      ]
+    : [
+        // Asset flow:
+        //  - shares: account -> vault (burned)
+        //  - assets: vault -> account
+        {
           type: "erc4626Redeem",
           args: [vaultAddress, exactInputShares, minSharePriceRay, accountAddress, accountAddress],
-        } satisfies Action,
-      ]),
-  });
+        },
+      ];
 
-  return transactionRequests;
+  return { requiredAllowance: exactInputShares, actions };
 }
 
-function buildErc4626WithdrawTransactionRequests({
-  chainId,
+function erc4626WithdrawActions({
   vaultAddress,
   accountAddress,
   generalAdapter1Address,
   quotedInputShares, // Assumed non-zero (sanitized before calling)
   exactOutputAssets,
   positionShares,
-  allowance,
+  shouldUnwrap, // If true, assumes underlyingAssetAddress is the wrapped native asset (validated before calling)
 }: {
-  chainId: number;
   vaultAddress: Address;
   accountAddress: Address;
   generalAdapter1Address: Address;
   quotedInputShares: bigint;
   exactOutputAssets: bigint;
   positionShares: bigint;
-  allowance: bigint;
+  shouldUnwrap: boolean;
 }) {
   // Slippage calculation: minimum amount of assets to receive per share, scaled by RAY (1e27)
   const minSharePriceRay = MathLib.mulDivUp(
@@ -219,33 +207,29 @@ function buildErc4626WithdrawTransactionRequests({
     positionShares,
   );
 
-  const transactionRequests: TransactionRequest[] = [];
-
-  // Add approval if needed
-  transactionRequests.push(
-    ...buildApprovalTransactionIfNeeded({
-      vaultAddress,
-      generalAdapter1Address,
-      sharesToApprove: maxInputShares,
-      currentAllowance: allowance,
-    }),
-  );
-
-  // Withdraw from vault via bundler3 with slippage protection
-  // Asset flow:
-  //  - shares: account -> vault (burned)
-  //  - assets: vault -> account (received)
-  transactionRequests.push({
-    name: "Withdraw from vault",
-    tx: () =>
-      BundlerAction.encodeBundle(chainId, [
+  const actions: Action[] = shouldUnwrap
+    ? [
+        // Asset flow:
+        //  - shares: account -> vault (burned)
+        //  - assets: vault -> GA1 -> unwrap -> account
         {
-          // Withdraw exact amount of outputAssets on behalf of accountAddress (uses share approval from above)
+          type: "erc4626Withdraw",
+          args: [vaultAddress, exactOutputAssets, minSharePriceRay, generalAdapter1Address, accountAddress],
+        },
+        {
+          type: "unwrapNative",
+          args: [maxUint256, accountAddress],
+        },
+      ]
+    : [
+        // Asset flow:
+        //  - shares: account -> vault (burned)
+        //  - assets: vault -> account (received)
+        {
           type: "erc4626Withdraw",
           args: [vaultAddress, exactOutputAssets, minSharePriceRay, accountAddress, accountAddress],
-        } satisfies Action,
-      ]),
-  });
+        },
+      ];
 
-  return transactionRequests;
+  return { requiredAllowance: maxInputShares, actions };
 }

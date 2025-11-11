@@ -13,6 +13,9 @@ import { executeAction } from "../../../../helpers/executeAction";
 import { expectOnlyAllowedApprovals, extractApprovalEvents } from "../../../../helpers/logs";
 import { createVaultPosition, getMorphoVaultPosition, seedMarketLiquidity } from "../../../../helpers/morpho";
 
+// Accounts for rounding and small interest accrual
+const CHECK_TOLERANCE = 100n;
+
 export interface Erc4626SupplyTestParameters {
   client: AnvilTestClient;
   vaultAddress: Address;
@@ -116,8 +119,8 @@ export async function runErc4626SupplyTest({
   const expectedUserNativeBalance = initialNativeBalance - shortfall;
 
   // Allow small rounding difference due to rounding
-  expect(vaultPosition).toBeWithinRange(expectedPosition - BigInt(10), expectedPosition + BigInt(10));
-  expect(userWalletUnderlyingAssetBalance).toEqual(expectedUserWalletUnderlyingBalance);
+  expect(vaultPosition).toBeWithinRange(expectedPosition - CHECK_TOLERANCE, expectedPosition + CHECK_TOLERANCE); // Always rounds against user
+  expect(userWalletUnderlyingAssetBalance).toEqual(expectedUserWalletUnderlyingBalance); // Exact supply
   expect(userWalletNativeAssetBalance).toEqual(expectedUserNativeBalance); // Anvil spends no gas
 
   // Make sure no funds left in addresses which we expect zero (ex. bundler or adapters)

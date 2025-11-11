@@ -39,6 +39,7 @@ describe("erc4626WithdrawAction (wrapper)", () => {
         vaultAddress,
         accountAddress: client.account.address,
         withdrawAmount,
+        unwrapNativeAssets: false,
       });
 
       // Verify bundler3 implementation was called
@@ -47,6 +48,7 @@ describe("erc4626WithdrawAction (wrapper)", () => {
         vaultAddress,
         accountAddress: client.account.address,
         withdrawAmount,
+        unwrapNativeAssets: false,
       });
       expect(erc4626WithdrawActionDirect).not.toHaveBeenCalled();
     } finally {
@@ -80,6 +82,7 @@ describe("erc4626WithdrawAction (wrapper)", () => {
         vaultAddress,
         accountAddress: client.account.address,
         withdrawAmount,
+        unwrapNativeAssets: true,
       });
 
       // Verify direct implementation was called
@@ -88,6 +91,7 @@ describe("erc4626WithdrawAction (wrapper)", () => {
         vaultAddress,
         accountAddress: client.account.address,
         withdrawAmount,
+        unwrapNativeAssets: true,
       });
       expect(erc4626WithdrawViaBundler3Action).not.toHaveBeenCalled();
     } finally {

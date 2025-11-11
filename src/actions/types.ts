@@ -58,23 +58,28 @@ export type MarketPositionChange = {
 };
 
 export interface Erc4626SupplyActionParameters {
-  client: ClientWithChain;
-  vaultAddress: Address;
-  accountAddress: Address;
-  supplyAmount: bigint;
+  readonly client: ClientWithChain;
+  readonly vaultAddress: Address;
+  readonly accountAddress: Address;
+  readonly supplyAmount: bigint;
   /**
    * Allows wrapping native assets to cover underlying asset balance shortfall from supplyAmount.
    * Only relevant if the vault's underlying asset is the wrapped native asset.
    */
-  allowNativeAssetWrapping: boolean;
+  readonly allowNativeAssetWrapping: boolean;
 }
 
 export interface Erc4626WithdrawActionParameters {
-  client: ClientWithChain;
-  vaultAddress: Address;
-  accountAddress: Address;
+  readonly client: ClientWithChain;
+  readonly vaultAddress: Address;
+  readonly accountAddress: Address;
   /** Pass maxUint256 for entire position balance (leaving no dust) */
-  withdrawAmount: bigint;
+  readonly withdrawAmount: bigint;
+  /**
+   * If true, AND the vault underlying asset is the wrapped native asset, will unwrap the underlying asset to the native asset when withdrawing.
+   * Does nothing if the vault underlying asset is not the wrapped native asset.
+   */
+  readonly unwrapNativeAssets: boolean;
 }
 
 export interface Position {
