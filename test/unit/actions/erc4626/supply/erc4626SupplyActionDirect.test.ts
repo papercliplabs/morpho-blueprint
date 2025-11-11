@@ -21,7 +21,7 @@ describe("erc4626SupplyActionDirect", () => {
           client,
           ...testCase,
           supplyActionFn: erc4626SupplyActionDirect,
-          expectedApprovalTargets: [testCase.vaultAddress], // Direct supply only approves vault
+          expectedApprovalTargets: [testCase.inputs.vaultAddress], // Direct supply only approves vault
           // No need to check bundler/adapter balances for direct supply
         });
       });
@@ -52,7 +52,7 @@ describe("erc4626SupplyActionDirect", () => {
             client,
             ...testCase,
             supplyActionFn: erc4626SupplyActionDirect,
-            expectedApprovalTargets: [testCase.vaultAddress],
+            expectedApprovalTargets: [testCase.inputs.vaultAddress],
           }),
         ).rejects.toThrow(testCase.expectedError);
       });

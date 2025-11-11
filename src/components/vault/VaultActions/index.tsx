@@ -71,7 +71,7 @@ function VaultActionsDesktop({ vault, hasSupplyPosition }: { hasSupplyPosition: 
           <TabsList className="w-fit">
             <TabsTrigger value="supply">Supply</TabsTrigger>
             <Tooltip>
-              <TooltipTrigger>
+              <TooltipTrigger asChild>
                 <TabsTrigger
                   value="withdraw"
                   disabled={disableWithdrawTab}

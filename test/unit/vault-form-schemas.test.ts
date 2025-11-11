@@ -265,24 +265,26 @@ describe("Vault Form Schema Tests", () => {
       const positionBalance = parseUnits("50", 6);
       const schema = createVaultWithdrawFormSchema(6, positionBalance);
 
-      expect(schema.parse({ withdrawAmount: "50", isMaxWithdraw: false }).withdrawAmount).toBe(50000000n);
-      expect(() => schema.parse({ withdrawAmount: "50.000001", isMaxWithdraw: false })).toThrow(
-        "Amount exceeds position",
-      );
+      expect(
+        schema.parse({ withdrawAmount: "50", isMaxWithdraw: false, unwrapNativeAssets: false }).withdrawAmount,
+      ).toBe(50000000n);
+      expect(() =>
+        schema.parse({ withdrawAmount: "50.000001", isMaxWithdraw: false, unwrapNativeAssets: false }),
+      ).toThrow("Amount exceeds position");
     });
 
     it("should allow withdrawal up to exact position balance", () => {
       const positionBalance = parseUnits("100", 6);
       const schema = createVaultWithdrawFormSchema(6, positionBalance);
 
-      const result = schema.parse({ withdrawAmount: "100", isMaxWithdraw: false });
+      const result = schema.parse({ withdrawAmount: "100", isMaxWithdraw: false, unwrapNativeAssets: false });
       expect(result.withdrawAmount).toBe(positionBalance);
     });
 
     it("should work without position (no max limit)", () => {
       const schema = createVaultWithdrawFormSchema(6, undefined);
 
-      const result = schema.parse({ withdrawAmount: "1000000", isMaxWithdraw: false });
+      const result = schema.parse({ withdrawAmount: "1000000", isMaxWithdraw: false, unwrapNativeAssets: false });
       expect(result.withdrawAmount).toBeGreaterThan(0n);
     });
   });

@@ -1,8 +1,8 @@
 import { getChainAddresses, type MarketId } from "@morpho-org/blue-sdk";
 import { blueAbi, fetchMarket, fetchVault, fetchVaultConfig, metaMorphoAbi } from "@morpho-org/blue-sdk-viem";
 import type { AnvilTestClient } from "@morpho-org/test";
-import { type Address, erc20Abi, type Hex } from "viem";
-import { writeContract } from "viem/actions";
+import { type Address, erc20Abi, erc4626Abi, type Hex } from "viem";
+import { getBalance, readContract, writeContract } from "viem/actions";
 
 import { getSimulationState } from "@/actions/data/rpc/getSimulationState";
 
@@ -173,4 +173,36 @@ export async function createMarketPosition(
       account,
     });
   }
+}
+
+export async function getMorphoVaultSharesToAssets(client: AnvilTestClient, vaultAddress: Address, shares: bigint) {
+  return readContract(client, {
+    address: vaultAddress,
+    abi: erc4626Abi,
+    functionName: "convertToAssets",
+    args: [shares],
+  });
+}
+
+export async function getVaultPositionAccountingSnapshot(
+  client: AnvilTestClient,
+  vaultAddress: Address,
+  accountAddress: Address = client.account.address,
+) {
+  const vault = await fetchVault(vaultAddress, client);
+
+  const [positionShares, walletNativeAssetBalance, walletUnderlyingAssetBalance] = await Promise.all([
+    readContract(client, {
+      address: vaultAddress,
+      abi: erc4626Abi,
+      functionName: "balanceOf",
+      args: [accountAddress],
+    }),
+    getBalance(client, { address: accountAddress }),
+    getErc20BalanceOf(client, vault.asset, accountAddress),
+  ]);
+
+  const positionAssets = vault.toAssets(positionShares);
+
+  return { walletNativeAssetBalance, walletUnderlyingAssetBalance, positionShares, positionAssets };
 }

@@ -1,22 +1,24 @@
-import { MathLib } from "@morpho-org/blue-sdk";
+import { getChainAddresses, MathLib } from "@morpho-org/blue-sdk";
 import { fetchVaultConfig, metaMorphoAbi } from "@morpho-org/blue-sdk-viem";
 import type { AnvilTestClient } from "@morpho-org/test";
-import { type Address, erc20Abi, getAddress, type Log, parseEther, parseUnits } from "viem";
-import { readContract } from "viem/actions";
+import { type Address, erc20Abi, getAddress, type Log, maxUint256, parseEther, parseUnits, zeroAddress } from "viem";
+import { readContract, writeContract } from "viem/actions";
 import { expect } from "vitest";
 
 import type { Erc4626SupplyActionParameters, VaultAction } from "@/actions/types";
 
 import { RANDOM_ADDRESS } from "../../../../helpers/constants";
-import { expectZeroErc20Balances, expectZeroNativeAssetBalances, getErc20BalanceOf } from "../../../../helpers/erc20";
+import { expectZeroErc20Balances, expectZeroNativeAssetBalances } from "../../../../helpers/erc20";
 import { executeAction } from "../../../../helpers/executeAction";
 import { expectOnlyAllowedApprovals, extractApprovalEvents } from "../../../../helpers/logs";
-import { createVaultPosition, getMorphoVaultPosition, seedMarketLiquidity } from "../../../../helpers/morpho";
+import {
+  createVaultPosition,
+  getVaultPositionAccountingSnapshot,
+  seedMarketLiquidity,
+} from "../../../../helpers/morpho";
 
 export interface Erc4626SupplyTestParameters {
   client: AnvilTestClient;
-  vaultAddress: Address;
-  accountAddress?: Address; // Optional override (defaults to client.account.address)
 
   initialState: {
     walletUnderlyingAssetBalance: bigint;
@@ -24,8 +26,7 @@ export interface Erc4626SupplyTestParameters {
     walletNativeAssetBalance?: bigint; // Optional native asset balance (defaults to 1000 ETH for gas)
   };
 
-  supplyAmount: bigint;
-  allowNativeAssetWrapping?: boolean; // Optional, defaults to false
+  inputs: Omit<Erc4626SupplyActionParameters, "client" | "accountAddress"> & { accountAddress?: Address };
 
   beforeExecutionCb?: (client: AnvilTestClient) => Promise<void>; // Runs after action creation, before execution (e.g., manipulate price)
 
@@ -37,11 +38,8 @@ export interface Erc4626SupplyTestParameters {
 
 export async function runErc4626SupplyTest({
   client,
-  vaultAddress,
-  accountAddress,
   initialState,
-  supplyAmount,
-  allowNativeAssetWrapping = false,
+  inputs: { vaultAddress, accountAddress = client.account.address, supplyAmount, allowNativeAssetWrapping = false },
   beforeExecutionCb,
   supplyActionFn,
   expectedApprovalTargets,
@@ -73,12 +71,11 @@ export async function runErc4626SupplyTest({
     await client.deal({ erc20: assetAddress, amount: initialState.walletUnderlyingAssetBalance });
   }
 
-  // Track initial native balance for wrap validation
-  const initialNativeBalance = await client.getBalance({ address: testAccountAddress });
-
   ////
   // Act
   ////
+  const beforeBuildSnapshot = await getVaultPositionAccountingSnapshot(client, vaultAddress, testAccountAddress);
+
   const action = await supplyActionFn({
     client,
     vaultAddress,
@@ -89,7 +86,11 @@ export async function runErc4626SupplyTest({
 
   await beforeExecutionCb?.(client);
 
+  const beforeExecutionSnapshot = await getVaultPositionAccountingSnapshot(client, vaultAddress, testAccountAddress);
+
   const logs = await executeAction(client, action);
+
+  const afterExecutionSnapshot = await getVaultPositionAccountingSnapshot(client, vaultAddress, testAccountAddress);
 
   ////
   // Assert
@@ -102,23 +103,25 @@ export async function runErc4626SupplyTest({
     [], // No permit signatures (using approval tx only)
   );
 
-  const vaultPosition = await getMorphoVaultPosition(client, vaultAddress, testAccountAddress);
-  const userWalletUnderlyingAssetBalance = await getErc20BalanceOf(client, assetAddress, testAccountAddress);
-  const userWalletNativeAssetBalance = await client.getBalance({ address: testAccountAddress });
-
-  const expectedPosition = (initialState.vaultPositionBalance ?? 0n) + supplyAmount;
-  const expectedUserWalletUnderlyingBalance = MathLib.zeroFloorSub(
-    initialState.walletUnderlyingAssetBalance,
+  // Breakdown of underlying and native is fully specified at action build time
+  const expectedWalletUnderlyingAssetsSupplied = MathLib.min(
     supplyAmount,
+    beforeBuildSnapshot.walletUnderlyingAssetBalance,
   );
+  const expectedWalletNativeAssetsSupplied = MathLib.zeroFloorSub(supplyAmount, expectedWalletUnderlyingAssetsSupplied);
 
-  const shortfall = MathLib.zeroFloorSub(supplyAmount, initialState.walletUnderlyingAssetBalance);
-  const expectedUserNativeBalance = initialNativeBalance - shortfall;
+  const expectedWalletUnderlyingBalance =
+    beforeExecutionSnapshot.walletUnderlyingAssetBalance - expectedWalletUnderlyingAssetsSupplied;
+  const expectedWalletNativeBalance =
+    beforeExecutionSnapshot.walletNativeAssetBalance - expectedWalletNativeAssetsSupplied;
 
-  // Allow small rounding difference due to rounding
-  expect(vaultPosition).toBeWithinRange(expectedPosition - BigInt(10), expectedPosition + BigInt(10));
-  expect(userWalletUnderlyingAssetBalance).toEqual(expectedUserWalletUnderlyingBalance);
-  expect(userWalletNativeAssetBalance).toEqual(expectedUserNativeBalance); // Anvil spends no gas
+  const expectedPositionAssets = beforeExecutionSnapshot.positionAssets + supplyAmount;
+
+  expect(afterExecutionSnapshot.walletUnderlyingAssetBalance).toBeGreaterThanOrEqual(
+    expectedWalletUnderlyingBalance - 1n,
+  );
+  expect(afterExecutionSnapshot.walletNativeAssetBalance).toBeGreaterThanOrEqual(expectedWalletNativeBalance - 1n);
+  expect(afterExecutionSnapshot.positionAssets).toBeGreaterThanOrEqual(expectedPositionAssets - 1n);
 
   // Make sure no funds left in addresses which we expect zero (ex. bundler or adapters)
   if (expectedZeroBalanceAddresses) {
@@ -131,201 +134,333 @@ export async function runErc4626SupplyTest({
 }
 
 // Shared test cases
-export const successTestCases: Array<{
-  name: string;
-  vaultAddress: Address;
-  initialState: {
-    walletUnderlyingAssetBalance: bigint;
-    vaultPositionBalance?: bigint;
-    walletNativeAssetBalance?: bigint;
-  };
-  supplyAmount: bigint;
-  allowNativeAssetWrapping?: boolean;
-}> = [
+export const successTestCases: Array<
+  {
+    name: string;
+  } & Omit<
+    Erc4626SupplyTestParameters,
+    "client" | "supplyActionFn" | "expectedApprovalTargets" | "expectedZeroBalanceAddresses"
+  >
+> = [
   {
     name: "Partial supply ",
-    vaultAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
     initialState: {
       walletUnderlyingAssetBalance: parseUnits("2000", 6),
     },
-    supplyAmount: parseUnits("1000", 6),
+    inputs: {
+      vaultAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+      supplyAmount: parseUnits("1000", 6),
+      allowNativeAssetWrapping: false,
+    },
   },
   {
     name: "Supply exact wallet balance",
-    vaultAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
     initialState: {
       walletUnderlyingAssetBalance: parseUnits("1337", 6),
     },
-    supplyAmount: parseUnits("1337", 6),
+    inputs: {
+      vaultAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+      supplyAmount: parseUnits("1337", 6),
+      allowNativeAssetWrapping: false,
+    },
   },
   {
     name: "Supply with existing vault position",
-    vaultAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
     initialState: {
       walletUnderlyingAssetBalance: parseUnits("500", 6),
       vaultPositionBalance: parseUnits("100", 6),
     },
-    supplyAmount: parseUnits("500", 6),
+    inputs: {
+      vaultAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+      supplyAmount: parseUnits("500", 6),
+      allowNativeAssetWrapping: false,
+    },
   },
   {
     name: "Minimal supply amount (1 wei)",
-    vaultAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
     initialState: {
       walletUnderlyingAssetBalance: parseUnits("1000", 6),
     },
-    supplyAmount: BigInt(1),
+    inputs: {
+      vaultAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+      supplyAmount: BigInt(1),
+      allowNativeAssetWrapping: false,
+    },
   },
   {
     name: "Large supply amount",
-    vaultAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
     initialState: {
       walletUnderlyingAssetBalance: parseUnits("1000000", 6), // 1M USDC
     },
-    supplyAmount: parseUnits("1000000", 6),
+    inputs: {
+      vaultAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+      supplyAmount: parseUnits("1000000", 6),
+      allowNativeAssetWrapping: false,
+    },
   },
   {
     name: "Supply with partial native asset wrapping (WETH vault)",
-    vaultAddress: "0x9a8bC3B04b7f3D87cfC09ba407dCED575f2d61D8", // MEV Capital WETH vault
     initialState: {
       walletUnderlyingAssetBalance: parseEther("1"), // 1 WETH
       walletNativeAssetBalance: parseEther("5"), // 5 ETH
     },
-    supplyAmount: parseEther("3"), // Will wrap 2 ETH
-    allowNativeAssetWrapping: true,
+    inputs: {
+      vaultAddress: "0x9a8bC3B04b7f3D87cfC09ba407dCED575f2d61D8", // MEV Capital WETH vault
+      supplyAmount: parseEther("3"), // Will wrap 2 ETH
+      allowNativeAssetWrapping: true,
+    },
   },
   {
     name: "Supply with native asset wrapping only (WETH vault)",
-    vaultAddress: "0x9a8bC3B04b7f3D87cfC09ba407dCED575f2d61D8", // MEV Capital WETH vault
     initialState: {
       walletUnderlyingAssetBalance: 0n, // 0 WETH
       walletNativeAssetBalance: parseEther("5"), // 5 ETH
     },
-    supplyAmount: parseEther("2"), // Will wrap 2 ETH
-    allowNativeAssetWrapping: true,
+    inputs: {
+      vaultAddress: "0x9a8bC3B04b7f3D87cfC09ba407dCED575f2d61D8", // MEV Capital WETH vault
+      supplyAmount: parseEther("2"), // Will wrap 2 ETH
+      allowNativeAssetWrapping: true,
+    },
   },
   {
     name: "Supply with native asset wrapping near full amount (WETH vault)",
-    vaultAddress: "0x9a8bC3B04b7f3D87cfC09ba407dCED575f2d61D8", // MEV Capital WETH vault
     initialState: {
       walletUnderlyingAssetBalance: parseEther("1"), // 0 WETH
       walletNativeAssetBalance: parseEther("5.01"), // 5 ETH + gas margin...
     },
-    supplyAmount: parseEther("6"), // Fully consume WETH and ETH
-    allowNativeAssetWrapping: true,
+    inputs: {
+      vaultAddress: "0x9a8bC3B04b7f3D87cfC09ba407dCED575f2d61D8", // MEV Capital WETH vault
+      supplyAmount: parseEther("6"), // Fully consume WETH and ETH
+      allowNativeAssetWrapping: true,
+    },
   },
   {
     name: "Supply with native asset wrapping enabled but no shortfall (WETH vault, full wrap)",
-    vaultAddress: "0x9a8bC3B04b7f3D87cfC09ba407dCED575f2d61D8", // MEV Capital WETH vault
     initialState: {
       walletUnderlyingAssetBalance: parseEther("10"), // 1 WETH
       walletNativeAssetBalance: parseEther("5"), // 5 ETH
     },
-    supplyAmount: parseEther("2"), // Doesn't need to wrap any
-    allowNativeAssetWrapping: true,
+    inputs: {
+      vaultAddress: "0x9a8bC3B04b7f3D87cfC09ba407dCED575f2d61D8", // MEV Capital WETH vault
+      supplyAmount: parseEther("2"), // Doesn't need to wrap any
+      allowNativeAssetWrapping: true,
+    },
+  },
+  {
+    name: "Supply with time delay and balances and approval increasing before execution",
+    initialState: {
+      walletUnderlyingAssetBalance: parseUnits("2000", 6),
+    },
+    inputs: {
+      vaultAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+      supplyAmount: parseUnits("1000", 6),
+      allowNativeAssetWrapping: true,
+    },
+    beforeExecutionCb: async (client) => {
+      const {
+        bundler3: { generalAdapter1: generalAdapter1Address },
+      } = getChainAddresses(client.chain.id)!;
+
+      // Increase of underlying assets
+      await client.deal({
+        erc20: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+        amount: parseUnits("100000", 6),
+      });
+
+      // Increase approval to vault and GA1
+      await writeContract(client, {
+        address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+        abi: erc20Abi,
+        functionName: "approve",
+        args: ["0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB", maxUint256],
+      });
+      await writeContract(client, {
+        address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+        abi: erc20Abi,
+        functionName: "approve",
+        args: [generalAdapter1Address, maxUint256],
+      });
+
+      // Increase of native assets
+      await client.setBalance({
+        address: client.account.address,
+        value: parseEther("10000"),
+      });
+
+      // Let some interest accrue
+      await client.mine({ blocks: 1000 });
+    },
   },
 ];
 
 // Shared failure test cases
-export const failureTestCases: Array<{
-  name: string;
-  vaultAddress: Address;
-  initialState: {
-    walletUnderlyingAssetBalance: bigint;
-    walletNativeAssetBalance?: bigint;
-  };
-  supplyAmount: bigint;
-  expectedError: string | RegExp;
-  accountAddress?: Address; // Optional override for account address
-  allowNativeAssetWrapping?: boolean;
-}> = [
+export const failureTestCases: Array<
   {
-    name: "throws when vault doesn't exist",
-    vaultAddress: "0x0000000000000000000000000000000000000000",
-    initialState: {
-      walletUnderlyingAssetBalance: parseUnits("100", 6),
-    },
-    supplyAmount: parseUnits("1000", 6),
-    expectedError: /.*/, // Any error is acceptable
-  },
+    name: string;
+    expectedError: string | RegExp;
+  } & Omit<
+    Erc4626SupplyTestParameters,
+    "client" | "supplyActionFn" | "expectedApprovalTargets" | "expectedZeroBalanceAddresses"
+  >
+> = [
   {
     name: "throws when account address is zero",
-    vaultAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
     initialState: {
       walletUnderlyingAssetBalance: parseUnits("100", 6),
     },
-    supplyAmount: parseUnits("100", 6),
-    accountAddress: "0x0000000000000000000000000000000000000000",
+    inputs: {
+      vaultAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+      accountAddress: zeroAddress,
+      supplyAmount: parseUnits("100", 6),
+      allowNativeAssetWrapping: false,
+    },
     expectedError: "Invalid input: Account and vault addresses must be distinct and non-zero.",
   },
   {
     name: "throws when account address equals vault address",
-    vaultAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
     initialState: {
       walletUnderlyingAssetBalance: parseUnits("100", 6),
     },
-    supplyAmount: parseUnits("100", 6),
-    accountAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB", // Same as vault
+    inputs: {
+      vaultAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+      accountAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+      supplyAmount: parseUnits("100", 6),
+      allowNativeAssetWrapping: false,
+    },
     expectedError: "Invalid input: Account and vault addresses must be distinct and non-zero.",
   },
   {
     name: "insufficient balance",
-    vaultAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
     initialState: {
       walletUnderlyingAssetBalance: parseUnits("100", 6),
     },
-    supplyAmount: parseUnits("1000", 6),
+    inputs: {
+      vaultAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+      supplyAmount: parseUnits("1000", 6),
+      allowNativeAssetWrapping: false,
+    },
     expectedError: "Supply amount exceeds the account balance.",
   },
   {
     name: "zero supply amount",
-    vaultAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
     initialState: {
       walletUnderlyingAssetBalance: parseUnits("100", 6),
     },
-    supplyAmount: 0n,
+    inputs: {
+      vaultAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+      supplyAmount: 0n,
+      allowNativeAssetWrapping: false,
+    },
     expectedError: "Invalid input: Amount must be greater than 0.",
   },
   {
     name: "negative supply amount",
-    vaultAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
     initialState: {
       walletUnderlyingAssetBalance: parseUnits("100", 6),
     },
-    supplyAmount: -1n,
+    inputs: {
+      vaultAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+      supplyAmount: -1n,
+      allowNativeAssetWrapping: false,
+    },
     expectedError: "Invalid input: Amount must be greater than 0.",
   },
   {
+    name: "maxUint256 supply amount",
+    initialState: {
+      walletUnderlyingAssetBalance: parseUnits("100", 6),
+    },
+    inputs: {
+      vaultAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+      supplyAmount: maxUint256,
+      allowNativeAssetWrapping: false,
+    },
+    expectedError: "Invalid input: Amount must be less than maxUint256.",
+  },
+  {
     name: "insufficient total balance even with wrapping (WETH vault)",
-    vaultAddress: "0x9a8bC3B04b7f3D87cfC09ba407dCED575f2d61D8", // MEV Capital WETH vault
     initialState: {
       walletUnderlyingAssetBalance: parseEther("1"), // 1 WETH
       walletNativeAssetBalance: parseEther("0.5"), // 0.5 ETH
     },
-    supplyAmount: parseEther("2"), // 2 > 1 WETH + 0.5 ETH
-    allowNativeAssetWrapping: true,
+    inputs: {
+      vaultAddress: "0x9a8bC3B04b7f3D87cfC09ba407dCED575f2d61D8", // MEV Capital WETH vault
+      supplyAmount: parseEther("2"), // 2 > 1 WETH + 0.5 ETH
+      allowNativeAssetWrapping: true,
+    },
     expectedError: "Supply amount exceeds the account balance.",
   },
   {
     name: "wrapping disabled but user has sufficient native balance (WETH vault)",
-    vaultAddress: "0x9a8bC3B04b7f3D87cfC09ba407dCED575f2d61D8", // MEV Capital WETH vault
     initialState: {
       walletUnderlyingAssetBalance: parseEther("1"), // 1 WETH
       walletNativeAssetBalance: parseEther("10"), // 10 ETH (plenty)
     },
-    supplyAmount: parseEther("2"), // Trying to supply 2 WETH
-    allowNativeAssetWrapping: false, // But wrapping is disabled
+    inputs: {
+      vaultAddress: "0x9a8bC3B04b7f3D87cfC09ba407dCED575f2d61D8", // MEV Capital WETH vault
+      supplyAmount: parseEther("2"), // Trying to supply 2 WETH
+      allowNativeAssetWrapping: false, // But wrapping is disabled
+    },
     expectedError: "Supply amount exceeds the account balance.",
   },
   {
     name: "wrapping on non-WETH vault doesn't allow action to be attempted",
-    vaultAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
     initialState: {
       walletUnderlyingAssetBalance: parseUnits("100", 6), // 1000 USDC
       walletNativeAssetBalance: parseUnits("10000", 6), // 10000 USDC (plenty)
     },
-    supplyAmount: parseUnits("1000", 6), // Don't have enough underlying assets
-    allowNativeAssetWrapping: true, // Should have no effect
+    inputs: {
+      vaultAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+      supplyAmount: parseUnits("1000", 6), // Don't have enough underlying assets
+      allowNativeAssetWrapping: true, // Should have no effect
+    },
     expectedError: "Supply amount exceeds the account balance.",
+  },
+  {
+    name: "Reverts when wallet balance decreaces below supply amount before execution",
+    initialState: {
+      walletUnderlyingAssetBalance: parseUnits("2000", 6),
+    },
+    inputs: {
+      vaultAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+      supplyAmount: parseUnits("1000", 6),
+      allowNativeAssetWrapping: false,
+    },
+    beforeExecutionCb: async (client) => {
+      // Decrease wallets asset balance
+      await client.deal({
+        erc20: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+        amount: parseUnits("500", 6),
+      });
+    },
+    expectedError: /action-tx-reverted/i,
+  },
+  {
+    name: "Reverts when native balance decreaces below required amount before execution, even if underlying increaces",
+    initialState: {
+      walletUnderlyingAssetBalance: parseEther("50"),
+      walletNativeAssetBalance: parseEther("100"),
+    },
+    inputs: {
+      vaultAddress: "0x9a8bC3B04b7f3D87cfC09ba407dCED575f2d61D8",
+      supplyAmount: parseEther("100"),
+      allowNativeAssetWrapping: true,
+    },
+    beforeExecutionCb: async (client) => {
+      const { wNative } = getChainAddresses(client.chain.id);
+      // Increase underling above supply amount
+      await client.deal({
+        erc20: wNative,
+        amount: parseEther("1000"),
+      });
+
+      // Decrease native below the 50 which was expected at action build time
+      await client.setBalance({
+        address: client.account.address,
+        value: parseEther("10"),
+      });
+    },
+    expectedError: /action-tx-reverted/i,
   },
 ];
 
@@ -351,11 +486,14 @@ export async function runSlippageTest(
 
   return runErc4626SupplyTest({
     client,
-    vaultAddress,
     initialState: {
       walletUnderlyingAssetBalance: parseUnits("100000", 6),
     },
-    supplyAmount: parseUnits("10000", 6),
+    inputs: {
+      vaultAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+      supplyAmount: parseUnits("10000", 6),
+      allowNativeAssetWrapping: false,
+    },
     beforeExecutionCb: async () => {
       // Supply to a market on behalf of vault to manipulate (increasing) the share price (totalAssets / totalShares)
       // Note that vaults totalAssets is the sum over it's assets in each of the allocating markets
@@ -396,11 +534,14 @@ export async function runErc4626SupplyRevokeApprovalRequiredTest(
   // Now run the supply test - it should handle the revoke + approve + deposit
   const logs = await runErc4626SupplyTest({
     client,
-    vaultAddress,
     initialState: {
       walletUnderlyingAssetBalance: parseUnits("2000", 6),
     },
-    supplyAmount: parseUnits("1000", 6),
+    inputs: {
+      vaultAddress,
+      supplyAmount: parseUnits("1000", 6),
+      allowNativeAssetWrapping: false,
+    },
     supplyActionFn,
     expectedApprovalTargets: [expectedSpenderAddress],
   });
@@ -449,11 +590,14 @@ export async function runErc4626SupplyRevokeApprovalNotRequiredTest(
   // Now run the supply test - it should only do approve + deposit (NO revoke)
   const logs = await runErc4626SupplyTest({
     client,
-    vaultAddress,
     initialState: {
       walletUnderlyingAssetBalance: parseUnits("2000", 6),
     },
-    supplyAmount: parseUnits("1000", 6),
+    inputs: {
+      vaultAddress,
+      supplyAmount: parseUnits("1000", 6),
+      allowNativeAssetWrapping: false,
+    },
     supplyActionFn,
     expectedApprovalTargets: [expectedSpenderAddress],
   });
@@ -487,11 +631,14 @@ export async function runErc4626SupplySufficientAllowanceTest(
   // Now run the supply test - it should NOT create any approval transactions
   const logs = await runErc4626SupplyTest({
     client,
-    vaultAddress,
     initialState: {
       walletUnderlyingAssetBalance: parseUnits("2000", 6),
     },
-    supplyAmount: parseUnits("1000", 6),
+    inputs: {
+      vaultAddress,
+      supplyAmount: parseUnits("1000", 6),
+      allowNativeAssetWrapping: false,
+    },
     supplyActionFn,
     expectedApprovalTargets: [expectedSpenderAddress],
   });
