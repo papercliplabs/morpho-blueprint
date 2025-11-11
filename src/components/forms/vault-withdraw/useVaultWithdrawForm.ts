@@ -50,11 +50,12 @@ export function useVaultWithdrawForm({ vault, onSuccessfulActionSimulation }: Us
     defaultValues: {
       withdrawAmount: "",
       isMaxWithdraw: false,
+      unwrapNativeAssets: false,
     },
   });
 
   const handleSubmit = useCallback(
-    async (submittedValues: VaultWithdrawFormSchemaOutput) => {
+    async ({ withdrawAmount, isMaxWithdraw, unwrapNativeAssets }: VaultWithdrawFormSchemaOutput) => {
       // Clear any root errors we set in the previous submit
       setSubmitErrorMsg(null);
 
@@ -73,8 +74,8 @@ export function useVaultWithdrawForm({ vault, onSuccessfulActionSimulation }: Us
           client: publicClient,
           vaultAddress: getAddress(vault.vaultAddress),
           accountAddress: address,
-          withdrawAmount: submittedValues.isMaxWithdraw ? maxUint256 : submittedValues.withdrawAmount,
-          unwrapNativeAssets: false, // TODO: wire this up
+          withdrawAmount: isMaxWithdraw ? maxUint256 : withdrawAmount,
+          unwrapNativeAssets,
         }),
       );
 
@@ -111,6 +112,7 @@ export function useVaultWithdrawForm({ vault, onSuccessfulActionSimulation }: Us
     position,
     isPositionLoading,
     submitErrorMsg,
+    nativeAssetSymbol: publicClient?.chain.nativeCurrency.symbol ?? "native assets",
   };
 }
 

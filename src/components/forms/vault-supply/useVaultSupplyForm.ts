@@ -132,6 +132,7 @@ export function useVaultSupplyForm({ vault, onSuccessfulActionSimulation }: UseV
     position,
     isPositionLoading,
     submitErrorMsg,
+    nativeAssetSymbol: publicClient?.chain.nativeCurrency.symbol ?? "native assets",
   };
 }
 

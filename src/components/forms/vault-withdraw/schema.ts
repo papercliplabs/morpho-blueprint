@@ -9,6 +9,7 @@ export function createVaultWithdrawFormSchema(decimals: number, accountPositionB
       maxErrorMessage: "Amount exceeds position.",
     }),
     isMaxWithdraw: z.boolean(),
+    unwrapNativeAssets: z.boolean(),
   });
 }
 

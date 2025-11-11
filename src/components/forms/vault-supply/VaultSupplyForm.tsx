@@ -21,10 +21,11 @@ interface VaultSupplyFormProps {
 
 export const VaultSupplyForm = forwardRef<{ reset: () => void }, VaultSupplyFormProps>(
   ({ vault, onSuccessfulActionSimulation }, ref) => {
-    const { form, handleSubmit, isPositionLoading, derivedFormValues, submitErrorMsg } = useVaultSupplyForm({
-      vault,
-      onSuccessfulActionSimulation,
-    });
+    const { form, handleSubmit, isPositionLoading, derivedFormValues, submitErrorMsg, nativeAssetSymbol } =
+      useVaultSupplyForm({
+        vault,
+        onSuccessfulActionSimulation,
+      });
 
     // Expose reset method to parent
     useImperativeHandle(ref, () => ({
@@ -38,7 +39,7 @@ export const VaultSupplyForm = forwardRef<{ reset: () => void }, VaultSupplyForm
         <form onSubmit={form.handleSubmit(handleSubmit)}>
           <fieldset disabled={form.formState.isSubmitting} style={{ all: "unset", width: "100%" }}>
             <div className="flex flex-col gap-6">
-              <div className="space-y-1">
+              <div className="space-y-2">
                 <AssetInputFormField
                   control={form.control}
                   name="supplyAmount"
@@ -58,7 +59,7 @@ export const VaultSupplyForm = forwardRef<{ reset: () => void }, VaultSupplyForm
                           Allow wrapping
                         </TooltipPopoverTrigger>
                         <TooltipPopoverContent>
-                          Allow wrapping your network tokens when supplying to the vault.
+                          Allow wrapping your {nativeAssetSymbol} to supply alongside your {vault.asset.symbol}.
                         </TooltipPopoverContent>
                       </TooltipPopover>
                     }
