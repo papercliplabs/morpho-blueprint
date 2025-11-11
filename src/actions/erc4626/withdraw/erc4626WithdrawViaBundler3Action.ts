@@ -30,7 +30,7 @@ export async function erc4626WithdrawViaBundler3Action({
   withdrawAmount,
   unwrapNativeAssets,
 }: Erc4626WithdrawActionParameters): Promise<VaultAction> {
-  validateErc4626WithdrawParameters({ vaultAddress, accountAddress, amount: withdrawAmount });
+  validateErc4626WithdrawParameters({ vaultAddress, accountAddress, withdrawAmount });
 
   const isFullWithdraw = withdrawAmount === maxUint256;
   const { wrappedNativeAssetAddress, generalAdapter1Address } = getChainAddressesRequired(client.chain.id);
@@ -55,17 +55,19 @@ export async function erc4626WithdrawViaBundler3Action({
     if (maxWithdraw < withdrawAmount) {
       throw new UserFacingError("Insufficient liquidity to withdraw requested amount.");
     }
-    if (initialPosition.assets < withdrawAmount || initialPosition.shares === 0n) {
+    if (initialPosition.assets < withdrawAmount) {
       throw new UserFacingError("Withdraw amount exceeds account balance.");
     }
   }
   if (quotedSharesRedeemed === 0n) {
     throw new UserFacingError("Vault quoted 0 shares redeemed. Try to increase the withdraw amount.");
   }
+  if (initialPosition.shares === 0n) {
+    throw new UserFacingError("Account has no shares to withdraw.");
+  }
 
   const shouldUnwrap = isAddressEqual(underlyingAssetAddress, wrappedNativeAssetAddress) && unwrapNativeAssets;
 
-  // Build transaction requests based on withdraw type
   const { requiredAllowance, actions } = isFullWithdraw
     ? erc4626RedeemActions({
         vaultAddress,
@@ -98,7 +100,7 @@ export async function erc4626WithdrawViaBundler3Action({
     }),
   );
 
-  // Skim any tokens which could touch GA1, including native assets
+  // Skim any tokens which route through GA1, including native assets.
   actions.push(
     ...skimBundler3Actions({
       adapterAddress: generalAdapter1Address,
@@ -200,7 +202,7 @@ function erc4626WithdrawActions({
     quotedInputShares,
   );
 
-  // Max shares needed for worst-case slippage, clamped to position size
+  // Max shares needed to get exactOutputAssets with worst-case slippage, clamped to position size
   // Note this will likely leave a dust share approval for GA1 (which is fine)
   const maxInputShares = MathLib.min(
     MathLib.mulDivUp(exactOutputAssets, MathLib.RAY, minSharePriceRay),

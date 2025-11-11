@@ -514,6 +514,27 @@ export const failureTestCases: Array<
     },
     expectedError: /action-tx-reverted/i,
   },
+  {
+    name: "Reverts when position is decreased below withdraw amount before execution",
+    initialState: {
+      vaultPositionBalance: parseUnits("2000", 6),
+    },
+    inputs: {
+      vaultAddress: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+      withdrawAmount: parseUnits("1000", 6),
+      unwrapNativeAssets: false,
+    },
+    beforeExecutionCb: async (client) => {
+      // Withdraw from vault leaving only 5 USDC which is less than the expected withdrawAmount
+      await writeContract(client, {
+        abi: erc4626Abi,
+        address: "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+        functionName: "withdraw",
+        args: [parseUnits("1500", 6), client.account.address, client.account.address],
+      });
+    },
+    expectedError: /action-tx-reverted/i,
+  },
 ];
 
 // Shared slippage test for bundler3

@@ -3,23 +3,23 @@ import { TOKENS_REQUIRING_APPROVAL_REVOCATION } from "../constants";
 import type { TransactionRequest } from "../types";
 
 interface RequiredApprovalTransactionParameters {
+  readonly approvalTransactionName: string;
   readonly chainId: number;
   readonly erc20Address: Address;
   readonly spenderAddress: Address;
   readonly currentAllowance: bigint;
   readonly requiredAllowance: bigint;
-  readonly approvalTransactionName: string;
 }
 
 // Builds the approval transactions required to allow spenderAddress to spend requiredAllowance of erc20Address on chainId
 // This will be an empty array if the current allowance is sufficient, and revoke existing approvals before approving the new allowance if required
 export function requiredApprovalTransactionRequests({
+  approvalTransactionName,
   chainId,
   erc20Address,
   spenderAddress,
   currentAllowance,
   requiredAllowance,
-  approvalTransactionName,
 }: RequiredApprovalTransactionParameters) {
   // If allowance is already sufficent, there is no transactions needed
   if (currentAllowance >= requiredAllowance) {
@@ -43,7 +43,7 @@ export function requiredApprovalTransactionRequests({
     });
   }
 
-  // Approve vault to spend supplyAmount of underlying assets
+  // Approve spender to spend requiredAllowance of erc20Address
   transactionRequests.push({
     name: approvalTransactionName,
     tx: () => ({

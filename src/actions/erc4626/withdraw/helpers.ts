@@ -5,18 +5,18 @@ import { type Erc4626WithdrawActionParameters, type Position, UserFacingError } 
 export function validateErc4626WithdrawParameters({
   vaultAddress,
   accountAddress,
-  amount,
+  withdrawAmount,
 }: {
   vaultAddress: Address;
   accountAddress: Address;
-  amount: bigint;
+  withdrawAmount: bigint;
 }) {
-  if (amount <= 0n) {
+  if (withdrawAmount <= 0n) {
     throw new UserFacingError("Invalid input: Amount must be greater than 0.");
   }
 
   // Disallow maxUint256 also, since this has special handling in GA1
-  if (amount > maxUint256) {
+  if (withdrawAmount > maxUint256) {
     throw new UserFacingError("Invalid input: Amount must be less than or equal to maxUint256.");
   }
 

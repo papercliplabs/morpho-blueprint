@@ -26,7 +26,7 @@ export async function erc4626WithdrawActionDirect({
   withdrawAmount,
   unwrapNativeAssets,
 }: Erc4626WithdrawActionParameters): Promise<VaultAction> {
-  validateErc4626WithdrawParameters({ vaultAddress, accountAddress, amount: withdrawAmount });
+  validateErc4626WithdrawParameters({ vaultAddress, accountAddress, withdrawAmount });
 
   const isFullWithdraw = withdrawAmount === maxUint256;
   const { wrappedNativeAssetAddress } = getChainAddressesRequired(client.chain.id);
@@ -56,6 +56,9 @@ export async function erc4626WithdrawActionDirect({
   }
   if (quotedSharesRedeemed === 0n) {
     throw new UserFacingError("Vault quoted 0 shares redeemed. Try to increase the withdraw amount.");
+  }
+  if (initialPosition.shares === 0n) {
+    throw new UserFacingError("Account has no shares to withdraw.");
   }
 
   const shouldUnwrap = isAddressEqual(underlyingAssetAddress, wrappedNativeAssetAddress) && unwrapNativeAssets;

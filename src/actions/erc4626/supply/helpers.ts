@@ -5,18 +5,18 @@ import { type Erc4626SupplyActionParameters, type Position, UserFacingError } fr
 export function validateErc4626SupplyParameters({
   vaultAddress,
   accountAddress,
-  amount,
+  supplyAmount,
 }: {
   vaultAddress: Address;
   accountAddress: Address;
-  amount: bigint;
+  supplyAmount: bigint;
 }) {
-  if (amount <= 0n) {
+  if (supplyAmount <= 0n) {
     throw new UserFacingError("Invalid input: Amount must be greater than 0.");
   }
 
   // Disallow maxUint256 also, since this has special handling in GA1
-  if (amount >= maxUint256) {
+  if (supplyAmount >= maxUint256) {
     throw new UserFacingError("Invalid input: Amount must be less than maxUint256.");
   }
 
@@ -73,31 +73,33 @@ export async function fetchErc4626SupplyData({
     allowFailure: false,
   });
 
-  const [accountUnderlyingAssetBalance, allowance, initialPositionAssets] = await multicall(client, {
-    contracts: [
-      {
-        abi: erc20Abi,
-        address: underlyingAssetAddress,
-        functionName: "balanceOf",
-        args: [accountAddress],
-      },
-      {
-        abi: erc20Abi,
-        address: underlyingAssetAddress,
-        functionName: "allowance",
-        args: [accountAddress, spender],
-      },
-      {
-        abi: erc4626Abi,
-        address: vaultAddress,
-        functionName: "previewRedeem",
-        args: [initialPositionShares],
-      },
-    ],
-    allowFailure: false,
-  });
-
-  const accountNativeAssetBalance = await getBalance(client, { address: accountAddress });
+  const [accountNativeAssetBalance, [accountUnderlyingAssetBalance, allowance, initialPositionAssets]] =
+    await Promise.all([
+      getBalance(client, { address: accountAddress }),
+      multicall(client, {
+        contracts: [
+          {
+            abi: erc20Abi,
+            address: underlyingAssetAddress,
+            functionName: "balanceOf",
+            args: [accountAddress],
+          },
+          {
+            abi: erc20Abi,
+            address: underlyingAssetAddress,
+            functionName: "allowance",
+            args: [accountAddress, spender],
+          },
+          {
+            abi: erc4626Abi,
+            address: vaultAddress,
+            functionName: "previewRedeem",
+            args: [initialPositionShares],
+          },
+        ],
+        allowFailure: false,
+      }),
+    ]);
 
   return {
     accountNativeAssetBalance,

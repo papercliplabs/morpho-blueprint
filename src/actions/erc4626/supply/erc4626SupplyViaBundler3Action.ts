@@ -34,7 +34,7 @@ export async function erc4626SupplyViaBundler3Action({
   supplyAmount,
   allowNativeAssetWrapping,
 }: Erc4626SupplyActionParameters): Promise<VaultAction> {
-  validateErc4626SupplyParameters({ vaultAddress, accountAddress, amount: supplyAmount });
+  validateErc4626SupplyParameters({ vaultAddress, accountAddress, supplyAmount });
 
   const { wrappedNativeAssetAddress, generalAdapter1Address } = getChainAddressesRequired(client.chain.id);
 
@@ -56,10 +56,8 @@ export async function erc4626SupplyViaBundler3Action({
     initialPosition,
   } = data;
 
-  // Determine if we can/should wrap native assets
-  const isUnderlyingAssetWrappedNativeAsset = isAddressEqual(underlyingAssetAddress, wrappedNativeAssetAddress);
-  const canWrapNativeAssets = allowNativeAssetWrapping && isUnderlyingAssetWrappedNativeAsset;
-
+  const canWrapNativeAssets =
+    isAddressEqual(underlyingAssetAddress, wrappedNativeAssetAddress) && allowNativeAssetWrapping;
   const shortfall = MathLib.zeroFloorSub(supplyAmount, accountUnderlyingAssetBalance);
   const nativeAssetWrapAmount = canWrapNativeAssets ? MathLib.min(shortfall, accountNativeAssetBalance) : 0n;
 
@@ -73,12 +71,14 @@ export async function erc4626SupplyViaBundler3Action({
     throw new UserFacingError("Vault quoted 0 shares. Try to increase the supply amount.");
   }
 
-  const underlyingAssetTransferAmount = supplyAmount - nativeAssetWrapAmount; // Wrapping happens inside GA1, so only need to transfer the diff required for the supply
+  // Wrapping happens inside GA1, so only need to transfer the diff required for the supply
+  // Guaranteed to be >=0 since nativeAssetWrapAmount <= supplyAmount
+  const underlyingAssetTransferAmount = supplyAmount - nativeAssetWrapAmount;
 
   const transactionRequests: TransactionRequest[] = [];
 
   // Approval GA1 to spend underlying assets
-  // Note we only need to approve the difference between supplyAmount and nativeAssetWrapAmount since we wrap happens inside GA1
+  // Note we only need to approve underlyingAssetTransferAmount since the wrap happens inside GA1 (we send in nativeAssetWrapAmount with the call)
   transactionRequests.push(
     ...requiredApprovalTransactionRequests({
       approvalTransactionName: "Approve supply amount",
@@ -131,13 +131,12 @@ export async function erc4626SupplyViaBundler3Action({
   }
 
   // Supply supplyAmount of underlying assets to the vault on behalf of the account (account recieves shares)
-  // Note there will be no dust left since exact input (supplyAmount = underlyingAssetTransferAmount + nativeAssetWrapAmount)
   actions.push({
     type: "erc4626Deposit",
     args: [vaultAddress, supplyAmount, maxSharePriceRay, accountAddress],
   });
 
-  // Skim any tokens which could touch GA1, including native assets.
+  // Skim any tokens which route through GA1, including native assets.
   // This should never actually do anything since all actions are exact input, but is a sanity check to prevent loss of user funds.
   actions.push(
     ...skimBundler3Actions({

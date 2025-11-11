@@ -32,7 +32,7 @@ export async function erc4626SupplyActionDirect({
   supplyAmount,
   allowNativeAssetWrapping,
 }: Erc4626SupplyActionParameters): Promise<VaultAction> {
-  validateErc4626SupplyParameters({ vaultAddress, accountAddress, amount: supplyAmount });
+  validateErc4626SupplyParameters({ vaultAddress, accountAddress, supplyAmount });
 
   const { wrappedNativeAssetAddress } = getChainAddressesRequired(client.chain.id);
 
@@ -54,10 +54,8 @@ export async function erc4626SupplyActionDirect({
     initialPosition,
   } = data;
 
-  // Determine if we can/should wrap native assets
-  const isUnderlyingAssetWrappedNativeAsset = isAddressEqual(underlyingAssetAddress, wrappedNativeAssetAddress);
-  const canWrapNativeAssets = allowNativeAssetWrapping && isUnderlyingAssetWrappedNativeAsset;
-
+  const canWrapNativeAssets =
+    isAddressEqual(underlyingAssetAddress, wrappedNativeAssetAddress) && allowNativeAssetWrapping;
   const shortfall = MathLib.zeroFloorSub(supplyAmount, accountUnderlyingAssetBalance);
   const nativeAssetWrapAmount = canWrapNativeAssets ? MathLib.min(shortfall, accountNativeAssetBalance) : 0n;
 
@@ -97,7 +95,7 @@ export async function erc4626SupplyActionDirect({
       erc20Address: underlyingAssetAddress,
       spenderAddress: vaultAddress,
       currentAllowance: allowance,
-      requiredAllowance: supplyAmount,
+      requiredAllowance: supplyAmount, // full amount, since wrap happen within users wallet => transfer is the full supply amount
     }),
   );
 

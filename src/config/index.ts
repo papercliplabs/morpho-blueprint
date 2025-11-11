@@ -242,7 +242,7 @@ export const APP_CONFIG: AppConfig = {
     maxBorrowLtvMarginWad: parseUnits("0.05", 18), // 5% below LLTV
     publicAllocatorSupplyTargetUtilizationWad: BigInt(90_0000000000000000),
     bundler3Config: {
-      enabled: true,
+      enabled: false,
       slippageToleranceWad: parseUnits("0.0003", 18), // 0.03% slippage
     },
   },
