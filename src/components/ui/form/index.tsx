@@ -30,9 +30,10 @@ const FormFieldContext = React.createContext<FormFieldContextValue>({} as FormFi
 const FormField = <
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
+  TTransformedValues extends FieldValues | undefined = undefined,
 >({
   ...props
-}: ControllerProps<TFieldValues, TName>) => {
+}: ControllerProps<TFieldValues, TName, TTransformedValues>) => {
   return (
     <FormFieldContext.Provider value={{ name: props.name }}>
       <Controller {...props} />
@@ -86,22 +87,33 @@ const FormLabel = React.forwardRef<
   React.ElementRef<typeof LabelPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root>
 >(({ className, ...props }, ref) => {
-  const { formItemId, error } = useFormField();
+  const { formItemId, error, isDirty } = useFormField();
 
-  return <Label ref={ref} className={clsx(!!error && "text-destructive", className)} htmlFor={formItemId} {...props} />;
+  const showError = !!error && isDirty;
+
+  return (
+    <Label
+      ref={ref}
+      className={clsx(showError && "text-destructive-foreground", className)}
+      htmlFor={formItemId}
+      {...props}
+    />
+  );
 });
 FormLabel.displayName = "FormLabel";
 
 const FormControl = React.forwardRef<React.ElementRef<typeof Slot>, React.ComponentPropsWithoutRef<typeof Slot>>(
   ({ ...props }, ref) => {
-    const { error, formItemId, formDescriptionId, formMessageId } = useFormField();
+    const { error, formItemId, formDescriptionId, formMessageId, isDirty } = useFormField();
+
+    const showError = !!error && isDirty;
 
     return (
       <Slot
         ref={ref}
         id={formItemId}
         aria-describedby={!error ? `${formDescriptionId}` : `${formDescriptionId} ${formMessageId}`}
-        aria-invalid={!!error}
+        aria-invalid={showError}
         {...props}
       />
     );
@@ -120,8 +132,11 @@ FormDescription.displayName = "FormDescription";
 
 const FormMessage = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLParagraphElement>>(
   ({ className, children, ...props }, ref) => {
-    const { error, formMessageId } = useFormField();
-    const body = error ? String(error?.message ?? "") : children;
+    const { error, formMessageId, isDirty } = useFormField();
+
+    const showError = !!error && isDirty;
+
+    const body = showError ? String(error?.message ?? "") : children;
 
     if (!body) {
       return null;

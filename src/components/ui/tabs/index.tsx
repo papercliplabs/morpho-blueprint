@@ -31,7 +31,7 @@ function Tabs({ className, variant = "default", ...props }: TabsProps) {
 const tabsListVariants = cva("flex items-center", {
   variants: {
     variant: {
-      default: "bg-muted rounded-md p-1",
+      default: "bg-muted rounded-md p-1 space-x-1",
       underline: "bg-transparent",
       filled: "bg-background gap-0.5",
     },

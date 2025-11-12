@@ -8,22 +8,10 @@ import { expect } from "vitest";
 const REBASEING_MARGIN = BigInt(100030);
 const REBASEING_MARGIN_SCALE = BigInt(100000);
 
-// Parses transaction logs to validate:
-export async function expectOnlyAllowedApprovals(
-  client: AnvilTestClient,
-  logs: Log[],
-  accountAddress: Address,
-  allowedApprovalAddresses: Address[],
-  allowedPermitAddresses: Address[],
-) {
+export async function extractApprovalEvents(logs: Log[], accountAddress: Address) {
   const erc20Events = await parseEventLogs({
     logs: logs,
     abi: erc20Abi,
-  });
-
-  const permit2Events = await parseEventLogs({
-    logs: logs,
-    abi: permit2Abi,
   });
 
   const erc20Approvals = erc20Events
@@ -37,6 +25,15 @@ export async function expectOnlyAllowedApprovals(
       amount: event.args.value,
     }));
 
+  return erc20Approvals;
+}
+
+export async function extractPermit2Events(logs: Log[], accountAddress: Address) {
+  const permit2Events = await parseEventLogs({
+    logs: logs,
+    abi: permit2Abi,
+  });
+
   const permits = permit2Events
     .filter(
       (event): event is typeof event & { eventName: "Permit" } =>
@@ -47,6 +44,20 @@ export async function expectOnlyAllowedApprovals(
       spender: event.args.spender,
       amount: event.args.amount,
     }));
+
+  return permits;
+}
+
+// Parses transaction logs to validate:
+export async function expectOnlyAllowedApprovals(
+  client: AnvilTestClient,
+  logs: Log[],
+  accountAddress: Address,
+  allowedApprovalAddresses: Address[],
+  allowedPermitAddresses: Address[],
+) {
+  const erc20Approvals = await extractApprovalEvents(logs, accountAddress);
+  const permits = await extractPermit2Events(logs, accountAddress);
 
   // Only allowed to approve the allowed addresses
   for (const erc20Approval of erc20Approvals) {

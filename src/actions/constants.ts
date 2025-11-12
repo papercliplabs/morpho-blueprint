@@ -1,0 +1,14 @@
+import { type Address, getAddress } from "viem";
+import { mainnet } from "viem/chains";
+
+// Tokens that require approval to be reset to 0 before setting a new approval amount.
+// This is required for non-ERC20 compliant tokens like USDT and CRV which will otherwise revert on approve.
+export const TOKENS_REQUIRING_APPROVAL_REVOCATION: Partial<Record<number, Record<Address, boolean>>> = {
+  [mainnet.id]: {
+    [getAddress("0xdAC17F958D2ee523a2206206994597C13D831ec7")]: true, // USDT
+    [getAddress("0xD533a949740bb3306d119CC777fa900bA034cd52")]: true, // CRV
+  },
+};
+
+// Same across all chains - we have a unit test to verify this contract is present for every chain config
+export const MERKL_DISTRIBUTOR_ADDRESS = getAddress("0x3Ef3D8bA38EBe18DB133cEc108f4D14CE00Dd9Ae");

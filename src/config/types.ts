@@ -17,100 +17,109 @@ export type VaultTag = (typeof VAULT_TAG_OPTIONS)[number];
 
 export interface VaultConfig {
   // Address of the vault
-  address: Address;
+  readonly address: Address;
   // Vault name which will override the default one from Morpho metadata repo.
-  name?: string;
+  readonly name?: string;
   // Vault description which will override the default one from Morpho metadata repo.
-  description?: string;
+  readonly description?: string;
   // Optional tag which is used for sorting on the earn page, and a badge on the vault page.
-  tag?: VaultTag;
+  readonly tag?: VaultTag;
   // Optional flag to hide the vault from within the app, while still using the vault to compute TVL.
-  isHidden?: boolean;
+  // Note that this vault is still directly accessible via the URL, and will display if the user has a balance (allowing withdrawals).
+  readonly isHidden?: boolean;
 }
 
 export interface AppConfig {
-  metadata: {
-    url: string; // Base URL of your app. Should NOT have a trailing slash
-    name: string; // Name of your app used in the metadata tags and wallet connection modals
-    description: string; // Description of your app used in the metadata tags and wallet connection modals
+  readonly metadata: {
+    readonly url: string; // Base URL of your app. Should NOT have a trailing slash
+    readonly name: string; // Name of your app used in the metadata tags and wallet connection modals
+    readonly description: string; // Description of your app used in the metadata tags and wallet connection modals
     // Images can be an absolute or local path
-    images: {
-      opengraph: string; // Open Graph image, should be a 1200x630px .png file
+    readonly images: {
+      readonly opengraph: string; // Open Graph image, should be a 1200x630px .png file
       // App icon images - should all be the same image but different formats / sizes
-      icons: {
-        ico: string; // Legacy favicon
-        "png-64x64": string; // 64x64px png modern favicon
-        "png-192x192": string; // 192x192px png PWA manifest and apple touch icon
-        "png-512x512": string; // 512x512px png PWA manifest
-        svg: string; // 64x64px viewbox svg url for modern browsers
+      readonly icons: {
+        readonly ico: string; // Legacy favicon
+        readonly "png-64x64": string; // 64x64px png modern favicon
+        readonly "png-192x192": string; // 192x192px png PWA manifest and apple touch icon
+        readonly "png-512x512": string; // 512x512px png PWA manifest
+        readonly svg: string; // 64x64px viewbox svg url for modern browsers
       };
     };
   };
 
-  ui: {
-    logo: {
-      mobile: ReactNode; // Logo in the left of the header for mobile screens.
-      desktop?: ReactNode; // (optional) Logo in left of the header for desktop screens. Mobile one will be used if this is not provided.
-      link?: string; // (optional) Link the logo will direct to. If not provided this will be the /earn page
+  readonly ui: {
+    readonly logo: {
+      readonly mobile: ReactNode; // Logo in the left of the header for mobile screens.
+      readonly desktop?: ReactNode; // (optional) Logo in left of the header for desktop screens. Mobile one will be used if this is not provided.
+      readonly link?: string; // (optional) Link the logo will direct to. If not provided this will be the /earn page
     };
-    fonts: {
-      main: NextFontWithVariable; // Main font for the app. Variable name of font MUST be "--font-main"
-      others?: NextFontWithVariable[]; // (optional) Other fonts for the app. These are not used in core theme, but can be used in css variables directly for specifying typography in ./theme.css.
+    readonly fonts: {
+      readonly main: NextFontWithVariable; // Main font for the app. Variable name of font MUST be "--font-main"
+      readonly others?: NextFontWithVariable[]; // (optional) Other fonts for the app. These are not used in core theme, but can be used in css variables directly for specifying typography in ./theme.css.
     };
     // Banner displayed at the top of the app above the nav bar.
-    infoBanner?: {
-      text: string;
-      link?: {
-        text: string;
-        href: string;
+    readonly infoBanner?: {
+      readonly text: string;
+      readonly link?: {
+        readonly text: string;
+        readonly href: string;
       };
     };
     // Links to be shown in the footer, note that if the compliance.termsOfUse or compliance.privacyPolicy are used their links will automatically be included in the footer after these
-    footerLinks?: {
-      text: string;
-      href: string;
+    readonly footerLinks?: {
+      readonly text: string;
+      readonly href: string;
     }[];
   };
 
-  compliance: {
-    termsOfUse?: ReactNode; // (optional) Terms of use content, will be displayed on the /terms page, and in the acceptance modal if compliance.requireTermsOfUseAcceptance is true
-    privacyPolicy?: ReactNode; // (optional) Privacy policy content, will be displayed on the /privacy page
+  readonly compliance: {
+    readonly termsOfUse?: ReactNode; // (optional) Terms of use content, will be displayed on the /terms page, and in the acceptance modal if compliance.requireTermsOfUseAcceptance is true
+    readonly privacyPolicy?: ReactNode; // (optional) Privacy policy content, will be displayed on the /privacy page
 
-    requireTermsOfUseAcceptance?: boolean; // (optional) Controls if the terms of use acceptance is required before a user sends their first transaction. Must also provide compliance.termsOfUse otherwise this is ignored. Defaults to false.
-    countrySpecificDisclaimer?: Partial<Record<string, { title: string; text: string }>>; // (optional) Map of ISO 3166-2 country code to the country's disclaimer info. This will be shown as a banner at the top of the app above the nav bar (below the infoBanner) with a button that opens a modal with the full text content.
+    readonly requireTermsOfUseAcceptance?: boolean; // (optional) Controls if the terms of use acceptance is required before a user sends their first transaction. Must also provide compliance.termsOfUse otherwise this is ignored. Defaults to false.
+    readonly countrySpecificDisclaimer?: Partial<Record<string, { readonly title: string; readonly text: string }>>; // (optional) Map of ISO 3166-2 country code to the country's disclaimer info. This will be shown as a banner at the top of the app above the nav bar (below the infoBanner) with a button that opens a modal with the full text content.
   };
 
-  reownProjectId: string; // Reown/wallet connect project ID. Get this from https://cloud.reown.com
-  chainConfig: Record<SupportedChainId, { chain: Chain; rpcUrls: [string, ...string[]] }>; // Chain configuration for all chains your app supports
-  maxRpcBatchSize: number; // Maximum number of RPC calls to batch in a single http request
+  readonly reownProjectId: string; // Reown/wallet connect project ID. Get this from https://cloud.reown.com
+  readonly chainConfig: Record<SupportedChainId, { readonly chain: Chain; readonly rpcUrls: [string, ...string[]] }>; // Chain configuration for all chains your app supports
+  readonly maxRpcBatchSize: number; // Maximum number of RPC calls to batch in a single http request
 
-  supportedVaults: Record<SupportedChainId, VaultConfig[]>; // Config for all supported vaults which will appear in the earn page table.
+  readonly supportedVaults: Record<SupportedChainId, VaultConfig[]>; // Config for all supported vaults which will appear in the earn page table.
   // Note: Supported markets are derived based on supported vault allocations^
 
-  actionParameters: {
-    // [0, 1] controls the max borrow origination based on LLTV (maxBorrowLtv = LLTV - maxBorrowLtvMargin)
-    maxBorrowLtvMargin: number;
+  readonly actionParameters: {
+    // controls the max borrow origination based on LLTV (maxBorrowLtv = LLTV - maxBorrowLtvMarginWad)
+    readonly maxBorrowLtvMarginWad: bigint; // Scaled by WAD
     // Target utilization above which the public allocator shared liquidity algorithm is enabled for borrowing
-    publicAllocatorSupplyTargetUtilizationWad: bigint; // Scaled by WAD
+    readonly publicAllocatorSupplyTargetUtilizationWad: bigint; // Scaled by WAD
+
+    // Configuration for bundler3 support.
+    // NOTE: currently `enable` only controls vault actions, market actions always use bundler3.
+    //       in the future `enable` will control both vault and market actions (but not bundler3 actions are not yet implemented).
+    readonly bundler3Config: {
+      readonly enabled: boolean;
+      readonly slippageToleranceWad: bigint;
+    };
   };
 
   // Controls the apy window used for native apy metrics and charts (rewards remain instantanious).
   // Instantaneous APYs can be misleading, so we've opted to show windowed instead which is generlly more useful for users.
-  apyWindow: ApyWindow;
+  readonly apyWindow: ApyWindow;
 
   // Note the default value is false to preserve backwards compatibility when upgrading versions (new features are opt-in, i.e upgrading won't add any new features)
-  featureFlags: {
-    enableDarkModeToggle?: boolean; // (optional) Controls if the dark mode toggle is shown in the footer. If so .dark should be defined in theme.css
-    hideCurator?: boolean; // (optional) Controls if the curator should be hidden throughout the app which can be useful when there is only a single curator
+  readonly featureFlags: {
+    readonly enableDarkModeToggle?: boolean; // (optional) Controls if the dark mode toggle is shown in the footer. If so .dark should be defined in theme.css
+    readonly hideCurator?: boolean; // (optional) Controls if the curator should be hidden throughout the app which can be useful when there is only a single curator
   };
 
-  analytics: {
-    component?: ReactNode; // (optional) Component to be rendered in the root layout which can be used to inject analytics scripts.
-    eventCb?: (name: EventName, payload: Record<string, string | number>) => void; // (optional) Callback when app event is received. This call routes through a server action to prevent client-side blocking.
+  readonly analytics: {
+    readonly component?: ReactNode; // (optional) Component to be rendered in the root layout which can be used to inject analytics scripts.
+    readonly eventCb?: (name: EventName, payload: Record<string, string | number>) => void; // (optional) Callback when app event is received. This call routes through a server action to prevent client-side blocking.
   };
 
   // Map of known addresses to friendly display metadata. If an address is present here,
   // the app will render the friendly name (and optional icon) instead of the raw address
   // wherever addresses are displayed.
-  knownAddresses: Record<Address, { name: string; iconUrl?: string }>;
+  readonly knownAddresses: Record<Address, { name: string; iconUrl?: string }>;
 }

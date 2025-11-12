@@ -7,24 +7,32 @@ export async function executeWhiskQuery<TResult, TVariables>(
   query: TypedDocumentNode<TResult, TVariables>,
   ...[variables]: TVariables extends Record<string, never> ? [] : [TVariables]
 ) {
-  const response = await fetchJsonResponse<{ data: TResult; errors?: GraphQLError[] }>(process.env.WHISK_API_URL!, {
-    requestOptions: {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/graphql-response+json",
-        Authorization: `Bearer ${process.env.WHISK_API_KEY!}`,
+  const response = await fetchJsonResponse<{ data: TResult | null; errors?: GraphQLError[] }>(
+    process.env.WHISK_API_URL!,
+    {
+      requestOptions: {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/graphql-response+json",
+          Authorization: `Bearer ${process.env.WHISK_API_KEY!}`,
+        },
+        body: JSON.stringify({
+          query: print(query),
+          variables,
+        }),
       },
-      body: JSON.stringify({
-        query: print(query),
-        variables,
-      }),
     },
-  });
+  );
 
   // Log errors, but use the rest of the available data
   if ((response.errors?.length ?? 0) > 0) {
     console.warn("Whisk query errors", response.errors);
+  }
+
+  // Throw on an entire query failure
+  if (response.data === null) {
+    throw new Error("Whisk entire query failure");
   }
 
   return response.data;

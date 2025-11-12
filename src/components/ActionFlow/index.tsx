@@ -4,7 +4,7 @@ import { motion } from "motion/react";
 import { type ComponentProps, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { zeroHash } from "viem";
 
-import type { SuccessfulAction } from "@/actions";
+import type { Action } from "@/actions";
 import { APP_CONFIG } from "@/config";
 import { useAcknowledgeTermsContext } from "@/providers/AcknowledgeTermsProvider";
 import { capitalizeFirstLetter } from "@/utils/format";
@@ -29,7 +29,7 @@ interface ActionFlowDialogProps {
 export interface ActionFlowProps
   extends Omit<ComponentProps<typeof ActionFlowProvider>, "children" | "action">,
     ActionFlowDialogProps {
-  action: SuccessfulAction | null;
+  action: Action | null;
 }
 
 export function ActionFlow({
@@ -146,7 +146,7 @@ function ActionFlowDialog({ open, onOpenChange, actionName, summary, metrics }: 
 
   return (
     <DialogDrawer open={open} onOpenChange={onOpenChange} dismissible={!preventClose}>
-      <DialogDrawerContent hideCloseButton className="p-0 md:max-w-[420px]">
+      <DialogDrawerContent hideCloseButton className="p-0 lg:max-w-[420px]">
         <motion.div
           animate={{ height: measuredHeight }}
           transition={{ duration: 0.4, type: "spring", bounce: 0 }}

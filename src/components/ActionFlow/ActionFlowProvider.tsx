@@ -6,7 +6,7 @@ import { BaseError, type Hex, RpcError } from "viem";
 import { estimateGas, sendTransaction, waitForTransactionReceipt } from "viem/actions";
 import { useAccount, useClient, useConnectorClient, useSwitchChain } from "wagmi";
 
-import type { SuccessfulAction } from "@/actions";
+import type { Action } from "@/actions";
 import { trackEvent } from "@/data/trackEvent";
 import { fetchJsonResponse } from "@/utils/fetch";
 
@@ -28,7 +28,7 @@ type ActionFlowContextType = {
   lastTransactionHash: Hex | null;
   error: string | null;
 
-  action: SuccessfulAction;
+  action: Action;
 
   startFlow: () => void;
 };
@@ -36,8 +36,7 @@ type ActionFlowContextType = {
 const ActionFlowContext = createContext<ActionFlowContextType | undefined>(undefined);
 
 interface ActionFlowProviderProps {
-  chainId: number;
-  action: SuccessfulAction;
+  action: Action;
   flowCompletionCb?: () => void;
   children: ReactNode;
 
@@ -46,24 +45,18 @@ interface ActionFlowProviderProps {
   } & Record<string, string | number>;
 }
 
-export function ActionFlowProvider({
-  chainId,
-  flowCompletionCb,
-  action,
-  trackingPayload,
-  children,
-}: ActionFlowProviderProps) {
+export function ActionFlowProvider({ flowCompletionCb, action, trackingPayload, children }: ActionFlowProviderProps) {
   const [flowState, setFlowState] = useState<ActionFlowState>("review");
   const [activeStep, setActiveStep] = useState<number>(0);
   const [actionState, setActionState] = useState<ActionState>("pending-wallet");
   const [lastTransactionHash, setLastTransactionHash] = useState<Hex | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const { data: client } = useConnectorClient({ chainId, assertChainId: false });
+  const { data: client } = useConnectorClient({ chainId: action.chainId, assertChainId: false });
   const { connector } = useAccount();
   const { setOpen: setConnectKitOpen } = useModal();
 
-  const publicClient = useClient({ chainId });
+  const publicClient = useClient({ chainId: action.chainId });
   const { switchChainAsync } = useSwitchChain();
   const queryClient = useQueryClient();
   const { chainId: accountChainId } = useAccount();
@@ -76,9 +69,9 @@ export function ActionFlowProvider({
     }
 
     // Must be on the correct chain
-    if (accountChainId !== chainId) {
-      const { id } = await switchChainAsync({ chainId });
-      if (id !== chainId) {
+    if (accountChainId !== action.chainId) {
+      const { id } = await switchChainAsync({ chainId: action.chainId });
+      if (id !== action.chainId) {
         throw new Error("Unable to automaitcally switch chains.");
       }
     }
@@ -102,13 +95,18 @@ export function ActionFlowProvider({
         return;
       }
 
+      const remainingSignatureRequests = action.signatureRequests.slice(activeStep);
+      const remainingTransactionRequests = action.transactionRequests.slice(
+        Math.max(activeStep - action.signatureRequests.length, 0),
+      );
+
       try {
-        for (const step of action.signatureRequests) {
+        for (const step of remainingSignatureRequests) {
           await step.sign(client);
-          setActiveStep((step) => step + 1);
+          setActiveStep((prev) => prev + 1);
         }
 
-        for (const step of action.transactionRequests) {
+        for (const step of remainingTransactionRequests) {
           setActionState("pending-wallet");
 
           const txReq = step.tx();
@@ -147,7 +145,7 @@ export function ActionFlowProvider({
               ...trackingPayload,
             });
             await new Promise((resolve) => setTimeout(resolve, 2000)); // Delay to let rpc data propogate (ex approval on prev tx)
-            setActiveStep((step) => step + 1);
+            setActiveStep((prev) => prev + 1);
           } else {
             void trackEvent("tx-revert", {
               accountAddress,
@@ -189,7 +187,7 @@ export function ActionFlowProvider({
     flowState,
     client,
     publicClient,
-    chainId,
+    action.chainId,
     action,
     flowCompletionCb,
     switchChainAsync,
@@ -198,12 +196,13 @@ export function ActionFlowProvider({
     setConnectKitOpen,
     accountChainId,
     trackingPayload,
+    activeStep,
   ]);
 
   return (
     <ActionFlowContext.Provider
       value={{
-        chainId,
+        chainId: action.chainId,
         flowState,
         activeStep,
         actionState,

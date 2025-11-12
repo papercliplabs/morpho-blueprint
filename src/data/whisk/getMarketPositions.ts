@@ -1,6 +1,5 @@
 import "server-only";
 
-import { cache } from "react";
 import type { Address, Hex } from "viem";
 import type { SupportedChainId } from "@/config/types";
 import { graphql } from "@/generated/gql/whisk";
@@ -38,6 +37,7 @@ const query = graphql(`
         }
 
         ltv {
+          raw
           formatted
         }
 
@@ -64,7 +64,7 @@ const query = graphql(`
 export type MarketPosition = NonNullable<MarketPositionsQuery["morphoMarketPositions"]["items"][number]>;
 export type MarketPositionMap = Record<SupportedChainId, Record<Hex, MarketPosition>>; // ChainId -> MarketId -> MarketPosition
 
-export const getMarketPositions = cache(async (accountAddress: Address): Promise<MarketPositionMap> => {
+export const getMarketPositions = async (accountAddress: Address): Promise<MarketPositionMap> => {
   const supportedMarketIds = await getSupportedMarketIds();
   const chainIds = Object.keys(supportedMarketIds).map((chainId) => Number.parseInt(chainId) as ChainId);
   const marketIds = Object.values(supportedMarketIds).flatMap((marketIds) => Array.from(marketIds));
@@ -97,4 +97,4 @@ export const getMarketPositions = cache(async (accountAddress: Address): Promise
   }
 
   return data;
-});
+};

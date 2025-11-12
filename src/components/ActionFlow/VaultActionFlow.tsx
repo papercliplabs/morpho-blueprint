@@ -1,5 +1,6 @@
 import type { VaultAction, VaultPositionChange } from "@/actions";
 import type { Vault } from "@/data/whisk/getVault";
+import { descaleBigIntToNumber } from "@/utils/format";
 import { extractVaultSupplyApy } from "@/utils/vault";
 import { AssetChangeSummary } from "../AssetChangeSummary";
 import { MetricChange } from "../MetricChange";
@@ -21,7 +22,6 @@ export function VaultActionFlow({
   return (
     <ActionFlow
       action={action}
-      chainId={vault.chain.id}
       summary={action && <VaultActionSummary vault={vault} positionChange={action.positionChange} />}
       metrics={action && <VaultActionSimulationMetrics vault={vault} positionChange={action.positionChange} />}
       actionName={action ? vaultPositionChangeToActionName(action.positionChange) : "Send Transaction"} // Fallback won't occur
@@ -37,19 +37,20 @@ function getTrackingPayload(vault: Vault, action: VaultAction | null, tag: strin
     vaultAddress: vault.vaultAddress,
   };
 
-  if (!action || action.status !== "success") {
+  if (!action) {
     return basePayload;
   }
 
   const delta = action.positionChange.balance.after - action.positionChange.balance.before;
   return {
     ...basePayload,
-    amount: Math.abs(delta),
+    amount: Math.abs(descaleBigIntToNumber(delta, vault.asset.decimals)),
   };
 }
 
 export function VaultActionSummary({ vault, positionChange }: { vault: Vault; positionChange: VaultPositionChange }) {
-  const deltaAmount = positionChange.balance.after - positionChange.balance.before;
+  const deltaAmountRaw = positionChange.balance.after - positionChange.balance.before;
+  const deltaAmount = descaleBigIntToNumber(deltaAmountRaw, vault.asset.decimals);
   const deltaAmountUsd = deltaAmount * (vault.asset?.priceUsd ?? 0);
   const action = deltaAmount > 0 ? "Supply" : "Withdraw";
 
@@ -79,7 +80,7 @@ export function VaultActionSimulationMetrics({
         name="Supplied"
         initialValue={
           <NumberFlowWithLoading
-            value={positionChange.balance.before}
+            value={descaleBigIntToNumber(positionChange.balance.before, vault.asset.decimals)}
             isLoading={isLoading}
             loadingContent={<Skeleton className="h-[21px] w-8" />}
           />
@@ -87,7 +88,7 @@ export function VaultActionSimulationMetrics({
         finalValue={
           positionChange.balance.after === positionChange.balance.before ? undefined : (
             <NumberFlowWithLoading
-              value={positionChange.balance.after}
+              value={descaleBigIntToNumber(positionChange.balance.after, vault.asset.decimals)}
               isLoading={isLoading}
               loadingContent={<Skeleton className="h-[21px] w-8" />}
             />

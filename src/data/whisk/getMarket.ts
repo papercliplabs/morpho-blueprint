@@ -59,7 +59,7 @@ const query = graphql(`
               ...ChainInfoFragment
             }
             metadata {
-              curators {
+              curator {
                 ...CuratorInfoFragment
               }
             }

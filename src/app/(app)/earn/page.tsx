@@ -97,7 +97,7 @@ async function VaultFiltersWrapper() {
       category: vault.asset.category ?? null,
     };
 
-    const curator = vault.metadata?.curators[0];
+    const curator = vault.metadata?.curator;
     if (curator) {
       curatorOptionsMap[curator.name] = {
         value: curator.name,

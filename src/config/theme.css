@@ -4,56 +4,58 @@
   --button-radius: 0.5rem;
 
   /* Light mode colors, or base colors if the deployment has set featureFlags.darkModeToggle to false */
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.2103 0.0059 285.89);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.2103 0.0059 285.89);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.2103 0.0059 285.89);
-  --primary: oklch(0.5461 0.2152 262.88);
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.9674 0.0013 286.38);
-  --secondary-foreground: oklch(0.2103 0.0059 285.89);
-  --muted: oklch(0.9674 0.0013 286.38);
-  --muted-foreground: oklch(0.5517 0.0138 285.94);
-  --accent: oklch(0.9674 0.0013 286.38);
-  --accent-foreground: oklch(0.5461 0.2152 262.88);
-  --destructive: oklch(0.6368 0.2078 25.33);
-  --border: oklch(0.9197 0.004 286.32);
-  --input: oklch(0.8711 0.0055 286.29);
-  --ring: oklch(0.5461 0.2152 262.88);
-  --chart-1: oklch(0.6461 0.1943 41.12);
-  --chart-2: oklch(0.6002 0.1038 184.7);
-  --chart-3: oklch(0.6089 0.1109 221.72);
-  --chart-4: oklch(0.7952 0.1617 86.05);
-  --chart-5: oklch(0.7686 0.1647 70.08);
+  --background: #ffffff;
+  --foreground: #18181b;
+  --card: #ffffff;
+  --card-foreground: #18181b;
+  --popover: #ffffff;
+  --popover-foreground: #18181b;
+  --primary: #2563eb;
+  --primary-foreground: #ffffff;
+  --secondary: #f4f4f5;
+  --secondary-foreground: #18181b;
+  --muted: #f4f4f5;
+  --muted-foreground: #71717a;
+  --accent: #fafafa;
+  --accent-foreground: #2563eb;
+  --destructive: #ef4444;
+  --destructive-foreground: #ef4444;
+  --border: #e4e4e7;
+  --input: #d4d4d8;
+  --ring: #2563eb;
+  --chart-1: #ea580c;
+  --chart-2: #0d9488;
+  --chart-3: #0891b2;
+  --chart-4: #eab308;
+  --chart-5: #f59e0b;
 }
 
 /* Dark mode colors - not required if the deployment has set featureFlags.enableDarkModeToggle to false */
 .dark {
-  --background: oklch(0.1408 0.0044 285.82);
-  --foreground: oklch(1 0 0);
-  --card: oklch(0.2103 0.0059 285.89);
-  --card-foreground: oklch(1 0 0);
-  --popover: oklch(0.2739 0.0055 286.03);
-  --popover-foreground: oklch(1 0 0);
-  --primary: oklch(0.6231 0.188 259.81);
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.3703 0.0119 285.81);
-  --secondary-foreground: oklch(1 0 0);
-  --muted: oklch(0.2739 0.0055 286.03);
-  --muted-foreground: oklch(0.7155 0 0);
-  --accent: oklch(0.3703 0.0119 285.81);
-  --accent-foreground: oklch(0.6231 0.188 259.81);
-  --destructive: oklch(0.6368 0.2078 25.33);
-  --border: oklch(0.2739 0.0055 286.03);
-  --input: oklch(0.2686 0 0);
-  --ring: oklch(0.5555 0 0);
-  --chart-1: oklch(0.4882 0.2172 264.38);
-  --chart-2: oklch(0.6959 0.1491 162.48);
-  --chart-3: oklch(0.7686 0.1647 70.08);
-  --chart-4: oklch(0.6268 0.2325 303.9);
-  --chart-5: oklch(0.5916 0.218 0.58);
+  --background: #09090b;
+  --foreground: #ffffff;
+  --card: #18181b;
+  --card-foreground: #ffffff;
+  --popover: #27272a;
+  --popover-foreground: #ffffff;
+  --primary: #3b82f6;
+  --primary-foreground: #ffffff;
+  --secondary: #3f3f46;
+  --secondary-foreground: #ffffff;
+  --muted: #27272a;
+  --muted-foreground: #a3a3a3;
+  --accent: #3f3f46;
+  --accent-foreground: #3b82f6;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #27272a;
+  --input: #262626;
+  --ring: #737373;
+  --chart-1: #1d4ed8;
+  --chart-2: #10b981;
+  --chart-3: #f59e0b;
+  --chart-4: #a855f7;
+  --chart-5: #db2777;
 }
 
 /* Typography - using Tailwind CSS utility classes (https://tailwindcss.com/docs/styling-with-utility-classes) */

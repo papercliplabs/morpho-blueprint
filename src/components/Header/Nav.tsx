@@ -19,7 +19,7 @@ function Nav() {
   const pathname = usePathname();
 
   return (
-    <div className="flex w-full items-center gap-1 overflow-x-auto">
+    <div className="flex w-full items-center gap-0.5 overflow-x-auto md:gap-1">
       {NAV_ITEMS.map((item) => (
         <NavItem key={item.href} href={item.href} name={item.name} active={item.isActive(pathname)} />
       ))}
