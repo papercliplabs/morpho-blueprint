@@ -25,14 +25,14 @@ function getColumns(isPositionLoading: boolean): ColumnDef<MarketTableDataEntry>
       cell: ({ row }) => {
         const { marketSummary } = row.original;
         return marketSummary.collateralAsset ? (
-          <div className="flex items-center gap-3">
+          <div className="flex min-w-0 items-center gap-3">
             <TokenIcon
               token={marketSummary.collateralAsset}
               chain={marketSummary.chain}
               size="md"
               chainClassName="border-[var(--row-color)]"
             />
-            <span className="body-medium-plus max-w-20 truncate">{marketSummary.collateralAsset.symbol}</span>
+            <span className="body-medium-plus truncate">{marketSummary.collateralAsset.symbol}</span>
           </div>
         ) : (
           "N/A"
@@ -47,14 +47,14 @@ function getColumns(isPositionLoading: boolean): ColumnDef<MarketTableDataEntry>
       cell: ({ row }) => {
         const { marketSummary } = row.original;
         return (
-          <div className="flex items-center gap-3">
+          <div className="flex min-w-0 items-center gap-3">
             <TokenIcon
               token={marketSummary.loanAsset}
               chain={marketSummary.chain}
               size="md"
               chainClassName="border-[var(--row-color)]"
             />
-            <span className="body-medium-plus max-w-20 truncate">{marketSummary.loanAsset.symbol}</span>
+            <span className="body-medium-plus truncate">{marketSummary.loanAsset.symbol}</span>
           </div>
         );
       },

@@ -40,9 +40,9 @@ function AssetInputFormField<
       {...props}
       render={({ field, fieldState }) => (
         <FormItem className="group flex flex-col rounded-md border-2 border-transparent bg-muted p-4 transition has-focus:border-primary">
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <FormLabel className="body-small-plus max-w-40 truncate">{header}</FormLabel>
-            <FormMessage />
+          <div className="flex min-w-0 items-center gap-2 text-muted-foreground">
+            <FormLabel className="body-small-plus truncate">{header}</FormLabel>
+            <FormMessage className="shrink-0" />
           </div>
           <div className="flex flex-col gap-1">
             <div className="flex min-w-0 items-center justify-between gap-4">
@@ -65,9 +65,9 @@ function AssetInputFormField<
                 />
               </FormControl>
               {!!asset && (
-                <div className="flex items-center gap-2 px-2">
+                <div className="flex max-w-1/2 items-center gap-2 px-2">
                   <TokenIcon token={asset} chain={chain} size="sm" chainClassName="border-muted" />
-                  <span className="body-large-plus max-w-20 truncate">{asset.symbol}</span>
+                  <span className="body-large-plus truncate">{asset.symbol}</span>
                 </div>
               )}
             </div>

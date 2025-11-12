@@ -37,7 +37,7 @@ export function MarketInfo({ market }: MarketInfoProps) {
             className="heading-6"
           >
             <TokenIcon token={market.collateralAsset} chain={market.chain} chainClassName="border-card" size="sm" />
-            <p className="max-w-20 truncate">{market.collateralAsset.symbol}</p>
+            <p className="truncate">{market.collateralAsset.symbol}</p>
           </LinkExternalBlockExplorer>
         ) : (
           "None"
@@ -51,16 +51,16 @@ export function MarketInfo({ market }: MarketInfoProps) {
           className="heading-6"
         >
           <TokenIcon token={market.loanAsset} chain={market.chain} chainClassName="border-card" size="sm" />
-          <p className="max-w-20 truncate">{market.loanAsset.symbol}</p>
+          <p className="truncate">{market.loanAsset.symbol}</p>
         </LinkExternalBlockExplorer>
       }
       oraclePrice={
-        <div className="heading-6 flex flex-wrap gap-1">
+        <div className="heading-6 flex min-w-0 flex-wrap gap-1">
           <p>1</p>
-          <p className="max-w-20 truncate">{market.collateralAsset?.symbol}</p>
+          <p className="truncate">{market.collateralAsset?.symbol}</p>
           <p>=</p>
           <p>{formatNumber(Number(market.collateralPriceInLoanAsset?.formatted ?? 0))}</p>
-          <p className="max-w-20 truncate">{market.loanAsset.symbol}</p>
+          <p className="truncate">{market.loanAsset.symbol}</p>
         </div>
       }
     />

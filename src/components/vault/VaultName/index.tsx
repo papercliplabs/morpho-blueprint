@@ -10,12 +10,12 @@ interface VaultNameProps {
 
 export function VaultName({ chain, chainClassName, name, asset }: VaultNameProps) {
   return (
-    <div className="flex gap-3">
+    <div className="flex min-w-0 gap-3">
       <TokenIcon token={asset} chain={chain} size="md" chainClassName={chainClassName} />
-      <div className="flex flex-col justify-between">
-        <span className="body-medium-plus">{name}</span>
+      <div className="flex min-w-0 flex-col justify-between">
+        <span className="body-medium-plus truncate">{name}</span>
         <p className="flex gap-1">
-          <span className="body-small-plus max-w-20 truncate text-muted-foreground">{asset.symbol}</span>
+          <span className="body-small-plus truncate text-muted-foreground">{asset.symbol}</span>
           <span className="body-small-plus text-muted-foreground">•</span>
           <span className="body-small-plus text-muted-foreground">{chain.name}</span>
         </p>
