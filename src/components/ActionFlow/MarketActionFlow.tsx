@@ -105,6 +105,7 @@ export function MarketActionSimulationMetrics({
       {market.collateralAsset && (
         <MetricChange
           name={`Collateral (${market.collateralAsset?.symbol})`}
+          className="gap-1"
           initialValue={
             <NumberFlowWithLoading
               value={descaleBigIntToNumber(positionChange.collateral.before, market.collateralAsset.decimals)}
@@ -125,6 +126,7 @@ export function MarketActionSimulationMetrics({
       )}
       <MetricChange
         name={`Loan (${market.loanAsset?.symbol})`}
+        className="gap-1"
         initialValue={
           <NumberFlowWithLoading
             value={descaleBigIntToNumber(positionChange.loan.before, market.loanAsset.decimals)}
