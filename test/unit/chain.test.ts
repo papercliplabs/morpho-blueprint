@@ -64,6 +64,11 @@ describe("chain", async () => {
           functionName: "BUNDLER3",
         });
       });
+
+      test("supports multicall3", async () => {
+        const multicall3Address = chainConfig.chain.contracts?.multicall3?.address;
+        expect(multicall3Address).toBeDefined();
+      });
     });
   }
 });

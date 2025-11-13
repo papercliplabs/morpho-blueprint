@@ -5,8 +5,6 @@ import {
   base,
   berachain,
   corn,
-  hemi,
-  katana,
   lisk,
   mainnet,
   plumeMainnet,
@@ -21,7 +19,7 @@ import { Analytics } from "./components/Analytics";
 import { LogoDesktop, LogoMobile } from "./components/Logo";
 import { PrivacyPolicy } from "./components/PrivacyPolicy";
 import { TermsOfUse } from "./components/TermsOfUse";
-import { hyperevm } from "./custom-chains/hyperevm";
+import { hemi, hyperevm, katana } from "./custom-chains";
 import type { AppConfig } from "./types";
 
 // Specify all chains your app supports
