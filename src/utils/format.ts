@@ -1,4 +1,4 @@
-import { type Address, formatUnits, getAddress } from "viem";
+import { type Address, formatUnits, getAddress, type Hex } from "viem";
 import { APP_CONFIG } from "@/config";
 
 const MAX_USD_VALUE = 1e12;
@@ -71,6 +71,10 @@ export function formatAddress(address: Address) {
   if (meta?.name) return meta.name;
   const checksummed = getAddress(address);
   return `${checksummed.slice(0, 4)}...${checksummed.slice(-4)}`;
+}
+
+export function formatTxHash(txHash: Hex) {
+  return `${txHash.slice(0, 4)}...${txHash.slice(-4)}`;
 }
 
 export function getKnownAddressMeta(address: Address) {
