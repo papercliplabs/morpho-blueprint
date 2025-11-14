@@ -2,9 +2,8 @@
 import { Check, X } from "lucide-react";
 import { useMemo } from "react";
 import type { Hex } from "viem";
-import { usePublicClient } from "wagmi";
 
-import LinkExternal from "../LinkExternal";
+import { LinkExternalBlockExplorer } from "../LinkExternal";
 
 import { useActionFlowContext } from "./ActionFlowProvider";
 
@@ -15,7 +14,6 @@ interface ActionFlowCompletionProps {
 
 export function ActionFlowCompletion({ status, transactionHash }: ActionFlowCompletionProps) {
   const { chainId } = useActionFlowContext();
-  const publicClient = usePublicClient({ chainId });
 
   const content = useMemo(() => {
     switch (status) {
@@ -43,9 +41,9 @@ export function ActionFlowCompletion({ status, transactionHash }: ActionFlowComp
   return (
     <div className="flex flex-col items-center gap-6 text-center">
       <div className="flex w-full flex-col items-center gap-4">{content}</div>
-      <LinkExternal href={`${publicClient?.chain.blockExplorers?.default.url}/tx/${transactionHash}`}>
+      <LinkExternalBlockExplorer chainId={chainId} type="tx" txHash={transactionHash}>
         View on Explorer
-      </LinkExternal>
+      </LinkExternalBlockExplorer>
     </div>
   );
 }

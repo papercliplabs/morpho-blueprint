@@ -4,7 +4,7 @@ import Image from "next/image";
 import type { AnchorHTMLAttributes, ComponentProps } from "react";
 import type { Address } from "viem";
 import { usePublicClient } from "wagmi";
-import { formatAddress, getKnownAddressMeta } from "@/utils/format";
+import { formatAddress, formatTxHash, getKnownAddressMeta } from "@/utils/format";
 import { cn } from "@/utils/shadcn";
 
 interface LinkExternalProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
@@ -82,7 +82,7 @@ export function LinkExternalBlockExplorer({ chainId, children, className, ...pro
     }
     case "tx":
       path = `/tx/${props.txHash}`;
-      displayName = formatAddress(props.txHash);
+      displayName = formatTxHash(props.txHash);
       break;
   }
 
