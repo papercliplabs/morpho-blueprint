@@ -44,7 +44,7 @@ export default function LinkExternal({ className, children, showArrow = false, .
       {...props}
     >
       {children}
-      {showArrow && <ArrowUpRight className="aspect-square w-[1.1em] stroke-muted-foreground" />}
+      {showArrow && <ArrowUpRight className="aspect-square w-[1.1em]" />}
     </LinkExternalUnstyled>
   );
 }

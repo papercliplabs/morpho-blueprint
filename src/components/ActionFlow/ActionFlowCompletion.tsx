@@ -41,7 +41,7 @@ export function ActionFlowCompletion({ status, transactionHash }: ActionFlowComp
   return (
     <div className="flex flex-col items-center gap-6 text-center">
       <div className="flex w-full flex-col items-center gap-4">{content}</div>
-      <LinkExternalBlockExplorer chainId={chainId} type="tx" txHash={transactionHash}>
+      <LinkExternalBlockExplorer chainId={chainId} type="tx" txHash={transactionHash} className="text-primary">
         View on Explorer
       </LinkExternalBlockExplorer>
     </div>
