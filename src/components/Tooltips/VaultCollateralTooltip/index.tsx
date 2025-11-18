@@ -48,10 +48,12 @@ export function VaultCollateralTooltipContent({ vaultSummary }: VaultCollateralT
             >
               <div className="flex items-center gap-2">
                 <Avatar src={allocation.market.collateralAsset.icon} size="sm" className="rounded-full border" />
-                <span className="body-medium-plus truncate">{allocation.market.collateralAsset.symbol}</span>
+                <span className="body-medium-plus max-w-[100px] truncate">
+                  {allocation.market.collateralAsset.symbol}
+                </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="body-medium-plus truncate">{formatNumber(usage, { style: "percent" })}</span>
+                <span className="body-medium-plus">{formatNumber(usage, { style: "percent" })}</span>
                 <PercentRing percent={usage} />
               </div>
             </div>
