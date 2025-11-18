@@ -85,10 +85,19 @@ graphql(`
     }
 
     marketAllocations {
+      vaultSupplyShare
+      position {
+        supplyAmount {
+          usd
+        }
+      }
       market {
         collateralAsset {
           ...TokenInfoFragment
         }
+      }
+      supplyCap {
+        usd
       }
     }
   }
