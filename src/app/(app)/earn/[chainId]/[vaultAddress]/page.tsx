@@ -87,7 +87,7 @@ export default async function VaultPage({ params }: { params: Promise<{ chainId:
           </Suspense>
 
           <Card>
-            <CardHeader>Market Allocation</CardHeader>
+            <CardHeader>Exposure</CardHeader>
             <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
               <MarketAllocationTableWrapper chainId={chainId} vaultAddress={vaultAddress} />
             </Suspense>

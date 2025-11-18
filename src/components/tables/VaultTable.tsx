@@ -156,7 +156,7 @@ function getColumns(isPositionLoading: boolean): Column[] {
     {
       id: "collateral",
       accessorFn: (row) => row.vaultSummary.marketAllocations.length,
-      header: "Collateral",
+      header: "Exposure",
       cell: ({ row }) => {
         const { vaultSummary } = row.original;
         return (
