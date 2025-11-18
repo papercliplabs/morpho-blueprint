@@ -8,8 +8,8 @@ import type { VaultSummary } from "@/data/whisk/getVaultSummaries";
 import { useVaultTableData, type VaultTableDataEntry } from "@/hooks/useVaultTableData";
 import { sortTableAssetAmount } from "@/utils/sort";
 import { extractVaultSupplyApy, getVaultTagData } from "@/utils/vault";
-import AvatarGroup from "../AvatarGroup";
 import { ApyTooltip } from "../Tooltips/ApyToolip";
+import { VaultCollateralTooltip } from "../Tooltips/VaultCollateralTooltip";
 import { Avatar } from "../ui/avatar";
 import { Badge } from "../ui/badge";
 import { VaultName } from "../vault/VaultName";
@@ -159,25 +159,7 @@ function getColumns(isPositionLoading: boolean): Column[] {
       header: "Collateral",
       cell: ({ row }) => {
         const { vaultSummary } = row.original;
-        return (
-          <AvatarGroup
-            avatars={vaultSummary.marketAllocations
-              .filter((allocation) => allocation.market.collateralAsset)
-              .reduce(
-                (unique, allocation) => {
-                  const icon = allocation.market.collateralAsset!.icon;
-                  if (!unique.some((item) => item.src === icon)) {
-                    unique.push({ src: icon ?? "" });
-                  }
-                  return unique;
-                },
-                [] as { src: string }[],
-              )}
-            max={4}
-            size="sm"
-            avatarClassName="border-[var(--row-color)]"
-          />
-        );
+        return <VaultCollateralTooltip vaultSummary={vaultSummary} />;
       },
       minSize: 140,
     },
