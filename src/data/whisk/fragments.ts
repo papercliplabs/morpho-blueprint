@@ -85,6 +85,7 @@ graphql(`
     }
 
     marketAllocations {
+      vaultSupplyShare
       position {
         supplyAmount {
           usd

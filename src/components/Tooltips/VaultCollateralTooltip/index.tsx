@@ -31,15 +31,11 @@ export function VaultCollateralTooltipContent({ vaultSummary }: VaultCollateralT
   return (
     <div className="flex flex-col gap-2">
       {vaultSummary.marketAllocations
-        .sort((a, b) => {
-          const usageA = getUsage(a);
-          const usageB = getUsage(b);
-          return usageB - usageA;
-        })
+        .sort((a, b) => b.vaultSupplyShare - a.vaultSupplyShare)
         .map((allocation, index) => {
           if (!allocation.market.collateralAsset?.symbol) return null;
 
-          const usage = getUsage(allocation);
+          const suppliedUsd = allocation.position.supplyAmount.usd ?? 0;
 
           return (
             <div
@@ -53,8 +49,8 @@ export function VaultCollateralTooltipContent({ vaultSummary }: VaultCollateralT
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="body-medium-plus">{formatNumber(usage, { style: "percent" })}</span>
-                <PercentRing percent={usage} />
+                <span className="body-medium-plus">{formatNumber(suppliedUsd, { currency: "USD" })}</span>
+                <PercentRing percent={allocation.vaultSupplyShare} />
               </div>
             </div>
           );
@@ -78,10 +74,4 @@ export function VaultCollateralTooltip({ vaultSummary }: VaultCollateralTooltipP
       </TooltipPopoverContent>
     </TooltipPopover>
   );
-}
-
-function getUsage(allocation: VaultSummary["marketAllocations"][number]) {
-  const supplyCap = allocation.supplyCap?.usd ?? 0;
-  const totalSupply = allocation.position.supplyAmount.usd ?? 0;
-  return supplyCap ? totalSupply / supplyCap : 0;
 }
