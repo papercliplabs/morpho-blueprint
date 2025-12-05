@@ -1,10 +1,12 @@
 "use client";
 
 import * as AvatarPrimitive from "@radix-ui/react-avatar";
+import { blo } from "blo";
 import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";
 
 import { Skeleton } from "@/components/ui/skeleton";
+import { formatAddress, getKnownAddressMeta } from "@/utils/format";
 import { cn } from "@/utils/shadcn";
 
 const AvatarRoot = React.forwardRef<
@@ -78,6 +80,15 @@ function Avatar({ className, src, alt, sub, size }: AvatarProps) {
       )}
     </span>
   );
+}
+
+export function getAvatarForAddress(address: `0x${string}`) {
+  const meta = getKnownAddressMeta(address);
+
+  return {
+    src: meta?.iconUrl || blo(address),
+    alt: meta?.name || formatAddress(address),
+  };
 }
 
 export { Avatar };
