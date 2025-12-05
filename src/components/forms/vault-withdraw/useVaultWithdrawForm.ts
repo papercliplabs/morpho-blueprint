@@ -40,7 +40,7 @@ export function useVaultWithdrawForm({ vault, onSuccessfulActionSimulation }: Us
   const formSchema = useMemo(() => {
     return createVaultWithdrawFormSchema(
       vault.asset.decimals,
-      position != null ? BigInt(position.supplyAmount.raw) : undefined,
+      position != null ? BigInt(position.assets.raw) : undefined,
     );
   }, [vault.asset.decimals, position]);
 
@@ -130,11 +130,11 @@ function useDerivedFormValues({
   const [debouncedFormInputWithdrawAmount] = useDebounce(formInputWithdrawAmount, DEBOUNCE_TIME_MS);
 
   const withdrawAmount = useMemo(() => {
-    if (formInputIsMaxWithdraw && position?.supplyAmount.raw != null) {
-      return BigInt(position.supplyAmount.raw);
+    if (formInputIsMaxWithdraw && position?.assets.raw != null) {
+      return BigInt(position.assets.raw);
     }
     return parseOnchainAmount(debouncedFormInputWithdrawAmount, vault.asset.decimals) ?? 0n;
-  }, [debouncedFormInputWithdrawAmount, vault.asset.decimals, formInputIsMaxWithdraw, position?.supplyAmount.raw]);
+  }, [debouncedFormInputWithdrawAmount, vault.asset.decimals, formInputIsMaxWithdraw, position?.assets.raw]);
 
   const positionChange = useMemo(() => {
     return computeVaultPositionChange({

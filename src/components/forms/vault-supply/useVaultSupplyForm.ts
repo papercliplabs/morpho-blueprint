@@ -49,7 +49,7 @@ export function useVaultSupplyForm({ vault, onSuccessfulActionSimulation }: UseV
   const formSchema = useMemo(() => {
     return createVaultSupplyFormSchema(
       vault,
-      position?.walletUnderlyingAssetHolding ? BigInt(position.walletUnderlyingAssetHolding.balance.raw) : undefined,
+      position?.walletAssetHolding ? BigInt(position.walletAssetHolding.balance.raw) : undefined,
       accountNativeAssetBalance?.value,
       gasFeeEstimate?.maxFeePerGas,
     );
@@ -172,9 +172,7 @@ function useDerivedFormValues({
 
   const maxSupplyAmount = useMemo(() => {
     const accountLoanTokenBalance =
-      position?.walletUnderlyingAssetHolding?.balance.raw != null
-        ? BigInt(position?.walletUnderlyingAssetHolding?.balance.raw)
-        : undefined;
+      position?.walletAssetHolding?.balance.raw != null ? BigInt(position?.walletAssetHolding?.balance.raw) : undefined;
     return computeAvailableBalance({
       accountLoanTokenBalance,
       accountNativeAssetBalance: nativeAssetBalance,

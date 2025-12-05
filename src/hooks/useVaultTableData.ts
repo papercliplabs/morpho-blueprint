@@ -7,7 +7,7 @@ import { FilterKey } from "@/components/filters/types";
 import type { SupportedChainId } from "@/config/types";
 import type { VaultPosition } from "@/data/whisk/getVaultPositions";
 import type { VaultSummary } from "@/data/whisk/getVaultSummaries";
-import { getVaultTagData } from "@/utils/vault";
+import { getVaultCurator, getVaultTagData } from "@/utils/vault";
 import { useShallowSearchParams } from "./useShallowSearchParams";
 import { useVaultPositions } from "./useVaultPositions";
 
@@ -54,7 +54,7 @@ export function useVaultTableData({ vaultSummaries }: { vaultSummaries: VaultSum
       const curatorsFilterMatch =
         curatorsFilterValues === undefined ||
         curatorsFilterValues.length === 0 ||
-        curatorsFilterValues.includes(dataEntry.vaultSummary.metadata?.curator?.name ?? "N/A");
+        curatorsFilterValues.includes(getVaultCurator(dataEntry.vaultSummary)?.name ?? "N/A");
 
       // Tags filter: match against optional supportedVaults
       let tagFilterMatch = true;
@@ -71,10 +71,10 @@ export function useVaultTableData({ vaultSummaries }: { vaultSummaries: VaultSum
       if (dataEntry.position !== undefined && accountFilterValue && isConnected) {
         switch (accountFilterValue) {
           case "positions":
-            accountFilterMatch = BigInt(dataEntry.position.supplyAmount.raw ?? 0n) > 0n;
+            accountFilterMatch = BigInt(dataEntry.position.assets.raw ?? 0n) > 0n;
             break;
           case "wallet":
-            accountFilterMatch = (dataEntry.position.walletUnderlyingAssetHolding?.balance.usd ?? 1) > 0;
+            accountFilterMatch = (dataEntry.position.walletAssetHolding?.balance.usd ?? 1) > 0;
             break;
           default:
             // Do nothing

@@ -1,28 +1,24 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { type Address, getAddress } from "viem";
-import { DataChart } from "@/components/DataChart/DataChart";
-import LinkExternal from "@/components/LinkExternal";
-import { TokenIcon } from "@/components/TokenIcon";
-import { MarketAllocationTable } from "@/components/tables/MarketAllocationTable";
-import { Badge } from "@/components/ui/badge";
 import { BreakcrumbBack } from "@/components/ui/breakcrumb-back";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
-import { Markdown } from "@/components/ui/markdown";
 import { Skeleton } from "@/components/ui/skeleton";
 import { VaultActions } from "@/components/vault/VaultActions";
-import { VaultInfo, VaultInfoSkeleton } from "@/components/vault/VaultInfo";
 import { VaultKeyMetrics, VaultKeyMetricsSkeleton } from "@/components/vault/VaultKeyMetrics";
-import { VaultPositionHighlight } from "@/components/vault/VaultPositionHighlight";
 import { APP_CONFIG } from "@/config";
 import type { SupportedChainId } from "@/config/types";
-import { getVault } from "@/data/whisk/getVault";
-import type { VaultIdentifier } from "@/utils/types";
-import { getVaultConfig, getVaultTagData } from "@/utils/vault";
+import { getVault, type Vault } from "@/data/whisk/getVault";
+import { Erc4626VaultProtocol } from "@/generated/gql/whisk/graphql";
+import type { MorphoVaultV1, MorphoVaultV2 } from "@/utils/types";
+import { getVaultConfig } from "@/utils/vault";
+import { MorphoV1VaultPageContent } from "./components/morpho-v1/MorphoV1VaultPageContent";
+import { MorphoV2VaultPageContent } from "./components/morpho-v2/MorphoV2VaultPageContent";
+import { VaultAboutCard } from "./components/VaultAboutCard";
+import { VaultHeader } from "./components/VaultHeader";
 
 export const metadata: Metadata = {
   title: `${APP_CONFIG.metadata.name} | Vault`,
@@ -41,9 +37,13 @@ export default async function VaultPage({ params }: { params: Promise<{ chainId:
 
   const vaultConfig = getVaultConfig(chainId, vaultAddressString);
 
-  if (!vaultConfig || vaultConfig?.isHidden) {
+  if (!vaultConfig || vaultConfig.isHidden) {
     return <UnsupportedVault />;
   }
+
+  const protocol = vaultConfig.protocol;
+
+  const vaultPromise = getVault(chainId, vaultAddress, protocol);
 
   return (
     <div className="flex w-full min-w-0 flex-col gap-6">
@@ -60,7 +60,7 @@ export default async function VaultPage({ params }: { params: Promise<{ chainId:
             </div>
           }
         >
-          <VaultHeader chainId={chainId} vaultAddress={vaultAddress} />
+          <VaultHeader vaultPromise={vaultPromise} />
         </Suspense>
       </section>
 
@@ -69,36 +69,16 @@ export default async function VaultPage({ params }: { params: Promise<{ chainId:
           <Card>
             <CardHeader>Key Metrics</CardHeader>
             <Suspense fallback={<VaultKeyMetricsSkeleton />}>
-              <KeyMetricsWrapper chainId={chainId} vaultAddress={vaultAddress} />
+              <VaultKeyMetrics vaultPromise={vaultPromise} />
             </Suspense>
           </Card>
 
           {/* Hide until loaded in as this is conditionally rendered */}
           <Suspense fallback={null}>
-            <VaultAboutCard chainId={chainId} vaultAddress={vaultAddress} />
+            <VaultAboutCard vaultPromise={vaultPromise} />
           </Suspense>
 
-          <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
-            <VaultHistoricalDepositsChartWrapper chainId={chainId} vaultAddress={vaultAddress} />
-          </Suspense>
-
-          <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
-            <VaultHistoricalApyChartWrapper chainId={chainId} vaultAddress={vaultAddress} />
-          </Suspense>
-
-          <Card>
-            <CardHeader>Exposure</CardHeader>
-            <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
-              <MarketAllocationTableWrapper chainId={chainId} vaultAddress={vaultAddress} />
-            </Suspense>
-          </Card>
-
-          <Card>
-            <CardHeader>Vault Info</CardHeader>
-            <Suspense fallback={<VaultInfoSkeleton />}>
-              <VaultInfoWrapper chainId={chainId} vaultAddress={vaultAddress} />
-            </Suspense>
-          </Card>
+          <ProtocolSpecificPageContent vaultPromise={vaultPromise} protocol={protocol} />
         </div>
 
         <Suspense
@@ -108,7 +88,7 @@ export default async function VaultPage({ params }: { params: Promise<{ chainId:
             </Card>
           }
         >
-          <VaultActionsWrapper chainId={chainId} vaultAddress={vaultAddress} />
+          <VaultActions vaultPromise={vaultPromise} />
         </Suspense>
       </div>
     </div>
@@ -127,189 +107,19 @@ function UnsupportedVault() {
   );
 }
 
-async function VaultHeader({ chainId, vaultAddress }: VaultIdentifier) {
-  const vault = await getVault(chainId, vaultAddress);
-
-  if (!vault) {
-    return null;
+function ProtocolSpecificPageContent({
+  vaultPromise,
+  protocol,
+}: {
+  vaultPromise: Promise<Vault>;
+  protocol: Erc4626VaultProtocol;
+}) {
+  switch (protocol) {
+    case Erc4626VaultProtocol.MorphoV1:
+      return <MorphoV1VaultPageContent vaultPromise={vaultPromise as Promise<MorphoVaultV1>} />;
+    case Erc4626VaultProtocol.MorphoV2:
+      return <MorphoV2VaultPageContent vaultPromise={vaultPromise as Promise<MorphoVaultV2>} />;
+    default:
+      return null;
   }
-  const curator = vault.metadata?.curator;
-  const tagData = getVaultTagData(chainId, vaultAddress);
-
-  return (
-    <div className="flex flex-col justify-between gap-4 md:flex-row">
-      <div className="flex flex-col">
-        <div className="flex h-[64px] items-center gap-3">
-          <TokenIcon token={vault.asset} chain={vault.chain} size="md" />
-          <h1 className="heading-3 flex items-center gap-3">{vault.name}</h1>
-        </div>
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <span>
-            Chain: <span className="text-foreground">{vault.chain.name}</span>
-          </span>
-          {curator && !APP_CONFIG.featureFlags.hideCurator && (
-            <>
-              <span>&bull;</span>
-              <div className="flex items-center gap-1">
-                <span>Curator: </span>
-                <LinkExternal href={curator.url} className="text-foreground">
-                  {curator.name}
-                  <Image
-                    src={curator.image}
-                    alt={curator.name}
-                    width={24}
-                    height={24}
-                    className="inline size-6 shrink-0 rounded-full border"
-                  />
-                </LinkExternal>
-              </div>
-            </>
-          )}
-          {tagData && (
-            <>
-              <span>&bull;</span>
-              <Badge aria-label="Vault type" style={{ backgroundColor: tagData.color }}>
-                {tagData.tag}
-              </Badge>
-            </>
-          )}
-        </div>
-      </div>
-
-      <VaultPositionHighlight vault={vault} />
-    </div>
-  );
-}
-
-async function KeyMetricsWrapper({ chainId, vaultAddress }: VaultIdentifier) {
-  const vault = await getVault(chainId, vaultAddress);
-
-  if (!vault) {
-    return null;
-  }
-
-  return <VaultKeyMetrics vault={vault} />;
-}
-
-async function VaultAboutCard({ chainId, vaultAddress }: VaultIdentifier) {
-  const vault = await getVault(chainId, vaultAddress);
-
-  if (!vault || !vault.metadata?.description) {
-    return null;
-  }
-
-  return (
-    <Card>
-      <CardHeader>About</CardHeader>
-      <div className="body-large">
-        <Markdown>{vault.metadata.description}</Markdown>
-      </div>
-    </Card>
-  );
-}
-
-async function VaultHistoricalDepositsChartWrapper({ chainId, vaultAddress }: VaultIdentifier) {
-  const vault = await getVault(chainId, vaultAddress);
-
-  // Null if the chain doesn't support historical data
-  if (!vault || !vault.historical) {
-    return null;
-  }
-
-  return (
-    <DataChart
-      data={vault.historical}
-      title="Deposits"
-      defaultTab="totalSupplied"
-      tabOptions={[
-        {
-          type: "tokenAmount",
-          key: "totalSupplied",
-          title: "Total Deposits",
-          description: "Total amount of assets deposited into the vault",
-          underlyingAssetSymbol: vault.asset.symbol,
-          underlyingAssetValue: Number(vault.totalSupplied.formatted),
-          usdValue: vault.totalSupplied.usd ?? 0,
-        },
-      ]}
-    />
-  );
-}
-
-async function VaultHistoricalApyChartWrapper({ chainId, vaultAddress }: VaultIdentifier) {
-  const vault = await getVault(chainId, vaultAddress);
-
-  // Null if the chain doesn't support historical data
-  if (!vault || !vault.historical) {
-    return null;
-  }
-
-  let key: "supplyApy1d" | "supplyApy7d" | "supplyApy30d";
-  let baseApy: number;
-  let totalApy: number;
-  switch (APP_CONFIG.apyWindow) {
-    case "1d":
-      key = "supplyApy1d";
-      baseApy = vault.supplyApy1d.base;
-      totalApy = vault.supplyApy1d.total;
-      break;
-    case "7d":
-      key = "supplyApy7d";
-      baseApy = vault.supplyApy7d.base;
-      totalApy = vault.supplyApy7d.total;
-      break;
-    case "30d":
-      key = "supplyApy30d";
-      baseApy = vault.supplyApy30d.base;
-      totalApy = vault.supplyApy30d.total;
-      break;
-  }
-
-  return (
-    <DataChart
-      data={vault.historical}
-      title={`Native APY (${APP_CONFIG.apyWindow})`}
-      defaultTab={key}
-      tabOptions={[
-        {
-          type: "apy",
-          key,
-          description: `Native supply APY (exluding rewards and fees).`,
-          title: `APY (${APP_CONFIG.apyWindow})`,
-          baseApy,
-          totalApy,
-        },
-      ]}
-    />
-  );
-}
-
-async function MarketAllocationTableWrapper({ chainId, vaultAddress }: VaultIdentifier) {
-  const vault = await getVault(chainId, vaultAddress);
-
-  if (!vault) {
-    return null;
-  }
-
-  return <MarketAllocationTable vault={vault} />;
-}
-
-async function VaultInfoWrapper({ chainId, vaultAddress }: VaultIdentifier) {
-  const vault = await getVault(chainId, vaultAddress);
-
-  if (!vault) {
-    return null;
-  }
-
-  return <VaultInfo vault={vault} />;
-}
-
-async function VaultActionsWrapper({ chainId, vaultAddress }: VaultIdentifier) {
-  const vault = await getVault(chainId, vaultAddress);
-
-  if (!vault) {
-    return null;
-  }
-
-  return <VaultActions vault={vault} />;
 }

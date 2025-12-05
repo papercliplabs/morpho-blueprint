@@ -1,7 +1,6 @@
 import { APP_CONFIG } from "@/config";
 import type { MarketSummary } from "@/data/whisk/getMarketSummaries";
-import type { Vault } from "@/data/whisk/getVault";
-import type { ApyFragmentFragment } from "@/generated/gql/whisk/graphql";
+import type { ApyFragmentFragment, MorphoVaultV1MarketAllocationFragment } from "@/generated/gql/whisk/graphql";
 
 export function extractMarketBorrowApy(market: MarketSummary): ApyFragmentFragment {
   switch (APP_CONFIG.apyWindow) {
@@ -14,7 +13,9 @@ export function extractMarketBorrowApy(market: MarketSummary): ApyFragmentFragme
   }
 }
 
-export function extractMarketSupplyApy(market: Vault["marketAllocations"][number]["market"]): ApyFragmentFragment {
+export function extractMarketSupplyApy(
+  market: MorphoVaultV1MarketAllocationFragment["marketAllocations"][number]["market"],
+): ApyFragmentFragment {
   switch (APP_CONFIG.apyWindow) {
     case "1d":
       return market.supplyApy1d;

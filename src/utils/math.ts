@@ -103,7 +103,7 @@ export function computeVaultPositionChange({
   currentPosition?: VaultPosition;
   supplyAmountChange: bigint;
 }): VaultPositionChange {
-  const currentSupply = BigInt(currentPosition?.supplyAmount?.raw ?? 0);
+  const currentSupply = BigInt(currentPosition?.assets?.raw ?? 0);
   const newSupply = MathLib.max(currentSupply + supplyAmountChange, 0n);
 
   return {

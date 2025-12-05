@@ -1,3 +1,4 @@
+import "server-only";
 import type { ReactNode } from "react";
 
 import { MetricWithTooltip } from "@/components/Metric";
@@ -5,26 +6,28 @@ import { ApyTooltipContent, ApyTooltipTrigger } from "@/components/Tooltips/ApyT
 import NumberFlow from "@/components/ui/number-flow";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Vault } from "@/data/whisk/getVault";
-import { extractVaultSupplyApy } from "@/utils/vault";
+import { getVaultLiquidity } from "@/utils/vault";
 
 interface VaultKeyMetricsProps {
-  vault: Vault;
+  vaultPromise: Promise<Vault>;
 }
 
-export function VaultKeyMetrics({ vault }: VaultKeyMetricsProps) {
-  const supplyApy = extractVaultSupplyApy(vault);
+export async function VaultKeyMetrics({ vaultPromise }: VaultKeyMetricsProps) {
+  const vault = await vaultPromise;
+  if (!vault) return null;
+
   return (
     <VaultKeyMetricsLayout
-      totalDepositsValue={<NumberFlow value={vault.totalSupplied.usd ?? 0} format={{ currency: "USD" }} />}
-      availableLiquidityValue={<NumberFlow value={vault.totalLiquidity.usd ?? 0} format={{ currency: "USD" }} />}
-      supplyApyValue={<ApyTooltipTrigger totalApy={supplyApy.total} showSparkle={supplyApy.rewards.length > 0} />}
+      totalDepositsValue={<NumberFlow value={vault.totalAssets.usd ?? 0} format={{ currency: "USD" }} />}
+      availableLiquidityValue={<NumberFlow value={getVaultLiquidity(vault)} format={{ currency: "USD" }} />}
+      supplyApyValue={<ApyTooltipTrigger totalApy={vault.apy.total} showSparkle={vault.apy.rewards.length > 0} />}
       supplyApyTooltip={
         <ApyTooltipContent
           type="earn"
-          nativeApy={supplyApy.base}
-          totalApy={supplyApy.total}
-          performanceFee={supplyApy.fee}
-          rewards={supplyApy.rewards}
+          nativeApy={vault.apy.base}
+          totalApy={vault.apy.total}
+          performanceFee={vault.apy.fee}
+          rewards={vault.apy.rewards}
         />
       }
     />

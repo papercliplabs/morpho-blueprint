@@ -1,20 +1,22 @@
 "use client";
+
 import type { ColumnDef } from "@tanstack/react-table";
-import { useMemo } from "react";
-
+import { MarketName } from "@/components/market/MarketName";
+import { ApyTooltip } from "@/components/Tooltips/ApyToolip";
+import { TotalSupplyTooltip } from "@/components/Tooltips/TotalSupplyTooltip";
+import NumberFlow from "@/components/ui/number-flow";
 import { Table } from "@/components/ui/table";
-import type { Vault } from "@/data/whisk/getVault";
+import type { MorphoVaultV1DetailsFragment } from "@/generated/gql/whisk/graphql";
 import { extractMarketSupplyApy } from "@/utils/market";
-import { MarketName } from "../market/MarketName";
-import { ApyTooltip } from "../Tooltips/ApyToolip";
-import { TotalSupplyTooltip } from "../Tooltips/TotalSupplyTooltip";
-import NumberFlow from "../ui/number-flow";
 
-interface MarketAllocationTableProps {
-  vault: Vault;
+type MorphoV1MarketAllocation = NonNullable<MorphoVaultV1DetailsFragment["marketAllocations"][number]>;
+
+interface Props {
+  allocations: MorphoV1MarketAllocation[];
+  chainId: number;
 }
 
-const columns: ColumnDef<Vault["marketAllocations"][number]>[] = [
+const columns: ColumnDef<MorphoV1MarketAllocation>[] = [
   {
     id: "market",
     accessorFn: (row) => row.market.name,
@@ -42,11 +44,11 @@ const columns: ColumnDef<Vault["marketAllocations"][number]>[] = [
       const { vaultSupplyShare } = row.original;
       return <NumberFlow value={vaultSupplyShare} format={{ style: "percent" }} />;
     },
-    minSize: 160,
+    minSize: 100,
   },
   {
     id: "totalSupply",
-    accessorKey: "position.supplyAssetsUsd",
+    accessorKey: "position.supplyAmount.usd",
     header: "Total Supply",
     cell: ({ row }) => {
       const { position, supplyCap } = row.original;
@@ -58,7 +60,7 @@ const columns: ColumnDef<Vault["marketAllocations"][number]>[] = [
         />
       );
     },
-    minSize: 160,
+    minSize: 130,
   },
   {
     id: "supplyApy",
@@ -77,26 +79,22 @@ const columns: ColumnDef<Vault["marketAllocations"][number]>[] = [
         />
       );
     },
-    minSize: 160,
+    minSize: 130,
   },
 ];
 
-export function MarketAllocationTable({ vault }: MarketAllocationTableProps) {
-  const data = useMemo(() => {
-    return vault.marketAllocations.filter((market) => market.enabled);
-  }, [vault]);
-
+export function MorphoV1MarketAllocationTable({ allocations, chainId }: Props) {
   return (
     <Table
       columns={columns}
-      data={data}
+      data={allocations.filter(({ enabled }) => enabled)}
       initialSort={[{ id: "allocation", desc: true }]}
       rowAction={(row) =>
         row.market.isIdle
           ? null
           : {
               type: "link",
-              href: `/borrow/${vault.chain.id}/${row.market.marketId}`,
+              href: `/borrow/${chainId}/${row.market.marketId}`,
             }
       }
     />

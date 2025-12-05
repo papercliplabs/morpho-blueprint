@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import { AccountFilters } from "@/components/filters/AccountFilters";
 import { VaultFilters } from "@/components/filters/VaultFilters";
 import type { MultiSelectOption } from "@/components/MultiSelect";
+import { TokenIcon } from "@/components/TokenIcon";
 import { VaultTable } from "@/components/tables/VaultTable";
 import { Avatar } from "@/components/ui/avatar";
 import { Card, CardHeader } from "@/components/ui/card";
@@ -13,7 +14,7 @@ import { EarnSummaryMetrics, EarnSummaryMetricsSkeleton } from "@/components/vau
 import { APP_CONFIG } from "@/config";
 import type { SupportedChainId } from "@/config/types";
 import { getVaultSummaries } from "@/data/whisk/getVaultSummaries";
-import { getVaultTagData } from "@/utils/vault";
+import { getVaultCurator, getVaultTagData } from "@/utils/vault";
 
 export const metadata: Metadata = {
   title: `${APP_CONFIG.metadata.name} | Earn`,
@@ -90,14 +91,14 @@ async function VaultFiltersWrapper() {
       value: vault.asset.symbol,
       component: (
         <>
-          <Avatar src={vault.asset.icon} size="sm" alt={vault.asset.symbol} />
+          <TokenIcon token={vault.asset} chain={vault.chain} size="sm" showChain={false} />
           {vault.asset.symbol}
         </>
       ),
       category: vault.asset.category ?? null,
     };
 
-    const curator = vault.metadata?.curator;
+    const curator = getVaultCurator(vault);
     if (curator) {
       curatorOptionsMap[curator.name] = {
         value: curator.name,
