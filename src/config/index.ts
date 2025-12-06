@@ -180,7 +180,8 @@ export const APP_CONFIG: AppConfig = {
       { address: getAddress("0x7BfA7C4f149E7415b73bdeDfe609237e29CBF34A"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Spark USDC
       { address: getAddress("0xa0E430870c4604CcfC7B38Ca7845B1FF653D0ff1"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Moonwell Flagship ETH
       { address: getAddress("0x543257eF2161176D7C8cD90BA65C2d4CaEF5a796"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Moonwell Frontier cbBTC
-      { address: getAddress("0x1deEfABEe758AAbdC29a542B24ca3b75aFD56765"), protocol: Erc4626VaultProtocol.MorphoV2 }, // Gauntlet USDC Frontier
+      { address: getAddress("0x236919F11ff9eA9550A4287696C2FC9e18E6e890"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Gauntler USDC Frontier v1
+      { address: getAddress("0x1deEfABEe758AAbdC29a542B24ca3b75aFD56765"), protocol: Erc4626VaultProtocol.MorphoV2 }, // Gauntlet USDC Frontier v2
     ],
     [polygon.id]: [
       { address: getAddress("0xF5C81d25ee174d83f1FD202cA94AE6070d073cCF"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Compound WETH
