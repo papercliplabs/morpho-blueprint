@@ -5,6 +5,7 @@ graphql(`
     __typename
     
     adapters {
+      __typename
       name
       isEnabled
       adapterAddress
@@ -13,10 +14,15 @@ graphql(`
           formatted
           usd
         }        
+        relativeCap {
+          formatted
+        }
+        absoluteCap {
+          usd
+        }
       }
 
       ... on VaultV1Adapter {
-        __typename
         vault {
           vaultAddress
           name
@@ -49,18 +55,6 @@ graphql(`
           }
         }        
       }
-      
-      ... on MarketV1Adapter {
-        __typename
-      }
-
-      ... on BoxVaultAdapter {
-        __typename
-      }
-
-      ... on UnknownAdapter {
-        __typename
-      }    
     }
 
     curatorAddress
@@ -98,6 +92,13 @@ graphql(`
   fragment MorphoVaultV2Collateral on MorphoVaultV2 {
     ... on MorphoVaultV2 {        
       adapters {
+        __typename
+        adapterCap {
+          allocation {
+            formatted
+          }
+        }
+
         ... on MarketV1Adapter {
           collateralCaps {
             allocation {
@@ -115,6 +116,9 @@ graphql(`
         }
         ... on VaultV1Adapter {
           vault {
+            totalAssets {
+              formatted
+            }
             marketAllocations {
               enabled
               vaultSupplyShare

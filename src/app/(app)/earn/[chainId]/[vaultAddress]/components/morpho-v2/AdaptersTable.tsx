@@ -4,11 +4,10 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { use } from "react";
 import { TokenIcon } from "@/components/TokenIcon";
 import { ApyTooltip } from "@/components/Tooltips/ApyToolip";
-import { TotalSupplyTooltip } from "@/components/Tooltips/TotalSupplyTooltip";
-import PercentRing from "@/components/ui/icons/PercentRing";
 import NumberFlow from "@/components/ui/number-flow";
 import { Table } from "@/components/ui/table";
 import type { MorphoVaultV2 } from "@/utils/types";
+import { CapFilledTooltip } from "./CapFilledTooltip";
 
 interface Props {
   vaultPromise: Promise<MorphoVaultV2>;
@@ -30,40 +29,47 @@ const columns: ColumnDef<Adapter & { percentage: number }>[] = [
     cell: ({ row }) => {
       const { __typename, name } = row.original;
       return (
-        <div className="body-medium-plus flex items-center gap-2 truncate">
+        <div className="body-medium-plus flex min-w-0 items-center gap-2">
           {__typename === "VaultV1Adapter" && row.original.vault && (
             <TokenIcon token={row.original.vault.asset} chain={row.original.vault.chain} size="md" />
           )}
-          {name || __typename}
+          <span className="truncate">{name || __typename}</span>
         </div>
       );
     },
-    minSize: 200,
+    minSize: 240,
   },
   {
     id: "allocation",
     accessorFn: (row) => row.adapterCap?.allocation?.usd ?? 0,
     header: "Allocation (USDC)",
-    cell: ({ row }) => (
-      <TotalSupplyTooltip
-        totalSupply={row.original.adapterCap?.allocation?.usd ?? 0}
-        supplyCap={null}
-        iconPosition="left"
-      />
-    ),
-    minSize: 120,
+    cell: ({ row }) => {
+      const allocationUsd = Number(row.original.adapterCap?.allocation?.usd ?? 0);
+      const absoluteCapUsd = Number(row.original.adapterCap?.absoluteCap?.usd ?? 0);
+      return (
+        <div className="flex items-center gap-1.5">
+          <NumberFlow value={allocationUsd} format={{ currency: "USD" }} />
+          <CapFilledTooltip capType="absolute" capValue={absoluteCapUsd} allocationValue={allocationUsd} />
+        </div>
+      );
+    },
+    minSize: 140,
   },
   {
     id: "percentage",
     accessorKey: "percentage",
     header: "Allocation %",
-    cell: ({ row }) => (
-      <div className="flex items-center gap-1.5">
-        <PercentRing percent={row.original.percentage} />
-        <NumberFlow value={row.original.percentage} format={{ style: "percent" }} />
-      </div>
-    ),
-    minSize: 100,
+    cell: ({ row }) => {
+      const allocationPercent = Number(row.original.percentage);
+      const relativeCap = Number(row.original.adapterCap?.relativeCap?.formatted ?? 1);
+      return (
+        <div className="flex items-center gap-1.5">
+          <NumberFlow value={row.original.percentage} format={{ style: "percent" }} />
+          <CapFilledTooltip capType="relative" capValue={relativeCap} allocationValue={allocationPercent} />
+        </div>
+      );
+    },
+    minSize: 140,
   },
   {
     id: "apy",
@@ -79,7 +85,7 @@ const columns: ColumnDef<Adapter & { percentage: number }>[] = [
       const { base, total, rewards } = adapter.vault.apy;
       return <ApyTooltip type="earn" nativeApy={base} totalApy={total} rewards={rewards} triggerVariant="sm" />;
     },
-    minSize: 100,
+    minSize: 120,
   },
 ];
 

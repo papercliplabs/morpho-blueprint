@@ -71,7 +71,7 @@ function VaultKeyMetricsLayout({
       <MetricWithTooltip
         label="Available liquidity"
         className="heading-4"
-        tooltip="The available assets that are not currently bring borrowed."
+        tooltip="The available assets that can be withdrawn."
       >
         {availableLiquidityValue}
       </MetricWithTooltip>

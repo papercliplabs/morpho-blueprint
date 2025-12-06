@@ -94,6 +94,7 @@ export function getVaultCollateral(vault: VaultSummary): Array<VaultCollateral> 
     }
     case "MorphoVaultV2": {
       const allocations: Array<VaultCollateral> = [];
+      const vaultV2TotalAssetsUsd = vault.totalAssets?.usd ?? 0;
 
       for (const adapter of vault.adapters) {
         if (adapter.__typename === "MarketV1Adapter") {
@@ -108,14 +109,20 @@ export function getVaultCollateral(vault: VaultSummary): Array<VaultCollateral> 
           }
         }
         if (adapter.__typename === "VaultV1Adapter" && adapter.vault) {
-          for (const { market, position, vaultSupplyShare, enabled } of adapter.vault.marketAllocations) {
+          const totalAllocation = Number(adapter.adapterCap?.allocation.formatted ?? 0);
+          const vaultV1TotalAssets = Number(adapter.vault?.totalAssets?.formatted ?? 0);
+          const allocationPercent = vaultV1TotalAssets > 0 ? totalAllocation / vaultV1TotalAssets : 0;
+
+          for (const { market, position, enabled } of adapter.vault.marketAllocations) {
             if (!enabled || !market.collateralAsset) continue;
+
+            const supplyUsd = (position.supplyAmount.usd ?? 0) * allocationPercent;
             allocations.push({
               icon: market.collateralAsset.icon,
               name: market.collateralAsset.name,
               symbol: market.collateralAsset.symbol,
-              supplyUsd: position.supplyAmount.usd ?? 0,
-              vaultSupplyShare,
+              supplyUsd,
+              vaultSupplyShare: vaultV2TotalAssetsUsd > 0 ? supplyUsd / vaultV2TotalAssetsUsd : 0,
             });
           }
         }

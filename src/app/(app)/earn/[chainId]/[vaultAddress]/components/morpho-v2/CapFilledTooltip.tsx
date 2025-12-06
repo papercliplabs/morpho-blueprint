@@ -1,0 +1,29 @@
+import PercentRing from "@/components/ui/icons/PercentRing";
+import { Tooltip } from "@/components/ui/tooltip";
+import { TooltipPopoverContent, TooltipPopoverTrigger } from "@/components/ui/tooltip-popover";
+import { formatNumber } from "@/utils/format";
+
+interface PercentOfCapProps {
+  capType: "absolute" | "relative";
+  capValue: number;
+  allocationValue: number;
+}
+
+export function CapFilledTooltip({ capType, capValue, allocationValue }: PercentOfCapProps) {
+  const percentFilled = capValue > 0 ? allocationValue / capValue : 0;
+
+  return (
+    <Tooltip>
+      <TooltipPopoverTrigger>
+        <PercentRing percent={percentFilled} />
+      </TooltipPopoverTrigger>
+      <TooltipPopoverContent>
+        <div>
+          {capType === "absolute" ? "Absolute Cap" : "Relative Cap"}:{" "}
+          {formatNumber(capValue, capType === "absolute" ? { currency: "USD" } : { style: "percent" })}
+        </div>
+        <div>Percent filled: {formatNumber(percentFilled, { style: "percent" })}</div>
+      </TooltipPopoverContent>
+    </Tooltip>
+  );
+}
