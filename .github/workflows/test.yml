@@ -44,6 +44,8 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      - run: pnpm codegen
+
       - run: pnpm test run
 
       - name: Save Foundry RPC cache

@@ -1,8 +1,8 @@
 import AvatarGroup from "@/components/AvatarGroup";
 import { LinkExternalBlockExplorer } from "@/components/LinkExternal";
 import { TokenIcon } from "@/components/TokenIcon";
-import { getAvatarForAddress } from "@/components/ui/avatar";
 import NumberFlow from "@/components/ui/number-flow";
+import { getAvatarForAddress } from "@/utils/getAvatarForAddress";
 import type { MorphoVaultV2 } from "@/utils/types";
 import { VaultInfoMetric, type VaultMetric } from "../VaultInfo";
 

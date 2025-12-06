@@ -51,7 +51,6 @@ export async function erc4626SupplyViaBundler3Action({
     underlyingAssetAddress,
     accountUnderlyingAssetBalance,
     quotedShares,
-    maxDeposit,
     allowance,
     initialPosition,
   } = data;
@@ -61,9 +60,6 @@ export async function erc4626SupplyViaBundler3Action({
   const shortfall = MathLib.zeroFloorSub(supplyAmount, accountUnderlyingAssetBalance);
   const nativeAssetWrapAmount = canWrapNativeAssets ? MathLib.min(shortfall, accountNativeAssetBalance) : 0n;
 
-  if (maxDeposit < supplyAmount) {
-    throw new UserFacingError("Supply amount exceeds the max deposit allowed by the vault.");
-  }
   if (accountUnderlyingAssetBalance + nativeAssetWrapAmount < supplyAmount) {
     throw new UserFacingError("Supply amount exceeds the account balance.");
   }

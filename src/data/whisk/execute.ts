@@ -31,7 +31,7 @@ export async function executeWhiskQuery<TResult, TVariables>(
   }
 
   // Throw on an entire query failure
-  if (response.data === null) {
+  if (response.data == null) {
     throw new Error("Whisk entire query failure");
   }
 
