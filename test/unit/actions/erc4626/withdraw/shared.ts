@@ -467,7 +467,7 @@ export const failureTestCases: Array<
       withdrawAmount: parseUnits("1000", 6),
       unwrapNativeAssets: false,
     },
-    expectedError: /Simulation Error|insufficient/i,
+    expectedError: /Withdraw amount exceeds account balance/i,
   },
   {
     name: "zero withdraw amount",
