@@ -14,6 +14,7 @@ import {
   unichain,
   worldchain,
 } from "viem/chains";
+import { Erc4626VaultProtocol } from "@/generated/gql/whisk/graphql";
 import { eventCb } from "./callbacks";
 import { Analytics } from "./components/Analytics";
 import { LogoDesktop, LogoMobile } from "./components/Logo";
@@ -169,70 +170,74 @@ export const APP_CONFIG: AppConfig = {
 
   supportedVaults: {
     [mainnet.id]: [
-      { address: getAddress("0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB") }, // Steakhouse USDC
-      { address: getAddress("0xbEef047a543E45807105E51A8BBEFCc5950fcfBa") }, // Steakhouse USDT
-      { address: getAddress("0xBeEf11eCb698f4B5378685C05A210bdF71093521") }, // Steakhouse RUSD
+      { address: getAddress("0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Steakhouse USDC
+      { address: getAddress("0xbEef047a543E45807105E51A8BBEFCc5950fcfBa"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Steakhouse USDT
+      { address: getAddress("0xBeEf11eCb698f4B5378685C05A210bdF71093521"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Steakhouse RUSD
+      { address: getAddress("0xBEeFFF209270748ddd194831b3fa287a5386f5bC"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Smokehouse USDC
+      { address: getAddress("0xbeeff2C5bF38f90e3482a8b19F12E5a6D2FCa757"), protocol: Erc4626VaultProtocol.MorphoV2 }, // Steakhouse High Yield Instant
     ],
     [base.id]: [
-      { address: getAddress("0x7BfA7C4f149E7415b73bdeDfe609237e29CBF34A") }, // Spark USDC
-      { address: getAddress("0xa0E430870c4604CcfC7B38Ca7845B1FF653D0ff1") }, // Moonwell Flagship ETH
-      { address: getAddress("0x543257eF2161176D7C8cD90BA65C2d4CaEF5a796") }, // Moonwell Frontier cbBTC
+      { address: getAddress("0x7BfA7C4f149E7415b73bdeDfe609237e29CBF34A"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Spark USDC
+      { address: getAddress("0xa0E430870c4604CcfC7B38Ca7845B1FF653D0ff1"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Moonwell Flagship ETH
+      { address: getAddress("0x543257eF2161176D7C8cD90BA65C2d4CaEF5a796"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Moonwell Frontier cbBTC
+      { address: getAddress("0x236919F11ff9eA9550A4287696C2FC9e18E6e890"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Gauntler USDC Frontier v1
+      { address: getAddress("0x1deEfABEe758AAbdC29a542B24ca3b75aFD56765"), protocol: Erc4626VaultProtocol.MorphoV2 }, // Gauntlet USDC Frontier v2
     ],
     [polygon.id]: [
-      { address: getAddress("0xF5C81d25ee174d83f1FD202cA94AE6070d073cCF") }, // Compound WETH
-      { address: getAddress("0x781FB7F6d845E3bE129289833b04d43Aa8558c42") }, // Compound USDC
-      { address: getAddress("0xfD06859A671C21497a2EB8C5E3fEA48De924D6c8") }, // Compound USDT
-      { address: getAddress("0x3F33F9f7e2D7cfBCBDf8ea8b870a6E3d449664c2") }, // Compound POL
+      { address: getAddress("0xF5C81d25ee174d83f1FD202cA94AE6070d073cCF"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Compound WETH
+      { address: getAddress("0x781FB7F6d845E3bE129289833b04d43Aa8558c42"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Compound USDC
+      { address: getAddress("0xfD06859A671C21497a2EB8C5E3fEA48De924D6c8"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Compound USDT
+      { address: getAddress("0x3F33F9f7e2D7cfBCBDf8ea8b870a6E3d449664c2"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Compound POL
     ],
     [unichain.id]: [
-      { address: getAddress("0xfA355999c12C63c465c591daf9C462e14ACf470b") }, // K3 Capital ETH Maxi
-      { address: getAddress("0x38f4f3B6533de0023b9DCd04b02F93d36ad1F9f9") }, // Gauntlet USDC
-      { address: getAddress("0x2c0F7e917257926BA6233B20DE19d7fe3210858C") }, // Re7 USDT0
+      { address: getAddress("0xfA355999c12C63c465c591daf9C462e14ACf470b"), protocol: Erc4626VaultProtocol.MorphoV1 }, // K3 Capital ETH Maxi
+      { address: getAddress("0x38f4f3B6533de0023b9DCd04b02F93d36ad1F9f9"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Gauntlet USDC
+      { address: getAddress("0x2c0F7e917257926BA6233B20DE19d7fe3210858C"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Re7 USDT0
     ],
     [katana.id]: [
-      { address: getAddress("0xC5e7AB07030305fc925175b25B93b285d40dCdFf") }, // Gauntlet WETH
-      { address: getAddress("0xE4248e2105508FcBad3fe95691551d1AF14015f7") }, // Gauntlet USDC
-      { address: getAddress("0x5BD1D75d45EdB622d0ea50946F2f741CE8dC5b75") }, // Gauntlet BTCK
+      { address: getAddress("0xC5e7AB07030305fc925175b25B93b285d40dCdFf"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Gauntlet WETH
+      { address: getAddress("0xE4248e2105508FcBad3fe95691551d1AF14015f7"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Gauntlet USDC
+      { address: getAddress("0x5BD1D75d45EdB622d0ea50946F2f741CE8dC5b75"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Gauntlet BTCK
     ],
     [arbitrum.id]: [
-      { address: getAddress("0x4B6F1C9E5d470b97181786b26da0d0945A7cf027") }, // Hyperithm USDC
-      { address: getAddress("0x2281961480216653529A03D6CE03Ee6B8cdF564E") }, // Steakhouse Prime USDT0
+      { address: getAddress("0x4B6F1C9E5d470b97181786b26da0d0945A7cf027"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Hyperithm USDC
+      { address: getAddress("0x2281961480216653529A03D6CE03Ee6B8cdF564E"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Steakhouse Prime USDT0
     ],
     [hemi.id]: [
-      { address: getAddress("0xA7dB73F80a173c31A1241Bf97F4452A07e443c6c") }, // Clearstar Reactor hemiBTC
+      { address: getAddress("0xA7dB73F80a173c31A1241Bf97F4452A07e443c6c"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Clearstar Reactor hemiBTC
     ],
     [lisk.id]: [
-      { address: getAddress("0x8258F0c79465c95AFAc325D6aB18797C9DDAcf55") }, // Re7 LSK
-      { address: getAddress("0x50cB55BE8cF05480a844642cB979820C847782aE") }, // Re7 USDT
-      { address: getAddress("0x7Cbaa98bd5e171A658FdF761ED1Db33806a0d346") }, // Re7 WETH
+      { address: getAddress("0x8258F0c79465c95AFAc325D6aB18797C9DDAcf55"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Re7 LSK
+      { address: getAddress("0x50cB55BE8cF05480a844642cB979820C847782aE"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Re7 USDT
+      { address: getAddress("0x7Cbaa98bd5e171A658FdF761ED1Db33806a0d346"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Re7 WETH
     ],
     [soneium.id]: [
-      { address: getAddress("0xEcDBE2AF33E68cf96F6716f706B078fa94e978cb") }, // Re7 USDC
+      { address: getAddress("0xEcDBE2AF33E68cf96F6716f706B078fa94e978cb"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Re7 USDC
     ],
     [plumeMainnet.id]: [
-      { address: getAddress("0xc0Df5784f28046D11813356919B869dDA5815B16") }, // Re7 pUSD
-      { address: getAddress("0xBB748a1346820560875CB7a9cD6B46c203230E07") }, // Mystic ETH
+      { address: getAddress("0xc0Df5784f28046D11813356919B869dDA5815B16"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Re7 pUSD
+      { address: getAddress("0xBB748a1346820560875CB7a9cD6B46c203230E07"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Mystic ETH
     ],
     [tac.id]: [
-      { address: getAddress("0xC5e1bD2473811bB782326006A3c03477F7834D35") }, // Re7 WETH
-      { address: getAddress("0x4183Bd253Dc1918A04Bd8a8dD546BaAD58898109") }, // Re7 USDT
+      { address: getAddress("0xC5e1bD2473811bB782326006A3c03477F7834D35"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Re7 WETH
+      { address: getAddress("0x4183Bd253Dc1918A04Bd8a8dD546BaAD58898109"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Re7 USDT
     ],
     [worldchain.id]: [
-      { address: getAddress("0x0db7e405278c2674f462ac9d9eb8b8346d1c1571") }, // WETH
-      { address: getAddress("0x348831b46876d3df2db98bdec5e3b4083329ab9f") }, // WLD
-      { address: getAddress("0xb1e80387ebe53ff75a89736097d34dc8d9e9045b") }, // USDC
+      { address: getAddress("0x0db7e405278c2674f462ac9d9eb8b8346d1c1571"), protocol: Erc4626VaultProtocol.MorphoV1 }, // WETH
+      { address: getAddress("0x348831b46876d3df2db98bdec5e3b4083329ab9f"), protocol: Erc4626VaultProtocol.MorphoV1 }, // WLD
+      { address: getAddress("0xb1e80387ebe53ff75a89736097d34dc8d9e9045b"), protocol: Erc4626VaultProtocol.MorphoV1 }, // USDC
     ],
     [corn.id]: [
-      { address: getAddress("0xa7ba08cfc37e7cc67404d4996ffbb3e977490115") }, // Smokehouse WBTCN
-      { address: getAddress("0x9b2fa89e23ae84f7895a58f8ec7cb0b267ed8a21") }, // Smokehouse USDT0
+      { address: getAddress("0xa7ba08cfc37e7cc67404d4996ffbb3e977490115"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Smokehouse WBTCN
+      { address: getAddress("0x9b2fa89e23ae84f7895a58f8ec7cb0b267ed8a21"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Smokehouse USDT0
     ],
     [berachain.id]: [
-      { address: getAddress("0x30BbA9CD9Eb8c95824aa42Faa1Bb397b07545bc1") }, // Re7 HONEY
+      { address: getAddress("0x30BbA9CD9Eb8c95824aa42Faa1Bb397b07545bc1"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Re7 HONEY
     ],
     [hyperevm.id]: [
-      { address: getAddress("0x4346C98E690c17eFbB999aE8e1dA96B089bE320b") }, // Relend rUSDC
-      { address: getAddress("0x92B518e1cD76dD70D3E20624AEdd7D107F332Cff") }, // Hyperithm HYPE
-      { address: getAddress("0xe5ADd96840F0B908ddeB3Bd144C0283Ac5ca7cA0") }, // Hyperithm USDT
+      { address: getAddress("0x4346C98E690c17eFbB999aE8e1dA96B089bE320b"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Relend rUSDC
+      { address: getAddress("0x92B518e1cD76dD70D3E20624AEdd7D107F332Cff"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Hyperithm HYPE
+      { address: getAddress("0xe5ADd96840F0B908ddeB3Bd144C0283Ac5ca7cA0"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Hyperithm USDT
     ],
   },
 

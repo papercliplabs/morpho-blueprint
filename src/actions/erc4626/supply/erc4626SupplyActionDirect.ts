@@ -48,7 +48,6 @@ export async function erc4626SupplyActionDirect({
     accountNativeAssetBalance,
     underlyingAssetAddress,
     accountUnderlyingAssetBalance,
-    maxDeposit,
     quotedShares,
     allowance,
     initialPosition,
@@ -60,9 +59,6 @@ export async function erc4626SupplyActionDirect({
   const nativeAssetWrapAmount = canWrapNativeAssets ? MathLib.min(shortfall, accountNativeAssetBalance) : 0n;
 
   // Perform checks which if not met will cause the transaction to revert
-  if (maxDeposit < supplyAmount) {
-    throw new UserFacingError("Supply amount exceeds the max deposit allowed by the vault.");
-  }
   if (accountUnderlyingAssetBalance + nativeAssetWrapAmount < supplyAmount) {
     throw new UserFacingError("Supply amount exceeds the account balance.");
   }

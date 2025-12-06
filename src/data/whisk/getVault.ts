@@ -4,119 +4,50 @@ import { cache } from "react";
 import type { Address } from "viem";
 import type { SupportedChainId } from "@/config/types";
 import { graphql } from "@/generated/gql/whisk";
-import type { VaultQuery } from "@/generated/gql/whisk/graphql";
-import { customizeVault } from "@/utils/vault";
+import type { Erc4626VaultProtocol, Erc4626VaultQuery } from "@/generated/gql/whisk/graphql";
+import { timeframe } from "@/utils/timeframe";
+import { normalizeVault } from "@/utils/vault";
 import { executeWhiskQuery } from "./execute";
 
 const query = graphql(`
-  query Vault($chainId: ChainId!, $vaultAddress: Address!) {
-    morphoVaults(where: {chainId_in: [$chainId], vaultAddress_in: [$vaultAddress]}) {
+  query Erc4626Vault($key: Erc4626VaultKey!, $timeframe: ApyTimeframe!) {
+    erc4626Vaults(where: {keys: [$key]}) {
       items {
-        ...VaultSummaryFragment
+        ...VaultSummaryFragment        
+        __typename
 
-        asset {
-          priceUsd
+        ... on MorphoVault {
+          ...MorphoVaultV1Details
         }
 
-        totalSupplied {
-          raw
-          formatted
-          usd
+        ... on MorphoVaultV2 {
+          ...MorphoVaultV2Details
         }
-
-        totalLiquidity {
-          raw
-          formatted
-          usd
-        }
-
-        metadata {
-          description
-        }
-
-        performanceFee
-        feeRecipientAddress
-        ownerAddress
-        curatorAddress
-        guardianAddress
-
-        marketAllocations {
-          market {
-            marketId
-            chain {
-              ...ChainInfoFragment
-            }
-            isIdle
-            name
-            lltv {
-              raw
-              formatted
-            }
-            collateralAsset {
-              ...TokenInfoFragment
-            }
-            loanAsset {
-              ...TokenInfoFragment
-            }
-            supplyApy {
-              ...ApyFragment
-            }
-            supplyApy1d {
-              ...ApyFragment
-            }
-            supplyApy7d {
-              ...ApyFragment
-            }
-            supplyApy30d {
-              ...ApyFragment
-            }
-          }
-          enabled
-          position {
-            supplyAmount {
-              raw
-              formatted
-              usd
-            }
-            supplyShares
-          }
-          supplyCap {
-            raw
-            formatted
-            usd
-          }
-          vaultSupplyShare
-        }
-
-        historical {
-            hourly {
-              ...VaultHistoricalEntryFragment
-            }
-            daily {
-              ...VaultHistoricalEntryFragment
-            }
-            weekly {
-              ...VaultHistoricalEntryFragment
-            }
-          }
       }
     }
   }
 `);
 
-export type Vault = NonNullable<VaultQuery["morphoVaults"]["items"][number]> & { isHidden: boolean };
+type Erc4626VaultQueryItem = NonNullable<Erc4626VaultQuery["erc4626Vaults"]["items"][number]>;
 
-export const getVault = cache(async (chainId: SupportedChainId, vaultAddress: Address): Promise<Vault> => {
-  const data = await executeWhiskQuery(query, {
-    chainId,
-    vaultAddress,
-  });
+export type Vault = Exclude<Erc4626VaultQueryItem, "chain"> & {
+  isHidden: boolean;
+  chain: Exclude<Erc4626VaultQueryItem["chain"], "id"> & { id: SupportedChainId };
+};
 
-  const vault = data.morphoVaults.items[0];
+export const getVault = cache(
+  async (chainId: SupportedChainId, vaultAddress: Address, protocol: Erc4626VaultProtocol): Promise<Vault> => {
+    const data = await executeWhiskQuery(query, {
+      key: { chainId, vaultAddress, protocol },
+      timeframe,
+    });
 
-  if (!vault) {
-    throw new Error(`Vault not found: ${chainId}:${vaultAddress}`);
-  }
+    if (!data.erc4626Vaults) throw new Error(`Vault not found: ${chainId}:${vaultAddress}`);
 
-  return customizeVault(vault);
-});
+    const vault = data.erc4626Vaults.items[0];
+
+    if (!vault) throw new Error(`Vault not found: ${chainId}:${vaultAddress}`);
+
+    return normalizeVault(vault);
+  },
+);

@@ -1,13 +1,13 @@
 "use client";
-import type { ColumnDef } from "@tanstack/react-table";
 
+import type { ColumnDef } from "@tanstack/react-table";
 import { Table } from "@/components/ui/table";
 import { APP_CONFIG } from "@/config";
 import type { SupportedChainId } from "@/config/types";
 import type { VaultSummary } from "@/data/whisk/getVaultSummaries";
 import { useVaultTableData, type VaultTableDataEntry } from "@/hooks/useVaultTableData";
 import { sortTableAssetAmount } from "@/utils/sort";
-import { extractVaultSupplyApy, getVaultTagData } from "@/utils/vault";
+import { getVaultCurator, getVaultTagData } from "@/utils/vault";
 import { ApyTooltip } from "../Tooltips/ApyToolip";
 import { VaultCollateralTooltip } from "../Tooltips/VaultCollateralTooltip";
 import { Avatar } from "../ui/avatar";
@@ -44,73 +44,73 @@ function getColumns(isPositionLoading: boolean): Column[] {
     },
     {
       id: "yourDeposits",
-      accessorFn: (row) => row.position?.supplyAmount.usd ?? 0,
+      accessorFn: (row) => row.position?.assets.usd ?? 0,
       header: "Your Deposits",
       cell: ({ row }) => {
         const { vaultSummary, position } = row.original;
         return (
           <TableAssetAmount
             asset={vaultSummary.asset}
-            amount={position?.supplyAmount.raw}
-            amountUsd={position?.supplyAmount.usd}
+            amount={position?.assets.raw}
+            amountUsd={position?.assets.usd}
             isLoading={isPositionLoading}
           />
         );
       },
       sortingFn: (a, b) =>
         sortTableAssetAmount(
-          Number(a.original.position?.supplyAmount.formatted ?? "0"),
-          a.original.position?.supplyAmount.usd,
-          Number(b.original.position?.supplyAmount.formatted ?? "0"),
-          b.original.position?.supplyAmount.usd,
+          Number(a.original.position?.assets.formatted ?? "0"),
+          a.original.position?.assets.usd,
+          Number(b.original.position?.assets.formatted ?? "0"),
+          b.original.position?.assets.usd,
         ),
       minSize: 130,
     },
     {
       id: "inWallet",
-      accessorFn: (row) => row.position?.walletUnderlyingAssetHolding?.balance.usd ?? 0,
+      accessorFn: (row) => row.position?.walletAssetHolding?.balance.usd ?? 0,
       header: "In Wallet",
       cell: ({ row }) => {
         const { vaultSummary, position } = row.original;
         return (
           <TableAssetAmount
             asset={vaultSummary.asset}
-            amount={position?.walletUnderlyingAssetHolding?.balance.raw}
-            amountUsd={position?.walletUnderlyingAssetHolding?.balance.usd}
+            amount={position?.walletAssetHolding?.balance.raw}
+            amountUsd={position?.walletAssetHolding?.balance.usd}
             isLoading={isPositionLoading}
           />
         );
       },
       sortingFn: (a, b) =>
         sortTableAssetAmount(
-          Number(a.original.position?.walletUnderlyingAssetHolding?.balance.formatted ?? "0"),
-          a.original.position?.walletUnderlyingAssetHolding?.balance.usd,
-          Number(b.original.position?.walletUnderlyingAssetHolding?.balance.formatted ?? "0"),
-          b.original.position?.walletUnderlyingAssetHolding?.balance.usd,
+          Number(a.original.position?.walletAssetHolding?.balance.formatted ?? "0"),
+          a.original.position?.walletAssetHolding?.balance.usd,
+          Number(b.original.position?.walletAssetHolding?.balance.formatted ?? "0"),
+          b.original.position?.walletAssetHolding?.balance.usd,
         ),
       minSize: 130,
     },
     {
       id: "totalDeposits",
-      accessorFn: (row) => row.vaultSummary.totalSupplied.usd ?? 0,
+      accessorFn: (row) => row.vaultSummary.totalAssets.usd ?? 0,
       header: "Total Deposits",
       cell: ({ row }) => {
         const { vaultSummary } = row.original;
         return (
           <TableAssetAmount
             asset={vaultSummary.asset}
-            amount={vaultSummary.totalSupplied.raw}
-            amountUsd={vaultSummary.totalSupplied.usd}
+            amount={vaultSummary.totalAssets.raw}
+            amountUsd={vaultSummary.totalAssets.usd}
             isLoading={false}
           />
         );
       },
       sortingFn: (a, b) =>
         sortTableAssetAmount(
-          Number(a.original.vaultSummary.totalSupplied.formatted ?? "0"),
-          a.original.vaultSummary.totalSupplied.usd,
-          Number(b.original.vaultSummary.totalSupplied.formatted ?? "0"),
-          b.original.vaultSummary.totalSupplied.usd,
+          Number(a.original.vaultSummary.totalAssets.formatted ?? "0"),
+          a.original.vaultSummary.totalAssets.usd,
+          Number(b.original.vaultSummary.totalAssets.formatted ?? "0"),
+          b.original.vaultSummary.totalAssets.usd,
         ),
       minSize: 130,
     },
@@ -140,11 +140,9 @@ function getColumns(isPositionLoading: boolean): Column[] {
       ? [
           {
             id: "curator",
-            accessorFn: (row) => row.vaultSummary.metadata?.curator?.name ?? "",
             header: "Curator",
             cell: ({ row }) => {
-              const { vaultSummary } = row.original;
-              const curator = vaultSummary.metadata?.curator;
+              const curator = getVaultCurator(row.original.vaultSummary);
               return (
                 curator && <Avatar src={curator.image} alt={curator.name} size="sm" className="rounded-full border" />
               );
@@ -154,22 +152,17 @@ function getColumns(isPositionLoading: boolean): Column[] {
         ]
       : []),
     {
-      id: "collateral",
-      accessorFn: (row) => row.vaultSummary.marketAllocations.length,
+      id: "exposure",
       header: "Exposure",
-      cell: ({ row }) => {
-        const { vaultSummary } = row.original;
-        return <VaultCollateralTooltip vaultSummary={vaultSummary} />;
-      },
+      cell: ({ row }) => <VaultCollateralTooltip vaultSummary={row.original.vaultSummary} />,
       minSize: 140,
     },
     {
       id: "supplyApy",
-      accessorFn: (row) => extractVaultSupplyApy(row.vaultSummary).total,
+      accessorFn: (row) => row.vaultSummary.apy.total,
       header: "Supply APY",
       cell: ({ row }) => {
-        const { vaultSummary } = row.original;
-        const apy = extractVaultSupplyApy(vaultSummary);
+        const { apy } = row.original.vaultSummary;
         return (
           <ApyTooltip
             type="earn"

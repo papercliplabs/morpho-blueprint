@@ -27,7 +27,7 @@ export function VaultPositionHighlight({ vault }: VaultPositionHighlightProps) {
     <MetricWithTooltip label="Supplying" className="md:items-end" tooltip="Your supply balance in this vault.">
       <div className="flex flex-col md:items-end">
         <NumberFlowWithLoading
-          value={data?.supplyAmount.usd ?? undefined}
+          value={data?.assets.usd ?? undefined}
           loadingContent={<Skeleton className="mb-1 h-[25px] w-[60px]" />}
           isLoading={isLoading}
           format={{ currency: "USD" }}
@@ -42,7 +42,7 @@ export function VaultPositionHighlight({ vault }: VaultPositionHighlightProps) {
             className="size-3 shrink-0 rounded-full border border-border"
           />
           <NumberFlowWithLoading
-            value={data !== undefined ? Number(data.supplyAmount.formatted) : undefined}
+            value={data !== undefined ? Number(data.assets.formatted) : undefined}
             loadingContent={<Skeleton className="h-[15px] w-[40px]" />}
             isLoading={isLoading}
             className="body-small-plus text-muted-foreground"

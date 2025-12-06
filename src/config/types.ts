@@ -4,6 +4,7 @@ import type { Address, Chain } from "viem";
 
 import type { SUPPORTED_CHAIN_IDS, VAULT_TAG_OPTIONS } from "@/config";
 import type { EventName } from "@/data/trackEvent";
+import type { Erc4626VaultProtocol } from "@/generated/gql/whisk/graphql";
 
 // You shouldn't modify this file unless deploying a fully custom fork (otherwise the app will likely break)
 
@@ -18,6 +19,8 @@ export type VaultTag = (typeof VAULT_TAG_OPTIONS)[number];
 export interface VaultConfig {
   // Address of the vault
   readonly address: Address;
+  // Protocol of the vault (MorphoV1, MorphoV2, etc.)
+  readonly protocol: Erc4626VaultProtocol;
   // Vault name which will override the default one from Morpho metadata repo.
   readonly name?: string;
   // Vault description which will override the default one from Morpho metadata repo.

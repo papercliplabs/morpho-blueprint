@@ -38,7 +38,13 @@ graphql(`
     fee
   }
 
-  fragment VaultSummaryFragment on MorphoVault {
+  fragment VaultCollateralFragment on Erc4626Vault {
+    ... MorphoVaultV1Collateral
+    ... MorphoVaultV2Collateral
+  }
+
+  fragment VaultSummaryFragment on Erc4626Vault {
+    __typename
     chain {
       ...ChainInfoFragment
     }
@@ -48,58 +54,36 @@ graphql(`
 
     asset {
       ...TokenInfoFragment
+      priceUsd
     }
 
-    metadata {
-      curator {
-        ...CuratorInfoFragment
-      }
-    }
-
-    totalSupplied {
+    totalAssets {
       raw
       formatted
       usd
     }
 
-    totalLiquidity {
-      raw
-      formatted
-      usd
-    }
-
-    supplyApy {
+    apy(timeframe: $timeframe) {
       ...ApyFragment
     }
 
-    supplyApy1d {
-      ...ApyFragment
-    }
-
-    supplyApy7d {
-      ...ApyFragment
-    }
-
-    supplyApy30d {  
-      ...ApyFragment
-    }
-
-    marketAllocations {
-      vaultSupplyShare
-      position {
-        supplyAmount {
-          usd
+    ... VaultCollateralFragment
+    
+    ... on MorphoVault {              
+      metadata {
+        curator {
+          ...CuratorInfoFragment
         }
       }
-      market {
-        collateralAsset {
-          ...TokenInfoFragment
-        }
-      }
-      supplyCap {
-        usd
-      }
     }
+
+    ... on MorphoVaultV2 {        
+        metadata {
+          curator {
+            ...CuratorInfoFragment
+          }
+        }
+      }    
   }
 
   fragment VaultHistoricalEntryFragment on MorphoVaultHistoricalEntry {

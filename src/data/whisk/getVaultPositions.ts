@@ -6,15 +6,12 @@ import { APP_CONFIG } from "@/config";
 import type { SupportedChainId } from "@/config/types";
 import { graphql } from "@/generated/gql/whisk";
 import type { VaultPositionsQuery } from "@/generated/gql/whisk/graphql";
-import type { ChainId } from "@/whisk-types";
 import { executeWhiskQuery } from "./execute";
 
 const query = graphql(`
-  query VaultPositions($chainIds: [ChainId!]!, $vaultAddresses: [Address!]!, $accountAddress: Address!) {
-    morphoVaultPositions(where: {
-      chainId_in: $chainIds,
-      vaultAddress_in: $vaultAddresses,
-      accountAddress_in: [$accountAddress],
+  query VaultPositions($keys: [Erc4626VaultPositionKey!]!) {
+    erc4626VaultPositions(where: {
+      keys: $keys
     },
     limit: 250) {
       items {
@@ -22,16 +19,19 @@ const query = graphql(`
           chain {
             id
           }
+          asset {
+            priceUsd
+          }
           vaultAddress
         }
 
-        supplyAmount {
+        assets {
           raw
           formatted
           usd
         }
 
-        walletUnderlyingAssetHolding {
+        walletAssetHolding {
           balance {
             raw
             formatted
@@ -43,34 +43,31 @@ const query = graphql(`
   }
 `);
 
-export type VaultPosition = NonNullable<VaultPositionsQuery["morphoVaultPositions"]["items"][number]>;
+type VaultPositionQueryItem = NonNullable<VaultPositionsQuery["erc4626VaultPositions"]["items"][number]>;
+
+export type VaultPosition = Exclude<VaultPositionQueryItem, "vault"> & {
+  vault: Exclude<VaultPositionQueryItem["vault"], "chain"> & {
+    chain: Exclude<VaultPositionQueryItem["vault"]["chain"], "id"> & { id: SupportedChainId };
+  };
+};
 export type VaultPositionMap = Record<SupportedChainId, Record<Hex, VaultPosition>>; // ChainId -> VaultAddress -> VaultPosition
 
 export const getVaultPositions = async (accountAddress: Address): Promise<VaultPositionMap> => {
-  const chainIds = Object.keys(APP_CONFIG.supportedVaults).map((chainId) => Number.parseInt(chainId) as ChainId);
-  const vaultAddresses = Object.values(APP_CONFIG.supportedVaults)
-    .flat()
-    .map((v) => v.address);
+  const keys = Object.entries(APP_CONFIG.supportedVaults).flatMap(([chainId, vaults]) =>
+    vaults.map((vault) => ({
+      chainId: Number.parseInt(chainId) as SupportedChainId,
+      vaultAddress: vault.address,
+      protocol: vault.protocol,
+      accountAddress,
+    })),
+  );
 
-  const response = await executeWhiskQuery(query, {
-    chainIds,
-    vaultAddresses,
-    accountAddress,
-  });
+  const response = await executeWhiskQuery(query, { keys });
 
   const data: VaultPositionMap = {} as VaultPositionMap;
-  for (const position of response.morphoVaultPositions.items) {
+  for (const position of response.erc4626VaultPositions.items) {
     if (!position) {
       // Ignore, will already be logged at execute layer
-      continue;
-    }
-
-    // Filter out potential for wrong vault with same address on another chain
-    if (
-      !APP_CONFIG.supportedVaults[position.vault.chain.id as SupportedChainId].some(
-        (v) => v.address === position.vault.vaultAddress,
-      )
-    ) {
       continue;
     }
 
@@ -80,7 +77,7 @@ export const getVaultPositions = async (accountAddress: Address): Promise<VaultP
     if (!data[chainId]) {
       data[chainId] = {};
     }
-    data[chainId][vaultAddress] = position;
+    data[chainId][vaultAddress] = { ...position, vault: { ...position.vault, chain: { id: chainId } } };
   }
 
   return data;

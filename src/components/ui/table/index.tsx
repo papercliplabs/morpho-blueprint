@@ -5,9 +5,12 @@ import {
   type ColumnDef,
   flexRender,
   getCoreRowModel,
+  getExpandedRowModel,
+  getGroupedRowModel,
   getPaginationRowModel,
   getSortedRowModel,
   type PaginationState,
+  type Row,
   type RowData,
   type SortingState,
   useReactTable,
@@ -16,7 +19,7 @@ import { cva } from "class-variance-authority";
 import clsx from "clsx";
 import { ChevronLeft, ChevronRight, ChevronsUpDown } from "lucide-react";
 import Link from "next/link";
-import { type HTMLAttributes, useEffect, useRef, useState } from "react";
+import { type HTMLAttributes, useEffect, useMemo, useRef, useState } from "react";
 import { ScrollSync, ScrollSyncPane } from "react-scroll-sync";
 
 import { Button } from "@/components/ui/button";
@@ -134,6 +137,8 @@ interface TableProps<TData, TValue> {
   initialPagination?: PaginationState;
   initialSort?: SortingState;
   rowAction: (row: TData) => TableRowAction | null;
+  groupBy?: keyof TData & string;
+  groupLabels?: Record<string, string>;
 }
 
 export function Table<TData, TValue>({
@@ -145,9 +150,13 @@ export function Table<TData, TValue>({
   },
   initialSort,
   rowAction,
+  groupBy,
+  groupLabels,
 }: TableProps<TData, TValue>) {
   const tableRef = useRef<HTMLDivElement>(null);
   const [sorting, setSorting] = useState<SortingState>(initialSort ?? []);
+
+  const grouping = useMemo(() => (groupBy ? [groupBy] : []), [groupBy]);
 
   // Scroll to top of the table on sort change if its above the header
   // biome-ignore lint/correctness/useExhaustiveDependencies: Need to re-scroll on sort change
@@ -168,13 +177,42 @@ export function Table<TData, TValue>({
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    ...(groupBy && {
+      getGroupedRowModel: getGroupedRowModel(),
+      getExpandedRowModel: getExpandedRowModel(),
+      groupedColumnMode: false,
+    }),
     state: {
       sorting,
+      ...(groupBy && { grouping, expanded: true }),
     },
     initialState: {
       pagination: initialPagination,
+      ...(groupBy && { columnVisibility: { [groupBy]: false } }),
     },
   });
+
+  const renderGroupHeader = (row: Row<TData>) => {
+    const groupValue = String(row.getValue(groupBy!));
+    const label = groupLabels?.[groupValue] ?? groupValue;
+    return (
+      <div key={row.id} className="w-fit min-w-full border-border border-b">
+        <div className="body-small-plus flex h-8 items-center px-4 text-muted-foreground">{label}</div>
+      </div>
+    );
+  };
+
+  const rows = table.getRowModel().rows;
+
+  const renderRow = (row: Row<TData>) => (
+    <TableRow action={rowAction(row.original) ?? undefined} className="group h-[72px] gap-0" key={row.id}>
+      {row.getVisibleCells().map((cell) => (
+        <TableCell minWidth={cell.column.columnDef.minSize} key={cell.id}>
+          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+        </TableCell>
+      ))}
+    </TableRow>
+  );
 
   return (
     <>
@@ -233,16 +271,8 @@ export function Table<TData, TValue>({
           </div>
           <ScrollSyncPane>
             <div className="scrollbar-none body-medium-plus flex w-full flex-col overflow-x-auto overscroll-x-none">
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow action={rowAction(row.original) ?? undefined} className="group h-[72px] gap-0" key={row.id}>
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell minWidth={cell.column.columnDef.minSize} key={cell.id}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
+              {rows.length > 0 ? (
+                rows.map((row) => (row.getIsGrouped() ? renderGroupHeader(row) : renderRow(row)))
               ) : (
                 <div className="flex h-[100px] flex-col items-center justify-center gap-1 text-muted-foreground">
                   <span>No items</span>

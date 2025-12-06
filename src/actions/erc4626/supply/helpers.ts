@@ -43,19 +43,13 @@ export async function fetchErc4626SupplyData({
 }: Omit<Erc4626SupplyActionParameters, "allowNativeAssetWrapping"> & {
   spender: Address;
 }) {
-  const [underlyingAssetAddress, maxDeposit, quotedShares, initialPositionShares] = await multicall(client, {
+  const [underlyingAssetAddress, quotedShares, initialPositionShares] = await multicall(client, {
     contracts: [
       {
         abi: erc4626Abi,
         address: vaultAddress,
         functionName: "asset",
         args: [],
-      },
-      {
-        abi: erc4626Abi,
-        address: vaultAddress,
-        functionName: "maxDeposit",
-        args: [accountAddress],
       },
       {
         abi: erc4626Abi,
@@ -104,7 +98,6 @@ export async function fetchErc4626SupplyData({
   return {
     accountNativeAssetBalance,
     underlyingAssetAddress,
-    maxDeposit,
     quotedShares,
     accountUnderlyingAssetBalance,
     allowance,

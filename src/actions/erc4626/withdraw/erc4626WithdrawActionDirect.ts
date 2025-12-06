@@ -39,20 +39,10 @@ export async function erc4626WithdrawActionDirect({
     throw new UserFacingError("Unable to load vault data.", { cause: error });
   }
 
-  const { underlyingAssetAddress, maxWithdraw, initialPosition, maxRedeem, quotedSharesRedeemed } = data;
+  const { underlyingAssetAddress, initialPosition, quotedSharesRedeemed } = data;
 
-  if (isFullWithdraw) {
-    // Just sanity check for disabled vaults for maxRedeem since actual value can be an underestimate due to rounding and can cause false negatives
-    if (maxRedeem === 0n) {
-      throw new UserFacingError("Vault is currently preventing redemptions. This could be due to low liquidity.");
-    }
-  } else {
-    if (maxWithdraw < withdrawAmount) {
-      throw new UserFacingError("Insufficient liquidity to withdraw requested amount.");
-    }
-    if (initialPosition.assets < withdrawAmount) {
-      throw new UserFacingError("Withdraw amount exceeds account balance.");
-    }
+  if (!isFullWithdraw && initialPosition.assets < withdrawAmount) {
+    throw new UserFacingError("Withdraw amount exceeds account balance.");
   }
   if (quotedSharesRedeemed === 0n) {
     throw new UserFacingError("Vault quoted 0 shares redeemed. Try to increase the withdraw amount.");

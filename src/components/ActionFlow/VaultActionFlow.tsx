@@ -1,7 +1,6 @@
 import type { VaultAction, VaultPositionChange } from "@/actions";
 import type { Vault } from "@/data/whisk/getVault";
 import { descaleBigIntToNumber } from "@/utils/format";
-import { extractVaultSupplyApy } from "@/utils/vault";
 import { AssetChangeSummary } from "../AssetChangeSummary";
 import { MetricChange } from "../MetricChange";
 import { ApyTooltip } from "../Tooltips/ApyToolip";
@@ -73,7 +72,6 @@ export function VaultActionSimulationMetrics({
   positionChange: VaultPositionChange;
   isLoading?: boolean;
 }) {
-  const supplyApy = extractVaultSupplyApy(vault);
   return (
     <div className="flex w-full flex-col gap-2">
       <MetricChange
@@ -100,10 +98,10 @@ export function VaultActionSimulationMetrics({
         initialValue={
           <ApyTooltip
             type="earn"
-            nativeApy={supplyApy.base}
-            totalApy={supplyApy.total}
-            performanceFee={supplyApy.fee}
-            rewards={supplyApy.rewards}
+            nativeApy={vault.apy.base}
+            totalApy={vault.apy.total}
+            performanceFee={vault.apy.fee}
+            rewards={vault.apy.rewards}
             triggerVariant="sm"
             sparkleSide="left"
           />

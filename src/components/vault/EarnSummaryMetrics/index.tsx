@@ -23,7 +23,6 @@ export function EarnSummaryMetrics({ vaultSummaries }: EarnSummaryMetricsProps) 
   return (
     <EarnSummaryMetricsLayout
       totalSupplied={<NumberFlow value={data.totalSuppliedUsd} format={{ currency: "USD" }} className="heading-4" />}
-      totalBorrowed={<NumberFlow value={data.totalBorrowedUsd} format={{ currency: "USD" }} className="heading-4" />}
       userDeposited={
         <NumberFlowWithLoading
           isLoading={isPositionsLoading}
@@ -50,7 +49,6 @@ export function EarnSummaryMetricsSkeleton() {
   return (
     <EarnSummaryMetricsLayout
       totalSupplied={<MetricSkeleton className="w-[90px]" />}
-      totalBorrowed={<MetricSkeleton className="w-[90px]" />}
       userDeposited={<MetricSkeleton className="w-[90px]" />}
       userEarnApy={<MetricSkeleton className="w-[84px]" />}
     />
@@ -59,18 +57,12 @@ export function EarnSummaryMetricsSkeleton() {
 
 interface EarnSummaryMetricsLayoutProps {
   totalSupplied: ReactNode;
-  totalBorrowed: ReactNode;
 
   userDeposited: ReactNode;
   userEarnApy: ReactNode;
 }
 
-function EarnSummaryMetricsLayout({
-  totalSupplied,
-  totalBorrowed,
-  userDeposited,
-  userEarnApy,
-}: EarnSummaryMetricsLayoutProps) {
+function EarnSummaryMetricsLayout({ totalSupplied, userDeposited, userEarnApy }: EarnSummaryMetricsLayoutProps) {
   return (
     <div className="flex flex-col justify-between gap-4 md:flex-row">
       <div className="flex gap-8">
@@ -80,13 +72,6 @@ function EarnSummaryMetricsLayout({
           tooltip="Total supplied across all vaults within the table."
         >
           {totalSupplied}
-        </MetricWithTooltip>
-        <MetricWithTooltip
-          className="flex-1"
-          label="Total borrowed"
-          tooltip="Total borrowed across all vaults within the table."
-        >
-          {totalBorrowed}
         </MetricWithTooltip>
       </div>
       <div className="flex gap-8">

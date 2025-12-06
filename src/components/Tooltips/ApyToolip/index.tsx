@@ -55,7 +55,7 @@ function ApyTooltipTrigger({
   );
 }
 
-type Reward = {
+export type Reward = {
   asset: TokenInfo;
   apr: number;
 };
