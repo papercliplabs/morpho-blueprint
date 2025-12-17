@@ -5,7 +5,7 @@ export function extractVaultLiquidity(vault: Vault) {
     case "MorphoVault":
       return vault.totalLiquidity.usd ?? undefined;
     case "MorphoVaultV2": {
-      return Number(vault.totalAssets.formatted);
+      return vault.totalAssets.usd ?? undefined;
     }
     default:
       return undefined;

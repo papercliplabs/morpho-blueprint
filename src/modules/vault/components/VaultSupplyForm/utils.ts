@@ -25,12 +25,12 @@ export function computeAvailableBalance({
   maxFeePerGas?: bigint;
   includeNativeAssetWrapping: boolean;
 }) {
-  if (accountLoanTokenBalance === undefined) {
+  if (accountLoanTokenBalance === undefined || maxFeePerGas === undefined || accountNativeAssetBalance === undefined) {
     return undefined;
   }
 
   // Fallback to accountLoanTokenBalance when wrapping disabled, or missing data to compute the available native balance
-  if (!includeNativeAssetWrapping || accountNativeAssetBalance === undefined || maxFeePerGas === undefined) {
+  if (!includeNativeAssetWrapping) {
     return accountLoanTokenBalance;
   }
 
