@@ -10,8 +10,8 @@ import {
   type VaultAction,
 } from "@/actions/types";
 import { getChainAddressesRequired } from "@/actions/utils/getChainAddressesRequired";
+import { tryCatch } from "@/common/utils/tryCatch";
 import { APP_CONFIG } from "@/config";
-import { tryCatch } from "@/utils/tryCatch";
 import { fetchErc4626WithdrawData, validateErc4626WithdrawParameters } from "./helpers";
 
 /**

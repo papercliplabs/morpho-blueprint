@@ -1,4 +1,4 @@
-import { trackEvent } from "@/data/trackEvent";
+import { trackEvent } from "@/common/utils/trackEvent";
 
 export async function POST(request: Request) {
   try {

@@ -1,7 +1,7 @@
+import { fetchJsonResponse } from "@/common/utils/fetch";
+import { tryCatch } from "@/common/utils/tryCatch";
 import { APP_CONFIG, SUPPORTED_CHAIN_IDS } from "@/config";
 import type { SupportedChainId } from "@/config/types";
-import { fetchJsonResponse } from "@/utils/fetch";
-import { tryCatch } from "@/utils/tryCatch";
 
 const MAX_PAYLOAD_BYTES = 1024 * 500; // 500KB
 

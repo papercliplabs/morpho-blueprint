@@ -1,9 +1,8 @@
 import type { NextFontWithVariable } from "next/dist/compiled/@next/font";
 import type { ReactNode } from "react";
 import type { Address, Chain } from "viem";
-
+import type { EventName } from "@/common/utils/trackEvent";
 import type { SUPPORTED_CHAIN_IDS, VAULT_TAG_OPTIONS } from "@/config";
-import type { EventName } from "@/data/trackEvent";
 import type { Erc4626VaultProtocol } from "@/generated/gql/whisk/graphql";
 
 // You shouldn't modify this file unless deploying a fully custom fork (otherwise the app will likely break)

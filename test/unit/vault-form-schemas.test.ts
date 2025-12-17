@@ -1,8 +1,8 @@
 import { parseUnits } from "viem";
 import { describe, expect, it } from "vitest";
-import { createVaultSupplyFormSchema } from "@/components/forms/vault-supply/schema";
-import { createVaultWithdrawFormSchema } from "@/components/forms/vault-withdraw/schema";
-import type { Vault } from "@/data/whisk/getVault";
+import { createVaultSupplyFormSchema } from "@/modules/vault/components/VaultSupplyForm/schema";
+import { createVaultWithdrawFormSchema } from "@/modules/vault/components/VaultWithdrawForm/schema";
+import type { Vault } from "@/modules/vault/data/getVault";
 
 /**
  * Security tests for vault form validation schemas

@@ -80,7 +80,7 @@ export const APP_CONFIG: AppConfig = {
     infoBanner: {
       text: "Morpho Blueprint Demo. Build custom interfaces in days, not weeks.",
       link: {
-        text: "Get my own!",
+        text: "Let's chat!",
         href: "https://paperclip.xyz/contact",
       },
     },

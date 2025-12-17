@@ -1,12 +1,11 @@
 import clsx from "clsx";
 import type { Metadata } from "next";
-
-import { InfoBanner } from "@/components/Banner/Banner";
-import { CountrySpecificDisclaimer } from "@/components/CountrySpecificDisclaimer";
-import { Footer } from "@/components/Footer";
-import { Header } from "@/components/Header";
+import { InfoBanner } from "@/common/components/Banner";
+import { Footer } from "@/common/components/Footer/Footer";
+import { Header } from "@/common/components/Header/Header";
 import { APP_CONFIG } from "@/config";
-import Providers from "@/providers";
+import { CountrySpecificDisclaimer } from "@/modules/compliance/components/CountrySpecificDisclaimer";
+import Providers from "./Providers";
 
 import "./globals.css";
 

@@ -1,0 +1,90 @@
+import type { ReactNode } from "react";
+import { ApyTooltipContent, ApyTooltipTrigger } from "@/common/components/ApyToolip";
+import { MetricWithTooltip } from "@/common/components/Metric";
+import NumberFlow from "@/common/components/ui/number-flow";
+import { Skeleton } from "@/common/components/ui/skeleton";
+import { AvailableLiquidityTooltipContent } from "@/modules/market/components/AvailableLiquidityTooltip";
+import type { Market } from "@/modules/market/data/getMarket";
+import { extractMarketBorrowApy } from "@/modules/market/utils/extractMarketBorrowApy";
+
+interface MarketKeyMetricsProps {
+  market: Market;
+}
+
+export function MarketKeyMetrics({ market }: MarketKeyMetricsProps) {
+  const borrowApy = extractMarketBorrowApy(market);
+
+  return (
+    <MarketKeyMetricsLayout
+      totalSupplyValue={<NumberFlow value={market.totalSupplied.usd ?? 0} format={{ currency: "USD" }} />}
+      availableToBorrowValue={
+        <NumberFlow
+          value={(market.liquidityInMarket.usd ?? 0) + (market.publicAllocatorSharedLiquidity.usd ?? 0)}
+          format={{ currency: "USD" }}
+        />
+      }
+      availableToBorrowTooltip={
+        <AvailableLiquidityTooltipContent
+          marketLiquidity={market.liquidityInMarket.usd ?? 0}
+          publicAllocatorLiquidity={market.publicAllocatorSharedLiquidity.usd ?? 0}
+        />
+      }
+      borrowApyValue={<ApyTooltipTrigger totalApy={borrowApy.total} showSparkle={borrowApy.rewards.length > 0} />}
+      borrowApyTooltip={
+        <ApyTooltipContent
+          type="borrow"
+          nativeApy={borrowApy.base}
+          totalApy={borrowApy.total}
+          rewards={borrowApy.rewards}
+        />
+      }
+    />
+  );
+}
+
+export function MarketKeyMetricsSkeleton() {
+  const metricSkeleton = <Skeleton className="mt-0.5 h-[34px] w-[140px]" />;
+  return (
+    <MarketKeyMetricsLayout
+      totalSupplyValue={metricSkeleton}
+      availableToBorrowValue={metricSkeleton}
+      availableToBorrowTooltip={metricSkeleton}
+      borrowApyValue={metricSkeleton}
+      borrowApyTooltip={metricSkeleton}
+    />
+  );
+}
+
+interface MarketKeyMetricsLayoutProps {
+  totalSupplyValue: ReactNode;
+  availableToBorrowValue: ReactNode;
+  availableToBorrowTooltip: ReactNode;
+  borrowApyValue: ReactNode;
+  borrowApyTooltip: ReactNode;
+}
+
+function MarketKeyMetricsLayout({
+  totalSupplyValue,
+  availableToBorrowValue,
+  availableToBorrowTooltip,
+  borrowApyValue,
+  borrowApyTooltip,
+}: MarketKeyMetricsLayoutProps) {
+  return (
+    <div className="grid grid-cols-2 gap-6 md:grid-cols-3">
+      <MetricWithTooltip
+        label="Total Supply"
+        className="heading-4"
+        tooltip="The total amount of loan assets supplied to this market."
+      >
+        {totalSupplyValue}
+      </MetricWithTooltip>
+      <MetricWithTooltip label="Available to Borrow" className="heading-4" tooltip={availableToBorrowTooltip}>
+        {availableToBorrowValue}
+      </MetricWithTooltip>
+      <MetricWithTooltip label="Borrow APY" className="heading-4" tooltip={borrowApyTooltip}>
+        {borrowApyValue}
+      </MetricWithTooltip>
+    </div>
+  );
+}

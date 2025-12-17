@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { validateDecimalInput } from "@/components/ui/decimal-input/validateDecimalInput";
+import { validateDecimalInput } from "@/common/components/ui/decimal-input/validateDecimalInput";
 
 /**
  * Security tests for DecimalInput validation

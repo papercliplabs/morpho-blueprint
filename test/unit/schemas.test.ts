@@ -1,6 +1,6 @@
 import { maxUint256 } from "viem";
 import { describe, expect, it } from "vitest";
-import { createOnchainAmountSchema, parseOnchainAmount } from "@/utils/schemas";
+import { createOnchainAmountSchema, parseOnchainAmount } from "@/common/utils/schemas";
 
 /**
  * Security-focused tests for schema validation

@@ -2,8 +2,8 @@
 import Link from "next/link";
 import { useEffect } from "react";
 
-import { Button } from "@/components/ui/button";
-import { trackEvent } from "@/data/trackEvent";
+import { Button } from "@/common/components/ui/button";
+import { trackEvent } from "@/common/utils/trackEvent";
 
 export default function ErrorPage({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   useEffect(() => {
