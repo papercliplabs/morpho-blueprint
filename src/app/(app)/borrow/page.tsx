@@ -1,17 +1,16 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { Suspense } from "react";
-
-import { AccountFilters } from "@/components/filters/AccountFilters";
-import { MarketFilters } from "@/components/filters/MarketFilters";
-import type { MultiSelectOption } from "@/components/MultiSelect";
-import { BorrowSummaryMetrics, BorrowSummaryMetricsSkeleton } from "@/components/market/BorrowSummaryMetrics";
-import { MarketTable } from "@/components/tables/MarketTable";
-import { Avatar } from "@/components/ui/avatar";
-import { Card, CardHeader } from "@/components/ui/card";
-import { Skeleton, Skeletons } from "@/components/ui/skeleton";
+import type { MultiSelectOption } from "@/common/components/MultiSelect/MultiSelect";
+import { Avatar } from "@/common/components/ui/avatar";
+import { Card, CardHeader } from "@/common/components/ui/card";
+import { Skeleton, Skeletons } from "@/common/components/ui/skeleton";
 import { APP_CONFIG } from "@/config";
-import { getMarketSummaries } from "@/data/whisk/getMarketSummaries";
+import { BorrowSummaryMetrics, BorrowSummaryMetricsSkeleton } from "@/modules/market/components/BorrowSummaryMetrics";
+import { MarketFilters } from "@/modules/market/components/MarketFilters";
+import { MarketTable } from "@/modules/market/components/MarketTable";
+import { getMarketSummaries } from "@/modules/market/data/getMarketSummaries";
+import { AccountFilters } from "@/modules/wallet/components/AccountFilters";
 
 export const metadata: Metadata = {
   title: `${APP_CONFIG.metadata.name} | Borrow`,

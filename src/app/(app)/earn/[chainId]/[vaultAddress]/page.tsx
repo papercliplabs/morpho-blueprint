@@ -3,22 +3,22 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { type Address, getAddress } from "viem";
-import { BreakcrumbBack } from "@/components/ui/breakcrumb-back";
-import { Button } from "@/components/ui/button";
-import { Card, CardHeader } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { VaultActions } from "@/components/vault/VaultActions";
-import { VaultKeyMetrics, VaultKeyMetricsSkeleton } from "@/components/vault/VaultKeyMetrics";
+import { BreakcrumbBack } from "@/common/components/ui/breakcrumb-back";
+import { Button } from "@/common/components/ui/button";
+import { Card, CardHeader } from "@/common/components/ui/card";
+import { Skeleton } from "@/common/components/ui/skeleton";
 import { APP_CONFIG } from "@/config";
 import type { SupportedChainId } from "@/config/types";
-import { getVault, type Vault } from "@/data/whisk/getVault";
 import { Erc4626VaultProtocol } from "@/generated/gql/whisk/graphql";
-import type { MorphoVaultV1, MorphoVaultV2 } from "@/utils/types";
-import { getVaultConfig } from "@/utils/vault";
-import { MorphoV1VaultPageContent } from "./components/morpho-v1/MorphoV1VaultPageContent";
-import { MorphoV2VaultPageContent } from "./components/morpho-v2/MorphoV2VaultPageContent";
-import { VaultAboutCard } from "./components/VaultAboutCard";
-import { VaultHeader } from "./components/VaultHeader";
+import { MorphoV1VaultPageContent } from "@/modules/vault/components/morpho-v1/MorphoV1VaultPageContent";
+import { MorphoV2VaultPageContent } from "@/modules/vault/components/morpho-v2/MorphoV2VaultPageContent";
+import { VaultAboutCard } from "@/modules/vault/components/VaultAboutCard";
+import { VaultActions } from "@/modules/vault/components/VaultActions/VaultActions";
+import { VaultHeader } from "@/modules/vault/components/VaultHeader";
+import { VaultKeyMetrics, VaultKeyMetricsSkeleton } from "@/modules/vault/components/VaultKeyMetrics";
+import { getVault, type Vault } from "@/modules/vault/data/getVault";
+import { getVaultConfig } from "@/modules/vault/utils/getVaultConfig";
+import type { MorphoVaultV1, MorphoVaultV2 } from "@/modules/vault/vault.types";
 
 export const metadata: Metadata = {
   title: `${APP_CONFIG.metadata.name} | Vault`,

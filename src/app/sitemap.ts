@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { getAddress } from "viem";
 
 import { APP_CONFIG } from "@/config";
-import { getSupportedMarketIds } from "@/data/whisk/getSupportedMarketIds";
+import { getSupportedMarketIds } from "@/modules/market/data/getSupportedMarketIds";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supportedMarketIds = await getSupportedMarketIds();

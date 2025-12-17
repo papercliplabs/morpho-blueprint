@@ -1,5 +1,5 @@
 import { type Address, encodeFunctionData, type Hex } from "viem";
-import { merklDistributorAbi } from "@/abis/merklDistributorAbi";
+import { merklDistributorAbi } from "@/actions/abis/merklDistributorAbi";
 import { MERKL_DISTRIBUTOR_ADDRESS } from "./constants";
 import { type Action, UserFacingError } from "./types";
 

@@ -3,8 +3,8 @@ import { generalAdapter1Abi } from "@morpho-org/bundler-sdk-viem";
 import { createPublicClient, http } from "viem";
 import { getCode, readContract } from "viem/actions";
 import { describe, expect, test } from "vitest";
-import { merklDistributorAbi } from "@/abis/merklDistributorAbi";
-import { wrappedNativeAssetAbi } from "@/abis/wrappedNativeAssetAbi";
+import { merklDistributorAbi } from "@/actions/abis/merklDistributorAbi";
+import { wrappedNativeAssetAbi } from "@/actions/abis/wrappedNativeAssetAbi";
 import { MERKL_DISTRIBUTOR_ADDRESS } from "@/actions/constants";
 import { APP_CONFIG, SUPPORTED_CHAIN_IDS } from "@/config";
 

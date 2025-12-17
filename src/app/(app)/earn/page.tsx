@@ -1,20 +1,20 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { Suspense } from "react";
-
-import { AccountFilters } from "@/components/filters/AccountFilters";
-import { VaultFilters } from "@/components/filters/VaultFilters";
-import type { MultiSelectOption } from "@/components/MultiSelect";
-import { TokenIcon } from "@/components/TokenIcon";
-import { VaultTable } from "@/components/tables/VaultTable";
-import { Avatar } from "@/components/ui/avatar";
-import { Card, CardHeader } from "@/components/ui/card";
-import { Skeleton, Skeletons } from "@/components/ui/skeleton";
-import { EarnSummaryMetrics, EarnSummaryMetricsSkeleton } from "@/components/vault/EarnSummaryMetrics";
+import type { MultiSelectOption } from "@/common/components/MultiSelect/MultiSelect";
+import { Avatar } from "@/common/components/ui/avatar";
+import { Card, CardHeader } from "@/common/components/ui/card";
+import { Skeleton, Skeletons } from "@/common/components/ui/skeleton";
 import { APP_CONFIG } from "@/config";
 import type { SupportedChainId } from "@/config/types";
-import { getVaultSummaries } from "@/data/whisk/getVaultSummaries";
-import { getVaultCurator, getVaultTagData } from "@/utils/vault";
+import { TokenIcon } from "@/modules/token/components/TokenIcon";
+import { EarnSummaryMetrics, EarnSummaryMetricsSkeleton } from "@/modules/vault/components/EarnSummaryMetrics";
+import { VaultFilters } from "@/modules/vault/components/VaultFilters";
+import { VaultTable } from "@/modules/vault/components/VaultTable";
+import { getVaultSummaries } from "@/modules/vault/data/getVaultSummaries";
+import { extractVaultCurator } from "@/modules/vault/utils/extractVaultCurator";
+import { getVaultTagData } from "@/modules/vault/utils/getVaultTagData";
+import { AccountFilters } from "@/modules/wallet/components/AccountFilters";
 
 export const metadata: Metadata = {
   title: `${APP_CONFIG.metadata.name} | Earn`,
@@ -98,7 +98,7 @@ async function VaultFiltersWrapper() {
       category: vault.asset.category ?? null,
     };
 
-    const curator = getVaultCurator(vault);
+    const curator = extractVaultCurator(vault);
     if (curator) {
       curatorOptionsMap[curator.name] = {
         value: curator.name,

@@ -1,8 +1,9 @@
 import { fc, test } from "@fast-check/vitest";
 import { parseUnits } from "viem";
 import { describe, expect, it } from "vitest";
-import type { MarketNonIdle } from "@/data/whisk/getMarket";
-import { computeMaxBorrow, computeRequiredCollateral } from "@/utils/math";
+import type { MarketNonIdle } from "@/modules/market/data/getMarket";
+import { computeMaxBorrow } from "@/modules/market/utils/computeMaxBorrow";
+import { computeRequiredCollateral } from "@/modules/market/utils/computeRequiredCollateral";
 
 /**
  * Property-Based Security Tests for Math Utilities

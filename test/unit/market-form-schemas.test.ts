@@ -1,9 +1,9 @@
 import { parseUnits } from "viem";
 import { describe, expect, it } from "vitest";
-import { createMarketRepayAndWithdrawCollateralFormSchema } from "@/components/forms/market-repay-and-withdraw-collateral/schema";
-import { createMarketSupplyCollateralAndBorrowFormSchema } from "@/components/forms/market-supply-collateral-and-borrow/schema";
-import type { MarketNonIdle } from "@/data/whisk/getMarket";
-import type { MarketPosition } from "@/data/whisk/getMarketPositions";
+import { createMarketRepayAndWithdrawCollateralFormSchema } from "@/modules/market/components/MarketRepayAndWithdrawCollateralForm/schema";
+import { createMarketSupplyCollateralAndBorrowFormSchema } from "@/modules/market/components/MarketSupplyCollateralAndBorrowForm/schema";
+import type { MarketNonIdle } from "@/modules/market/data/getMarket";
+import type { MarketPosition } from "@/modules/market/data/getMarketPositions";
 
 /**
  * Security tests for market form validation schemas

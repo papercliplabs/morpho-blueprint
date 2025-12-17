@@ -1,5 +1,5 @@
 import { encodeFunctionData, erc4626Abi, isAddressEqual, maxUint256 } from "viem";
-import { wrappedNativeAssetAbi } from "@/abis/wrappedNativeAssetAbi";
+import { wrappedNativeAssetAbi } from "@/actions/abis/wrappedNativeAssetAbi";
 import {
   type Erc4626WithdrawActionParameters,
   type TransactionRequest,
@@ -7,7 +7,7 @@ import {
   type VaultAction,
 } from "@/actions/types";
 import { getChainAddressesRequired } from "@/actions/utils/getChainAddressesRequired";
-import { tryCatch } from "@/utils/tryCatch";
+import { tryCatch } from "@/common/utils/tryCatch";
 import { fetchErc4626WithdrawData, validateErc4626WithdrawParameters } from "./helpers";
 
 /**

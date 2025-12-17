@@ -1,6 +1,6 @@
 import { getAddress } from "viem";
 
-import { getMarketPositions } from "@/data/whisk/getMarketPositions";
+import { getMarketPositions } from "@/modules/market/data/getMarketPositions";
 
 export async function GET(_request: Request, { params }: { params: Promise<{ accountAddress: string }> }) {
   const accountAddress = getAddress((await params).accountAddress);
