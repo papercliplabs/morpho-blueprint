@@ -4,7 +4,7 @@ import "dotenv/config";
 const config: CodegenConfig = {
   overwrite: true,
   ignoreNoDocuments: true,
-  documents: "src/**/*.ts",
+  documents: ["src/modules/**/data/**/*.ts", "src/common/data/**/*.ts", "src/app/api/**/*.ts"],
   schema: { [process.env.WHISK_API_URL!]: { headers: { Authorization: `Bearer ${process.env.WHISK_API_KEY!}` } } },
   generates: {
     "./src/generated/gql/whisk/": {

@@ -7,8 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **Development:**
 - `pnpm dev` - Start development server with Next.js and GraphQL codegen watch mode
 - `pnpm build` - Build for production (runs codegen first)
-- `pnpm lint` - Lint codebase with Biome
-- `pnpm lint:fix` - Lint and auto-fix with Biome
+- `pnpm check` - Lint and auto-fix codebase with Biome
 - `pnpm check:types` - TypeScript type checking without emit
 - `pnpm test` - Run Vitest tests
 - `pnpm codegen` - Generate GraphQL types from schema
