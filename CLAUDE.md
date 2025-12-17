@@ -12,8 +12,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `pnpm check:types` - TypeScript type checking without emit
 - `pnpm test` - Run Vitest tests
 - `pnpm codegen` - Generate GraphQL types from schema
-- `pnpm storybook` - Start Storybook development server
-- `pnpm build-storybook` - Build Storybook for production
 
 **Testing:**
 - Tests use Vitest with jsdom environment
@@ -25,7 +23,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Uses pnpm (required version 10.11.0)
 - Dependencies include Morpho SDKs, Next.js 15, React 19, Radix UI, Tailwind CSS
 - Uses Biome for linting and formatting
-- Includes Storybook for component development
 
 ## Architecture
 
@@ -37,9 +34,9 @@ The app is designed as a whitelabel frontend where all customization happens in 
 
 **Data Layer:**
 - Powered by Whisk GraphQL API for read-only data
-- GraphQL fragments defined in `src/data/whisk/fragments.ts`
-- Generated types from GraphQL schema via `@graphql-codegen/cli`
-- Data fetching functions in `src/data/whisk/` directory
+- GraphQL fragments defined in `src/common/data/fragments.ts`
+- Generated types from GraphQL schema via `@graphql-codegen/cli` in `src/generated/gql/whisk/`
+- Data fetching functions organized by domain in module-specific `data/` directories
 
 **Action System:**
 Blockchain interactions use a standardized action pattern:
@@ -49,8 +46,11 @@ Blockchain interactions use a standardized action pattern:
 - Uses Morpho's bundler SDK for transaction bundling
 
 **Component Structure:**
-- UI components in `src/components/ui/` (shadcn-based)
-- Business logic components organized by domain (`market/`, `vault/`, `tables/`)
+- Module-based architecture in `src/modules/` organized by domain:
+  - `market/`, `vault/`, `token/`, `wallet/`, `reward/`, `compliance/`, `action-flow/`
+  - Each module contains its own `components/`, `hooks/`, `data/`, and `utils/` subdirectories
+- Shared UI components in `src/common/components/` (shadcn-based)
+- Shared utilities, hooks, and providers in `src/common/`
 - Form components use react-hook-form with Zod validation
 - Responsive design with mobile-first approach using drawer/popover patterns
 

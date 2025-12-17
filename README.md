@@ -18,7 +18,7 @@ All configuration happens via files in the [config folder](src/config/), which s
     -   Check out the [`AppConfig` type definition](src/config/types.ts) for full parameter documentation
 -   [theme.css](src/config/theme.css): Customize all colors and typography to match your brand. This closely follows the standard [shadcn theming](https://ui.shadcn.com/themes). The best way to pick your theme is via the Morpho Blueprint Figma file (coming soon) which is a 1:1 match with the app's theme.
 
-All read-only data in Morpho Blueprint is powered by [Whisk](https://www.whisk.so/) and enters the app via the [data layer](src/data/whisk). Using Whisk is the fastest way to get to production, but you are welcome to replace this layer with your own data source.
+All read-only data in Morpho Blueprint is powered by [Whisk](https://www.whisk.so/). Using Whisk is the fastest way to get to production, but you are welcome to replace Whisk with your own data source.
 
 [Reach out](https://paperclip.xyz/contact) if you want to use Whisk, or you're interested in a full white-glove solution including design and development. We can generally get your app to production in a few days.
 
@@ -59,7 +59,9 @@ pnpm build
 
 ## Acknowledgement
 
-Special thanks to [Re7 Labs](https://www.re7labs.xyz/) for supporting this open source tool as part of [MIP-93](https://forum.morpho.org/t/mip-93-call-for-grants/1177/23).
+This open-source project is made possible through the support of [Morpho](https://morpho.org/) and [Steakhouse Financial](https://www.steakhouse.financial/).
+
+Initial development was partially funded through a Morpho DAO grant ([MIP-93](https://forum.morpho.org/t/mip-93-call-for-grants/1177/23)), administered by [Re7 Labs](https://www.re7labs.xyz/).
 
 ## Licensing
 
