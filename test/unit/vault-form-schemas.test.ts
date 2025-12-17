@@ -15,8 +15,8 @@ describe("Vault Form Schema Tests", () => {
       it("should enforce balance limits", () => {
         const vault = createMockVault({ decimals: 6 });
         const accountLoanTokenBalance = parseUnits("100", 6);
-        const accountNativeAssetBalance = undefined;
-        const maxFeePerGas = undefined;
+        const accountNativeAssetBalance = parseUnits("0", 18); // Provide value even if not used
+        const maxFeePerGas = parseUnits("50", 9); // Provide value for validation to work
 
         const schema = createVaultSupplyFormSchema(
           vault,
@@ -27,7 +27,7 @@ describe("Vault Form Schema Tests", () => {
 
         expect(schema.parse({ supplyAmount: "100", allowNativeAssetWrapping: false }).supplyAmount).toBe(100000000n);
         expect(() => schema.parse({ supplyAmount: "100.000001", allowNativeAssetWrapping: false })).toThrow(
-          "Amount exceeds balance",
+          "Amount exceeds balance.",
         );
       });
 
@@ -35,7 +35,7 @@ describe("Vault Form Schema Tests", () => {
         const vault = createMockVault({ decimals: 6 });
         const accountLoanTokenBalance = parseUnits("100", 6);
         const accountNativeAssetBalance = undefined;
-        const maxFeePerGas = undefined;
+        const maxFeePerGas = parseUnits("50", 9); // Provide value for validation to work
 
         const schema = createVaultSupplyFormSchema(
           vault,
@@ -84,7 +84,7 @@ describe("Vault Form Schema Tests", () => {
 
         // Even with allowNativeAssetWrapping=true and all params provided, should only use loan token balance
         expect(() => schema.parse({ supplyAmount: "20", allowNativeAssetWrapping: true })).toThrow(
-          "Amount exceeds balance",
+          "Amount exceeds balance.",
         );
       });
 
@@ -92,7 +92,7 @@ describe("Vault Form Schema Tests", () => {
         const vault = createMockVault({ decimals: 18, address: WETH_ADDRESS });
         const accountLoanTokenBalance = parseUnits("1", 18); // 1 WETH
         const accountNativeAssetBalance = parseUnits("10", 18); // 10 ETH
-        const maxFeePerGas = undefined;
+        const maxFeePerGas = parseUnits("50", 9); // Provide value for validation to work
 
         const schema = createVaultSupplyFormSchema(
           vault,
@@ -106,7 +106,7 @@ describe("Vault Form Schema Tests", () => {
         expect(result.supplyAmount).toBe(parseUnits("1", 18));
 
         expect(() => schema.parse({ supplyAmount: "2", allowNativeAssetWrapping: false })).toThrow(
-          "Amount exceeds balance",
+          "Amount exceeds balance.",
         );
       });
 
@@ -171,7 +171,7 @@ describe("Vault Form Schema Tests", () => {
         expect(result.supplyAmount).toBe(parseUnits("4.9", 18));
       });
 
-      it("should fallback to loan token balance when missing wrapping params", () => {
+      it("should not validate when missing wrapping params", () => {
         const vault = createMockVault({ decimals: 18, address: WETH_ADDRESS });
         const accountLoanTokenBalance = parseUnits("1", 18); // 1 WETH
         const accountNativeAssetBalance = parseUnits("10", 18); // 10 ETH
@@ -183,28 +183,21 @@ describe("Vault Form Schema Tests", () => {
           undefined,
         );
 
-        // Without maxFeePerGas, falls back to loan token balance only
-        const result = schema.parse({ supplyAmount: "1", allowNativeAssetWrapping: true });
-        expect(result.supplyAmount).toBe(parseUnits("1", 18));
-
-        expect(() => schema.parse({ supplyAmount: "1.1", allowNativeAssetWrapping: true })).toThrow(
-          "Amount exceeds balance",
-        );
+        // Without maxFeePerGas, no validation occurs (prevents loading glitch)
+        const result = schema.parse({ supplyAmount: "100", allowNativeAssetWrapping: true });
+        expect(result.supplyAmount).toBe(parseUnits("100", 18));
       });
 
-      it("should fallback to loan token balance when native balance is unavailable", () => {
+      it("should not validate when native balance is unavailable", () => {
         const vault = createMockVault({ decimals: 18, address: WETH_ADDRESS });
         const accountLoanTokenBalance = parseUnits("1", 18); // 1 WETH
         const maxFeePerGas = parseUnits("50", 9);
 
         const schema = createVaultSupplyFormSchema(vault, accountLoanTokenBalance, undefined, maxFeePerGas);
 
-        const result = schema.parse({ supplyAmount: "1", allowNativeAssetWrapping: true });
-        expect(result.supplyAmount).toBe(parseUnits("1", 18));
-
-        expect(() => schema.parse({ supplyAmount: "1.1", allowNativeAssetWrapping: true })).toThrow(
-          "Amount exceeds balance",
-        );
+        // Without accountNativeAssetBalance, no validation occurs (prevents loading glitch)
+        const result = schema.parse({ supplyAmount: "100", allowNativeAssetWrapping: true });
+        expect(result.supplyAmount).toBe(parseUnits("100", 18));
       });
 
       it("should clamp native contribution when balance is below the gas reserve", () => {
@@ -224,7 +217,7 @@ describe("Vault Form Schema Tests", () => {
         expect(withinLimit.supplyAmount).toBe(parseUnits("1", 18));
 
         expect(() => schema.parse({ supplyAmount: "1.000000000000000001", allowNativeAssetWrapping: true })).toThrow(
-          "Amount exceeds balance",
+          "Amount exceeds balance.",
         );
       });
 
@@ -254,7 +247,7 @@ describe("Vault Form Schema Tests", () => {
 
         // Total available ~1.449 WETH (1 + 0.5 - 0.05 gas reserve)
         expect(() => schema.parse({ supplyAmount: "2", allowNativeAssetWrapping: true })).toThrow(
-          "Amount exceeds balance",
+          "Amount exceeds balance.",
         );
       });
     });
@@ -270,7 +263,7 @@ describe("Vault Form Schema Tests", () => {
       ).toBe(50000000n);
       expect(() =>
         schema.parse({ withdrawAmount: "50.000001", isMaxWithdraw: false, unwrapNativeAssets: false }),
-      ).toThrow("Amount exceeds position");
+      ).toThrow("Amount exceeds position.");
     });
 
     it("should allow withdrawal up to exact position balance", () => {

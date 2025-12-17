@@ -20,7 +20,7 @@ const columns: ColumnDef<MorphoV1MarketAllocation>[] = [
   {
     id: "market",
     accessorFn: (row) => row.market.name,
-    header: "Market Name",
+    header: "Market",
     cell: ({ row }) => {
       const { market } = row.original;
       return (
