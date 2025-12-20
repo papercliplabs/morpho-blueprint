@@ -10,7 +10,6 @@ import {
   plumeMainnet,
   polygon,
   soneium,
-  tac,
   unichain,
   worldchain,
 } from "viem/chains";
@@ -35,7 +34,6 @@ export const SUPPORTED_CHAIN_IDS = [
   lisk.id,
   soneium.id,
   plumeMainnet.id,
-  tac.id,
   worldchain.id,
   corn.id,
   berachain.id,
@@ -145,10 +143,6 @@ export const APP_CONFIG: AppConfig = {
       chain: plumeMainnet,
       rpcUrls: [process.env.PLUME_RPC_URL_1!, process.env.PLUME_RPC_URL_2!],
     },
-    [tac.id]: {
-      chain: tac,
-      rpcUrls: [process.env.TAC_RPC_URL_1!, process.env.TAC_RPC_URL_2!],
-    },
     [worldchain.id]: {
       chain: worldchain,
       rpcUrls: [process.env.WORLDCHAIN_RPC_URL_1!, process.env.WORLDCHAIN_RPC_URL_2!],
@@ -217,10 +211,6 @@ export const APP_CONFIG: AppConfig = {
     [plumeMainnet.id]: [
       { address: getAddress("0xc0Df5784f28046D11813356919B869dDA5815B16"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Re7 pUSD
       { address: getAddress("0xBB748a1346820560875CB7a9cD6B46c203230E07"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Mystic ETH
-    ],
-    [tac.id]: [
-      { address: getAddress("0xC5e1bD2473811bB782326006A3c03477F7834D35"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Re7 WETH
-      { address: getAddress("0x4183Bd253Dc1918A04Bd8a8dD546BaAD58898109"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Re7 USDT
     ],
     [worldchain.id]: [
       { address: getAddress("0x0db7e405278c2674f462ac9d9eb8b8346d1c1571"), protocol: Erc4626VaultProtocol.MorphoV1 }, // WETH
