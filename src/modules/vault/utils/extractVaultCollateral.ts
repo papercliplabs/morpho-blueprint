@@ -23,21 +23,10 @@ export function extractVaultCollateral(vault: VaultSummary): Array<VaultCollater
         .sort((a, b) => b.vaultSupplyShare - a.vaultSupplyShare);
     }
     case "MorphoVaultV2": {
-      const allocations: Array<VaultCollateral> = [];
+      const allocationsBySymbol = new Map<string, VaultCollateral>();
       const vaultV2TotalAssetsUsd = vault.totalAssets?.usd ?? 0;
 
       for (const adapter of vault.adapters) {
-        if (adapter.__typename === "MarketV1Adapter") {
-          for (const { collateralToken, allocation, relativeCap } of adapter.collateralCaps) {
-            allocations.push({
-              icon: collateralToken.icon,
-              name: collateralToken.name,
-              symbol: collateralToken.symbol,
-              supplyUsd: allocation.usd ?? 0,
-              vaultSupplyShare: Number(relativeCap.formatted),
-            });
-          }
-        }
         if (adapter.__typename === "VaultV1Adapter" && adapter.vault) {
           const totalAllocation = Number(adapter.adapterCap?.allocation.formatted ?? 0);
           const vaultV1TotalAssets = Number(adapter.vault?.totalAssets?.formatted ?? 0);
@@ -47,18 +36,20 @@ export function extractVaultCollateral(vault: VaultSummary): Array<VaultCollater
             if (!enabled || !market.collateralAsset) continue;
 
             const supplyUsd = (position.supplyAmount.usd ?? 0) * allocationPercent;
-            allocations.push({
+            const existing = allocationsBySymbol.get(market.collateralAsset.symbol);
+            const totalSupplyUsd = (existing?.supplyUsd ?? 0) + supplyUsd;
+            allocationsBySymbol.set(market.collateralAsset.symbol, {
               icon: market.collateralAsset.icon,
               name: market.collateralAsset.name,
               symbol: market.collateralAsset.symbol,
-              supplyUsd,
-              vaultSupplyShare: vaultV2TotalAssetsUsd > 0 ? supplyUsd / vaultV2TotalAssetsUsd : 0,
+              supplyUsd: totalSupplyUsd,
+              vaultSupplyShare: vaultV2TotalAssetsUsd > 0 ? totalSupplyUsd / vaultV2TotalAssetsUsd : 0,
             });
           }
         }
       }
 
-      return allocations.sort((a, b) => b.vaultSupplyShare - a.vaultSupplyShare);
+      return Array.from(allocationsBySymbol.values()).sort((a, b) => b.vaultSupplyShare - a.vaultSupplyShare);
     }
     default:
       return [];

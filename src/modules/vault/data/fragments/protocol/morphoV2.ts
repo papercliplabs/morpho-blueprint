@@ -7,7 +7,6 @@ graphql(`
     adapters {
       __typename
       name
-      isEnabled
       adapterAddress
       adapterCap {        
         allocation {
@@ -99,21 +98,6 @@ graphql(`
           }
         }
 
-        ... on MarketV1Adapter {
-          collateralCaps {
-            allocation {
-              usd
-            }
-            relativeCap {
-              formatted
-            }
-            collateralToken {
-              icon
-              name
-              symbol
-            }
-          }
-        }
         ... on VaultV1Adapter {
           vault {
             totalAssets {
