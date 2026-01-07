@@ -96,7 +96,6 @@ export function AdaptersTable({ vaultPromise }: Props) {
   const totalSupply = Number(vault.totalAssets?.formatted ?? "0");
 
   const adapters = vault.adapters
-    .filter(({ isEnabled }) => isEnabled)
     .map((adapter) => {
       const allocation = Number(adapter.adapterCap?.allocation?.formatted ?? "0");
       return { ...adapter, percentage: totalSupply > 0 ? allocation / totalSupply : 0 };
