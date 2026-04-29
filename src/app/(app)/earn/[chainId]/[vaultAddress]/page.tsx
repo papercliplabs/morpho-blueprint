@@ -7,8 +7,8 @@ import { BreakcrumbBack } from "@/common/components/ui/breakcrumb-back";
 import { Button } from "@/common/components/ui/button";
 import { Card, CardHeader } from "@/common/components/ui/card";
 import { Skeleton } from "@/common/components/ui/skeleton";
+import { parseRouteChainIdParam } from "@/common/utils/parseRouteChainId";
 import { APP_CONFIG } from "@/config";
-import type { SupportedChainId } from "@/config/types";
 import { Erc4626VaultProtocol } from "@/generated/gql/whisk/graphql";
 import { MorphoV1VaultPageContent } from "@/modules/vault/components/morpho-v1/MorphoV1VaultPageContent";
 import { MorphoV2VaultPageContent } from "@/modules/vault/components/morpho-v2/MorphoV2VaultPageContent";
@@ -26,11 +26,13 @@ export const metadata: Metadata = {
 
 export default async function VaultPage({ params }: { params: Promise<{ chainId: string; vaultAddress: string }> }) {
   const { chainId: chainIdString, vaultAddress: vaultAddressString } = await params;
+  const chainId = parseRouteChainIdParam(chainIdString);
+  if (chainId === undefined) {
+    notFound();
+  }
   let vaultAddress: Address;
-  let chainId: SupportedChainId;
   try {
     vaultAddress = getAddress(vaultAddressString);
-    chainId = Number.parseInt(chainIdString) as SupportedChainId;
   } catch {
     notFound();
   }

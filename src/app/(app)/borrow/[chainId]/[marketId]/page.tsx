@@ -8,6 +8,7 @@ import { BreakcrumbBack } from "@/common/components/ui/breakcrumb-back";
 import { Button } from "@/common/components/ui/button";
 import { Card, CardHeader } from "@/common/components/ui/card";
 import { Skeleton } from "@/common/components/ui/skeleton";
+import { parseRouteChainIdParam } from "@/common/utils/parseRouteChainId";
 import { APP_CONFIG } from "@/config";
 import type { SupportedChainId } from "@/config/types";
 import { IrmChart } from "@/modules/market/components/IrmChart";
@@ -28,10 +29,8 @@ export const metadata: Metadata = {
 
 export default async function MarketPage({ params }: { params: Promise<{ chainId: string; marketId: string }> }) {
   const { chainId: chainIdString, marketId } = await params;
-  let chainId: SupportedChainId;
-  try {
-    chainId = Number.parseInt(chainIdString) as SupportedChainId;
-  } catch {
+  const chainId = parseRouteChainIdParam(chainIdString);
+  if (chainId === undefined) {
     notFound();
   }
 

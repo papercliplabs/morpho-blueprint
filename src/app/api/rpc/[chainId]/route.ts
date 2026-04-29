@@ -1,7 +1,7 @@
 import { fetchJsonResponse } from "@/common/utils/fetch";
+import { parseRouteChainIdParam } from "@/common/utils/parseRouteChainId";
 import { tryCatch } from "@/common/utils/tryCatch";
-import { APP_CONFIG, SUPPORTED_CHAIN_IDS } from "@/config";
-import type { SupportedChainId } from "@/config/types";
+import { APP_CONFIG } from "@/config";
 
 const MAX_PAYLOAD_BYTES = 1024 * 500; // 500KB
 
@@ -24,12 +24,10 @@ type AllowedRpcMethodName = (typeof ALLOWED_RPC_METHODS)[number];
 
 export async function POST(request: Request, { params }: { params: Promise<{ chainId: string }> }) {
   const maybeChainId = (await params).chainId;
-
-  if (!maybeChainId || !SUPPORTED_CHAIN_IDS.includes(Number(maybeChainId) as SupportedChainId)) {
+  const chainId = parseRouteChainIdParam(maybeChainId);
+  if (chainId === undefined) {
     return Response.json({ error: "Invalid chain ID" }, { status: 400 });
   }
-
-  const chainId = Number(maybeChainId) as SupportedChainId;
   const rpcUrls = APP_CONFIG.chainConfig[chainId].rpcUrls;
 
   // Check Origin header is present as a simple prevention against server side abuse, but note can still be spoofed.
