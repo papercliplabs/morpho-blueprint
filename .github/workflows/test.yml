@@ -15,6 +15,8 @@ env:
   WHISK_API_KEY: ${{ secrets.WHISK_API_KEY }}
   NEXT_PUBLIC_URL: ${{ secrets.NEXT_PUBLIC_URL }}
   MAINNET_RPC_URL_1: ${{ secrets.MAINNET_RPC_URL_1 }}
+  POLYGON_RPC_URL_1: ${{ secrets.POLYGON_RPC_URL_1 }}
+  POLYGON_RPC_URL_2: ${{ secrets.POLYGON_RPC_URL_2 }}
 
 jobs:
   vitest:
@@ -38,8 +40,9 @@ jobs:
             foundry-rpc-vitest-${{ github.ref_name }}-v1-
             foundry-rpc-vitest--v1-
 
-      - uses: foundry-rs/foundry-toolchain@v1
+      - uses: foundry-rs/foundry-toolchain@8789b3e21e6c11b2697f5eb56eddae542f746c10 # v1
         with:
+          version: v1.5.1
           cache: false
 
       - run: pnpm install --frozen-lockfile
