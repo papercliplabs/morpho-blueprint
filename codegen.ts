@@ -11,6 +11,7 @@ const config: CodegenConfig = {
       preset: "client",
       config: {
         avoidOptionals: true,
+        enumType: "native",
         scalars: {
           Address: "@/whisk-types#Address", // string underlying
           ChainId: "@/whisk-types#ChainId", // number underlying
