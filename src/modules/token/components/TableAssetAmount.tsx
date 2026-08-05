@@ -1,8 +1,8 @@
 import NumberFlow from "@/common/components/ui/number-flow";
 import { Skeleton } from "@/common/components/ui/skeleton";
-import type { TokenInfo } from "@/common/data/fragments";
+import type { TokenInfo } from "@/common/data/types";
 import { descaleBigIntToNumber } from "@/common/utils/format";
-import type { BigIntish } from "@/whisk-types";
+import type { BigIntish } from "@/morpho-types";
 
 interface TableAssetAmountProps {
   asset: TokenInfo;

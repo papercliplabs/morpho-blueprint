@@ -7,7 +7,7 @@ import { Button } from "@/common/components/ui/button";
 import { DecimalInput } from "@/common/components/ui/decimal-input/decimal-input";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/common/components/ui/form";
 import NumberFlow from "@/common/components/ui/number-flow";
-import type { ChainInfo, TokenInfo } from "@/common/data/fragments";
+import type { ChainInfo, TokenInfo } from "@/common/data/types";
 import { descaleBigIntToNumber } from "@/common/utils/format";
 import { TokenIcon } from "@/modules/token/components/TokenIcon";
 
@@ -66,7 +66,7 @@ function AssetInputFormField<
               </FormControl>
               {!!asset && (
                 <div className="flex max-w-1/2 items-center gap-2 px-2">
-                  <TokenIcon token={asset} chain={chain} size="sm" chainClassName="border-muted" />
+                  <TokenIcon token={asset} chain={chain} size="sm" chainClassName="border-muted bg-muted" />
                   <span className="body-large-plus truncate">{asset.symbol}</span>
                 </div>
               )}

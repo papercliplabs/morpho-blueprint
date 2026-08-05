@@ -1,71 +1,29 @@
-import { graphql } from "@/generated/gql/whisk";
+import { graphql } from "@/generated/gql/morpho";
 
 graphql(`
-  fragment VaultCollateralFragment on Erc4626Vault {
-    ... MorphoVaultV1Collateral
-    ... MorphoVaultV2Collateral
+  # A vault V1's allocation to a single Morpho Blue market.
+  fragment VaultAllocationFragment on VaultAllocation {
+    supplyAssets
+    supplyAssetsUsd
+    supplyCap
+    supplyCapUsd
+    supplyShares
+    market {
+      ...MarketInfoFragment
+    }
   }
 
-  fragment VaultSummaryFragment on Erc4626Vault {
-    __typename
-    chain {
-      ...ChainInfoFragment
-    }
-    vaultAddress
-
-    name
-
-    asset {
-      ...TokenInfoFragment
-      priceUsd
-    }
-
-    totalAssets {
-      raw
-      formatted
-      usd
-    }
-
-    apy(timeframe: $timeframe) {
-      ...ApyFragment
-    }
-
-    ... VaultCollateralFragment
-    
-    ... on MorphoVault {              
-      metadata {
-        curator {
-          ...CuratorInfoFragment
-        }
+  # Trimmed allocation shape backing the earn-table exposure tooltip.
+  fragment VaultCollateralAllocationFragment on VaultAllocation {
+    supplyAssets
+    supplyAssetsUsd
+    supplyCap
+    market {
+      collateralAsset {
+        logoURI
+        name
+        symbol
       }
-    }
-
-    ... on MorphoVaultV2 {        
-        metadata {
-          curator {
-            ...CuratorInfoFragment
-          }
-        }
-      }    
-  }
-
-  fragment VaultHistoricalEntryFragment on MorphoVaultHistoricalEntry {
-    bucketTimestamp
-    totalSupplied {
-      formatted
-      usd
-    }
-    supplyApy1d{
-      base
-      total
-    }
-    supplyApy7d{
-      base
-      total
-    }
-    supplyApy30d{
-      base
-      total
     }
   }
 `);

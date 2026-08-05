@@ -13,7 +13,6 @@ import {
   unichain,
   worldchain,
 } from "viem/chains";
-import { Erc4626VaultProtocol } from "@/generated/gql/whisk/graphql";
 import { eventCb } from "./callbacks";
 import { Analytics } from "./components/Analytics";
 import { LogoDesktop, LogoMobile } from "./components/Logo";
@@ -21,6 +20,7 @@ import { PrivacyPolicy } from "./components/PrivacyPolicy";
 import { TermsOfUse } from "./components/TermsOfUse";
 import { hemi, hyperevm, katana } from "./custom-chains";
 import type { AppConfig } from "./types";
+import { Erc4626VaultProtocol } from "./vault-protocol";
 
 // Specify all chains your app supports
 export const SUPPORTED_CHAIN_IDS = [
@@ -106,6 +106,7 @@ export const APP_CONFIG: AppConfig = {
     [mainnet.id]: {
       chain: mainnet,
       rpcUrls: [process.env.MAINNET_RPC_URL_1!, process.env.MAINNET_RPC_URL_2!],
+      iconSlug: "eth",
     },
     [base.id]: {
       chain: base,

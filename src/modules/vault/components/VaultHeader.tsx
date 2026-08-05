@@ -2,6 +2,7 @@ import Image from "next/image";
 import { defaultUrlTransform } from "react-markdown";
 import LinkExternal from "@/common/components/LinkExternal";
 import { Badge } from "@/common/components/ui/badge";
+import type { CuratorInfo } from "@/common/data/types";
 import { APP_CONFIG } from "@/config";
 import { TokenIcon } from "@/modules/token/components/TokenIcon";
 import { VaultPositionHighlight } from "@/modules/vault/components/VaultPositionHighlight";
@@ -36,16 +37,7 @@ export async function VaultHeader({ vaultPromise }: VaultHeaderProps) {
               <span>&bull;</span>
               <div className="flex items-center gap-1">
                 <span>Curator: </span>
-                <LinkExternal href={defaultUrlTransform(curator.url)} className="text-foreground">
-                  {curator.name}
-                  <Image
-                    src={defaultUrlTransform(curator.image)}
-                    alt={curator.name}
-                    width={24}
-                    height={24}
-                    className="inline size-6 shrink-0 rounded-full border"
-                  />
-                </LinkExternal>
+                <CuratorLabel curator={curator} />
               </div>
             </>
           )}
@@ -62,5 +54,33 @@ export async function VaultHeader({ vaultPromise }: VaultHeaderProps) {
 
       <VaultPositionHighlight vault={vault} />
     </div>
+  );
+}
+
+// Curator metadata is curated upstream, so both the website link and the logo can be absent.
+function CuratorLabel({ curator }: { curator: CuratorInfo }) {
+  const content = (
+    <>
+      {curator.name}
+      {curator.image && (
+        <Image
+          src={defaultUrlTransform(curator.image)}
+          alt={curator.name}
+          width={24}
+          height={24}
+          className="inline size-6 shrink-0 rounded-full border"
+        />
+      )}
+    </>
+  );
+
+  if (!curator.url) {
+    return <span className="flex items-center gap-1 text-foreground">{content}</span>;
+  }
+
+  return (
+    <LinkExternal href={defaultUrlTransform(curator.url)} className="text-foreground">
+      {content}
+    </LinkExternal>
   );
 }

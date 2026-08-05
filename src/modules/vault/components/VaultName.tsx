@@ -1,4 +1,4 @@
-import type { ChainInfo, TokenInfo } from "@/common/data/fragments";
+import type { ChainInfo, TokenInfo } from "@/common/data/types";
 import { TokenIcon } from "@/modules/token/components/TokenIcon";
 
 interface VaultNameProps {

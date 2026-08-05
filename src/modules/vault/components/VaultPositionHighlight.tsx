@@ -34,13 +34,17 @@ export function VaultPositionHighlight({ vault }: VaultPositionHighlightProps) {
           className="heading-5"
         />
         <div className="flex items-center gap-1">
-          <Image
-            src={vault.asset.icon ?? ""}
-            alt={vault.asset.symbol}
-            width={12}
-            height={12}
-            className="size-3 shrink-0 rounded-full border border-border"
-          />
+          {/* `logoURI` is null until the asset is curated upstream, so render nothing rather than
+              handing next/image an empty src. */}
+          {vault.asset.icon && (
+            <Image
+              src={vault.asset.icon}
+              alt={vault.asset.symbol}
+              width={12}
+              height={12}
+              className="size-3 shrink-0 rounded-full border border-border"
+            />
+          )}
           <NumberFlowWithLoading
             value={data !== undefined ? Number(data.assets.formatted) : undefined}
             loadingContent={<Skeleton className="h-[15px] w-[40px]" />}

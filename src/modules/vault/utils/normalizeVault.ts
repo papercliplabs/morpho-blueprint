@@ -1,31 +1,31 @@
+import type { ChainInfo } from "@/common/data/types";
 import type { SupportedChainId } from "@/config/types";
+import type { VaultMetadata } from "@/modules/vault/vault.types";
 import { getVaultConfig } from "./getVaultConfig";
 
+/** Applies the per-vault config overrides (name, description, visibility) to an adapted vault. */
 export function normalizeVault<
   V extends {
     name: string;
-    chain: { id: number };
+    chain: ChainInfo;
     vaultAddress: string;
-    metadata?: Record<string, unknown> | null;
+    metadata: VaultMetadata | null;
   },
->(vault: V): V & { isHidden: boolean; chain: { id: SupportedChainId } } {
-  const { chain, name, metadata, vaultAddress } = vault;
+>(vault: V): V & { isHidden: boolean; chain: ChainInfo & { id: SupportedChainId } } {
+  const chainId = vault.chain.id as SupportedChainId;
+  const chain = { ...vault.chain, id: chainId };
+  const config = getVaultConfig(chainId, vault.vaultAddress);
 
-  const chainId = chain.id as SupportedChainId;
-  const config = getVaultConfig(chainId, vaultAddress);
-
-  if (!config) return { ...vault, isHidden: true, chain: { id: chainId } };
+  if (!config) return { ...vault, isHidden: true, chain };
 
   return {
     ...vault,
-    name: config?.name ?? name,
-    chain: { ...chain, id: chainId },
-    ...(metadata && {
-      metadata: {
-        ...metadata,
-        description: config?.description || metadata?.description,
-      },
-    }),
-    isHidden: config?.isHidden ?? false,
+    name: config.name ?? vault.name,
+    chain,
+    metadata: vault.metadata && {
+      ...vault.metadata,
+      description: config.description || vault.metadata.description,
+    },
+    isHidden: config.isHidden ?? false,
   };
 }

@@ -7,7 +7,7 @@ import { useMarketTableData } from "./useMarketTableData";
 
 interface EarnSummaryMetrics {
   data: {
-    // totalCollateralUsd: number; // TODO: need to add the Whisk
+    // totalCollateralUsd: number; // TODO: available as MarketState.collateralAssetsUsd, not yet surfaced
     totalBorrowedUsd: number;
 
     userBorrowsUsd?: number;

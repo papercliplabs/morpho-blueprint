@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { MetricWithTooltip } from "@/common/components/Metric";
 import { NumberFlowWithLoading } from "@/common/components/ui/number-flow";
 import { Skeleton } from "@/common/components/ui/skeleton";
+import { rateLabel } from "@/common/utils/timeframe";
 import { APP_CONFIG } from "@/config";
 import type { MarketSummary } from "@/modules/market/data/getMarketSummaries";
 import { useBorrowSummaryMetrics } from "@/modules/market/hooks/useBorrowSummaryMetrics";
@@ -96,8 +97,8 @@ function BorrowSummaryMetricsLayout({
           {userBorrowed}
         </MetricWithTooltip>
         <MetricWithTooltip
-          label="Your borrow APY"
-          tooltip={`Your net borrow APY across all markets in the table. The native APY is from a ${APP_CONFIG.apyWindow} rolling average.`}
+          label={rateLabel("Your borrow rate")}
+          tooltip={`Your net borrow rate across all markets in the table, after fees and including rewards, from a ${APP_CONFIG.apyWindow} rolling average.`}
           className="flex-1 md:items-end"
         >
           {userBorrowApy}

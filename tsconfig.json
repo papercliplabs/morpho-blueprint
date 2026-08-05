@@ -20,7 +20,7 @@
       },
       {
         "name": "@0no-co/graphqlsp",
-        "schema": "./src/generated/gql/schema.graphql"
+        "schema": "./schema/morpho-api.graphql"
       }
     ],
     "paths": {

@@ -23,7 +23,7 @@ const columns: Column[] = [
     header: "Vault Name",
     cell: ({ row }) => {
       const { vault } = row.original;
-      return <VaultName {...vault} chainClassName="border-[var(--row-color)]" />;
+      return <VaultName {...vault} chainClassName="border-[var(--row-color)] bg-[var(--row-color)]" />;
     },
     minSize: 260,
   },
@@ -56,7 +56,7 @@ const columns: Column[] = [
   },
   {
     id: "totalSupply",
-    accessorKey: "position.supplyAssetsUsd",
+    accessorFn: (row) => row.position.supplyAmount.usd ?? 0,
     header: "Total Supply",
     cell: ({ row }) => {
       const { position, supplyCap } = row.original;

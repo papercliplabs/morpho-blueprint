@@ -1,18 +1,7 @@
-import type { DataRange } from "./DateSelector";
+import { CHART_RANGES, DAY, type DataRange } from "@/common/utils/chart-ranges";
 import type { DataEntry } from "./types";
 
-export const HOUR = 60 * 60;
-export const DAY = 24 * HOUR;
-export const WEEK = 7 * DAY;
-
 export const NO_DATA_POINT_THRESHOLD = 10; // Need at least this many data points to show a nice chart
-
-const RANGE_DURATION: Record<DataRange, number> = {
-  "1W": WEEK,
-  "1M": 30 * DAY,
-  "6M": 26 * WEEK,
-  All: 0,
-} as const;
 
 export function prepareChartDataWithDomain<D extends DataEntry>(
   data: D[],
@@ -91,6 +80,6 @@ export function getMinX<D extends DataEntry>(data: D[], range: DataRange) {
   if (range === "All") return data[0].bucketTimestamp;
 
   const now = Math.floor(Date.now() / 1000);
-  const minX = now - RANGE_DURATION[range];
+  const minX = now - CHART_RANGES[range].durationSeconds;
   return minX;
 }

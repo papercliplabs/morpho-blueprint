@@ -2,6 +2,7 @@ import type { ComponentProps } from "react";
 import { cn } from "@/common/utils/shadcn";
 import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
 import type { DataChart } from "./DataChart";
+import type { DataRange } from "./DateSelector";
 import type { DataEntry } from "./types";
 
 type TokenAmountOption<T> = {
@@ -19,8 +20,13 @@ type ApyOption<T> = {
   key: Exclude<keyof T, "bucketTimestamp">;
   title: string;
   description?: string;
-  baseApy: number;
+  /** Current-state net APY, shown as the headline above the series. */
   totalApy: number;
+  /**
+   * Realized average per range, served by the API. The reference line is hidden for a range the
+   * vault is too young to have one for.
+   */
+  averageApy: Record<DataRange, number | null>;
 };
 
 export type TabOptions<T> = TokenAmountOption<T> | ApyOption<T>;
