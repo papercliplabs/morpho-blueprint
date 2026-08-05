@@ -57,9 +57,27 @@ export function toTokenInfo(asset: RawAsset): TokenInfo {
     name: asset.name,
     decimals: toDecimals(asset.decimals),
     icon: asset.logoURI ?? null,
-    // The app only groups by a single category; `tags` is an unordered list, so take the first.
-    category: asset.tags?.[0] ?? null,
+    category: toCategory(asset.tags),
   };
+}
+
+/**
+ * `Asset.tags` is an unordered attribute list (`yield`, `lst`, `simple-permit`, `vault-v1`, …),
+ * not the curated category the filter tabs group by. Map only the asset-class tags onto display
+ * categories and ignore the attributes; an asset with none stays uncategorized.
+ */
+const CATEGORY_BY_TAG: [tag: string, category: string][] = [
+  ["stablecoin", "Stable"],
+  ["btc", "BTC"],
+  ["eth", "ETH"],
+];
+
+function toCategory(tags: readonly string[] | null | undefined): string | null {
+  if (!tags) return null;
+  for (const [tag, category] of CATEGORY_BY_TAG) {
+    if (tags.includes(tag)) return category;
+  }
+  return null;
 }
 
 export function toChainInfo(chain: { id: number; network: string }): ChainInfo {

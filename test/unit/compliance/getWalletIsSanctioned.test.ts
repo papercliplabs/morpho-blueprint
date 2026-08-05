@@ -72,7 +72,14 @@ describe("getWalletIsSanctioned", () => {
     vi.stubEnv("MAINNET_RPC_URL_2", "");
 
     await expect(getWalletIsSanctioned("not-an-address")).resolves.toBe(true);
-    // Valid hex of the right length, but a bad checksum.
-    await expect(getWalletIsSanctioned("0x7f367cC41522cE07553e823bf3be79A889DEbe1B")).resolves.toBe(true);
+  });
+
+  test("normalizes casing instead of failing closed on it", async ({ client }) => {
+    vi.stubEnv("MAINNET_RPC_URL_1", client.transport.url);
+    vi.stubEnv("MAINNET_RPC_URL_2", "");
+
+    // viem's getAddress re-checksums case-mangled input rather than throwing, so a clean address
+    // in the wrong case is screened normally — not blocked as malformed.
+    await expect(getWalletIsSanctioned(CLEAN_ADDRESS.toLowerCase())).resolves.toBe(false);
   });
 });

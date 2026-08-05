@@ -111,21 +111,32 @@ function isSupportedChainId(chainId: number): chainId is SupportedChainId {
   return (SUPPORTED_CHAIN_IDS as readonly number[]).includes(chainId);
 }
 
-export const getAccountRewards = async (accountAddress: Address): Promise<MerklAccountRewardsMap> => {
+function breakdownsUrl(accountAddress: Address, chainIds: readonly number[]): URL {
   const url = new URL(`${MERKL_API_BASE_URL}/users/${getAddress(accountAddress)}/rewards/breakdowns`);
   // `chainIds` is required and plural, the singular form is rejected with a 400
-  for (const chainId of SUPPORTED_CHAIN_IDS) {
+  for (const chainId of chainIds) {
     url.searchParams.append("chainIds", chainId.toString());
   }
   url.searchParams.set("claimableOnly", "true");
+  return url;
+}
 
+export const getAccountRewards = async (accountAddress: Address): Promise<MerklAccountRewardsMap> => {
   let response: unknown;
   try {
-    response = await fetchJsonResponse<unknown>(url);
+    // All chains come back in a single request on the happy path.
+    response = await fetchJsonResponse<unknown>(breakdownsUrl(accountAddress, SUPPORTED_CHAIN_IDS));
   } catch {
-    // Errors are logged and tracked at the fetch layer. Degrade to no rewards rather than failing the route,
-    // matching the previous per-chain `Promise.allSettled` behavior (all chains come back in a single request now).
-    return {};
+    // Merkl rejects the entire request if any single chain id is unknown to it, so retry per chain:
+    // a chain Merkl does not index degrades only itself instead of zeroing rewards app-wide. Chains
+    // that still fail degrade to no rewards (errors are logged at the fetch layer), matching the
+    // previous per-chain `Promise.allSettled` behavior.
+    const settled = await Promise.allSettled(
+      SUPPORTED_CHAIN_IDS.map((chainId) => fetchJsonResponse<unknown>(breakdownsUrl(accountAddress, [chainId]))),
+    );
+    response = settled.flatMap((result) =>
+      result.status === "fulfilled" && Array.isArray(result.value) ? result.value : [],
+    );
   }
 
   const parsedResponse = merklAccountRewardsResponseSchema.safeParse(response);

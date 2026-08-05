@@ -49,7 +49,11 @@ export function DataChart<D extends DataEntry>(props: Props<D>) {
   }, [tab, isTokenAmount, isApy, isUsd]);
 
   const data = prepareChartDataWithDomain(allData[CHART_RANGES[range].resolution], range, field);
-  const hasData = data.length > NO_DATA_POINT_THRESHOLD;
+  // Count rows where the selected metric actually has a sample: an all-null series (e.g. an APY
+  // window on a market younger than it) must show the insufficient-data state, not a blank chart.
+  const hasData =
+    data.filter((d) => (d[tab] as Record<string, unknown> | undefined)?.[field as string] != null).length >
+    NO_DATA_POINT_THRESHOLD;
 
   function formatValue(value: number, options: Intl.NumberFormatOptions = {}) {
     return formatNumber(value, {

@@ -58,7 +58,10 @@ export const getWalletIsSanctioned = cache(async (address: string): Promise<bool
       args: [getAddress(address)],
     });
   } catch (error) {
-    console.error(`Unable to screen ${address} against the sanctions oracle, failing closed`, error);
+    // Logged without the raw error object: viem embeds the RPC URL in its errors, and a
+    // credential-bearing provider URL must not be copied into server logs.
+    const reason = (error instanceof Error ? error.message : String(error)).replace(/https?:\/\/\S+/g, "<rpc-url>");
+    console.error(`Unable to screen ${address} against the sanctions oracle, failing closed: ${reason}`);
     return true;
   }
 });
