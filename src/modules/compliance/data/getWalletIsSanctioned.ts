@@ -3,6 +3,7 @@ import "server-only";
 import { cache } from "react";
 import { createPublicClient, fallback, getAddress, http } from "viem";
 import { mainnet } from "viem/chains";
+import { redactError } from "@/common/utils/redactError";
 
 // Chainalysis's public sanctions oracle, which screens against the OFAC SDN list.
 // Pinned to mainnet: the screening result is chain independent, so it is read here regardless of
@@ -58,10 +59,8 @@ export const getWalletIsSanctioned = cache(async (address: string): Promise<bool
       args: [getAddress(address)],
     });
   } catch (error) {
-    // Logged without the raw error object: viem embeds the RPC URL in its errors, and a
-    // credential-bearing provider URL must not be copied into server logs.
-    const reason = (error instanceof Error ? error.message : String(error)).replace(/https?:\/\/\S+/g, "<rpc-url>");
-    console.error(`Unable to screen ${address} against the sanctions oracle, failing closed: ${reason}`);
+    // Logged without the raw error object, which would embed the (possibly credential-bearing) RPC URL.
+    console.error(`Unable to screen ${address} against the sanctions oracle, failing closed: ${redactError(error)}`);
     return true;
   }
 });

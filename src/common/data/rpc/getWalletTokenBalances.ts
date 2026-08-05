@@ -1,6 +1,7 @@
 import "server-only";
 
 import { type Address, createPublicClient, erc20Abi, fallback, getAddress, http } from "viem";
+import { redactError } from "@/common/utils/redactError";
 import { tryCatch } from "@/common/utils/tryCatch";
 import { APP_CONFIG } from "@/config";
 import type { SupportedChainId } from "@/config/types";
@@ -57,7 +58,7 @@ export async function getWalletTokenBalances(
   );
 
   if (error || !data) {
-    console.warn(`Failed to read wallet balances on chain ${chainId}`, { error });
+    console.warn(`Failed to read wallet balances on chain ${chainId}: ${redactError(error)}`);
     return balances;
   }
 
@@ -65,7 +66,7 @@ export async function getWalletTokenBalances(
     const token = uniqueTokens[index];
     if (!token) return;
     if (result.status !== "success") {
-      console.warn(`balanceOf failed for ${token} on chain ${chainId}`, { error: result.error });
+      console.warn(`balanceOf failed for ${token} on chain ${chainId}: ${redactError(result.error)}`);
       return;
     }
     balances.set(token.toLowerCase(), result.result);
