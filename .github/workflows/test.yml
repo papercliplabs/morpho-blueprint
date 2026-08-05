@@ -11,8 +11,6 @@ on:
   workflow_dispatch: # Adds "Run workflow" button in GitHub UI
 
 env:
-  WHISK_API_URL: ${{ secrets.WHISK_API_URL }}
-  WHISK_API_KEY: ${{ secrets.WHISK_API_KEY }}
   NEXT_PUBLIC_URL: ${{ secrets.NEXT_PUBLIC_URL }}
   MAINNET_RPC_URL_1: ${{ secrets.MAINNET_RPC_URL_1 }}
   POLYGON_RPC_URL_1: ${{ secrets.POLYGON_RPC_URL_1 }}

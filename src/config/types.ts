@@ -85,11 +85,11 @@ export interface AppConfig {
 
   readonly reownProjectId: string; // Reown/wallet connect project ID. Get this from https://cloud.reown.com
   // Chain configuration for all chains your app supports.
-  // `iconSlug` (optional) names the chain's icon on the Morpho CDN (https://cdn.morpho.org/assets/chains/<slug>.svg);
-  // the GraphQL API serves no chain icon, so a chain without a slug simply renders without one.
-  // Known slugs: eth (1), optimism (10), unichain (130), polygon (137), robinhood (4663), arc (5042),
-  // arbitrum (42161), katana (747474). Verified 2026-07-28: the CDN has no asset for Base (8453),
-  // World Chain (480), HyperEVM (999), Monad (143), Stable (988) or Tempo (4217).
+  // `iconSlug` (optional) names the chain's icon on the Morpho CDN
+  // (https://cdn.morpho.org/assets/chains/<slug>), overriding the built-in defaults in
+  // `getChainIconUrl` (which cover all demo chains). A slug without an extension resolves as .svg;
+  // a few CDN assets are .png only (e.g. "base.png", "world.png"). The GraphQL API serves no chain
+  // icon, so a chain with no slug and no default simply renders without one.
   readonly chainConfig: Record<
     SupportedChainId,
     { readonly chain: Chain; readonly rpcUrls: [string, ...string[]]; readonly iconSlug?: string }
