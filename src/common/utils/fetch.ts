@@ -58,6 +58,6 @@ export async function fetchJsonResponse<T>(url: string | URL, options?: FetchJso
       url: url.toString(),
       error: `${e}`,
     });
-    throw new Error("Fetch failed");
+    throw new Error("Fetch failed", { cause: e });
   }
 }
