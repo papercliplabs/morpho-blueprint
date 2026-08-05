@@ -1,18 +1,20 @@
 import "server-only";
 
 import { cache } from "react";
+import { pageSize, warnIfTruncated } from "@/common/data/adapters/pagination";
+import { executeMorphoQuery } from "@/common/utils/executeMorphoQuery";
 import type { SupportedChainId } from "@/config/types";
-import { graphql } from "@/generated/gql/whisk";
-import type { MarketSummariesQuery } from "@/generated/gql/whisk/graphql";
-import type { ChainId } from "@/whisk-types";
-import { executeWhiskQuery } from "../../../common/utils/executeWhiskQuery";
+import { graphql } from "@/generated/gql/morpho";
+import type { MarketSummary } from "@/modules/market/market.types";
+import { toMarketSummary } from "./adapters";
 import { getSupportedMarketIds } from "./getSupportedMarketIds";
 
 const query = graphql(`
-  query MarketSummaries($chainIds: [ChainId!]!, $marketIds: [Hex!]!) {
-    morphoMarkets(where: {chainId_in: $chainIds, marketId_in: $marketIds}, limit: 250) {
+  query MarketSummaries($first: Int!, $chainIds: [Int!]!, $marketIds: [String!]!) {
+    markets(first: $first, where: { chainId_in: $chainIds, uniqueKey_in: $marketIds }) {
       pageInfo {
-        hasNextPage
+        count
+        countTotal
       }
       items {
         ...MarketSummaryFragment
@@ -21,35 +23,37 @@ const query = graphql(`
   }
 `);
 
-export type MarketSummary = NonNullable<MarketSummariesQuery["morphoMarkets"]["items"][number]>;
+export type { MarketSummary };
 
-export const getMarketSummaries = cache(async () => {
+export const getMarketSummaries = cache(async (): Promise<MarketSummary[]> => {
   const supportedMarketIds = await getSupportedMarketIds();
-  const chainIds = Object.keys(supportedMarketIds).map((chainId) => Number.parseInt(chainId) as ChainId);
-  const marketIds = Object.values(supportedMarketIds).flatMap((marketIds) => Array.from(marketIds));
 
-  const response = await executeWhiskQuery(query, {
-    chainIds,
-    marketIds,
+  // One request per chain. `chainId_in` and `uniqueKey_in` are independent filters, so flattening
+  // every chain's ids into one request matches their Cartesian product; with `first` sized to the
+  // intended pair count, a market id that also exists on another configured chain would fill the
+  // page and push a configured market off it. The post-filter below cannot recover a market that
+  // never made it into the response.
+  const byChain = Object.entries(supportedMarketIds)
+    .map(([chainId, ids]) => [Number.parseInt(chainId) as SupportedChainId, Array.from(ids)] as const)
+    .filter(([, ids]) => ids.length > 0);
+
+  if (byChain.length === 0) return [];
+
+  const responses = await Promise.all(
+    byChain.map(([chainId, ids]) =>
+      // Paginated-field cost scales with `first`, so request exactly the derived market set.
+      executeMorphoQuery(query, {
+        first: pageSize(ids.length, "markets"),
+        chainIds: [chainId],
+        marketIds: ids,
+      }),
+    ),
+  );
+
+  return responses.flatMap((response) => {
+    warnIfTruncated("markets", response.markets.pageInfo);
+    return (response.markets.items ?? [])
+      .filter((market) => supportedMarketIds[market.chain.id as SupportedChainId]?.includes(market.marketId))
+      .map(toMarketSummary);
   });
-
-  if (response.morphoMarkets.pageInfo.hasNextPage) {
-    console.warn("More markets available, but not fetched.");
-  }
-
-  const markets = response.morphoMarkets.items.filter((market) => {
-    // Ignore errored vaults (already log at execute layer)
-    if (market === null) {
-      return false;
-    }
-
-    // Filter out potential for wrong market with same id on another chain
-    if (!supportedMarketIds[market.chain.id as SupportedChainId]?.includes(market.marketId)) {
-      return false;
-    }
-
-    return true;
-  });
-
-  return markets as MarketSummary[];
 });

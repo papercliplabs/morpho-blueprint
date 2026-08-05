@@ -1,9 +1,8 @@
+import type { Apy } from "@/common/data/types";
 import { APP_CONFIG } from "@/config";
-import type { ApyFragmentFragment, MorphoVaultV1MarketAllocationFragment } from "@/generated/gql/whisk/graphql";
+import type { MarketSupplyApyWindows } from "@/modules/market/market.types";
 
-export function extractMarketSupplyApy(
-  market: MorphoVaultV1MarketAllocationFragment["marketAllocations"][number]["market"],
-): ApyFragmentFragment {
+export function extractMarketSupplyApy(market: MarketSupplyApyWindows): Apy {
   switch (APP_CONFIG.apyWindow) {
     case "1d":
       return market.supplyApy1d;

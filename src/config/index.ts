@@ -1,28 +1,19 @@
 import { Inter } from "next/font/google";
 import { getAddress, parseUnits } from "viem";
-import {
-  arbitrum,
-  base,
-  berachain,
-  corn,
-  lisk,
-  mainnet,
-  plumeMainnet,
-  polygon,
-  soneium,
-  unichain,
-  worldchain,
-} from "viem/chains";
-import { Erc4626VaultProtocol } from "@/generated/gql/whisk/graphql";
+import { arbitrum, base, mainnet, polygon, unichain, worldchain } from "viem/chains";
 import { eventCb } from "./callbacks";
 import { Analytics } from "./components/Analytics";
 import { LogoDesktop, LogoMobile } from "./components/Logo";
 import { PrivacyPolicy } from "./components/PrivacyPolicy";
 import { TermsOfUse } from "./components/TermsOfUse";
-import { hemi, hyperevm, katana } from "./custom-chains";
+import { hyperevm, katana } from "./custom-chains";
 import type { AppConfig } from "./types";
+import { Erc4626VaultProtocol } from "./vault-protocol";
 
-// Specify all chains your app supports
+// Specify all chains your app supports.
+// Every chain here must be served by the configured Morpho API instance — the public endpoint
+// rejects queries for chains it does not index (`unsupported chainId`), which fails the whole
+// vault list. Check with: `{ chains { id network } }` against https://api.morpho.org/graphql
 export const SUPPORTED_CHAIN_IDS = [
   mainnet.id,
   base.id,
@@ -30,13 +21,7 @@ export const SUPPORTED_CHAIN_IDS = [
   unichain.id,
   katana.id,
   arbitrum.id,
-  hemi.id,
-  lisk.id,
-  soneium.id,
-  plumeMainnet.id,
   worldchain.id,
-  corn.id,
-  berachain.id,
   hyperevm.id,
 ] as const;
 
@@ -127,33 +112,9 @@ export const APP_CONFIG: AppConfig = {
       chain: arbitrum,
       rpcUrls: [process.env.ARBITRUM_RPC_URL_1!, process.env.ARBITRUM_RPC_URL_2!],
     },
-    [hemi.id]: {
-      chain: hemi,
-      rpcUrls: [process.env.HEMI_RPC_URL_1!, process.env.HEMI_RPC_URL_2!],
-    },
-    [lisk.id]: {
-      chain: lisk,
-      rpcUrls: [process.env.LISK_RPC_URL_1!, process.env.LISK_RPC_URL_2!],
-    },
-    [soneium.id]: {
-      chain: soneium,
-      rpcUrls: [process.env.SONEIUM_RPC_URL_1!, process.env.SONEIUM_RPC_URL_2!],
-    },
-    [plumeMainnet.id]: {
-      chain: plumeMainnet,
-      rpcUrls: [process.env.PLUME_RPC_URL_1!, process.env.PLUME_RPC_URL_2!],
-    },
     [worldchain.id]: {
       chain: worldchain,
       rpcUrls: [process.env.WORLDCHAIN_RPC_URL_1!, process.env.WORLDCHAIN_RPC_URL_2!],
-    },
-    [corn.id]: {
-      chain: corn,
-      rpcUrls: [process.env.CORN_RPC_URL_1!, process.env.CORN_RPC_URL_2!],
-    },
-    [berachain.id]: {
-      chain: berachain,
-      rpcUrls: [process.env.BERACHAIN_RPC_URL_1!, process.env.BERACHAIN_RPC_URL_2!],
     },
     [hyperevm.id]: {
       chain: hyperevm,
@@ -197,32 +158,10 @@ export const APP_CONFIG: AppConfig = {
       { address: getAddress("0x4B6F1C9E5d470b97181786b26da0d0945A7cf027"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Hyperithm USDC
       { address: getAddress("0x2281961480216653529A03D6CE03Ee6B8cdF564E"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Steakhouse Prime USDT0
     ],
-    [hemi.id]: [
-      { address: getAddress("0xA7dB73F80a173c31A1241Bf97F4452A07e443c6c"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Clearstar Reactor hemiBTC
-    ],
-    [lisk.id]: [
-      { address: getAddress("0x8258F0c79465c95AFAc325D6aB18797C9DDAcf55"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Re7 LSK
-      { address: getAddress("0x50cB55BE8cF05480a844642cB979820C847782aE"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Re7 USDT
-      { address: getAddress("0x7Cbaa98bd5e171A658FdF761ED1Db33806a0d346"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Re7 WETH
-    ],
-    [soneium.id]: [
-      { address: getAddress("0xEcDBE2AF33E68cf96F6716f706B078fa94e978cb"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Re7 USDC
-    ],
-    [plumeMainnet.id]: [
-      { address: getAddress("0xc0Df5784f28046D11813356919B869dDA5815B16"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Re7 pUSD
-      { address: getAddress("0xBB748a1346820560875CB7a9cD6B46c203230E07"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Mystic ETH
-    ],
     [worldchain.id]: [
       { address: getAddress("0x0db7e405278c2674f462ac9d9eb8b8346d1c1571"), protocol: Erc4626VaultProtocol.MorphoV1 }, // WETH
       { address: getAddress("0x348831b46876d3df2db98bdec5e3b4083329ab9f"), protocol: Erc4626VaultProtocol.MorphoV1 }, // WLD
       { address: getAddress("0xb1e80387ebe53ff75a89736097d34dc8d9e9045b"), protocol: Erc4626VaultProtocol.MorphoV1 }, // USDC
-    ],
-    [corn.id]: [
-      { address: getAddress("0xa7ba08cfc37e7cc67404d4996ffbb3e977490115"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Smokehouse WBTCN
-      { address: getAddress("0x9b2fa89e23ae84f7895a58f8ec7cb0b267ed8a21"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Smokehouse USDT0
-    ],
-    [berachain.id]: [
-      { address: getAddress("0x30BbA9CD9Eb8c95824aa42Faa1Bb397b07545bc1"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Re7 HONEY
     ],
     [hyperevm.id]: [
       { address: getAddress("0x4346C98E690c17eFbB999aE8e1dA96B089bE320b"), protocol: Erc4626VaultProtocol.MorphoV1 }, // Relend rUSDC

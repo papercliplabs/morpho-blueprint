@@ -5,6 +5,7 @@ import { use } from "react";
 import { ApyTooltip } from "@/common/components/ApyToolip";
 import NumberFlow from "@/common/components/ui/number-flow";
 import { Table } from "@/common/components/ui/table";
+import { rateLabel } from "@/common/utils/timeframe";
 import { TokenIcon } from "@/modules/token/components/TokenIcon";
 import type { MorphoVaultV2 } from "@/modules/vault/vault.types";
 import { CapFilledTooltip } from "./CapFilledTooltip";
@@ -13,15 +14,24 @@ interface Props {
   vaultPromise: Promise<MorphoVaultV2>;
 }
 
-type Adapter = MorphoVaultV2["adapters"][number];
+type Adapter = MorphoVaultV2["allocations"][number];
 
-const TYPE_LABELS: Partial<Record<NonNullable<Adapter["__typename"]>, string>> = {
-  VaultV1Adapter: "Vaults v1",
+// `Erc4626VaultAdapter` rows without an underlying vault are vault V2 or unrecognized adapters
+// (the API exposes no expandable breakdown for them), so they get their own group rather than
+// sitting under "Vaults v1".
+function adapterGroup(adapter: Adapter): string {
+  if (adapter.__typename === "MarketV1Adapter") return "MarketV1Adapter";
+  return adapter.vault ? "Erc4626VaultAdapter" : "OtherAdapter";
+}
+
+const GROUP_LABELS: Record<string, string> = {
+  Erc4626VaultAdapter: "Vaults v1",
   MarketV1Adapter: "Markets v1",
+  OtherAdapter: "Other",
 };
 
-const columns: ColumnDef<Adapter & { percentage: number }>[] = [
-  { accessorKey: "__typename", enableSorting: false },
+const columns: ColumnDef<Adapter & { percentage: number; group: string }>[] = [
+  { accessorKey: "group", enableSorting: false },
   {
     id: "name",
     accessorKey: "name",
@@ -30,7 +40,7 @@ const columns: ColumnDef<Adapter & { percentage: number }>[] = [
       const { __typename, name } = row.original;
       return (
         <div className="body-medium-plus flex min-w-0 items-center gap-2">
-          {__typename === "VaultV1Adapter" && row.original.vault && (
+          {__typename === "Erc4626VaultAdapter" && row.original.vault && (
             <TokenIcon token={row.original.vault.asset} chain={row.original.vault.chain} size="md" />
           )}
           <span className="truncate">{name || __typename}</span>
@@ -73,17 +83,17 @@ const columns: ColumnDef<Adapter & { percentage: number }>[] = [
   },
   {
     id: "apy",
-    accessorFn: (row) => (row.__typename === "VaultV1Adapter" ? row.vault?.apy?.total : null) ?? 0,
-    header: "APY",
+    accessorFn: (row) => (row.__typename === "Erc4626VaultAdapter" ? row.vault?.apy?.total : null) ?? 0,
+    header: rateLabel("Net APY"),
     cell: ({ row }) => {
       const adapter = row.original;
 
-      if (adapter.__typename !== "VaultV1Adapter" || !adapter.vault?.apy) {
+      if (adapter.__typename !== "Erc4626VaultAdapter" || !adapter.vault?.apy) {
         return <span className="text-muted-foreground">-</span>;
       }
 
-      const { base, total, rewards } = adapter.vault.apy;
-      return <ApyTooltip type="earn" nativeApy={base} totalApy={total} rewards={rewards} triggerVariant="sm" />;
+      const { afterFees, total, rewards } = adapter.vault.apy;
+      return <ApyTooltip type="earn" apyAfterFees={afterFees} totalApy={total} rewards={rewards} triggerVariant="sm" />;
     },
     minSize: 120,
   },
@@ -95,10 +105,10 @@ export function AdaptersTable({ vaultPromise }: Props) {
 
   const totalSupply = Number(vault.totalAssets?.formatted ?? "0");
 
-  const adapters = vault.adapters
+  const adapters = vault.allocations
     .map((adapter) => {
       const allocation = Number(adapter.adapterCap?.allocation?.formatted ?? "0");
-      return { ...adapter, percentage: totalSupply > 0 ? allocation / totalSupply : 0 };
+      return { ...adapter, percentage: totalSupply > 0 ? allocation / totalSupply : 0, group: adapterGroup(adapter) };
     })
     .sort((a, b) => b.percentage - a.percentage);
 
@@ -106,11 +116,11 @@ export function AdaptersTable({ vaultPromise }: Props) {
     <Table
       columns={columns}
       data={adapters}
-      groupBy="__typename"
-      groupLabels={TYPE_LABELS}
+      groupBy="group"
+      groupLabels={GROUP_LABELS}
       initialSort={[{ id: "percentage", desc: true }]}
       rowAction={(adapter) =>
-        adapter.__typename === "VaultV1Adapter" && adapter.vault
+        adapter.__typename === "Erc4626VaultAdapter" && adapter.vault
           ? { type: "link", href: `/earn/${adapter.vault.chain.id}/${adapter.vault.vaultAddress}` }
           : null
       }

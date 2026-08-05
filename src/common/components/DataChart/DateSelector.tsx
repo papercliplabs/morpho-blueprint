@@ -1,20 +1,15 @@
+import type { DataRange } from "@/common/utils/chart-ranges";
 import { ButtonSelector } from "../ui/button-selector/button-selector";
-import type { DataEntry, HistoricalData } from "./types";
 
-export type DataRange = "1W" | "1M" | "6M" | "All";
+// Re-exported so the chart components keep importing the range type from the chart layer, while
+// `chart-ranges.ts` stays the single place a range is declared.
+export type { DataRange };
 
 type Props = {
   range: DataRange;
   setRange: (range: DataRange) => void;
   availableRanges: DataRange[];
 };
-
-export const periods: Record<DataRange, keyof HistoricalData<DataEntry>> = {
-  "1W": "hourly",
-  "1M": "daily",
-  "6M": "daily",
-  All: "weekly",
-} as const;
 
 export function DateSelector(props: Props) {
   const { range, setRange, availableRanges } = props;

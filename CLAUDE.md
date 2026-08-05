@@ -32,10 +32,18 @@ The app is designed as a whitelabel frontend where all customization happens in 
 - `src/config/types.ts` - TypeScript definitions for configuration
 
 **Data Layer:**
-- Powered by Whisk GraphQL API for read-only data
-- GraphQL fragments defined in `src/common/data/fragments.ts`
-- Generated types from GraphQL schema via `@graphql-codegen/cli` in `src/generated/gql/whisk/`
+- Powered by the Morpho GraphQL API (`api.morpho.org/graphql`) for read-only data, behind the server-only
+  `executeMorphoQuery` chokepoint. The public endpoint is keyless; `MORPHO_API_URL`/`MORPHO_API_KEY` are
+  optional overrides for a dedicated instance.
+- Codegen runs against a committed schema snapshot in `schema/morpho-api.graphql` (builds are hermetic); generated
+  types land in `src/generated/gql/morpho/`
+- Shared GraphQL fragments in `src/common/data/fragments.ts`
+- App-owned data types in `src/common/data/types.ts`; adapters mapping API responses onto them in
+  `src/common/data/adapters/` and each module's `data/adapters.ts`. Components never see a generated type.
 - Data fetching functions organized by domain in module-specific `data/` directories
+- Wallet ERC-20 balances are joined in via a server-side multicall (`src/common/data/rpc/`), not the GraphQL API
+- Chain icons are not in the GraphQL schema; they come from the Morpho CDN via the per-chain `iconSlug` config,
+  which does not cover every chain (missing ones render without an icon)
 
 **Action System:**
 Blockchain interactions use a standardized action pattern:
@@ -59,9 +67,12 @@ Blockchain interactions use a standardized action pattern:
 - Context providers for wallet connection (wagmi) and theming
 
 **Supported Chains:**
-- Mainnet, Base, Polygon, Worldchain
+- Demo config: Mainnet, Base, Polygon, Unichain, Katana, Arbitrum, World Chain, HyperEVM
+- Every configured chain must be indexed by the configured Morpho API instance
 - Chain configuration includes RPC URLs and supported vaults per chain
 - Type-safe chain IDs via `SUPPORTED_CHAIN_IDS` constant
+- A mainnet RPC URL is required for all deployments: the OFAC screening reads Chainalysis's on-chain
+  oracle on mainnet and fails closed
 
 **Feature Flags:**
 Configurable features in `APP_CONFIG.featureFlags`:

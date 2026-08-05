@@ -3,6 +3,7 @@ import { ApyTooltipContent, ApyTooltipTrigger } from "@/common/components/ApyToo
 import { MetricWithTooltip } from "@/common/components/Metric";
 import NumberFlow from "@/common/components/ui/number-flow";
 import { Skeleton } from "@/common/components/ui/skeleton";
+import { rateLabel } from "@/common/utils/timeframe";
 import { AvailableLiquidityTooltipContent } from "@/modules/market/components/AvailableLiquidityTooltip";
 import type { Market } from "@/modules/market/data/getMarket";
 import { extractMarketBorrowApy } from "@/modules/market/utils/extractMarketBorrowApy";
@@ -33,7 +34,7 @@ export function MarketKeyMetrics({ market }: MarketKeyMetricsProps) {
       borrowApyTooltip={
         <ApyTooltipContent
           type="borrow"
-          nativeApy={borrowApy.base}
+          apyAfterFees={borrowApy.afterFees}
           totalApy={borrowApy.total}
           rewards={borrowApy.rewards}
         />
@@ -82,7 +83,7 @@ function MarketKeyMetricsLayout({
       <MetricWithTooltip label="Available to Borrow" className="heading-4" tooltip={availableToBorrowTooltip}>
         {availableToBorrowValue}
       </MetricWithTooltip>
-      <MetricWithTooltip label="Borrow APY" className="heading-4" tooltip={borrowApyTooltip}>
+      <MetricWithTooltip label={rateLabel("Net Rate")} className="heading-4" tooltip={borrowApyTooltip}>
         {borrowApyValue}
       </MetricWithTooltip>
     </div>

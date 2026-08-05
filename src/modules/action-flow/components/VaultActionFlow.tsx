@@ -4,6 +4,7 @@ import { MetricChange } from "@/common/components/MetricChange";
 import { NumberFlowWithLoading } from "@/common/components/ui/number-flow";
 import { Skeleton } from "@/common/components/ui/skeleton";
 import { descaleBigIntToNumber } from "@/common/utils/format";
+import { rateLabel } from "@/common/utils/timeframe";
 import { ActionFlow, type ActionFlowProps } from "@/modules/action-flow/components/ActionFlow";
 import { AssetChangeSummary } from "@/modules/token/components/AssetChangeSummary";
 import type { Vault } from "@/modules/vault/data/getVault";
@@ -94,13 +95,12 @@ export function VaultActionSimulationMetrics({
         }
       />
       <MetricChange
-        name="APY"
+        name={rateLabel("Net APY")}
         initialValue={
           <ApyTooltip
             type="earn"
-            nativeApy={vault.apy.base}
+            apyAfterFees={vault.apy.afterFees}
             totalApy={vault.apy.total}
-            performanceFee={vault.apy.fee}
             rewards={vault.apy.rewards}
             triggerVariant="sm"
             sparkleSide="left"

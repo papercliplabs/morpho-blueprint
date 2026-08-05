@@ -73,7 +73,7 @@ function RewardsSelectorChain({
     return null;
   }
 
-  // Note: all rewards for a chain have the same chain (enforced by Whisk)
+  // Note: all rewards for a chain have the same chain (enforced upstream)
   const chainInfo = rewards[0]!.token.chain;
 
   return (

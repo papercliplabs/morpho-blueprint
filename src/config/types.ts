@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import type { Address, Chain } from "viem";
 import type { EventName } from "@/common/utils/trackEvent";
 import type { SUPPORTED_CHAIN_IDS, VAULT_TAG_OPTIONS } from "@/config";
-import type { Erc4626VaultProtocol } from "@/generated/gql/whisk/graphql";
+import type { Erc4626VaultProtocol } from "./vault-protocol";
 
 // You shouldn't modify this file unless deploying a fully custom fork (otherwise the app will likely break)
 
@@ -84,7 +84,16 @@ export interface AppConfig {
   };
 
   readonly reownProjectId: string; // Reown/wallet connect project ID. Get this from https://cloud.reown.com
-  readonly chainConfig: Record<SupportedChainId, { readonly chain: Chain; readonly rpcUrls: [string, ...string[]] }>; // Chain configuration for all chains your app supports
+  // Chain configuration for all chains your app supports.
+  // `iconSlug` (optional) names the chain's icon on the Morpho CDN
+  // (https://cdn.morpho.org/assets/chains/<slug>), overriding the built-in defaults in
+  // `getChainIconUrl` (which cover all demo chains). A slug without an extension resolves as .svg;
+  // a few CDN assets are .png only (e.g. "base.png", "world.png"). The GraphQL API serves no chain
+  // icon, so a chain with no slug and no default simply renders without one.
+  readonly chainConfig: Record<
+    SupportedChainId,
+    { readonly chain: Chain; readonly rpcUrls: [string, ...string[]]; readonly iconSlug?: string }
+  >;
   readonly maxRpcBatchSize: number; // Maximum number of RPC calls to batch in a single http request
 
   readonly supportedVaults: Record<SupportedChainId, VaultConfig[]>; // Config for all supported vaults which will appear in the earn page table.

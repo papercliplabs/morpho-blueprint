@@ -1,24 +1,15 @@
 "use client";
 
-import { useId, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { CartesianGrid, ComposedChart, Line, ReferenceLine, XAxis, YAxis } from "recharts";
 import { Card } from "@/common/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/common/components/ui/chart";
+import { CHART_RANGES, DAY, type DataRange, WEEK } from "@/common/utils/chart-ranges";
 import { formatNumber } from "@/common/utils/format";
-import { Sparkles } from "../ui/icons/Sparkles";
-import { Label } from "../ui/label";
-import { Switch } from "../ui/switch";
 import { ChartHeader } from "./ChartHeader";
 import { CurrencySelector } from "./CurrencySelector";
-import { type DataRange, DateSelector, periods } from "./DateSelector";
-import {
-  calculateDataInterval,
-  DAY,
-  getMinX,
-  NO_DATA_POINT_THRESHOLD,
-  prepareChartDataWithDomain,
-  WEEK,
-} from "./data-domain";
+import { DateSelector } from "./DateSelector";
+import { calculateDataInterval, getMinX, NO_DATA_POINT_THRESHOLD, prepareChartDataWithDomain } from "./data-domain";
 import { type TabOptions, TabSelector } from "./TabSelector";
 import type { DataEntry, HistoricalData } from "./types";
 import { useIntervalX } from "./useIntervalX";
@@ -37,7 +28,6 @@ export function DataChart<D extends DataEntry>(props: Props<D>) {
 
   const [range, setRange] = useState<DataRange>(initialRange ?? "1W");
   const [tab, setTab] = useState<Exclude<keyof D, "bucketTimestamp">>(defaultTab);
-  const [withRewards, setWithRewards] = useState(false);
 
   const tabOption = tabOptions?.find((t) => t.key === tab);
   const isTokenAmount = tabOption?.type === "tokenAmount";
@@ -53,13 +43,17 @@ export function DataChart<D extends DataEntry>(props: Props<D>) {
       return (isUsd ? "usd" : "formatted") as keyof D[Exclude<keyof D, "bucketTimestamp">];
     }
     if (isApy) {
-      return (withRewards ? "total" : "base") as keyof D[Exclude<keyof D, "bucketTimestamp">];
+      return "total" as keyof D[Exclude<keyof D, "bucketTimestamp">];
     }
     throw new Error(`Invalid data ${tab.toString()}`);
-  }, [tab, withRewards, isTokenAmount, isApy, isUsd]);
+  }, [tab, isTokenAmount, isApy, isUsd]);
 
-  const data = prepareChartDataWithDomain(allData[periods[range]], range, field);
-  const hasData = data.length > NO_DATA_POINT_THRESHOLD;
+  const data = prepareChartDataWithDomain(allData[CHART_RANGES[range].resolution], range, field);
+  // Count rows where the selected metric actually has a sample: an all-null series (e.g. an APY
+  // window on a market younger than it) must show the insufficient-data state, not a blank chart.
+  const hasData =
+    data.filter((d) => (d[tab] as Record<string, unknown> | undefined)?.[field as string] != null).length >
+    NO_DATA_POINT_THRESHOLD;
 
   function formatValue(value: number, options: Intl.NumberFormatOptions = {}) {
     return formatNumber(value, {
@@ -74,19 +68,11 @@ export function DataChart<D extends DataEntry>(props: Props<D>) {
   const label = tabOption?.title;
   const lastItem = data[data.length - 1];
 
-  const value = isTokenAmount
-    ? tabOption?.[isUsd ? "usdValue" : "underlyingAssetValue"]
-    : tabOption?.[withRewards ? "totalApy" : "baseApy"];
+  const value = isTokenAmount ? tabOption?.[isUsd ? "usdValue" : "underlyingAssetValue"] : tabOption?.totalApy;
 
   const hasUsdData = isTokenAmount && data.some((d) => (d[tab] as { usd: number | null }).usd !== null);
-  const hasRewardsData = isApy && data.some((d) => (d[tab] as { totalApy: number | null }).totalApy !== null);
 
-  const minX = getMinX(allData[periods[range]], range);
-  const average = calculateAverage(
-    allData[periods[range]].filter((d) => d.bucketTimestamp >= minX).map((d) => Number(d[tab][field])),
-  );
-
-  const rewardsId = useId();
+  const average = isApy ? tabOption.averageApy[range] : null;
 
   if (!initialRange) {
     return null;
@@ -102,15 +88,6 @@ export function DataChart<D extends DataEntry>(props: Props<D>) {
             currency={currency!}
             setCurrency={setCurrency}
           />
-        )}
-        {/* Note: Disabled rewards toggle for now as our historical APY data does not currently include rewards */}
-        {hasRewardsData && false && (
-          <div className="flex items-center space-x-2">
-            <Switch id={rewardsId} checked={withRewards} onCheckedChange={setWithRewards} />
-            <Label htmlFor={rewardsId} className="flex items-center gap-1">
-              With Rewards <Sparkles className="size-4 text-accent-foreground" />
-            </Label>
-          </div>
         )}
       </header>
 
@@ -180,7 +157,7 @@ export function DataChart<D extends DataEntry>(props: Props<D>) {
                   connectNulls={true}
                   type="monotone"
                 />
-                {isApy && (
+                {average !== null && (
                   <ReferenceLine
                     y={average}
                     stroke="var(--input)"
@@ -221,15 +198,12 @@ export function DataChart<D extends DataEntry>(props: Props<D>) {
 
 function formatXAxis(timestamp: number, range: DataRange) {
   return new Intl.DateTimeFormat("en-US", {
-    day: range === "All" || range === "6M" ? undefined : "numeric",
+    // 3M spans ~3 months over ~7 ticks, so month-only labels would repeat; only All is coarse
+    // enough to drop the day.
+    day: range === "All" ? undefined : "numeric",
     month: "short",
     year: range === "All" ? "numeric" : undefined,
   }).format(new Date(timestamp * 1000));
-}
-
-function calculateAverage(data: number[]): number {
-  if (data.length === 0) return 0;
-  return data.reduce((acc, d) => acc + Number(d), 0) / data.length;
 }
 
 function parseDataRanges<D extends DataEntry>(data: HistoricalData<D>) {
@@ -250,14 +224,12 @@ function parseDataRanges<D extends DataEntry>(data: HistoricalData<D>) {
   const selectableRanges: DataRange[] = [];
   if (fullDomain >= WEEK) selectableRanges.push("1W");
   if (fullDomain >= WEEK) selectableRanges.push("1M");
-  if (fullDomain >= 30 * DAY) selectableRanges.push("6M");
-  if (fullDomain >= 6 * 30 * DAY) selectableRanges.push("All");
+  if (fullDomain >= 30 * DAY) selectableRanges.push("3M");
+  if (fullDomain >= 90 * DAY) selectableRanges.push("All");
 
   // Pick the largest range with enough points
   for (const range of selectableRanges) {
-    const series = range === "All" ? data.weekly : range === "6M" || range === "1M" ? data.daily : data.hourly;
-
-    const length = estimatePreparedLength(series, range);
+    const length = estimatePreparedLength(data[CHART_RANGES[range].resolution], range);
     if (length > NO_DATA_POINT_THRESHOLD) {
       initialRange = range;
       availableRanges.push(range);

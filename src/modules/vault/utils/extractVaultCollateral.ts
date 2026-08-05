@@ -26,26 +26,28 @@ export function extractVaultCollateral(vault: VaultSummary): Array<VaultCollater
       const allocationsBySymbol = new Map<string, VaultCollateral>();
       const vaultV2TotalAssetsUsd = vault.totalAssets?.usd ?? 0;
 
-      for (const adapter of vault.adapters) {
-        if (adapter.__typename === "VaultV1Adapter" && adapter.vault) {
-          const totalAllocation = Number(adapter.adapterCap?.allocation.formatted ?? 0);
-          const vaultV1TotalAssets = Number(adapter.vault?.totalAssets?.formatted ?? 0);
-          const allocationPercent = vaultV1TotalAssets > 0 ? totalAllocation / vaultV1TotalAssets : 0;
+      for (const adapter of vault.allocations) {
+        if (adapter.__typename !== "Erc4626VaultAdapter") continue;
+        const morphoVault = adapter.vault;
+        if (!morphoVault || morphoVault.__typename !== "MorphoVault") continue;
 
-          for (const { market, position, enabled } of adapter.vault.marketAllocations) {
-            if (!enabled || !market.collateralAsset) continue;
+        const totalAllocation = Number(adapter.adapterCap?.allocation.formatted ?? 0);
+        const vaultV1TotalAssets = Number(morphoVault.totalAssets?.formatted ?? 0);
+        const allocationPercent = vaultV1TotalAssets > 0 ? totalAllocation / vaultV1TotalAssets : 0;
 
-            const supplyUsd = (position.supplyAmount.usd ?? 0) * allocationPercent;
-            const existing = allocationsBySymbol.get(market.collateralAsset.symbol);
-            const totalSupplyUsd = (existing?.supplyUsd ?? 0) + supplyUsd;
-            allocationsBySymbol.set(market.collateralAsset.symbol, {
-              icon: market.collateralAsset.icon,
-              name: market.collateralAsset.name,
-              symbol: market.collateralAsset.symbol,
-              supplyUsd: totalSupplyUsd,
-              vaultSupplyShare: vaultV2TotalAssetsUsd > 0 ? totalSupplyUsd / vaultV2TotalAssetsUsd : 0,
-            });
-          }
+        for (const { market, position, enabled } of morphoVault.marketAllocations) {
+          if (!enabled || !market.collateralAsset) continue;
+
+          const supplyUsd = (position.supplyAmount.usd ?? 0) * allocationPercent;
+          const existing = allocationsBySymbol.get(market.collateralAsset.symbol);
+          const totalSupplyUsd = (existing?.supplyUsd ?? 0) + supplyUsd;
+          allocationsBySymbol.set(market.collateralAsset.symbol, {
+            icon: market.collateralAsset.icon,
+            name: market.collateralAsset.name,
+            symbol: market.collateralAsset.symbol,
+            supplyUsd: totalSupplyUsd,
+            vaultSupplyShare: vaultV2TotalAssetsUsd > 0 ? totalSupplyUsd / vaultV2TotalAssetsUsd : 0,
+          });
         }
       }
 

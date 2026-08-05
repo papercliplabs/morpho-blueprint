@@ -4,12 +4,13 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { ApyTooltip } from "@/common/components/ApyToolip";
 import NumberFlow from "@/common/components/ui/number-flow";
 import { Table } from "@/common/components/ui/table";
-import type { MorphoVaultV1DetailsFragment } from "@/generated/gql/whisk/graphql";
+import { rateLabel } from "@/common/utils/timeframe";
 import { MarketName } from "@/modules/market/components/MarketName";
 import { extractMarketSupplyApy } from "@/modules/market/utils/extractMarketSupplyApy";
 import { TotalSupplyTooltip } from "@/modules/vault/components/TotalSupplyTooltip";
+import type { VaultMarketAllocation } from "@/modules/vault/vault.types";
 
-type MorphoV1MarketAllocation = NonNullable<MorphoVaultV1DetailsFragment["marketAllocations"][number]>;
+type MorphoV1MarketAllocation = VaultMarketAllocation;
 
 interface Props {
   allocations: MorphoV1MarketAllocation[];
@@ -29,7 +30,7 @@ const columns: ColumnDef<MorphoV1MarketAllocation>[] = [
           {...market}
           collateralAssetClassName="border-[var(--row-color)]"
           loanAssetClassName="border-[var(--row-color)]"
-          loanAssetChainClassName="border-[var(--row-color)]"
+          loanAssetChainClassName="border-[var(--row-color)] bg-[var(--row-color)]"
           lltv={Number(market.lltv?.formatted ?? "0")}
         />
       );
@@ -65,14 +66,14 @@ const columns: ColumnDef<MorphoV1MarketAllocation>[] = [
   {
     id: "supplyApy",
     accessorFn: (row) => extractMarketSupplyApy(row.market).total,
-    header: "Supply APY",
+    header: rateLabel("Net APY"),
     cell: ({ row }) => {
       const { market } = row.original;
       const supplyApy = extractMarketSupplyApy(market);
       return (
         <ApyTooltip
-          type="earn"
-          nativeApy={supplyApy.base}
+          type="marketSupply"
+          apyAfterFees={supplyApy.afterFees}
           totalApy={supplyApy.total}
           rewards={supplyApy.rewards}
           triggerVariant="sm"

@@ -35,13 +35,17 @@ export function MarketPositionHighlight({ market }: MarketPositionHighlightProps
         />
         <div className="flex items-center gap-1">
           {/* TODO: make AssetIcon component... */}
-          <Image
-            src={market.loanAsset.icon ?? ""}
-            alt={market.loanAsset.symbol}
-            width={12}
-            height={12}
-            className="size-3 shrink-0 rounded-full border border-border"
-          />
+          {/* `logoURI` is null until the asset is curated upstream, so render nothing rather than
+              handing next/image an empty src. */}
+          {market.loanAsset.icon && (
+            <Image
+              src={market.loanAsset.icon}
+              alt={market.loanAsset.symbol}
+              width={12}
+              height={12}
+              className="size-3 shrink-0 rounded-full border border-border"
+            />
+          )}
           <NumberFlowWithLoading
             value={data ? Number(data.borrowAmount.formatted) : undefined}
             loadingContent={<Skeleton className="h-[15px] w-[40px]" />}

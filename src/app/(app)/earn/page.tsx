@@ -76,13 +76,15 @@ async function VaultFiltersWrapper() {
       value: vault.chain.name,
       component: (
         <>
-          <Image
-            src={vault.chain.icon}
-            alt={vault.chain.name}
-            width={24}
-            height={24}
-            className="size-6 rounded-[4px]"
-          />
+          {vault.chain.icon && (
+            <Image
+              src={vault.chain.icon}
+              alt={vault.chain.name}
+              width={24}
+              height={24}
+              className="size-6 rounded-full"
+            />
+          )}
           {vault.chain.name}
         </>
       ),

@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import { Badge } from "@/common/components/ui/badge";
 import NumberFlow from "@/common/components/ui/number-flow";
-import type { ChainInfo, TokenInfo } from "@/common/data/fragments";
+import type { ChainInfo, TokenInfo } from "@/common/data/types";
 import { TokenIcon } from "@/modules/token/components/TokenIcon";
 
 interface MarketIdentifierProps {

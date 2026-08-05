@@ -4,6 +4,7 @@ import { ApyTooltipContent, ApyTooltipTrigger } from "@/common/components/ApyToo
 import { MetricWithTooltip } from "@/common/components/Metric";
 import NumberFlow from "@/common/components/ui/number-flow";
 import { Skeleton } from "@/common/components/ui/skeleton";
+import { rateLabel } from "@/common/utils/timeframe";
 import type { Vault } from "@/modules/vault/data/getVault";
 import { extractVaultLiquidity } from "@/modules/vault/utils/extractVaultLiquidity";
 
@@ -23,9 +24,8 @@ export async function VaultKeyMetrics({ vaultPromise }: VaultKeyMetricsProps) {
       supplyApyTooltip={
         <ApyTooltipContent
           type="earn"
-          nativeApy={vault.apy.base}
+          apyAfterFees={vault.apy.afterFees}
           totalApy={vault.apy.total}
-          performanceFee={vault.apy.fee}
           rewards={vault.apy.rewards}
         />
       }
@@ -74,7 +74,7 @@ function VaultKeyMetricsLayout({
       >
         {availableLiquidityValue}
       </MetricWithTooltip>
-      <MetricWithTooltip label="Supply APY" className="heading-4" tooltip={supplyApyTooltip}>
+      <MetricWithTooltip label={rateLabel("Net APY")} className="heading-4" tooltip={supplyApyTooltip}>
         {supplyApyValue}
       </MetricWithTooltip>
     </div>

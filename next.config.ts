@@ -7,19 +7,16 @@ const cspHeader = `
         'unsafe-inline'
         https://plausible.paperclip.xyz;
     style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-    img-src * 'self' data: blob: 
-        https://walletconnect.org 
+    img-src * 'self' data: blob:
+        https://walletconnect.org
         https://walletconnect.com
         https://secure.walletconnect.com
         https://secure.walletconnect.org
-        https://tokens-data.1inch.io 
+        https://tokens-data.1inch.io
         https://tokens.1inch.io
         https://ipfs.io
         https://cdn.zerion.io
-        https://cdn.whisk.so
-        https://cdn.morpho.org
-        https://raw.githubusercontent.com/trustwallet/assets/**
-        https://coin-images.coingecko.com/coins/images/**;
+        https://cdn.morpho.org;
     font-src 'self' https://fonts.gstatic.com;
     object-src 'none';
     base-uri 'self';
@@ -112,32 +109,30 @@ const nextConfig: NextConfig = {
     ];
   },
   images: {
+    // Token logos, curator images and chain icons all come from cdn.morpho.org, sourced from the
+    // curated morpho-blue-api-metadata repo.
     remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "raw.githubusercontent.com",
-        port: "",
-        pathname: "/trustwallet/assets/**",
-      },
-      {
-        protocol: "https",
-        hostname: "coin-images.coingecko.com",
-        port: "",
-        pathname: "/coins/images/**",
-      },
       {
         protocol: "https",
         hostname: "cdn.morpho.org",
         port: "",
         pathname: "**",
       },
+      // Merkl reward token and chain icons
       {
         protocol: "https",
-        hostname: "cdn.whisk.so",
+        hostname: "storage.googleapis.com",
         port: "",
-        pathname: "**",
+        pathname: "/merkl-static-assets/**",
       },
     ],
+    // Chain icons are served as .svg, and next/image 400s on SVG upstreams unless this is set.
+    // Next already forces `Content-Disposition: attachment` on optimizer responses by default, so
+    // that needs no override; the CSP below is its default (`script-src 'none'; frame-src 'none';
+    // sandbox;`) plus `default-src 'self'`, which also pins the subresources a rendered SVG may
+    // fetch. Weakening either directive re-opens the optimizer as a same-origin XSS sink.
+    dangerouslyAllowSVG: true,
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; frame-src 'none'; sandbox;",
   },
 };
 

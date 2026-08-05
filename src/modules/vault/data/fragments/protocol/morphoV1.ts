@@ -1,106 +1,116 @@
-import { graphql } from "@/generated/gql/whisk";
+import { graphql } from "@/generated/gql/morpho";
 
 graphql(`
-  fragment MorphoVaultV1Details on MorphoVault {
+  fragment MorphoVaultV1SummaryFragment on Vault {
+    address
+    name
+    asset {
+      ...AssetInfoWithPriceFragment
+    }
+    chain {
+      ...ChainInfoFragment
+    }
     metadata {
       description
-      curator {
-        image
-        name
-        url
+    }
+    state {
+      totalAssets
+      totalAssetsUsd
+      fee
+      avgNetApy(lookback: $lookbackV1)
+      avgNetApyExcludingRewards(lookback: $lookbackV1)
+      allRewards {
+        ...VaultRewardFragment
+      }
+      curators {
+        ...CuratorInfoFragment
       }
     }
+  }
 
-    totalLiquidity {
+  fragment MorphoVaultV1CollateralFragment on Vault {
+    state {
+      totalAssets
+      allocation {
+        ...VaultCollateralAllocationFragment
+      }
+    }
+  }
+
+  # Realized net APY over each range the chart offers, computed by the API from share-price
+  # evolution. Detail-only: the earn list never renders a chart.
+  fragment MorphoVaultV1DetailsFragment on Vault {
+    liquidity {
+      underlying
       usd
     }
-
-    performanceFeeRaw: performanceFee
-    feeRecipientAddress
-    ownerAddress
-    curatorAddress
-    guardianAddress
-
-    ...MorphoVaultV1MarketAllocation
-      
-    historical {
-      hourly {
-        ...VaultHistoricalEntryFragment
-      }
-      daily {
-        ...VaultHistoricalEntryFragment
-      }
-      weekly {
-        ...VaultHistoricalEntryFragment
+    state {
+      avgNetApy7d: avgNetApy(lookback: SEVEN_DAYS)
+      avgNetApy30d: avgNetApy(lookback: THIRTY_DAYS)
+      avgNetApy90d: avgNetApy(lookback: NINETY_DAYS)
+      avgNetApyInception: avgNetApy(lookback: INCEPTION)
+      feeRecipient
+      owner
+      curator
+      guardian
+      allocation {
+        ...VaultAllocationFragment
       }
     }
   }
 
-  fragment MorphoVaultV1Collateral on MorphoVault {
-    ... on MorphoVault {        
-      marketAllocations {
-        enabled
-        vaultSupplyShare
-        position {
-          supplyAmount {
-            usd
-          }
-        }
-        market {
-          collateralAsset {
-            icon
-            name
-            symbol
-          }
-        }
+  # The same vault V1 shape, as held through a vault V2 MetaMorpho adapter.
+  fragment UnderlyingMorphoVaultV1Fragment on Vault {
+    address
+    name
+    chain {
+      ...ChainInfoFragment
+    }
+    asset {
+      ...AssetInfoFragment
+    }
+    state {
+      totalAssets
+      totalAssetsUsd
+      avgNetApy(lookback: $lookbackV1)
+      avgNetApyExcludingRewards(lookback: $lookbackV1)
+      allRewards {
+        ...VaultRewardFragment
+      }
+      allocation {
+        ...VaultAllocationFragment
       }
     }
   }
+`);
 
-  fragment MorphoVaultV1MarketAllocation on MorphoVault {
-    marketAllocations {
-      enabled
-      market {
-        marketId
-        chain {
-          ...ChainInfoFragment
-        }
-        isIdle
-        name
-        lltv {
-          raw
-          formatted
-        }
-        collateralAsset {
-          ...TokenInfoFragment
-        }
-        loanAsset {
-          ...TokenInfoFragment
-        }
-        supplyApy1d {
-          ...ApyFragment
-        }
-        supplyApy7d {
-          ...ApyFragment
-        }
-        supplyApy30d {
-          ...ApyFragment
-        }
-      }
-      position {
-        supplyAmount {
-          raw
-          formatted
-          usd
-        }
-        supplyShares
-      }
-      supplyCap {
-        raw
-        formatted
-        usd
-      }
-      vaultSupplyShare
+graphql(`
+  # Vault V1 chart series for one chart resolution. The interval and time range are passed in as
+  # \`options\`, so the same document serves hourly / daily / weekly.
+  fragment MorphoVaultV1HistoryFragment on VaultHistory {
+    totalAssets(options: $options) {
+      x
+      y
+    }
+    totalAssetsUsd(options: $options) {
+      x
+      y
+    }
+    netApy(options: $options) {
+      x
+      y
+    }
+    dailyNetApy(options: $options) {
+      x
+      y
+    }
+    weeklyNetApy(options: $options) {
+      x
+      y
+    }
+    monthlyNetApy(options: $options) {
+      x
+      y
     }
   }
 `);

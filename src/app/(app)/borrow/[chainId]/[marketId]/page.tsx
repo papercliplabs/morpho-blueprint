@@ -8,6 +8,8 @@ import { BreakcrumbBack } from "@/common/components/ui/breakcrumb-back";
 import { Button } from "@/common/components/ui/button";
 import { Card, CardHeader } from "@/common/components/ui/card";
 import { Skeleton } from "@/common/components/ui/skeleton";
+import { DATA_RANGES, type DataRange } from "@/common/utils/chart-ranges";
+import { rateLabel } from "@/common/utils/timeframe";
 import { APP_CONFIG } from "@/config";
 import type { SupportedChainId } from "@/config/types";
 import { IrmChart } from "@/modules/market/components/IrmChart";
@@ -238,39 +240,39 @@ async function MarketHistoricalApyChartWrapper({ chainId, marketId }: MarketIden
   }
 
   let key: "borrowApy1d" | "borrowApy7d" | "borrowApy30d";
-  let baseApy: number;
   let totalApy: number;
   switch (APP_CONFIG.apyWindow) {
     case "1d":
       key = "borrowApy1d";
-      baseApy = market.borrowApy1d.base;
       totalApy = market.borrowApy1d.total;
       break;
     case "7d":
       key = "borrowApy7d";
-      baseApy = market.borrowApy7d.base;
       totalApy = market.borrowApy7d.total;
       break;
     case "30d":
       key = "borrowApy30d";
-      baseApy = market.borrowApy30d.base;
       totalApy = market.borrowApy30d.total;
       break;
   }
 
+  // The API serves no realized borrow-APY averages (those are a vault concept), so no reference
+  // line is drawn for any range.
+  const averageApy = Object.fromEntries(DATA_RANGES.map((range) => [range, null])) as Record<DataRange, null>;
+
   return (
     <DataChart
       data={market.historical}
-      title={`Native Borrow Rate (${APP_CONFIG.apyWindow})`}
+      title="Borrow APY"
       defaultTab={key}
       tabOptions={[
         {
           type: "apy",
           key,
-          description: "Native borrow APY (exluding rewards and fees).",
-          title: `Native rate (${APP_CONFIG.apyWindow})`,
-          baseApy,
+          description: "Net borrow APY, including rewards.",
+          title: rateLabel("Net Borrow APY"),
           totalApy,
+          averageApy,
         },
       ]}
     />

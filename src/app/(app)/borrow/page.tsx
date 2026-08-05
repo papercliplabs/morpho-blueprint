@@ -71,13 +71,15 @@ async function MarketFiltersWrapper() {
       value: marketSummary.chain.name,
       component: (
         <>
-          <Image
-            src={marketSummary.chain.icon}
-            alt={marketSummary.chain.name}
-            width={24}
-            height={24}
-            className="size-6 rounded-[4px]"
-          />
+          {marketSummary.chain.icon && (
+            <Image
+              src={marketSummary.chain.icon}
+              alt={marketSummary.chain.name}
+              width={24}
+              height={24}
+              className="size-6 rounded-[4px]"
+            />
+          )}
           {marketSummary.chain.name}
         </>
       ),

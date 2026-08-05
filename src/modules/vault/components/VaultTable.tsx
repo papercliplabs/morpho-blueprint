@@ -6,6 +6,7 @@ import { Avatar } from "@/common/components/ui/avatar";
 import { Badge } from "@/common/components/ui/badge";
 import { Table } from "@/common/components/ui/table";
 import { sortTableAssetAmount } from "@/common/utils/sort";
+import { rateLabel } from "@/common/utils/timeframe";
 import { APP_CONFIG } from "@/config";
 import type { SupportedChainId } from "@/config/types";
 import { TableAssetAmount } from "@/modules/token/components/TableAssetAmount";
@@ -37,7 +38,7 @@ function getColumns(isPositionLoading: boolean): Column[] {
             chain={vaultSummary.chain}
             name={vaultSummary.name}
             asset={vaultSummary.asset}
-            chainClassName="border-[var(--row-color)]"
+            chainClassName="border-[var(--row-color)] bg-[var(--row-color)]"
           />
         );
       },
@@ -161,15 +162,14 @@ function getColumns(isPositionLoading: boolean): Column[] {
     {
       id: "supplyApy",
       accessorFn: (row) => row.vaultSummary.apy.total,
-      header: "Supply APY",
+      header: rateLabel("Net APY"),
       cell: ({ row }) => {
         const { apy } = row.original.vaultSummary;
         return (
           <ApyTooltip
             type="earn"
-            nativeApy={apy.base}
+            apyAfterFees={apy.afterFees}
             totalApy={apy.total}
-            performanceFee={apy.fee}
             rewards={apy.rewards}
             triggerVariant="sm"
           />

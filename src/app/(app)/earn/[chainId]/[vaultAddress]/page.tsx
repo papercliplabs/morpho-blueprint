@@ -9,7 +9,7 @@ import { Card, CardHeader } from "@/common/components/ui/card";
 import { Skeleton } from "@/common/components/ui/skeleton";
 import { APP_CONFIG } from "@/config";
 import type { SupportedChainId } from "@/config/types";
-import { Erc4626VaultProtocol } from "@/generated/gql/whisk/graphql";
+import { Erc4626VaultProtocol } from "@/config/vault-protocol";
 import { MorphoV1VaultPageContent } from "@/modules/vault/components/morpho-v1/MorphoV1VaultPageContent";
 import { MorphoV2VaultPageContent } from "@/modules/vault/components/morpho-v2/MorphoV2VaultPageContent";
 import { VaultAboutCard } from "@/modules/vault/components/VaultAboutCard";

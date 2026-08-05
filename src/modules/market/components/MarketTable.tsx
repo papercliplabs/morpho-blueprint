@@ -5,6 +5,7 @@ import NumberFlow, { NumberFlowWithLoading } from "@/common/components/ui/number
 import { Skeleton } from "@/common/components/ui/skeleton";
 import { Table } from "@/common/components/ui/table";
 import { sortTableAssetAmount } from "@/common/utils/sort";
+import { rateLabel } from "@/common/utils/timeframe";
 import type { MarketSummary } from "@/modules/market/data/getMarketSummaries";
 import { type MarketTableDataEntry, useMarketTableData } from "@/modules/market/hooks/useMarketTableData";
 import { extractMarketBorrowApy } from "@/modules/market/utils/extractMarketBorrowApy";
@@ -29,7 +30,7 @@ function getColumns(isPositionLoading: boolean): ColumnDef<MarketTableDataEntry>
               token={marketSummary.collateralAsset}
               chain={marketSummary.chain}
               size="md"
-              chainClassName="border-[var(--row-color)]"
+              chainClassName="border-[var(--row-color)] bg-[var(--row-color)]"
             />
             <span className="body-medium-plus truncate">{marketSummary.collateralAsset.symbol}</span>
           </div>
@@ -51,7 +52,7 @@ function getColumns(isPositionLoading: boolean): ColumnDef<MarketTableDataEntry>
               token={marketSummary.loanAsset}
               chain={marketSummary.chain}
               size="md"
-              chainClassName="border-[var(--row-color)]"
+              chainClassName="border-[var(--row-color)] bg-[var(--row-color)]"
             />
             <span className="body-medium-plus truncate">{marketSummary.loanAsset.symbol}</span>
           </div>
@@ -136,14 +137,14 @@ function getColumns(isPositionLoading: boolean): ColumnDef<MarketTableDataEntry>
     {
       id: "borrowApy",
       accessorFn: (row) => extractMarketBorrowApy(row.marketSummary).total,
-      header: "Borrow APY",
+      header: rateLabel("Net Rate"),
       cell: ({ row }) => {
         const { marketSummary } = row.original;
         const apy = extractMarketBorrowApy(marketSummary);
         return (
           <ApyTooltip
             type="borrow"
-            nativeApy={apy.base}
+            apyAfterFees={apy.afterFees}
             totalApy={apy.total}
             rewards={apy.rewards}
             triggerVariant="sm"

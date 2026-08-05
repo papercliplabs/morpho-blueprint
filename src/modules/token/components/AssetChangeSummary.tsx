@@ -1,5 +1,5 @@
 import { Avatar } from "@/common/components/ui/avatar";
-import type { TokenInfo } from "@/common/data/fragments";
+import type { TokenInfo } from "@/common/data/types";
 import { formatNumber } from "@/common/utils/format";
 import { cn } from "@/common/utils/shadcn";
 
