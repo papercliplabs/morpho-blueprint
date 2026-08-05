@@ -137,6 +137,13 @@ const nextConfig: NextConfig = {
         port: "",
         pathname: "**",
       },
+      // Merkl reward token and chain icons
+      {
+        protocol: "https",
+        hostname: "storage.googleapis.com",
+        port: "",
+        pathname: "/merkl-static-assets/**",
+      },
     ],
   },
 };
