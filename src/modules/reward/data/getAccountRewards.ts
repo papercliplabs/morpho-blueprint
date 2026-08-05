@@ -112,7 +112,8 @@ function isSupportedChainId(chainId: number): chainId is SupportedChainId {
 }
 
 function breakdownsUrl(accountAddress: Address, chainIds: readonly number[]): URL {
-  const url = new URL(`${MERKL_API_BASE_URL}/users/${getAddress(accountAddress)}/rewards/breakdowns`);
+  // `getAddress` validates; Merkl's API contract wants the path address lowercase.
+  const url = new URL(`${MERKL_API_BASE_URL}/users/${getAddress(accountAddress).toLowerCase()}/rewards/breakdowns`);
   // `chainIds` is required and plural, the singular form is rejected with a 400
   for (const chainId of chainIds) {
     url.searchParams.append("chainIds", chainId.toString());
@@ -164,6 +165,12 @@ export const getAccountRewards = async (accountAddress: Address): Promise<MerklA
       // `claimableOnly=true` should already guarantee this, but the distributor would revert on a zero claim
       const claimable = reward.amount - reward.claimed;
       if (claimable <= 0n) {
+        continue;
+      }
+
+      // A claimable entry with no Merkle proof cannot be claimed — including it would revert the
+      // whole chain-wide claim batch instead of just skipping this reward.
+      if (reward.proofs.length === 0) {
         continue;
       }
 
